@@ -5,6 +5,7 @@ export class MainMenu extends UIComponent {
   private titleText: Text;
   private startButton: Graphics;
   private startButtonText: Text;
+  private onStartCallback: (() => void) | null = null;
   
   constructor() {
     super();
@@ -53,7 +54,13 @@ export class MainMenu extends UIComponent {
   }
   
   private onStartClicked(): void {
-    // This would trigger a game state change to PLAYING
     console.log('Start button clicked');
+    if (this.onStartCallback) {
+      this.onStartCallback();
+    }
+  }
+  
+  public setStartCallback(callback: () => void): void {
+    this.onStartCallback = callback;
   }
 }

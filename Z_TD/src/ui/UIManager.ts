@@ -1,6 +1,8 @@
 import { Application } from 'pixi.js';
 import { UIComponent } from './UIComponent';
 import { GameConfig } from '../config/gameConfig';
+import { HUD } from './HUD';
+import { MainMenu } from './MainMenu';
 
 export class UIManager {
   private app: Application;
@@ -49,23 +51,48 @@ export class UIManager {
   }
   
   private updateComponentVisibility(): void {
-    // This would be implemented to show/hide UI components based on the current game state
+    // Show/hide UI components based on the current game state
     switch (this.currentState) {
       case GameConfig.GAME_STATES.MAIN_MENU:
         // Show main menu components, hide game UI
+        this.setComponentVisibility('mainMenu', true);
+        this.setComponentVisibility('hud', false);
         break;
       case GameConfig.GAME_STATES.PLAYING:
         // Show game UI components, hide menu
+        this.setComponentVisibility('mainMenu', false);
+        this.setComponentVisibility('hud', true);
         break;
       case GameConfig.GAME_STATES.PAUSED:
         // Show pause menu
+        this.setComponentVisibility('mainMenu', false);
+        this.setComponentVisibility('hud', true);
         break;
       case GameConfig.GAME_STATES.GAME_OVER:
         // Show game over screen
+        this.setComponentVisibility('mainMenu', false);
+        this.setComponentVisibility('hud', false);
         break;
       case GameConfig.GAME_STATES.VICTORY:
         // Show victory screen
+        this.setComponentVisibility('mainMenu', false);
+        this.setComponentVisibility('hud', false);
         break;
     }
+  }
+  
+  private setComponentVisibility(name: string, visible: boolean): void {
+    const component = this.components.get(name);
+    if (component) {
+      if (visible) {
+        component.show();
+      } else {
+        component.hide();
+      }
+    }
+  }
+  
+  public getCurrentState(): string {
+    return this.currentState;
   }
 }

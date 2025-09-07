@@ -33,15 +33,34 @@ import { MainMenu } from "./ui/MainMenu";
   const mainMenu = new MainMenu();
   uiManager.registerComponent('mainMenu', mainMenu);
   
+  // Set up event handlers
+  mainMenu.setStartCallback(() => {
+    gameManager.startGame();
+    uiManager.setState(gameManager.getCurrentState());
+  });
+  
   // Initialize the game
   gameManager.init();
   
   // Listen for animate update
+  let lastTime = performance.now();
   app.ticker.add((time) => {
-    // Update game systems
-    // In a real implementation, this would call gameManager.update(time.deltaTime)
+    const currentTime = performance.now();
+    const deltaTime = (currentTime - lastTime) / 1000; // Convert to seconds
+    lastTime = currentTime;
+    
+    // Update game systems based on current state
+    if (gameManager.getCurrentState() === 'Playing') {
+      // Update game objects, towers, zombies, etc.
+      // This would be implemented in a full game
+    }
     
     // Update UI
-    uiManager.update(time.deltaTime);
+    uiManager.update(deltaTime);
+    
+    // Update HUD with current game state
+    hud.updateMoney(gameManager.getMoney());
+    hud.updateLives(gameManager.getLives());
+    hud.updateWave(gameManager.getWave());
   });
 })();

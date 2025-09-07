@@ -1,5 +1,8 @@
 import { Application } from 'pixi.js';
 import { GameConfig } from '../config/gameConfig';
+import { TowerManager } from './TowerManager';
+import { WaveManager } from './WaveManager';
+import { MapManager } from './MapManager';
 
 export class GameManager {
   private app: Application;
@@ -13,6 +16,9 @@ export class GameManager {
     metal: number;
     energy: number;
   };
+  private towerManager: TowerManager;
+  private waveManager: WaveManager;
+  private mapManager: MapManager;
   
   constructor(app: Application) {
     this.app = app;
@@ -26,6 +32,11 @@ export class GameManager {
       metal: 0,
       energy: 100
     };
+    
+    // Initialize managers
+    this.towerManager = new TowerManager();
+    this.waveManager = new WaveManager();
+    this.mapManager = new MapManager();
   }
   
   // Initialize the game
@@ -160,5 +171,18 @@ export class GameManager {
   
   public getState(): string {
     return this.currentState;
+  }
+  
+  // Get managers
+  public getTowerManager(): TowerManager {
+    return this.towerManager;
+  }
+  
+  public getWaveManager(): WaveManager {
+    return this.waveManager;
+  }
+  
+  public getMapManager(): MapManager {
+    return this.mapManager;
   }
 }

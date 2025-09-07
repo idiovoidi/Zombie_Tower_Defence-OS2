@@ -4,13 +4,19 @@ import { HealthComponent } from '../components/HealthComponent';
 import { GameConfig } from '../config/gameConfig';
 import { WaveManager } from '../managers/WaveManager';
 import { PathfindingManager } from '../managers/PathfindingManager';
+import { Graphics, Container } from 'pixi.js';
+import { VisualEffects } from '../utils/VisualEffects';
 
 export class Zombie extends GameObject {
   private type: string;
-  private speed: number;
-  private reward: number;
-  private currentWaypoint: number;
-  private waypoints: {x: number, y: number}[];
+  private speed: number = 0;
+  private reward: number = 0;
+  private currentWaypoint: number = 0;
+  private waypoints: {x: number, y: number}[] = [];
+  private visual: Graphics;
+  private healthBar: Container | null = null;
+  private healthBarBg: Graphics;
+  private healthBarFg: Graphics;
   
   constructor(type: string, x: number, y: number, wave: number) {
     super();
@@ -20,6 +26,25 @@ export class Zombie extends GameObject {
     // Add transform component
     const transform = new TransformComponent(x, y);
     this.addComponent(transform);
+    
+    // Create visual representation
+    this.visual = new Graphics();
+    this.visual.circle(0, 0, 15).fill(0x00ff00);
+    this.visual.stroke({ width: 2, color: 0x000000 });
+    this.addChild(this.visual);
+    
+    // Create health bar
+    this.healthBarBg = new Graphics();
+    this.healthBarBg.rect(-15, -25, 30, 5).fill(0xff0000);
+    
+    this.healthBarFg = new Graphics();
+    this.healthBarFg.rect(-15, -25, 30, 5).fill(0x00ff00);
+    
+    this.healthBar = new Container();
+    this.healthBar.addChild(this.healthBarBg);
+    this.healthBar.addChild(this.healthBarFg);
+    this.healthBar.visible = false; // Hide by default
+    this.addChild(this.healthBar);
     
     // Initialize zombie stats based on type and wave
     this.initializeStats(wave);
@@ -78,6 +103,18 @@ export class Zombie extends GameObject {
   public update(deltaTime: number): void {
     super.update(deltaTime);
     
+    // Update health bar
+    const healthComponent = this.getComponent<HealthComponent>('Health');
+    if (healthComponent && this.healthBar) {
+      const healthPercentage = healthComponent.getHealthPercentage();
+      this.healthBarFg.width = 30 * (healthPercentage / 100);
+      
+      // Show health bar when damaged
+      if (healthPercentage < 100) {
+        this.healthBar.visible = true;
+      }
+    }
+    
     // Move towards next waypoint
     this.moveTowardsWaypoint(deltaTime);
   }
@@ -111,6 +148,26 @@ export class Zombie extends GameObject {
       normalizedDx * this.speed,
       normalizedDy * this.speed
     );
+  }
+  
+  // Show damage indicator when taking damage
+  public takeDamage(damage: number): number {
+    const healthComponent = this.getComponent<HealthComponent>('Health');
+    if (healthComponent) {
+      const actualDamage = healthComponent.takeDamage(damage);
+      
+      // Show damage indicator
+      const transform = this.getComponent<TransformComponent>('Transform');
+      if (transform) {
+        const pos = transform.position;
+        // In a real implementation, we would add this to the game container
+        // VisualEffects.createDamageIndicator(this.parent, pos.x, pos.y - 30, actualDamage);
+        console.log(`Zombie took ${actualDamage} damage`);
+      }
+      
+      return actualDamage;
+    }
+    return 0;
   }
   
   // Check if zombie has reached the end

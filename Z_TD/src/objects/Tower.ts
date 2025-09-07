@@ -2,24 +2,34 @@ import { GameObject } from './GameObject';
 import { TransformComponent } from '../components/TransformComponent';
 import { GameConfig } from '../config/gameConfig';
 import { TowerManager } from '../managers/TowerManager';
+import { Graphics, Container } from 'pixi.js';
+import { TowerRangeVisualizer } from '../utils/TowerRangeVisualizer';
 
 export class Tower extends GameObject {
   private type: string;
-  private damage: number;
-  private range: number;
-  private fireRate: number; // shots per second
-  private lastShotTime: number;
-  private upgradeLevel: number;
+  private damage: number = 0;
+  private range: number = 0;
+  private fireRate: number = 0; // shots per second
+  private lastShotTime: number = 0;
+  private upgradeLevel: number = 1;
+  private visual: Graphics;
+  private rangeVisualizer: TowerRangeVisualizer;
   
   constructor(type: string, x: number, y: number) {
     super();
     this.type = type;
-    this.upgradeLevel = 1;
     this.lastShotTime = 0;
+    this.rangeVisualizer = TowerRangeVisualizer.getInstance();
     
     // Add transform component
     const transform = new TransformComponent(x, y);
     this.addComponent(transform);
+    
+    // Create visual representation
+    this.visual = new Graphics();
+    this.visual.circle(0, 0, 20).fill(0x0000ff);
+    this.visual.stroke({ width: 2, color: 0xffffff });
+    this.addChild(this.visual);
     
     // Initialize tower stats
     this.initializeStats();
@@ -57,6 +67,32 @@ export class Tower extends GameObject {
   public shoot(): void {
     this.lastShotTime = performance.now();
     // Shooting logic would be implemented here
+    
+    // Show visual effect for shooting
+    this.visual.clear();
+    this.visual.circle(0, 0, 20).fill(0xff0000);
+    this.visual.stroke({ width: 2, color: 0xffffff });
+    
+    // Reset color after a short delay
+    setTimeout(() => {
+      this.visual.clear();
+      this.visual.circle(0, 0, 20).fill(0x0000ff);
+      this.visual.stroke({ width: 2, color: 0xffffff });
+    }, 100);
+  }
+  
+  // Show tower range visualization
+  public showRange(container: Container): void {
+    const transform = this.getComponent<TransformComponent>('Transform');
+    if (transform) {
+      const pos = transform.position;
+      this.rangeVisualizer.showRange(container, pos.x, pos.y, this.range);
+    }
+  }
+  
+  // Hide tower range visualization
+  public hideRange(): void {
+    this.rangeVisualizer.hideRange();
   }
   
   // Upgrade the tower

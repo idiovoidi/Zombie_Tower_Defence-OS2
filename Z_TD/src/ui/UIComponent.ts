@@ -1,11 +1,12 @@
 import { Container } from 'pixi.js';
 
 export abstract class UIComponent extends Container {
-  protected visible: boolean;
+  // In Pixi.js v8, Container already has a visible property
+  // We don't need to declare it explicitly
   
   constructor() {
     super();
-    this.visible = true;
+    // The visible property is inherited from Container
   }
   
   public show(): void {
