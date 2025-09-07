@@ -1,5 +1,6 @@
 import { GameObject } from './GameObject';
 import { TransformComponent } from '../components/TransformComponent';
+import { HealthComponent } from '../components/HealthComponent';
 import { GameConfig } from '../config/gameConfig';
 import { TowerManager } from '../managers/TowerManager';
 import { Graphics, Container } from 'pixi.js';
@@ -49,6 +50,30 @@ export class Tower extends GameObject {
       this.range = 100;
       this.fireRate = 1;
     }
+    
+    // Add health component for tower durability (from design document)
+    // Different tower types could have different health values
+    let towerHealth = 100;
+    switch (this.type) {
+      case GameConfig.TOWER_TYPES.MACHINE_GUN:
+        towerHealth = 120;
+        break;
+      case GameConfig.TOWER_TYPES.SNIPER:
+        towerHealth = 80;
+        break;
+      case GameConfig.TOWER_TYPES.SHOTGUN:
+        towerHealth = 100;
+        break;
+      case GameConfig.TOWER_TYPES.FLAME:
+        towerHealth = 90;
+        break;
+      case GameConfig.TOWER_TYPES.TESLA:
+        towerHealth = 110;
+        break;
+    }
+    
+    const healthComponent = new HealthComponent(towerHealth);
+    this.addComponent(healthComponent);
   }
   
   public update(deltaTime: number): void {
@@ -102,6 +127,63 @@ export class Tower extends GameObject {
     const towerManager = new TowerManager();
     this.damage = towerManager.calculateTowerDamage(this.type, this.upgradeLevel);
     this.range = towerManager.calculateTowerRange(this.type, this.upgradeLevel);
+    
+    // When upgrading, also increase health
+    const healthComponent = this.getComponent<HealthComponent>('Health');
+    if (healthComponent) {
+      // Increase max health by 20% per upgrade level
+      const newMaxHealth = Math.floor(100 * Math.pow(1.2, this.upgradeLevel));
+      // Heal to full when upgraded
+      healthComponent['maxHealth'] = newMaxHealth; // Note: In a real implementation, we'd add a setter for maxHealth
+      healthComponent.heal(newMaxHealth); // This will set current health to max
+    }
+  }
+  
+  // Apply damage to the tower
+  public takeDamage(damage: number): number {
+    const healthComponent = this.getComponent<HealthComponent>('Health');
+    if (healthComponent) {
+      const actualDamage = healthComponent.takeDamage(damage);
+      
+      // Visual feedback for damage
+      this.visual.clear();
+      this.visual.circle(0, 0, 20).fill(0xff0000);
+      this.visual.stroke({ width: 2, color: 0xffffff });
+      
+      // Reset color after a short delay
+      setTimeout(() => {
+        this.visual.clear();
+        this.visual.circle(0, 0, 20).fill(0x0000ff);
+        this.visual.stroke({ width: 2, color: 0xffffff });
+      }, 100);
+      
+      return actualDamage;
+    }
+    return 0;
+  }
+  
+  // Check if tower is still alive
+  public isAlive(): boolean {
+    const healthComponent = this.getComponent<HealthComponent>('Health');
+    return healthComponent ? healthComponent.isAlive() : false;
+  }
+  
+  // Get current health
+  public getHealth(): number {
+    const healthComponent = this.getComponent<HealthComponent>('Health');
+    return healthComponent ? healthComponent.getHealth() : 0;
+  }
+  
+  // Get maximum health
+  public getMaxHealth(): number {
+    const healthComponent = this.getComponent<HealthComponent>('Health');
+    return healthComponent ? healthComponent.getMaxHealth() : 0;
+  }
+  
+  // Get health percentage
+  public getHealthPercentage(): number {
+    const healthComponent = this.getComponent<HealthComponent>('Health');
+    return healthComponent ? healthComponent.getHealthPercentage() : 0;
   }
   
   // Getters

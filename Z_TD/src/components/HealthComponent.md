@@ -1,14 +1,14 @@
-# Health Component System Design
+# Health Component System Documentation
 
-## 1. Overview
+## Overview
 
 The Health Component System is a core part of the Zombie Tower Defence game's Entity-Component architecture. It provides a standardized way to manage health, damage calculation, healing, and death events for all game entities that require health management, such as zombies and towers.
 
 This system implements the Entity-Component pattern, where the `HealthComponent` class extends the base `Component` class and can be attached to any `GameObject` to provide health-related functionality.
 
-## 2. Architecture
+## Architecture
 
-### 2.1 Component System Structure
+### Component System Structure
 
 The Health Component System follows the Entity-Component-System (ECS) architectural pattern:
 
@@ -63,7 +63,7 @@ Zombie --|> GameObject
 Tower --|> GameObject
 ```
 
-### 2.2 Core Properties
+### Core Properties
 
 The HealthComponent maintains three primary internal state variables:
 
@@ -73,9 +73,9 @@ The HealthComponent maintains three primary internal state variables:
 
 These properties are private to enforce encapsulation, with public accessor methods providing controlled read and write operations.
 
-## 3. Component Implementation
+## Component Implementation
 
-### 3.1 Constructor
+### Constructor
 
 The HealthComponent constructor initializes the health values:
 
@@ -88,7 +88,7 @@ constructor(maxHealth: number, armor: number = 0) {
 }
 ```
 
-### 3.2 Damage Calculation and Armor Mitigation
+### Damage Calculation and Armor Mitigation
 
 When an entity takes damage, the `takeDamage()` method computes the effective damage after applying armor reduction. The formula used is:
 
@@ -112,7 +112,7 @@ public takeDamage(damage: number): number {
 
 This ensures that even highly armored entities can be damaged, maintaining gameplay balance. The method returns the actual damage dealt, which can be used for visual effects or UI feedback.
 
-### 3.3 Healing and Health Management
+### Healing and Health Management
 
 The `heal()` method safely increases the current health without exceeding `maxHealth`, using `Math.min()` to cap the value:
 
@@ -141,7 +141,7 @@ public getHealthPercentage(): number {
 
 These methods support UI elements like health bars and death checks in game logic.
 
-### 3.4 Armor Management
+### Armor Management
 
 Armor values are clamped between 0 and 100 to prevent invalid states:
 
@@ -155,9 +155,9 @@ public getArmor(): number {
 }
 ```
 
-## 4. Entity Integration Examples
+## Entity Integration Examples
 
-### 4.1 Zombie Entity Initialization
+### Zombie Entity Integration
 
 In the `Zombie` class, the `HealthComponent` is instantiated during setup using wave-scaled health values from `WaveManager`.
 
@@ -170,22 +170,41 @@ private initializeStats(wave: number): void {
   const healthComponent = new HealthComponent(health);
   this.addComponent(healthComponent);
   
-  // Set speed based on type
+  // Set speed and reward based on type
   // ... rest of initialization
 }
 ```
 
-### 4.2 Tower Entity Integration
+### Tower Entity Integration
 
-Similarly, towers can use the HealthComponent for durability:
+Similarly, towers use the HealthComponent for durability:
 
 ```typescript
-// In Tower class constructor
+// In Tower class initializeStats method
+let towerHealth = 100;
+switch (this.type) {
+  case GameConfig.TOWER_TYPES.MACHINE_GUN:
+    towerHealth = 120;
+    break;
+  case GameConfig.TOWER_TYPES.SNIPER:
+    towerHealth = 80;
+    break;
+  case GameConfig.TOWER_TYPES.SHOTGUN:
+    towerHealth = 100;
+    break;
+  case GameConfig.TOWER_TYPES.FLAME:
+    towerHealth = 90;
+    break;
+  case GameConfig.TOWER_TYPES.TESLA:
+    towerHealth = 110;
+    break;
+}
+
 const healthComponent = new HealthComponent(towerHealth);
 this.addComponent(healthComponent);
 ```
 
-## 5. Damage Flow Process
+## Damage Flow Process
 
 The damage flow process is illustrated in the following diagram:
 
@@ -199,7 +218,7 @@ ClampHealth --> ReturnDamage["Return actual damage dealt"]
 ReturnDamage --> End([Method complete])
 ```
 
-## 6. WaveManager Integration and Resource Rewards
+## WaveManager Integration and Resource Rewards
 
 When a zombie is eliminated:
 1. The game checks if `isAlive()` returns `false`
@@ -207,7 +226,7 @@ When a zombie is eliminated:
 3. The entity is destroyed and removed from the scene
 
 ```typescript
-// In zombie update or death handler
+// In game loop or zombie update handler
 if (!zombie.getComponent<HealthComponent>('Health').isAlive()) {
   player.addResources(zombie.getReward());
   zombie.destroy();
@@ -216,13 +235,13 @@ if (!zombie.getComponent<HealthComponent>('Health').isAlive()) {
 
 This integration ensures consistent reward scaling and progression.
 
-## 7. Common Issues and Edge Cases
+## Common Issues and Edge Cases
 
-### 7.1 Floating-Point Health Values
+### Floating-Point Health Values
 
 Although health is stored as a number, all operations use `Math.floor()` on damage and `Math.max()`/`Math.min()` for bounds, preventing fractional health states.
 
-### 7.2 Armor Overflow
+### Armor Overflow
 
 The `setArmor()` method clamps values between 0 and 100:
 
@@ -234,15 +253,15 @@ public setArmor(armor: number): void {
 
 This prevents invalid states like negative armor or over-100% damage reduction.
 
-### 7.3 Event Cleanup on Destroy
+### Event Cleanup on Destroy
 
 When a zombie dies, its components are automatically cleaned up via the entity system's `destroyEntity()` method. No manual event unbinding is required, reducing memory leak risks.
 
-## 8. Extension Points and Future Components
+## Extension Points and Future Components
 
 The system supports easy extension with new components:
 
-### 8.1 BuffComponent
+### BuffComponent
 
 Could apply temporary modifiers (e.g., speed boost, damage increase).
 
@@ -254,7 +273,7 @@ class BuffComponent extends Component {
 }
 ```
 
-### 8.2 ShieldComponent
+### ShieldComponent
 
 Could provide temporary damage absorption before health is affected.
 
@@ -266,7 +285,7 @@ class ShieldComponent extends Component {
 }
 ```
 
-### 8.3 RegenerationComponent
+### RegenerationComponent
 
 Could provide periodic health regeneration for entities.
 
@@ -280,34 +299,7 @@ class RegenerationComponent extends Component {
 
 These components would follow the same lifecycle and attachment pattern.
 
-## 9. Testing Strategy
-
-The HealthComponent should be tested with unit tests covering all functionality:
-
-- Damage calculation with various armor values
-- Healing behavior and clamping
-- Health percentage calculations
-- Alive/death state transitions
-- Armor value clamping
-
-```typescript
-// Example test cases
-it('should calculate damage correctly with armor', () => {
-  const healthComponent = new HealthComponent(100, 50); // 50% armor
-  const damage = healthComponent.takeDamage(20);
-  expect(damage).toBe(10); // 50% reduction, minimum 1
-});
-
-it('should clamp armor values', () => {
-  const healthComponent = new HealthComponent(100);
-  healthComponent.setArmor(150);
-  expect(healthComponent.getArmor()).toBe(100);
-  healthComponent.setArmor(-20);
-  expect(healthComponent.getArmor()).toBe(0);
-});
-```
-
-## 10. Best Practices for Component Lifecycle and Memory
+## Best Practices for Component Lifecycle and Memory
 
 - **Initialize in `init()`**: Perform setup logic when component is added.
 - **Update in `update()`**: Handle time-based logic; avoid heavy computations.
@@ -325,18 +317,7 @@ public destroy(): void {
 }
 ```
 
-## 11. Performance Considerations
-
-The HealthComponent is designed for optimal performance in a game environment:
-
-- **Minimal computational overhead**: Damage calculations use simple arithmetic operations
-- **Efficient memory usage**: Only stores essential health-related data
-- **No unnecessary object creation**: Reuses existing objects and avoids garbage collection pressure
-- **Fast state checks**: `isAlive()` method provides O(1) complexity for death checks
-
-For games with many entities, the component's lightweight design ensures smooth performance even with hundreds of simultaneous health calculations.
-
-## 12. Conclusion
+## Conclusion
 
 The Health Component System provides a robust, scalable foundation for the Zombie Tower Defence game. By leveraging the Entity-Component pattern, it enables flexible entity composition, promotes code reuse, and simplifies gameplay logic. The `HealthComponent` serves as a critical building block for health and damage systems.
 
