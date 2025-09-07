@@ -29,9 +29,8 @@ export class Zombie extends GameObject {
     
     // Create visual representation
     this.visual = new Graphics();
-    this.visual.circle(0, 0, 15).fill(0x00ff00);
-    this.visual.stroke({ width: 2, color: 0x000000 });
     this.addChild(this.visual);
+    this.updateVisual(); // Create initial visual based on zombie type
     
     // Create health bar
     this.healthBarBg = new Graphics();
@@ -100,6 +99,96 @@ export class Zombie extends GameObject {
     }
   }
   
+  // Update visual representation based on zombie type
+  private updateVisual(): void {
+    this.visual.clear();
+    
+    switch(this.type) {
+      case GameConfig.ZOMBIE_TYPES.BASIC:
+        this.createBasicZombieVisual();
+        break;
+      case GameConfig.ZOMBIE_TYPES.FAST:
+        this.createFastZombieVisual();
+        break;
+      case GameConfig.ZOMBIE_TYPES.TANK:
+        this.createTankZombieVisual();
+        break;
+      case GameConfig.ZOMBIE_TYPES.ARMORED:
+        this.createArmoredZombieVisual();
+        break;
+      case GameConfig.ZOMBIE_TYPES.SWARM:
+        this.createSwarmZombieVisual();
+        break;
+      case GameConfig.ZOMBIE_TYPES.STEALTH:
+        this.createStealthZombieVisual();
+        break;
+      case GameConfig.ZOMBIE_TYPES.MECHANICAL:
+        this.createMechanicalZombieVisual();
+        break;
+      default:
+        // Default visual if type not recognized
+        this.visual.circle(0, 0, 15).fill(0x00ff00);
+        this.visual.stroke({ width: 2, color: 0x000000 });
+    }
+  }
+  
+  // Basic Zombie Visual
+  private createBasicZombieVisual(): void {
+    this.visual.circle(0, 0, 10).fill(0x008000); // Green
+    this.visual.stroke({ width: 1, color: 0x000000 });
+  }
+  
+  // Fast Zombie Visual
+  private createFastZombieVisual(): void {
+    this.visual.ellipse(0, 0, 9, 12.5).fill(0x9ACD32); // Yellow-green
+    this.visual.stroke({ width: 1, color: 0x000000 });
+  }
+  
+  // Tank Zombie Visual
+  private createTankZombieVisual(): void {
+    this.visual.roundRect(-15, -15, 30, 30, 5).fill(0x006400); // Dark green
+    this.visual.stroke({ width: 2, color: 0x000000 });
+  }
+  
+  // Armored Zombie Visual
+  private createArmoredZombieVisual(): void {
+    // Circle body
+    this.visual.circle(0, 0, 11).fill(0x556B2F); // Gray-green
+    
+    // Armor plate
+    this.visual.rect(-12.5, -7.5, 25, 15).fill(0x808080); // Gray armor
+    this.visual.stroke({ width: 1, color: 0x000000 });
+  }
+  
+  // Swarm Zombie Visual
+  private createSwarmZombieVisual(): void {
+    this.visual.circle(0, 0, 6).fill(0x90EE90); // Light green
+    this.visual.stroke({ width: 1, color: 0x000000 });
+  }
+  
+  // Stealth Zombie Visual
+  private createStealthZombieVisual(): void {
+    this.visual.circle(0, 0, 10).fill({ color: 0x2F4F4F, alpha: 0.5 }); // Dark gray with transparency
+    this.visual.stroke({ width: 1, color: 0x000000 });
+  }
+  
+  // Mechanical Zombie Visual
+  private createMechanicalZombieVisual(): void {
+    // Gear-like shape (simplified as a circle with lines)
+    this.visual.circle(0, 0, 12.5).fill(0x808080); // Metallic gray
+    this.visual.stroke({ width: 1, color: 0x000000 });
+    
+    // Gear teeth
+    for (let i = 0; i < 8; i++) {
+      const angle = (i * Math.PI / 4);
+      const x1 = Math.cos(angle) * 12.5;
+      const y1 = Math.sin(angle) * 12.5;
+      const x2 = Math.cos(angle) * 16;
+      const y2 = Math.sin(angle) * 16;
+      this.visual.moveTo(x1, y1).lineTo(x2, y2).stroke({ width: 2, color: 0x000000 });
+    }
+  }
+  
   public update(deltaTime: number): void {
     super.update(deltaTime);
     
@@ -156,18 +245,83 @@ export class Zombie extends GameObject {
     if (healthComponent) {
       const actualDamage = healthComponent.takeDamage(damage);
       
-      // Show damage indicator
-      const transform = this.getComponent<TransformComponent>('Transform');
-      if (transform) {
-        const pos = transform.position;
-        // In a real implementation, we would add this to the game container
-        // VisualEffects.createDamageIndicator(this.parent, pos.x, pos.y - 30, actualDamage);
-        console.log(`Zombie took ${actualDamage} damage`);
-      }
+      // Show damage visual effect
+      this.showDamageEffect(actualDamage);
       
       return actualDamage;
     }
     return 0;
+  }
+  
+  // Show damage visual effects
+  public showDamageEffect(damage: number): void {
+    // Flash red to indicate damage
+    const originalFill = this.visual.fillColor; // Store original color
+    
+    this.visual.clear();
+    
+    // Show damage flash based on zombie type
+    switch(this.type) {
+      case GameConfig.ZOMBIE_TYPES.BASIC:
+        this.visual.circle(0, 0, 10).fill(0xFF0000); // Red flash
+        this.visual.stroke({ width: 1, color: 0x000000 });
+        break;
+      case GameConfig.ZOMBIE_TYPES.FAST:
+        this.visual.ellipse(0, 0, 9, 12.5).fill(0xFF0000); // Red flash
+        this.visual.stroke({ width: 1, color: 0x000000 });
+        break;
+      case GameConfig.ZOMBIE_TYPES.TANK:
+        this.visual.roundRect(-15, -15, 30, 30, 5).fill(0xFF0000); // Red flash
+        this.visual.stroke({ width: 2, color: 0x000000 });
+        break;
+      case GameConfig.ZOMBIE_TYPES.ARMORED:
+        this.visual.circle(0, 0, 11).fill(0xFF0000); // Red flash
+        this.visual.rect(-12.5, -7.5, 25, 15).fill(0x808080);
+        this.visual.stroke({ width: 1, color: 0x000000 });
+        break;
+      case GameConfig.ZOMBIE_TYPES.SWARM:
+        this.visual.circle(0, 0, 6).fill(0xFF0000); // Red flash
+        this.visual.stroke({ width: 1, color: 0x000000 });
+        break;
+      case GameConfig.ZOMBIE_TYPES.STEALTH:
+        this.visual.circle(0, 0, 10).fill({ color: 0xFF0000, alpha: 0.7 }); // More opaque red flash
+        this.visual.stroke({ width: 1, color: 0x000000 });
+        break;
+      case GameConfig.ZOMBIE_TYPES.MECHANICAL:
+        this.visual.circle(0, 0, 12.5).fill(0xFF0000); // Red flash
+        for (let i = 0; i < 8; i++) {
+          const angle = (i * Math.PI / 4);
+          const x1 = Math.cos(angle) * 12.5;
+          const y1 = Math.sin(angle) * 12.5;
+          const x2 = Math.cos(angle) * 16;
+          const y2 = Math.sin(angle) * 16;
+          this.visual.moveTo(x1, y1).lineTo(x2, y2).stroke({ width: 2, color: 0x000000 });
+        }
+        break;
+      default:
+        this.visual.circle(0, 0, 15).fill(0xFF0000); // Red flash
+        this.visual.stroke({ width: 2, color: 0x000000 });
+    }
+    
+    // Show damage indicator
+    const transform = this.getComponent<TransformComponent>('Transform');
+    if (transform) {
+      const pos = transform.position;
+      // In a real implementation, we would add this to the game container
+      // VisualEffects.createDamageIndicator(this.parent, pos.x, pos.y - 30, damage);
+      console.log(`Zombie took ${damage} damage`);
+    }
+    
+    // Reset after a short delay
+    setTimeout(() => {
+      this.updateVisual(); // Recreate the original visual
+    }, 150);
+  }
+  
+  // Show death visual effects
+  public showDeathEffect(): void {
+    // This would typically create a death animation
+    console.log(`Zombie ${this.type} died`);
   }
   
   // Check if zombie has reached the end

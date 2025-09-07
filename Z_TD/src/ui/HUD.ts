@@ -5,6 +5,7 @@ export class HUD extends UIComponent {
   private moneyText: Text;
   private livesText: Text;
   private waveText: Text;
+  private resourcesText: Text;
   
   constructor() {
     super();
@@ -45,6 +46,18 @@ export class HUD extends UIComponent {
     });
     this.waveText.position.set(10, 70);
     this.addChild(this.waveText);
+    
+    this.resourcesText = new Text({
+      text: 'Resources: W:0 M:0 E:0',
+      style: {
+        fontFamily: 'Arial',
+        fontSize: 20,
+        fill: 0xffffff,
+        align: 'center',
+      }
+    });
+    this.resourcesText.position.set(10, 100);
+    this.addChild(this.resourcesText);
   }
   
   public update(_deltaTime: number): void {
@@ -62,5 +75,9 @@ export class HUD extends UIComponent {
   
   public updateWave(wave: number): void {
     this.waveText.text = `Wave: ${wave}`;
+  }
+  
+  public updateResources(wood: number, metal: number, energy: number): void {
+    this.resourcesText.text = `Resources: W:${Math.floor(wood)} M:${Math.floor(metal)} E:${Math.floor(energy)}`;
   }
 }

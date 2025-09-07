@@ -4,6 +4,7 @@ import { UIManager } from "./ui/UIManager";
 import { HUD } from "./ui/HUD";
 import { MainMenu } from "./ui/MainMenu";
 import { LevelSelectMenu } from "./ui/LevelSelectMenu";
+import { GameConfig } from "./config/gameConfig";
 
 (async () => {
   // Create a new application
@@ -67,9 +68,9 @@ import { LevelSelectMenu } from "./ui/LevelSelectMenu";
     lastTime = currentTime;
     
     // Update game systems based on current state
-    if (gameManager.getCurrentState() === 'Playing') {
-      // Update game objects, towers, zombies, etc.
-      // This would be implemented in a full game
+    if (gameManager.getCurrentState() === GameConfig.GAME_STATES.PLAYING) {
+      // Generate resources over time
+      gameManager.getResourceManager().generateResources(deltaTime);
     }
     
     // Update UI
@@ -79,5 +80,9 @@ import { LevelSelectMenu } from "./ui/LevelSelectMenu";
     hud.updateMoney(gameManager.getMoney());
     hud.updateLives(gameManager.getLives());
     hud.updateWave(gameManager.getWave());
+    
+    // Update resource display in HUD
+    const resources = gameManager.getResources();
+    hud.updateResources(resources.wood, resources.metal, resources.energy);
   });
 })();

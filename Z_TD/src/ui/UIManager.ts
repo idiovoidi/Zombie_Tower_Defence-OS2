@@ -3,6 +3,8 @@ import { UIComponent } from './UIComponent';
 import { GameConfig } from '../config/gameConfig';
 import { HUD } from './HUD';
 import { MainMenu } from './MainMenu';
+import { LevelSelectMenu } from './LevelSelectMenu';
+import { TowerInfoPanel } from './TowerInfoPanel';
 
 export class UIManager {
   private app: Application;
@@ -58,36 +60,42 @@ export class UIManager {
         this.setComponentVisibility('mainMenu', true);
         this.setComponentVisibility('levelSelectMenu', false);
         this.setComponentVisibility('hud', false);
+        this.setComponentVisibility('towerInfoPanel', false);
         break;
       case GameConfig.GAME_STATES.LEVEL_SELECT:
         // Show level select menu, hide other components
         this.setComponentVisibility('mainMenu', false);
         this.setComponentVisibility('levelSelectMenu', true);
         this.setComponentVisibility('hud', false);
+        this.setComponentVisibility('towerInfoPanel', false);
         break;
       case GameConfig.GAME_STATES.PLAYING:
         // Show game UI components, hide menu
         this.setComponentVisibility('mainMenu', false);
         this.setComponentVisibility('levelSelectMenu', false);
         this.setComponentVisibility('hud', true);
+        this.setComponentVisibility('towerInfoPanel', true);
         break;
       case GameConfig.GAME_STATES.PAUSED:
         // Show pause menu
         this.setComponentVisibility('mainMenu', false);
         this.setComponentVisibility('levelSelectMenu', false);
         this.setComponentVisibility('hud', true);
+        this.setComponentVisibility('towerInfoPanel', false);
         break;
       case GameConfig.GAME_STATES.GAME_OVER:
         // Show game over screen
         this.setComponentVisibility('mainMenu', false);
         this.setComponentVisibility('levelSelectMenu', false);
         this.setComponentVisibility('hud', false);
+        this.setComponentVisibility('towerInfoPanel', false);
         break;
       case GameConfig.GAME_STATES.VICTORY:
         // Show victory screen
         this.setComponentVisibility('mainMenu', false);
         this.setComponentVisibility('levelSelectMenu', false);
         this.setComponentVisibility('hud', false);
+        this.setComponentVisibility('towerInfoPanel', false);
         break;
     }
   }

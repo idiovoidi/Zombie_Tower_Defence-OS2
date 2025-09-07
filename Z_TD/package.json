@@ -7,19 +7,24 @@
     "start": "npm run dev",
     "build": "npm run lint && tsc && vite build",
     "lint": "eslint .",
-    "dev": "vite"
+    "dev": "vite",
+    "test": "jest"
   },
   "dependencies": {
     "pixi.js": "^8.8.1"
   },
   "devDependencies": {
     "@eslint/js": "^9.21.0",
+    "@types/jest": "^30.0.0",
     "eslint": "^9.21.0",
     "eslint-config-prettier": "^10.1.2",
     "eslint-plugin-prettier": "^5.2.6",
+    "jest": "^30.1.3",
     "prettier": "^3.5.3",
+    "ts-jest": "^29.4.1",
     "typescript": "~5.7.3",
     "typescript-eslint": "^8.25.0",
-    "vite": "^6.2.0"
+    "vite": "^6.2.0",
+    "vitest": "^3.2.4"
   }
 }

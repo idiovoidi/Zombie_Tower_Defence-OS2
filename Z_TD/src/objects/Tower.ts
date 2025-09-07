@@ -15,6 +15,7 @@ export class Tower extends GameObject {
   private upgradeLevel: number = 1;
   private visual: Graphics;
   private rangeVisualizer: TowerRangeVisualizer;
+  private static readonly MAX_UPGRADE_LEVEL: number = 5; // Maximum upgrade level
   
   constructor(type: string, x: number, y: number) {
     super();
@@ -28,9 +29,8 @@ export class Tower extends GameObject {
     
     // Create visual representation
     this.visual = new Graphics();
-    this.visual.circle(0, 0, 20).fill(0x0000ff);
-    this.visual.stroke({ width: 2, color: 0xffffff });
     this.addChild(this.visual);
+    this.updateVisual();
     
     // Initialize tower stats
     this.initializeStats();
@@ -106,6 +106,61 @@ export class Tower extends GameObject {
     }, 100);
   }
   
+  // Show shooting visual effects
+  public showShootingEffect(): void {
+    // Store original position for recoil animation
+    const originalX = this.visual.x;
+    const originalY = this.visual.y;
+    
+    // Muzzle flash effect based on tower type
+    this.visual.clear();
+    
+    switch(this.type) {
+      case GameConfig.TOWER_TYPES.MACHINE_GUN:
+        this.createMachineGunVisual();
+        // Add muzzle flash
+        this.visual.circle(0, -15, 8).fill(0xFFFF00); // Yellow flash
+        break;
+      case GameConfig.TOWER_TYPES.SNIPER:
+        this.createSniperVisual();
+        // Add muzzle flash at barrel tip
+        this.visual.circle(0, -35, 6).fill(0xFFFF00); // Yellow flash
+        break;
+      case GameConfig.TOWER_TYPES.SHOTGUN:
+        this.createShotgunVisual();
+        // Add muzzle flash
+        this.visual.circle(0, 0, 12).fill(0xFFFF00); // Yellow flash
+        break;
+      case GameConfig.TOWER_TYPES.FLAME:
+        this.createFlameVisual();
+        // Add flame effect
+        this.visual.circle(0, 0, 12).fill(0xFF4500); // Orange flame
+        break;
+      case GameConfig.TOWER_TYPES.TESLA:
+        this.createTeslaVisual();
+        // Add electrical effect
+        this.visual.circle(0, 0, 15).fill(0x00BFFF); // Light blue electricity
+        break;
+      default:
+        // Default visual if type not recognized
+        this.visual.circle(0, 0, 20).fill(0x0000ff);
+        this.visual.stroke({ width: 2, color: 0xffffff });
+        this.visual.circle(0, -15, 8).fill(0xFFFF00); // Yellow flash
+    }
+    
+    // Apply recoil animation (short backward movement)
+    this.visual.x = originalX - 2;
+    this.visual.y = originalY - 2;
+    
+    // Reset after a short delay
+    setTimeout(() => {
+      this.updateVisual();
+      // Return to original position
+      this.visual.x = originalX;
+      this.visual.y = originalY;
+    }, 100);
+  }
+  
   // Show tower range visualization
   public showRange(container: Container): void {
     const transform = this.getComponent<TransformComponent>('Transform');
@@ -120,9 +175,84 @@ export class Tower extends GameObject {
     this.rangeVisualizer.hideRange();
   }
   
+  // Machine Gun Tower Visual
+  private createMachineGunVisual(): void {
+    this.visual.circle(0, 0, 20).fill(0x0000FF); // Blue
+    this.visual.stroke({ width: 2, color: 0x000000 });
+    
+    // Barrel
+    this.visual.moveTo(0, -20).lineTo(0, -35).stroke({ width: 3, color: 0x4169E1 });
+  }
+  
+  // Sniper Tower Visual
+  private createSniperVisual(): void {
+    this.visual.ellipse(0, 0, 15, 25).fill(0x2F4F4F); // Dark slate gray
+    this.visual.stroke({ width: 2, color: 0x000000 });
+    
+    // Long barrel
+    this.visual.moveTo(0, -25).lineTo(0, -45).stroke({ width: 2, color: 0x696969 });
+  }
+  
+  // Shotgun Tower Visual
+  private createShotgunVisual(): void {
+    this.visual.roundRect(-18, -18, 36, 36, 8).fill(0x8B4513); // Saddle brown
+    this.visual.stroke({ width: 2, color: 0x000000 });
+    
+    // Double barrels
+    this.visual.moveTo(-5, -18).lineTo(-5, -30).stroke({ width: 2, color: 0xA0522D });
+    this.visual.moveTo(5, -18).lineTo(5, -30).stroke({ width: 2, color: 0xA0522D });
+  }
+  
+  // Flame Tower Visual
+  private createFlameVisual(): void {
+    this.visual.circle(0, 0, 20).fill(0xFF4500); // Orange red
+    this.visual.stroke({ width: 2, color: 0x000000 });
+    
+    // Flame vents
+    this.visual.circle(-10, -10, 5).fill(0xFF0000); // Red
+    this.visual.circle(10, -10, 5).fill(0xFF0000);
+    this.visual.circle(-10, 10, 5).fill(0xFF0000);
+    this.visual.circle(10, 10, 5).fill(0xFF0000);
+  }
+  
+  // Tesla Tower Visual
+  private createTeslaVisual(): void {
+    this.visual.circle(0, 0, 20).fill(0x00CED1); // Dark turquoise
+    this.visual.stroke({ width: 2, color: 0x000000 });
+    
+    // Electrical orb
+    this.visual.circle(0, 0, 10).fill(0x7FFFD4); // Aquamarine
+    
+    // Lightning bolts
+    this.visual.moveTo(-5, -5).lineTo(5, 5).stroke({ width: 1, color: 0xFFFFFF });
+    this.visual.moveTo(5, -5).lineTo(-5, 5).stroke({ width: 1, color: 0xFFFFFF });
+  }
+  
+  // Get the cost to upgrade this tower to the next level
+  public getUpgradeCost(): number {
+    const towerManager = new TowerManager();
+    return towerManager.calculateUpgradeCost(this.type, this.upgradeLevel);
+  }
+  
+  // Get the maximum upgrade level for this tower
+  public getMaxUpgradeLevel(): number {
+    return Tower.MAX_UPGRADE_LEVEL;
+  }
+  
+  // Check if the tower can be upgraded (not at max level)
+  public canUpgrade(): boolean {
+    return this.upgradeLevel < this.getMaxUpgradeLevel();
+  }
+  
   // Upgrade the tower
   public upgrade(): void {
+    if (!this.canUpgrade()) {
+      console.warn('Tower is already at maximum upgrade level');
+      return;
+    }
+    
     this.upgradeLevel++;
+    
     // Recalculate stats based on upgrade level
     const towerManager = new TowerManager();
     this.damage = towerManager.calculateTowerDamage(this.type, this.upgradeLevel);
@@ -152,9 +282,7 @@ export class Tower extends GameObject {
       
       // Reset color after a short delay
       setTimeout(() => {
-        this.visual.clear();
-        this.visual.circle(0, 0, 20).fill(0x0000ff);
-        this.visual.stroke({ width: 2, color: 0xffffff });
+        this.updateVisual();
       }, 100);
       
       return actualDamage;
@@ -186,6 +314,32 @@ export class Tower extends GameObject {
     return healthComponent ? healthComponent.getHealthPercentage() : 0;
   }
   
+  // Update visual based on tower type
+  public updateVisual(): void {
+    this.visual.clear();
+    
+    switch(this.type) {
+      case GameConfig.TOWER_TYPES.MACHINE_GUN:
+        this.createMachineGunVisual();
+        break;
+      case GameConfig.TOWER_TYPES.SNIPER:
+        this.createSniperVisual();
+        break;
+      case GameConfig.TOWER_TYPES.SHOTGUN:
+        this.createShotgunVisual();
+        break;
+      case GameConfig.TOWER_TYPES.FLAME:
+        this.createFlameVisual();
+        break;
+      case GameConfig.TOWER_TYPES.TESLA:
+        this.createTeslaVisual();
+        break;
+      default:
+        this.visual.circle(0, 0, 20).fill(0x0000ff);
+        this.visual.stroke({ width: 2, color: 0xffffff });
+    }
+  }
+  
   // Getters
   public getType(): string {
     return this.type;
@@ -205,5 +359,52 @@ export class Tower extends GameObject {
   
   public getUpgradeLevel(): number {
     return this.upgradeLevel;
+  }
+  
+  // Show selection visual effects
+  public showSelectionEffect(): void {
+    // Create a highlight effect around the tower
+    const highlight = new Graphics();
+    highlight.circle(0, 0, 25).fill({ color: 0xFFFF00, alpha: 0.3 }); // Yellow highlight with transparency
+    highlight.stroke({ width: 2, color: 0xFFFF00 });
+    
+    // Add highlight as a child but behind the main visual
+    this.addChildAt(highlight, 0);
+    
+    // Store reference to remove later
+    (this as any).selectionHighlight = highlight;
+    
+    // Pulsing animation effect
+    let scale = 1;
+    let growing = true;
+    const pulse = () => {
+      if (growing) {
+        scale += 0.05;
+        if (scale >= 1.2) growing = false;
+      } else {
+        scale -= 0.05;
+        if (scale <= 1) growing = true;
+      }
+      highlight.scale.set(scale);
+    };
+    
+    // Store interval ID to clear later
+    (this as any).pulseInterval = setInterval(pulse, 50);
+  }
+  
+  // Hide selection visual effects
+  public hideSelectionEffect(): void {
+    // Remove highlight if it exists
+    if ((this as any).selectionHighlight) {
+      this.removeChild((this as any).selectionHighlight);
+      (this as any).selectionHighlight.destroy();
+      delete (this as any).selectionHighlight;
+    }
+    
+    // Clear pulse animation if it exists
+    if ((this as any).pulseInterval) {
+      clearInterval((this as any).pulseInterval);
+      delete (this as any).pulseInterval;
+    }
   }
 }

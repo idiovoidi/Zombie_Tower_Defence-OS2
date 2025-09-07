@@ -5,6 +5,8 @@ import { WaveManager } from './WaveManager';
 import { MapManager } from './MapManager';
 import { LevelManager } from './LevelManager';
 import { VisualMapRenderer } from '../renderers/VisualMapRenderer';
+import { ResourceManager } from './ResourceManager';
+import { UpgradeSystem } from './UpgradeSystem';
 
 export class GameManager {
   private app: Application;
@@ -23,6 +25,8 @@ export class GameManager {
   private mapManager: MapManager;
   private levelManager: LevelManager;
   private visualMapRenderer: VisualMapRenderer;
+  private resourceManager: ResourceManager;
+  private upgradeSystem: UpgradeSystem;
   
   constructor(app: Application) {
     this.app = app;
@@ -43,6 +47,8 @@ export class GameManager {
     this.mapManager = new MapManager();
     this.levelManager = new LevelManager(this.mapManager);
     this.visualMapRenderer = new VisualMapRenderer(app, this.mapManager);
+    this.resourceManager = new ResourceManager();
+    this.upgradeSystem = new UpgradeSystem(this.resourceManager);
   }
   
   // Initialize the game
@@ -216,5 +222,14 @@ export class GameManager {
   
   public getLevelManager(): LevelManager {
     return this.levelManager;
+  }
+  
+  // Get resource and upgrade systems
+  public getResourceManager(): ResourceManager {
+    return this.resourceManager;
+  }
+  
+  public getUpgradeSystem(): UpgradeSystem {
+    return this.upgradeSystem;
   }
 }

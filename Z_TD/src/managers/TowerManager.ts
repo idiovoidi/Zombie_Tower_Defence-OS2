@@ -6,6 +6,7 @@ export interface TowerStats {
   range: number;
   fireRate: number; // shots per second
   specialAbility?: string;
+  upgradeCostMultiplier?: number; // New property for upgrade cost scaling
 }
 
 export class TowerManager {
@@ -24,7 +25,8 @@ export class TowerManager {
       damage: 20,
       range: 150,
       fireRate: 10, // 10 shots per second
-      specialAbility: 'High fire rate, good against swarms'
+      specialAbility: 'High fire rate, good against swarms',
+      upgradeCostMultiplier: 0.75 // Upgrade cost multiplier
     });
     
     // Sniper Tower
@@ -33,7 +35,8 @@ export class TowerManager {
       damage: 150,
       range: 400,
       fireRate: 1, // 1 shot per second
-      specialAbility: 'High single-target damage, armor-piercing'
+      specialAbility: 'High single-target damage, armor-piercing',
+      upgradeCostMultiplier: 0.75
     });
     
     // Shotgun Tower
@@ -42,7 +45,8 @@ export class TowerManager {
       damage: 40,
       range: 100,
       fireRate: 3, // 3 shots per second
-      specialAbility: 'Multiple target hits, good crowd control'
+      specialAbility: 'Multiple target hits, good crowd control',
+      upgradeCostMultiplier: 0.75
     });
     
     // Flame Tower
@@ -51,7 +55,8 @@ export class TowerManager {
       damage: 30,
       range: 120,
       fireRate: 5, // 5 shots per second
-      specialAbility: 'Area damage over time, burning effect'
+      specialAbility: 'Area damage over time, burning effect',
+      upgradeCostMultiplier: 0.75
     });
     
     // Tesla Tower
@@ -60,7 +65,8 @@ export class TowerManager {
       damage: 80,
       range: 200,
       fireRate: 2, // 2 shots per second
-      specialAbility: 'Chain lightning, affects multiple targets'
+      specialAbility: 'Chain lightning, affects multiple targets',
+      upgradeCostMultiplier: 0.75
     });
   }
   
@@ -90,5 +96,23 @@ export class TowerManager {
     
     // Simple range scaling with upgrades
     return Math.floor(baseStats.range * (1 + upgradeLevel * 0.2));
+  }
+  
+  // Calculate upgrade cost based on design formula
+  public calculateUpgradeCost(type: string, upgradeLevel: number): number {
+    const baseStats = this.towerData.get(type);
+    if (!baseStats) return 0;
+    
+    // Use the upgrade cost multiplier if available, otherwise default to 0.75
+    const multiplier = baseStats.upgradeCostMultiplier || 0.75;
+    
+    // Formula: upgradeCost = baseCost × (upgradeLevel + 1) × upgradeCostMultiplier
+    return Math.floor(baseStats.cost * (upgradeLevel + 1) * multiplier);
+  }
+  
+  // Get tower cost by type
+  public getTowerCost(type: string): number {
+    const baseStats = this.towerData.get(type);
+    return baseStats ? baseStats.cost : 0;
   }
 }
