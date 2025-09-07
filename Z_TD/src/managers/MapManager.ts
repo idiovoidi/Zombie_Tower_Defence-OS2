@@ -5,6 +5,16 @@ export interface MapData {
   width: number;
   height: number;
   waypoints: Waypoint[];
+  // Visual properties
+  backgroundColor?: number;
+  pathColor?: number;
+  pathWidth?: number;
+  decorations?: {
+    type: 'tree' | 'rock' | 'bush';
+    x: number;
+    y: number;
+    size: number;
+  }[];
 }
 
 export class MapManager {

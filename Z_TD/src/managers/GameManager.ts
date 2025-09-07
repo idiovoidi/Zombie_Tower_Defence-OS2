@@ -3,6 +3,8 @@ import { GameConfig } from '../config/gameConfig';
 import { TowerManager } from './TowerManager';
 import { WaveManager } from './WaveManager';
 import { MapManager } from './MapManager';
+import { LevelManager } from './LevelManager';
+import { VisualMapRenderer } from '../renderers/VisualMapRenderer';
 
 export class GameManager {
   private app: Application;
@@ -19,6 +21,8 @@ export class GameManager {
   private towerManager: TowerManager;
   private waveManager: WaveManager;
   private mapManager: MapManager;
+  private levelManager: LevelManager;
+  private visualMapRenderer: VisualMapRenderer;
   
   constructor(app: Application) {
     this.app = app;
@@ -37,6 +41,8 @@ export class GameManager {
     this.towerManager = new TowerManager();
     this.waveManager = new WaveManager();
     this.mapManager = new MapManager();
+    this.levelManager = new LevelManager(this.mapManager);
+    this.visualMapRenderer = new VisualMapRenderer(app, this.mapManager);
   }
   
   // Initialize the game
@@ -59,6 +65,28 @@ export class GameManager {
   public startGame(): void {
     this.currentState = GameConfig.GAME_STATES.PLAYING;
     console.log('Game started');
+  }
+  
+  // Start the game with a specific level
+  public startGameWithLevel(levelId: string): void {
+    if (this.levelManager.loadLevel(levelId)) {
+      const level = this.levelManager.getCurrentLevel();
+      if (level) {
+        // Set level-specific game parameters
+        this.money = level.startingMoney;
+        this.lives = level.startingLives;
+        // Apply resource modifiers
+        // ... other level-specific initialization ...
+        
+        // Render the map for this level
+        this.visualMapRenderer.renderMap(level.map);
+        
+        this.currentState = GameConfig.GAME_STATES.PLAYING;
+        console.log(`Game started with level: ${level.name}`);
+      }
+    } else {
+      console.error(`Failed to load level: ${levelId}`);
+    }
   }
   
   // Pause the game
@@ -184,5 +212,9 @@ export class GameManager {
   
   public getMapManager(): MapManager {
     return this.mapManager;
+  }
+  
+  public getLevelManager(): LevelManager {
+    return this.levelManager;
   }
 }

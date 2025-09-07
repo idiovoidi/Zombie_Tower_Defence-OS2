@@ -3,6 +3,7 @@ import { GameManager } from "./managers/GameManager";
 import { UIManager } from "./ui/UIManager";
 import { HUD } from "./ui/HUD";
 import { MainMenu } from "./ui/MainMenu";
+import { LevelSelectMenu } from "./ui/LevelSelectMenu";
 
 (async () => {
   // Create a new application
@@ -33,10 +34,26 @@ import { MainMenu } from "./ui/MainMenu";
   const mainMenu = new MainMenu();
   uiManager.registerComponent('mainMenu', mainMenu);
   
+  // Create level select menu
+  const levelSelectMenu = new LevelSelectMenu();
+  uiManager.registerComponent('levelSelectMenu', levelSelectMenu);
+  
   // Set up event handlers
   mainMenu.setStartCallback(() => {
-    gameManager.startGame();
+    // Show level select menu instead of starting game directly
+    uiManager.setState('LevelSelect');
+    // Update level select menu with available levels
+    const levels = gameManager.getLevelManager().getAvailableLevels();
+    levelSelectMenu.updateLevels(levels);
+  });
+  
+  levelSelectMenu.setLevelSelectCallback((levelId: string) => {
+    gameManager.startGameWithLevel(levelId);
     uiManager.setState(gameManager.getCurrentState());
+  });
+  
+  levelSelectMenu.setBackCallback(() => {
+    uiManager.setState(GameConfig.GAME_STATES.MAIN_MENU);
   });
   
   // Initialize the game

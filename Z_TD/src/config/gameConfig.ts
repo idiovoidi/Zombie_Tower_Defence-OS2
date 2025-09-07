@@ -7,6 +7,7 @@ export const GameConfig = {
   // Game states
   GAME_STATES: {
     MAIN_MENU: 'MainMenu',
+    LEVEL_SELECT: 'LevelSelect',
     PLAYING: 'Playing',
     PAUSED: 'Paused',
     WAVE_COMPLETE: 'WaveComplete',

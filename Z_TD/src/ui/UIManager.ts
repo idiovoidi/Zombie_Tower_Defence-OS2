@@ -56,26 +56,37 @@ export class UIManager {
       case GameConfig.GAME_STATES.MAIN_MENU:
         // Show main menu components, hide game UI
         this.setComponentVisibility('mainMenu', true);
+        this.setComponentVisibility('levelSelectMenu', false);
+        this.setComponentVisibility('hud', false);
+        break;
+      case GameConfig.GAME_STATES.LEVEL_SELECT:
+        // Show level select menu, hide other components
+        this.setComponentVisibility('mainMenu', false);
+        this.setComponentVisibility('levelSelectMenu', true);
         this.setComponentVisibility('hud', false);
         break;
       case GameConfig.GAME_STATES.PLAYING:
         // Show game UI components, hide menu
         this.setComponentVisibility('mainMenu', false);
+        this.setComponentVisibility('levelSelectMenu', false);
         this.setComponentVisibility('hud', true);
         break;
       case GameConfig.GAME_STATES.PAUSED:
         // Show pause menu
         this.setComponentVisibility('mainMenu', false);
+        this.setComponentVisibility('levelSelectMenu', false);
         this.setComponentVisibility('hud', true);
         break;
       case GameConfig.GAME_STATES.GAME_OVER:
         // Show game over screen
         this.setComponentVisibility('mainMenu', false);
+        this.setComponentVisibility('levelSelectMenu', false);
         this.setComponentVisibility('hud', false);
         break;
       case GameConfig.GAME_STATES.VICTORY:
         // Show victory screen
         this.setComponentVisibility('mainMenu', false);
+        this.setComponentVisibility('levelSelectMenu', false);
         this.setComponentVisibility('hud', false);
         break;
     }
