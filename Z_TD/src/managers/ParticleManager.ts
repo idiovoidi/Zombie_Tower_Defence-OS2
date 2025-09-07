@@ -27,9 +27,7 @@ export class Particle extends Container {
     
     // Create the particle visual
     this.graphics = new Graphics();
-    this.graphics.beginFill(config.color);
-    this.graphics.drawCircle(0, 0, config.size);
-    this.graphics.endFill();
+    this.graphics.circle(0, 0, config.size).fill(config.color);
     this.addChild(this.graphics);
     
     this.position.set(config.x, config.y);

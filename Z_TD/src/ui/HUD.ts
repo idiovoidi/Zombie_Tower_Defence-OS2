@@ -10,35 +10,44 @@ export class HUD extends UIComponent {
     super();
     
     // Create text elements for the HUD
-    this.moneyText = new Text('Money: $0', {
-      fontFamily: 'Arial',
-      fontSize: 24,
-      fill: 0xffffff,
-      align: 'center',
+    this.moneyText = new Text({
+      text: 'Money: $0',
+      style: {
+        fontFamily: 'Arial',
+        fontSize: 24,
+        fill: 0xffffff,
+        align: 'center',
+      }
     });
     this.moneyText.position.set(10, 10);
     this.addChild(this.moneyText);
     
-    this.livesText = new Text('Lives: 0', {
-      fontFamily: 'Arial',
-      fontSize: 24,
-      fill: 0xffffff,
-      align: 'center',
+    this.livesText = new Text({
+      text: 'Lives: 0',
+      style: {
+        fontFamily: 'Arial',
+        fontSize: 24,
+        fill: 0xffffff,
+        align: 'center',
+      }
     });
     this.livesText.position.set(10, 40);
     this.addChild(this.livesText);
     
-    this.waveText = new Text('Wave: 0', {
-      fontFamily: 'Arial',
-      fontSize: 24,
-      fill: 0xffffff,
-      align: 'center',
+    this.waveText = new Text({
+      text: 'Wave: 0',
+      style: {
+        fontFamily: 'Arial',
+        fontSize: 24,
+        fill: 0xffffff,
+        align: 'center',
+      }
     });
     this.waveText.position.set(10, 70);
     this.addChild(this.waveText);
   }
   
-  public update(deltaTime: number): void {
+  public update(_deltaTime: number): void {
     // HUD updates would happen when game state changes
   }
   

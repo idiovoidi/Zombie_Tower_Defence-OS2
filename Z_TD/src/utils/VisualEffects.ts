@@ -2,14 +2,12 @@ import { Graphics, Container } from 'pixi.js';
 
 export class VisualEffects {
   // Create a damage indicator that floats upward
-  public static createDamageIndicator(container: Container, x: number, y: number, damage: number): void {
+  public static createDamageIndicator(container: Container, x: number, y: number, _damage: number): void {
     const damageText = new Graphics();
     // In a real implementation, this would create a text object showing the damage value
     // and animate it moving upward before fading out
     
-    damageText.beginFill(0xff0000, 0.7);
-    damageText.drawCircle(0, 0, 10);
-    damageText.endFill();
+    damageText.circle(0, 0, 10).fill({ color: 0xff0000, alpha: 0.7 });
     
     damageText.position.set(x, y);
     container.addChild(damageText);
@@ -27,16 +25,12 @@ export class VisualEffects {
     
     // Background (red)
     const bg = new Graphics();
-    bg.beginFill(0xff0000);
-    bg.drawRect(0, 0, width, height);
-    bg.endFill();
+    bg.rect(0, 0, width, height).fill(0xff0000);
     healthBar.addChild(bg);
     
     // Foreground (green)
     const fg = new Graphics();
-    fg.beginFill(0x00ff00);
-    fg.drawRect(0, 0, width, height);
-    fg.endFill();
+    fg.rect(0, 0, width, height).fill(0x00ff00);
     healthBar.addChild(fg);
     
     healthBar.position.set(x, y);

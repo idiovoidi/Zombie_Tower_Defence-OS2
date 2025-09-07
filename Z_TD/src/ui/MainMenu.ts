@@ -10,12 +10,15 @@ export class MainMenu extends UIComponent {
     super();
     
     // Create title
-    this.titleText = new Text('ZOMBIE TOWER DEFENSE', {
-      fontFamily: 'Arial',
-      fontSize: 36,
-      fontWeight: 'bold',
-      fill: 0xff0000,
-      align: 'center',
+    this.titleText = new Text({
+      text: 'ZOMBIE TOWER DEFENSE',
+      style: {
+        fontFamily: 'Arial',
+        fontSize: 36,
+        fontWeight: 'bold',
+        fill: 0xff0000,
+        align: 'center',
+      }
     });
     this.titleText.anchor.set(0.5);
     this.titleText.position.set(512, 200); // Centered on screen
@@ -23,28 +26,29 @@ export class MainMenu extends UIComponent {
     
     // Create start button
     this.startButton = new Graphics();
-    this.startButton.beginFill(0x00ff00);
-    this.startButton.drawRoundedRect(0, 0, 200, 50, 10);
-    this.startButton.endFill();
+    this.startButton.roundRect(0, 0, 200, 50, 10).fill(0x00ff00);
     this.startButton.position.set(412, 300); // Centered horizontally
-    this.startButton.interactive = true;
-    this.startButton.buttonMode = true;
+    this.startButton.eventMode = 'static';
+    this.startButton.cursor = 'pointer';
     this.startButton.on('pointerdown', () => this.onStartClicked());
     this.addChild(this.startButton);
     
     // Create start button text
-    this.startButtonText = new Text('START GAME', {
-      fontFamily: 'Arial',
-      fontSize: 24,
-      fill: 0x000000,
-      align: 'center',
+    this.startButtonText = new Text({
+      text: 'START GAME',
+      style: {
+        fontFamily: 'Arial',
+        fontSize: 24,
+        fill: 0x000000,
+        align: 'center',
+      }
     });
     this.startButtonText.anchor.set(0.5);
     this.startButtonText.position.set(512, 325); // Centered on button
     this.addChild(this.startButtonText);
   }
   
-  public update(deltaTime: number): void {
+  public update(_deltaTime: number): void {
     // Main menu animation or updates
   }
   
