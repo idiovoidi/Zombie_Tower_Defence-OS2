@@ -213,9 +213,9 @@ import { DevConfig } from './config/devConfig';
 
   // Listen for animate update
   let lastTime = performance.now();
-  app.ticker.add(time => {
+  app.ticker.add(() => {
     const currentTime = performance.now();
-    const deltaTime = (currentTime - lastTime) / 1000; // Convert to seconds
+    const deltaTime = currentTime - lastTime; // Keep in milliseconds
     lastTime = currentTime;
 
     // Update game manager (handles zombies, waves, etc.)
@@ -223,12 +223,12 @@ import { DevConfig } from './config/devConfig';
 
     // Update game systems based on current state
     if (gameManager.getCurrentState() === GameConfig.GAME_STATES.PLAYING) {
-      // Generate resources over time
-      gameManager.getResourceManager().generateResources(deltaTime);
+      // Generate resources over time (convert to seconds)
+      gameManager.getResourceManager().generateResources(deltaTime / 1000);
     }
 
-    // Update UI
-    uiManager.update(deltaTime);
+    // Update UI (convert to seconds)
+    uiManager.update(deltaTime / 1000);
 
     // Update HUD with current game state
     hud.updateMoney(gameManager.getMoney());

@@ -25,6 +25,9 @@ export class Zombie extends GameObject {
     this.type = type;
     this.currentWaypointIndex = 0;
 
+    // Set the container position
+    this.position.set(x, y);
+
     // Initialize components
     this.transformComponent = new TransformComponent(x, y);
     this.addComponent(this.transformComponent);
@@ -213,15 +216,11 @@ export class Zombie extends GameObject {
   private moveTowardsWaypoint(deltaTime: number): void {
     if (this.currentWaypointIndex >= this.waypoints.length) return;
 
-    const transform = this.getComponent<TransformComponent>('Transform');
-    if (!transform) return;
-
     const target = this.waypoints[this.currentWaypointIndex];
-    const currentPosition = transform.position;
 
     // Calculate direction vector
-    const dx = target.x - currentPosition.x;
-    const dy = target.y - currentPosition.y;
+    const dx = target.x - this.position.x;
+    const dy = target.y - this.position.y;
     const distance = Math.sqrt(dx * dx + dy * dy);
 
     // If we've reached the waypoint, move to the next one
@@ -234,8 +233,16 @@ export class Zombie extends GameObject {
     const normalizedDx = dx / distance;
     const normalizedDy = dy / distance;
 
-    // Update velocity
-    transform.setVelocity(normalizedDx * this.speed, normalizedDy * this.speed);
+    // Calculate movement for this frame (speed is in pixels per second)
+    const moveX = normalizedDx * this.speed * (deltaTime / 1000);
+    const moveY = normalizedDy * this.speed * (deltaTime / 1000);
+
+    // Update container position
+    this.position.x += moveX;
+    this.position.y += moveY;
+
+    // Update transform component to stay in sync
+    this.transformComponent.setPosition(this.position.x, this.position.y);
   }
 
   // Show damage indicator when taking damage
