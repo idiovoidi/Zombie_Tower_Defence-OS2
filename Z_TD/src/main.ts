@@ -23,7 +23,7 @@ import { DevConfig } from './config/devConfig';
   await app.init({
     background: '#101010',
     resizeTo: window,
-    width: 1024,
+    width: 1280,
     height: 768,
   });
 
@@ -48,14 +48,14 @@ import { DevConfig } from './config/devConfig';
   const levelSelectMenu = new LevelSelectMenu();
   uiManager.registerComponent('levelSelectMenu', levelSelectMenu);
 
-  // Create tower shop
+  // Create tower shop (positioned on the right side)
   const towerShop = new TowerShop();
-  towerShop.position.set(814, 150);
+  towerShop.position.set(1040, 20);
   uiManager.registerComponent('towerShop', towerShop);
 
-  // Create tower info panel
+  // Create tower info panel (positioned below tower shop)
   const towerInfoPanel = new TowerInfoPanel();
-  towerInfoPanel.position.set(814, 670);
+  towerInfoPanel.position.set(1040, 550);
   uiManager.registerComponent('towerInfoPanel', towerInfoPanel);
 
   // Set up event handlers

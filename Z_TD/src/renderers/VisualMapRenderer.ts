@@ -151,6 +151,9 @@ export class VisualMapRenderer {
       this.pathGraphics.circle(waypoint.x, waypoint.y, 8);
       this.pathGraphics.fill({ color: 0xff0000, alpha: 0.5 });
     }
+
+    // Draw survivor camp at the end of the path
+    this.renderSurvivorCamp(mapData.waypoints[mapData.waypoints.length - 1]);
   }
 
   private addDecorativeElements(mapData: MapData): void {
@@ -217,6 +220,80 @@ export class VisualMapRenderer {
     const dx = x - xx;
     const dy = y - yy;
     return Math.sqrt(dx * dx + dy * dy);
+  }
+
+  private renderSurvivorCamp(endpoint: Waypoint): void {
+    const campX = endpoint.x;
+    const campY = endpoint.y;
+
+    // Wooden fence perimeter
+    this.pathGraphics.rect(campX - 60, campY - 50, 120, 100).fill(0x8b4513);
+    this.pathGraphics.stroke({ width: 3, color: 0x654321 });
+
+    // Fence posts
+    for (let i = -60; i <= 60; i += 20) {
+      this.pathGraphics.rect(campX + i - 2, campY - 50, 4, 100).fill(0x654321);
+    }
+    for (let i = -50; i <= 50; i += 20) {
+      this.pathGraphics.rect(campX - 60, campY + i - 2, 120, 4).fill(0x654321);
+    }
+
+    // Main shelter/tent
+    this.pathGraphics
+      .moveTo(campX - 30, campY - 10)
+      .lineTo(campX, campY - 35)
+      .lineTo(campX + 30, campY - 10)
+      .lineTo(campX - 30, campY - 10)
+      .fill(0x8b7355);
+    this.pathGraphics.rect(campX - 30, campY - 10, 60, 30).fill(0xa0826d);
+    this.pathGraphics.stroke({ width: 2, color: 0x654321 });
+
+    // Tent entrance
+    this.pathGraphics.rect(campX - 10, campY + 10, 20, 10).fill(0x4a4a4a);
+
+    // Campfire in front
+    this.pathGraphics.circle(campX, campY + 30, 8).fill(0x8b4513); // Fire pit
+    this.pathGraphics.circle(campX, campY + 30, 5).fill(0xff4500); // Fire
+    this.pathGraphics.circle(campX, campY + 28, 3).fill(0xffa500); // Flame
+
+    // Supply crates
+    this.pathGraphics.rect(campX - 45, campY - 30, 15, 15).fill(0x8b7355);
+    this.pathGraphics.stroke({ width: 1, color: 0x654321 });
+    this.pathGraphics.rect(campX - 45, campY - 10, 15, 15).fill(0x8b7355);
+    this.pathGraphics.stroke({ width: 1, color: 0x654321 });
+
+    // Watchtower
+    this.pathGraphics.rect(campX + 35, campY - 40, 20, 50).fill(0x8b7355);
+    this.pathGraphics.stroke({ width: 2, color: 0x654321 });
+    this.pathGraphics.rect(campX + 30, campY - 45, 30, 10).fill(0x654321); // Platform
+    this.pathGraphics.circle(campX + 45, campY - 40, 3).fill(0xffdbac); // Guard head
+
+    // Flag on watchtower
+    this.pathGraphics
+      .moveTo(campX + 55, campY - 45)
+      .lineTo(campX + 55, campY - 60)
+      .stroke({
+        width: 2,
+        color: 0x654321,
+      });
+    this.pathGraphics
+      .moveTo(campX + 55, campY - 60)
+      .lineTo(campX + 70, campY - 55)
+      .lineTo(campX + 55, campY - 50)
+      .fill(0xff0000); // Red flag
+
+    // Survivors (little people)
+    // Survivor 1
+    this.pathGraphics.circle(campX - 15, campY + 25, 4).fill(0xffdbac); // Head
+    this.pathGraphics.rect(campX - 18, campY + 29, 6, 8).fill(0x4169e1); // Body
+
+    // Survivor 2
+    this.pathGraphics.circle(campX + 15, campY + 25, 4).fill(0xffdbac); // Head
+    this.pathGraphics.rect(campX + 12, campY + 29, 6, 8).fill(0x228b22); // Body
+
+    // "SAFE ZONE" text indicator
+    this.pathGraphics.rect(campX - 35, campY - 55, 70, 15).fill({ color: 0x228b22, alpha: 0.8 });
+    this.pathGraphics.stroke({ width: 2, color: 0x006400 });
   }
 
   public clear(): void {

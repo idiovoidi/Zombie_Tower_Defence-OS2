@@ -1,7 +1,7 @@
 // Game configuration and constants
 export const GameConfig = {
   // Screen dimensions
-  SCREEN_WIDTH: 1024,
+  SCREEN_WIDTH: 1280,
   SCREEN_HEIGHT: 768,
 
   // Game states
