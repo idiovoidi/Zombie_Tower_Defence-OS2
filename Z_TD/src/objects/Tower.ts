@@ -26,6 +26,9 @@ export class Tower extends GameObject implements ITower {
     this.lastShotTime = 0;
     this.rangeVisualizer = TowerRangeVisualizer.getInstance();
 
+    // Set the container position
+    this.position.set(x, y);
+
     // Add transform component
     const transform = new TransformComponent(x, y);
     this.addComponent(transform);
