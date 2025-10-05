@@ -119,7 +119,7 @@ export class Zombie extends GameObject {
         break;
       default:
         // Default visual if type not recognized
-        this.visual.circle(0, 0, 15).fill(0x00ff00);
+        this.visual.circle(0, 0, 15).fill(0x6b8e23);
         this.visual.stroke({ width: 2, color: 0x000000 });
     }
 
@@ -137,61 +137,145 @@ export class Zombie extends GameObject {
     this.addChild(this.healthBar);
   }
 
-  // Basic Zombie Visual
+  // Basic Zombie Visual - Rotting flesh appearance
   private createBasicZombieVisual(): void {
-    this.visual.circle(0, 0, 10).fill(0x008000); // Green
+    // Body (sickly green-gray)
+    this.visual.circle(0, 0, 10).fill(0x6b8e23);
+
+    // Darker patches (rotting flesh)
+    this.visual.circle(-3, -2, 3).fill(0x556b2f);
+    this.visual.circle(4, 1, 2).fill(0x4a5f1f);
+
+    // Eyes (glowing red)
+    this.visual.circle(-3, -3, 1.5).fill(0xff0000);
+    this.visual.circle(3, -3, 1.5).fill(0xff0000);
+
+    // Mouth (dark)
+    this.visual.rect(-4, 3, 8, 2).fill(0x000000);
+
     this.visual.stroke({ width: 1, color: 0x000000 });
   }
 
-  // Fast Zombie Visual
+  // Fast Zombie Visual - Leaner, more aggressive
   private createFastZombieVisual(): void {
-    this.visual.ellipse(0, 0, 9, 12.5).fill(0x9acd32); // Yellow-green
+    // Elongated body
+    this.visual.ellipse(0, 0, 8, 12).fill(0x7a9b3a);
+
+    // Torn flesh patches
+    this.visual.circle(-2, -4, 2).fill(0x5a7b2a);
+    this.visual.circle(3, 2, 2).fill(0x4a6b1a);
+
+    // Aggressive red eyes
+    this.visual.circle(-2, -5, 2).fill(0xff4444);
+    this.visual.circle(2, -5, 2).fill(0xff4444);
+
+    // Snarling mouth
+    this.visual.moveTo(-3, 4).lineTo(0, 6).lineTo(3, 4).stroke({ width: 2, color: 0x000000 });
+
     this.visual.stroke({ width: 1, color: 0x000000 });
   }
 
-  // Tank Zombie Visual
+  // Tank Zombie Visual - Massive and bloated
   private createTankZombieVisual(): void {
-    this.visual.roundRect(-15, -15, 30, 30, 5).fill(0x006400); // Dark green
+    // Large bloated body
+    this.visual.roundRect(-15, -15, 30, 30, 5).fill(0x556b2f);
+
+    // Bloated patches
+    this.visual.circle(-5, -5, 6).fill(0x4a5f25);
+    this.visual.circle(6, 4, 5).fill(0x3f5420);
+
+    // Small beady eyes
+    this.visual.circle(-6, -8, 2).fill(0xff0000);
+    this.visual.circle(6, -8, 2).fill(0xff0000);
+
+    // Stitches/scars
+    for (let i = 0; i < 3; i++) {
+      this.visual
+        .moveTo(-10, -5 + i * 5)
+        .lineTo(10, -5 + i * 5)
+        .stroke({ width: 1, color: 0x000000 });
+    }
+
     this.visual.stroke({ width: 2, color: 0x000000 });
   }
 
-  // Armored Zombie Visual
+  // Armored Zombie Visual - Plated and protected
   private createArmoredZombieVisual(): void {
-    // Circle body
-    this.visual.circle(0, 0, 11).fill(0x556b2f); // Gray-green
+    // Body
+    this.visual.circle(0, 0, 11).fill(0x6b7b5f);
 
-    // Armor plate
-    this.visual.rect(-12.5, -7.5, 25, 15).fill(0x808080); // Gray armor
+    // Armor plates
+    this.visual.rect(-10, -6, 20, 4).fill(0x696969);
+    this.visual.rect(-10, 2, 20, 4).fill(0x696969);
+
+    // Helmet
+    this.visual.rect(-8, -12, 16, 6).fill(0x808080);
+
+    // Eye slits
+    this.visual.rect(-6, -10, 4, 2).fill(0xff0000);
+    this.visual.rect(2, -10, 4, 2).fill(0xff0000);
+
     this.visual.stroke({ width: 1, color: 0x000000 });
   }
 
-  // Swarm Zombie Visual
+  // Swarm Zombie Visual - Small and numerous
   private createSwarmZombieVisual(): void {
-    this.visual.circle(0, 0, 6).fill(0x90ee90); // Light green
+    // Small body
+    this.visual.circle(0, 0, 6).fill(0x8fbc8f);
+
+    // Decay spots
+    this.visual.circle(-2, -1, 2).fill(0x6f9c6f);
+    this.visual.circle(2, 1, 1.5).fill(0x5f8c5f);
+
+    // Tiny red eyes
+    this.visual.circle(-2, -2, 1).fill(0xff0000);
+    this.visual.circle(2, -2, 1).fill(0xff0000);
+
     this.visual.stroke({ width: 1, color: 0x000000 });
   }
 
-  // Stealth Zombie Visual
+  // Stealth Zombie Visual - Shadowy and translucent
   private createStealthZombieVisual(): void {
-    this.visual.circle(0, 0, 10).fill({ color: 0x2f4f4f, alpha: 0.5 }); // Dark gray with transparency
-    this.visual.stroke({ width: 1, color: 0x000000 });
+    // Semi-transparent body
+    this.visual.circle(0, 0, 10).fill({ color: 0x2f4f4f, alpha: 0.6 });
+
+    // Darker core
+    this.visual.circle(0, 0, 6).fill({ color: 0x1f3f3f, alpha: 0.7 });
+
+    // Glowing eyes
+    this.visual.circle(-3, -3, 2).fill({ color: 0x00ff00, alpha: 0.8 });
+    this.visual.circle(3, -3, 2).fill({ color: 0x00ff00, alpha: 0.8 });
+
+    this.visual.stroke({ width: 1, color: 0x000000, alpha: 0.5 });
   }
 
-  // Mechanical Zombie Visual
+  // Mechanical Zombie Visual - Robotic and industrial
   private createMechanicalZombieVisual(): void {
-    // Gear-like shape (simplified as a circle with lines)
-    this.visual.circle(0, 0, 12.5).fill(0x808080); // Metallic gray
-    this.visual.stroke({ width: 1, color: 0x000000 });
+    // Metal body
+    this.visual.circle(0, 0, 12).fill(0x708090);
 
     // Gear teeth
     for (let i = 0; i < 8; i++) {
       const angle = (i * Math.PI) / 4;
-      const x1 = Math.cos(angle) * 12.5;
-      const y1 = Math.sin(angle) * 12.5;
-      const x2 = Math.cos(angle) * 16;
-      const y2 = Math.sin(angle) * 16;
+      const x1 = Math.cos(angle) * 12;
+      const y1 = Math.sin(angle) * 12;
+      const x2 = Math.cos(angle) * 15;
+      const y2 = Math.sin(angle) * 15;
       this.visual.moveTo(x1, y1).lineTo(x2, y2).stroke({ width: 2, color: 0x000000 });
     }
+
+    // Central core
+    this.visual.circle(0, 0, 6).fill(0x505050);
+
+    // Glowing mechanical eyes
+    this.visual.circle(-4, -4, 2).fill(0xffff00);
+    this.visual.circle(4, -4, 2).fill(0xffff00);
+
+    // Bolts
+    this.visual.circle(-6, 0, 1.5).fill(0x303030);
+    this.visual.circle(6, 0, 1.5).fill(0x303030);
+
+    this.visual.stroke({ width: 1, color: 0x000000 });
   }
 
   public update(deltaTime: number): void {
@@ -286,15 +370,35 @@ export class Zombie extends GameObject {
 
   // Method to show death effect (for testing)
   public showDeathEffect(): void {
-    // In a real implementation, this would show a visual effect
-    // For now, it's just a placeholder for testing
-    console.log('Zombie died');
+    // Trigger death effects
+    this.onDeath();
   }
 
   // Method called when zombie dies
   private onDeath(): void {
-    // Handle zombie death
-    console.log('Zombie died');
+    // Emit death event with position and type for blood/corpse systems
+    this.emit('zombieDeath', {
+      x: this.position.x,
+      y: this.position.y,
+      type: this.type,
+      size: this.getVisualSize(),
+    });
+  }
+
+  // Get visual size for corpse creation
+  private getVisualSize(): number {
+    switch (this.type) {
+      case GameConfig.ZOMBIE_TYPES.TANK:
+        return 15;
+      case GameConfig.ZOMBIE_TYPES.ARMORED:
+        return 11;
+      case GameConfig.ZOMBIE_TYPES.SWARM:
+        return 6;
+      case GameConfig.ZOMBIE_TYPES.MECHANICAL:
+        return 12;
+      default:
+        return 10;
+    }
   }
 
   // Check if zombie has reached the end
