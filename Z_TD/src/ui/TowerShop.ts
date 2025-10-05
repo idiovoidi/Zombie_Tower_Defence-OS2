@@ -133,22 +133,47 @@ export class TowerShop extends UIComponent {
 
     switch (type) {
       case GameConfig.TOWER_TYPES.MACHINE_GUN:
-        icon.circle(0, 0, 15).fill(0x0000ff);
-        icon.moveTo(0, -15).lineTo(0, -25).stroke({ width: 2, color: 0x4169e1 });
+        // Tower base
+        icon.rect(-8, 0, 16, 12).fill(0x8b7355);
+        // Little man with gun
+        icon.circle(0, -8, 3).fill(0xffdbac); // Head
+        icon.rect(-2, -5, 4, 5).fill(0x0000ff); // Body
+        icon.rect(0, -12, 1, 6).fill(0x2f4f4f); // Gun
         break;
       case GameConfig.TOWER_TYPES.SNIPER:
-        icon.ellipse(0, 0, 12, 18).fill(0x2f4f4f);
-        icon.moveTo(0, -18).lineTo(0, -30).stroke({ width: 2, color: 0x696969 });
+        // Tower base
+        icon.rect(-6, -2, 12, 14).fill(0x696969);
+        // Little man with sniper
+        icon.circle(0, -10, 3).fill(0xffdbac); // Head
+        icon.rect(-2, -7, 4, 5).fill(0x2f4f4f); // Body
+        icon.rect(0, -16, 1, 10).fill(0x1a1a1a); // Long rifle
         break;
       case GameConfig.TOWER_TYPES.SHOTGUN:
-        icon.roundRect(-13, -13, 26, 26, 5).fill(0x8b4513);
+        // Bunker base
+        icon.roundRect(-9, 0, 18, 12, 3).fill(0x8b4513);
+        // Little man with shotgun
+        icon.circle(0, -8, 3).fill(0xffdbac); // Head
+        icon.rect(-2, -5, 4, 5).fill(0x8b4513); // Body
+        icon.rect(-1, -11, 1, 6).fill(0xa0522d); // Shotgun barrel
+        icon.rect(1, -11, 1, 6).fill(0xa0522d); // Shotgun barrel
         break;
       case GameConfig.TOWER_TYPES.FLAME:
-        icon.circle(0, 0, 15).fill(0xff4500);
+        // Round tower
+        icon.circle(0, 2, 9).fill(0xff4500);
+        // Little man with flamethrower
+        icon.circle(0, -8, 3).fill(0xffdbac); // Head
+        icon.circle(0, -8, 2).fill(0x4a4a4a); // Mask
+        icon.rect(-2, -5, 4, 5).fill(0xff4500); // Body
+        icon.rect(-1, -12, 2, 7).fill(0xff0000); // Flamethrower
         break;
       case GameConfig.TOWER_TYPES.TESLA:
-        icon.circle(0, 0, 15).fill(0x00ced1);
-        icon.circle(0, 0, 8).fill(0x7fffd4);
+        // Tech tower
+        icon.rect(-8, 0, 16, 12).fill(0x00ced1);
+        // Little man with tesla gun
+        icon.circle(0, -8, 3).fill(0xffdbac); // Head
+        icon.rect(-2, -5, 4, 5).fill(0x00ced1); // Body
+        icon.circle(0, -12, 2).fill(0x7fffd4); // Tesla coil
+        icon.rect(-1, -12, 2, 5).fill(0x00bfff); // Coil body
         break;
     }
 

@@ -31,7 +31,7 @@ export class MapManager {
 
   // Initialize predefined maps
   private initializeMaps(): void {
-    // Default map
+    // Default map (play area is 1024 wide, UI takes remaining 256 pixels)
     this.maps.set('default', {
       name: 'default',
       width: 1024,

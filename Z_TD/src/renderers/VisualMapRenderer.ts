@@ -36,9 +36,17 @@ export class VisualMapRenderer {
   }
 
   private renderMapBackground(mapData: MapData): void {
-    // Draw grass background
+    // Draw grass background for play area
     this.mapContainer.rect(0, 0, mapData.width, mapData.height);
     this.mapContainer.fill({ color: 0x33aa33 });
+
+    // Draw UI panel background on the right
+    this.mapContainer.rect(1024, 0, 256, 768);
+    this.mapContainer.fill({ color: 0x2a2a2a });
+
+    // Draw separator line between play area and UI
+    this.mapContainer.rect(1024, 0, 4, 768);
+    this.mapContainer.fill({ color: 0x654321 });
 
     // Add some visual elements like trees or rocks
     this.addDecorativeElements(mapData);
