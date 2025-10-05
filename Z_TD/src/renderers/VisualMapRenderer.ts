@@ -188,36 +188,36 @@ export class VisualMapRenderer {
       .rect(graveyardX, graveyardY + graveyardHeight - 4, graveyardWidth, 4)
       .fill(0x8b4513); // Bottom fence
 
-    // Left fence (with gap for gate at spawn point)
+    // Right fence (with gap for gate at spawn point)
     const gateGapStart = 360 - graveyardY; // Gate starts at y: 360
     const gateGapEnd = gateGapStart + 60; // Gate is 60px tall
 
-    // Left fence - top section (above gate)
+    // Left fence (solid)
     this.mapContainer
-      .rect(graveyardX, graveyardY, 4, gateGapStart)
+      .rect(graveyardX, graveyardY, 4, graveyardHeight)
       .fill(0x8b4513);
 
-    // Left fence - bottom section (below gate)
+    // Right fence - top section (above gate)
     this.mapContainer
-      .rect(graveyardX, graveyardY + gateGapEnd, 4, graveyardHeight - gateGapEnd)
+      .rect(graveyardX + graveyardWidth - 4, graveyardY, 4, gateGapStart)
       .fill(0x8b4513);
 
-    // Right fence (solid)
+    // Right fence - bottom section (below gate)
     this.mapContainer
-      .rect(graveyardX + graveyardWidth - 4, graveyardY, 4, graveyardHeight)
+      .rect(graveyardX + graveyardWidth - 4, graveyardY + gateGapEnd, 4, graveyardHeight - gateGapEnd)
       .fill(0x8b4513);
 
-    // Fence posts (avoiding gate area)
+    // Fence posts (avoiding gate area on right side)
     for (let i = 0; i <= graveyardHeight; i += 35) {
-      // Skip posts in gate area
+      this.mapContainer.rect(graveyardX - 2, graveyardY + i, 8, 6).fill(0x654321);
+      // Skip posts in gate area on right side
       if (i < gateGapStart || i > gateGapEnd) {
-        this.mapContainer.rect(graveyardX - 2, graveyardY + i, 8, 6).fill(0x654321);
+        this.mapContainer.rect(graveyardX + graveyardWidth - 6, graveyardY + i, 8, 6).fill(0x654321);
       }
-      this.mapContainer.rect(graveyardX + graveyardWidth - 6, graveyardY + i, 8, 6).fill(0x654321);
     }
 
-    // Gate opening (where zombies exit) - aligned with spawn point
-    const gateX = graveyardX;
+    // Gate opening (where zombies exit) - on RIGHT side, aligned with spawn point
+    const gateX = graveyardX + graveyardWidth - 50; // Position on right side
     const gateY = 360; // Aligned with spawn point at y: 384
     const gateWidth = 50;
     const gateHeight = 60;
@@ -237,11 +237,11 @@ export class VisualMapRenderer {
     this.mapContainer.circle(gateX + gateWidth + 2, gateY + 12, 1.5).fill(0x1a1a1a); // Eye
     this.mapContainer.circle(gateX + gateWidth + 6, gateY + 12, 1.5).fill(0x1a1a1a); // Eye
 
-    // Broken iron gate (left side, hanging)
+    // Broken iron gate (left side, hanging inward)
     this.mapContainer
       .moveTo(gateX - 8, gateY + 5)
-      .lineTo(gateX - 20, gateY + 10)
-      .lineTo(gateX - 20, gateY + 45)
+      .lineTo(gateX - 2, gateY + 10)
+      .lineTo(gateX - 2, gateY + 45)
       .lineTo(gateX - 8, gateY + 50)
       .fill({ color: 0x4a4a4a, alpha: 0.8 });
     this.mapContainer.stroke({ width: 2, color: 0x2a2a2a });
@@ -249,16 +249,16 @@ export class VisualMapRenderer {
     // Gate bars (broken)
     for (let i = 0; i < 3; i++) {
       this.mapContainer
-        .moveTo(gateX - 18, gateY + 15 + i * 10)
-        .lineTo(gateX - 10, gateY + 15 + i * 10)
+        .moveTo(gateX - 6, gateY + 15 + i * 10)
+        .lineTo(gateX - 2, gateY + 15 + i * 10)
         .stroke({ width: 2, color: 0x2a2a2a });
     }
 
-    // Broken iron gate (right side, partially open)
+    // Broken iron gate (right side, swung open outward)
     this.mapContainer
       .moveTo(gateX + gateWidth + 8, gateY + 5)
-      .lineTo(gateX + gateWidth + 15, gateY + 15)
-      .lineTo(gateX + gateWidth + 15, gateY + 50)
+      .lineTo(gateX + gateWidth + 20, gateY + 10)
+      .lineTo(gateX + gateWidth + 20, gateY + 50)
       .lineTo(gateX + gateWidth + 8, gateY + 55)
       .fill({ color: 0x4a4a4a, alpha: 0.8 });
     this.mapContainer.stroke({ width: 2, color: 0x2a2a2a });
@@ -267,7 +267,7 @@ export class VisualMapRenderer {
     for (let i = 0; i < 3; i++) {
       this.mapContainer
         .moveTo(gateX + gateWidth + 10, gateY + 20 + i * 10)
-        .lineTo(gateX + gateWidth + 13, gateY + 20 + i * 10)
+        .lineTo(gateX + gateWidth + 18, gateY + 20 + i * 10)
         .stroke({ width: 2, color: 0x2a2a2a });
     }
 
@@ -283,7 +283,7 @@ export class VisualMapRenderer {
       .stroke({ width: 2, color: 0x4a4a4a });
     this.mapContainer
       .moveTo(gateX + gateWidth + 8, gateY + 5)
-      .lineTo(gateX + gateWidth + 5, gateY + 15)
+      .lineTo(gateX + gateWidth + 11, gateY + 15)
       .lineTo(gateX + gateWidth + 8, gateY + 25)
       .stroke({ width: 2, color: 0x4a4a4a });
 
