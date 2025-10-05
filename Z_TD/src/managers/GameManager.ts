@@ -10,6 +10,7 @@ import { VisualMapRenderer } from '../renderers/VisualMapRenderer';
 import { ResourceManager } from './ResourceManager';
 import { UpgradeSystem } from './UpgradeSystem';
 import { TowerCombatManager } from './TowerCombatManager';
+import { ProjectileManager } from './ProjectileManager';
 import { Tower } from '../objects/Tower';
 import { DevConfig } from '../config/devConfig';
 
@@ -35,6 +36,7 @@ export class GameManager {
   private resourceManager: ResourceManager;
   private upgradeSystem: UpgradeSystem;
   private towerCombatManager: TowerCombatManager;
+  private projectileManager: ProjectileManager;
   private gameContainer: Container;
 
   constructor(app: Application) {
@@ -69,7 +71,9 @@ export class GameManager {
     this.visualMapRenderer = new VisualMapRenderer(app, this.mapManager);
     this.resourceManager = new ResourceManager();
     this.upgradeSystem = new UpgradeSystem(this.resourceManager);
+    this.projectileManager = new ProjectileManager(this.gameContainer);
     this.towerCombatManager = new TowerCombatManager();
+    this.towerCombatManager.setProjectileManager(this.projectileManager);
 
     // Set up tower placement callbacks
     this.setupTowerPlacementCallbacks();

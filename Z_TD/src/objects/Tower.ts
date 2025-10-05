@@ -17,7 +17,9 @@ export class Tower extends GameObject implements ITower {
   private maxUpgradeLevel: number = 5;
   private upgradeCost: number = 100;
   private visual: Graphics;
+  private barrel: Graphics; // Separate barrel for rotation
   private rangeVisualizer: TowerRangeVisualizer;
+  private currentRotation: number = 0;
   private static readonly MAX_UPGRADE_LEVEL: number = 5; // Maximum upgrade level
 
   constructor(type: string, x: number, y: number) {
@@ -36,6 +38,11 @@ export class Tower extends GameObject implements ITower {
     // Create visual representation
     this.visual = new Graphics();
     this.addChild(this.visual);
+
+    // Create barrel as separate graphics for rotation
+    this.barrel = new Graphics();
+    this.addChild(this.barrel);
+
     this.updateVisual();
 
     // Initialize tower stats
@@ -183,55 +190,61 @@ export class Tower extends GameObject implements ITower {
 
   // Machine Gun Tower Visual
   private createMachineGunVisual(): void {
+    // Base (doesn't rotate)
     this.visual.circle(0, 0, 20).fill(0x0000ff); // Blue
     this.visual.stroke({ width: 2, color: 0x000000 });
 
-    // Barrel
-    this.visual.moveTo(0, -20).lineTo(0, -35).stroke({ width: 3, color: 0x4169e1 });
+    // Barrel (rotates)
+    this.barrel.clear();
+    this.barrel.moveTo(0, -20).lineTo(0, -35).stroke({ width: 3, color: 0x4169e1 });
   }
 
   // Sniper Tower Visual
   private createSniperVisual(): void {
+    // Base (doesn't rotate)
     this.visual.ellipse(0, 0, 15, 25).fill(0x2f4f4f); // Dark slate gray
     this.visual.stroke({ width: 2, color: 0x000000 });
 
-    // Long barrel
-    this.visual.moveTo(0, -25).lineTo(0, -45).stroke({ width: 2, color: 0x696969 });
+    // Long barrel (rotates)
+    this.barrel.clear();
+    this.barrel.moveTo(0, -25).lineTo(0, -45).stroke({ width: 2, color: 0x696969 });
   }
 
   // Shotgun Tower Visual
   private createShotgunVisual(): void {
+    // Base (doesn't rotate)
     this.visual.roundRect(-18, -18, 36, 36, 8).fill(0x8b4513); // Saddle brown
     this.visual.stroke({ width: 2, color: 0x000000 });
 
-    // Double barrels
-    this.visual.moveTo(-5, -18).lineTo(-5, -30).stroke({ width: 2, color: 0xa0522d });
-    this.visual.moveTo(5, -18).lineTo(5, -30).stroke({ width: 2, color: 0xa0522d });
+    // Double barrels (rotate)
+    this.barrel.clear();
+    this.barrel.moveTo(-5, -18).lineTo(-5, -30).stroke({ width: 2, color: 0xa0522d });
+    this.barrel.moveTo(5, -18).lineTo(5, -30).stroke({ width: 2, color: 0xa0522d });
   }
 
   // Flame Tower Visual
   private createFlameVisual(): void {
+    // Base (doesn't rotate)
     this.visual.circle(0, 0, 20).fill(0xff4500); // Orange red
     this.visual.stroke({ width: 2, color: 0x000000 });
 
-    // Flame vents
-    this.visual.circle(-10, -10, 5).fill(0xff0000); // Red
-    this.visual.circle(10, -10, 5).fill(0xff0000);
-    this.visual.circle(-10, 10, 5).fill(0xff0000);
-    this.visual.circle(10, 10, 5).fill(0xff0000);
+    // Flame nozzle (rotates)
+    this.barrel.clear();
+    this.barrel.rect(-3, -20, 6, 15).fill(0xff0000);
+    this.barrel.circle(0, -22, 5).fill(0xff4500);
   }
 
   // Tesla Tower Visual
   private createTeslaVisual(): void {
+    // Base (doesn't rotate)
     this.visual.circle(0, 0, 20).fill(0x00ced1); // Dark turquoise
     this.visual.stroke({ width: 2, color: 0x000000 });
 
-    // Electrical orb
-    this.visual.circle(0, 0, 10).fill(0x7fffd4); // Aquamarine
-
-    // Lightning bolts
-    this.visual.moveTo(-5, -5).lineTo(5, 5).stroke({ width: 1, color: 0xffffff });
-    this.visual.moveTo(5, -5).lineTo(-5, 5).stroke({ width: 1, color: 0xffffff });
+    // Electrical coil (rotates)
+    this.barrel.clear();
+    this.barrel.circle(0, -15, 8).fill(0x7fffd4); // Aquamarine
+    this.barrel.moveTo(-5, -20).lineTo(5, -10).stroke({ width: 1, color: 0xffffff });
+    this.barrel.moveTo(5, -20).lineTo(-5, -10).stroke({ width: 1, color: 0xffffff });
   }
 
   /**
@@ -372,6 +385,64 @@ export class Tower extends GameObject implements ITower {
       default:
         this.visual.circle(0, 0, 20).fill(0x0000ff);
         this.visual.stroke({ width: 2, color: 0xffffff });
+    }
+  }
+
+  // Rotate tower to face target
+  public rotateTowards(targetX: number, targetY: number): void {
+    const dx = targetX - this.position.x;
+    const dy = targetY - this.position.y;
+    const angle = Math.atan2(dy, dx) + Math.PI / 2; // Add 90 degrees since barrel points up
+
+    this.currentRotation = angle;
+    this.barrel.rotation = angle;
+  }
+
+  // Get projectile spawn position (at barrel tip)
+  public getProjectileSpawnPosition(): { x: number; y: number } {
+    let barrelLength = 35;
+
+    switch (this.type) {
+      case GameConfig.TOWER_TYPES.MACHINE_GUN:
+        barrelLength = 35;
+        break;
+      case GameConfig.TOWER_TYPES.SNIPER:
+        barrelLength = 45;
+        break;
+      case GameConfig.TOWER_TYPES.SHOTGUN:
+        barrelLength = 30;
+        break;
+      case GameConfig.TOWER_TYPES.FLAME:
+        barrelLength = 22;
+        break;
+      case GameConfig.TOWER_TYPES.TESLA:
+        barrelLength = 23;
+        break;
+    }
+
+    // Calculate position at barrel tip based on rotation
+    const angle = this.currentRotation - Math.PI / 2; // Subtract 90 degrees
+    const spawnX = this.position.x + Math.cos(angle) * barrelLength;
+    const spawnY = this.position.y + Math.sin(angle) * barrelLength;
+
+    return { x: spawnX, y: spawnY };
+  }
+
+  // Get projectile type for this tower
+  public getProjectileType(): string {
+    switch (this.type) {
+      case GameConfig.TOWER_TYPES.MACHINE_GUN:
+        return 'bullet';
+      case GameConfig.TOWER_TYPES.SNIPER:
+        return 'sniper';
+      case GameConfig.TOWER_TYPES.SHOTGUN:
+        return 'shotgun';
+      case GameConfig.TOWER_TYPES.FLAME:
+        return 'flame';
+      case GameConfig.TOWER_TYPES.TESLA:
+        return 'tesla';
+      default:
+        return 'bullet';
     }
   }
 
