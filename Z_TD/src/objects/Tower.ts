@@ -114,32 +114,44 @@ export class Tower extends GameObject implements ITower {
     
     switch (this.type) {
       case GameConfig.TOWER_TYPES.MACHINE_GUN:
-        // Small rapid muzzle flash
-        flash.circle(0, -26, 4).fill(0xffff00);
+        // Gun starts at -10, extends down by gunLength (8 + upgradeLevel)
+        // Gun tip is at -10 + gunLength = -2 to +3 depending on upgrade
+        const mgGunLength = 8 + this.upgradeLevel;
+        const mgGunTip = -10 + mgGunLength;
+        flash.circle(0, mgGunTip, 4).fill(0xffff00);
         break;
       case GameConfig.TOWER_TYPES.SNIPER:
-        // Large bright flash at rifle tip
-        flash.circle(0, -36, 5).fill(0xffff00);
-        flash.circle(0, -36, 8).fill({ color: 0xffff00, alpha: 0.3 });
+        // Rifle starts at -12, extends down by rifleLength (12 + upgradeLevel * 2)
+        // Rifle tip is at -12 + rifleLength = 0 to +10 depending on upgrade
+        const sniperRifleLength = 12 + this.upgradeLevel * 2;
+        const sniperRifleTip = -12 + sniperRifleLength;
+        flash.circle(0, sniperRifleTip, 5).fill(0xffff00);
+        flash.circle(0, sniperRifleTip, 8).fill({ color: 0xffff00, alpha: 0.3 });
         break;
       case GameConfig.TOWER_TYPES.SHOTGUN:
-        // Wide spread flash
-        flash.circle(-2, -22, 5).fill(0xffff00);
-        flash.circle(2, -22, 5).fill(0xffff00);
+        // Shotgun starts at -8, extends down by 8
+        // Shotgun tip is at -8 + 8 = 0
+        const shotgunTip = -8 + 8;
+        flash.circle(-2, shotgunTip, 5).fill(0xffff00);
+        flash.circle(2, shotgunTip, 5).fill(0xffff00);
         break;
       case GameConfig.TOWER_TYPES.FLAME:
-        // Flame burst
-        flash.circle(0, -26, 6).fill(0xff4500);
-        flash.circle(0, -28, 4).fill(0xff6347);
+        // Flamethrower starts at -10, extends down by 6
+        // Nozzle tip is at -10 + 6 = -4
+        const flameTip = -10 + 6;
+        flash.circle(0, flameTip, 6).fill(0xff4500);
+        flash.circle(0, flameTip + 2, 4).fill(0xff6347);
         break;
       case GameConfig.TOWER_TYPES.TESLA:
-        // Electric burst
-        flash.circle(0, -24, 6).fill(0x00ffff);
-        flash.moveTo(-4, -24).lineTo(4, -24).stroke({ width: 2, color: 0xffffff });
-        flash.moveTo(0, -28).lineTo(0, -20).stroke({ width: 2, color: 0xffffff });
+        // Tesla gun starts at -10, extends down by 7
+        // Gun tip is at -10 + 7 = -3
+        const teslaTip = -10 + 7;
+        flash.circle(0, teslaTip, 6).fill(0x00ffff);
+        flash.moveTo(-4, teslaTip).lineTo(4, teslaTip).stroke({ width: 2, color: 0xffffff });
+        flash.moveTo(0, teslaTip - 4).lineTo(0, teslaTip + 4).stroke({ width: 2, color: 0xffffff });
         break;
       default:
-        flash.circle(0, -26, 4).fill(0xffff00);
+        flash.circle(0, 0, 4).fill(0xffff00);
     }
 
     this.barrel.addChild(flash);
@@ -267,18 +279,25 @@ export class Tower extends GameObject implements ITower {
 
     // Little man with shotgun (rotates)
     this.barrel.clear();
-    // Head - helmet with upgrades
-    this.barrel.circle(0, -16, 5).fill(0xffdbac);
-    if (this.upgradeLevel >= 3) {
-      this.barrel.circle(0, -18, 5).fill(0x4a4a4a); // Helmet
-    }
-    this.barrel.stroke({ width: 1, color: 0x000000 });
     // Body
     this.barrel.rect(-3, -11, 6, 8).fill(0x8b4513); // Brown uniform
-    // Shotgun (double barrel) - barrels get thicker with upgrades
+    // Arms holding shotgun
+    this.barrel.rect(-4, -9, 2, 4).fill(0xffdbac); // Left arm
+    this.barrel.rect(2, -9, 2, 4).fill(0xffdbac); // Right arm
+    // Shotgun (double barrel) - held in front
     const barrelWidth = 2 + this.upgradeLevel * 0.3;
-    this.barrel.rect(-3, -22, barrelWidth, 11).fill(0xa0522d);
-    this.barrel.rect(1, -22, barrelWidth, 11).fill(0xa0522d);
+    this.barrel.rect(-3, -8, barrelWidth, 8).fill(0xa0522d);
+    this.barrel.rect(1, -8, barrelWidth, 8).fill(0xa0522d);
+    // Head
+    this.barrel.circle(0, -16, 5).fill(0xffdbac);
+    this.barrel.stroke({ width: 1, color: 0x000000 });
+    // Helmet (always present, gets better with upgrades)
+    if (this.upgradeLevel >= 3) {
+      this.barrel.circle(0, -18, 5).fill(0x4a4a4a); // Full helmet
+      this.barrel.rect(-2, -19, 4, 1).fill(0x8b8b8b); // Visor
+    } else {
+      this.barrel.rect(-5, -19, 10, 3).fill(0x4a4a4a); // Basic helmet
+    }
   }
 
   // Flame Tower Visual
@@ -552,7 +571,8 @@ export class Tower extends GameObject implements ITower {
   public rotateTowards(targetX: number, targetY: number): void {
     const dx = targetX - this.position.x;
     const dy = targetY - this.position.y;
-    const angle = Math.atan2(dy, dx) + Math.PI / 2; // Add 90 degrees since barrel points up
+    // Guns now point down (positive Y), so subtract 90 degrees instead of adding
+    const angle = Math.atan2(dy, dx) - Math.PI / 2;
 
     this.currentRotation = angle;
     this.barrel.rotation = angle;
@@ -560,23 +580,24 @@ export class Tower extends GameObject implements ITower {
 
   // Get projectile spawn position (at barrel tip)
   public getProjectileSpawnPosition(): { x: number; y: number } {
-    let barrelLength = 35;
+    let barrelLength = 20;
 
+    // Calculate barrel length based on gun position (guns are now held in front)
     switch (this.type) {
       case GameConfig.TOWER_TYPES.MACHINE_GUN:
-        barrelLength = 35;
+        barrelLength = 18 + this.upgradeLevel; // Gun tip at -10 - gunLength
         break;
       case GameConfig.TOWER_TYPES.SNIPER:
-        barrelLength = 45;
+        barrelLength = 24 + this.upgradeLevel * 2; // Rifle tip at -12 - rifleLength
         break;
       case GameConfig.TOWER_TYPES.SHOTGUN:
-        barrelLength = 30;
+        barrelLength = 16; // Shotgun tip at -8 - 8
         break;
       case GameConfig.TOWER_TYPES.FLAME:
-        barrelLength = 22;
+        barrelLength = 16; // Flamethrower nozzle at -10 - 6
         break;
       case GameConfig.TOWER_TYPES.TESLA:
-        barrelLength = 23;
+        barrelLength = 17; // Tesla gun at -10 - 7
         break;
     }
 
