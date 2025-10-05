@@ -99,8 +99,11 @@ export class GameManager {
   private setupTowerPlacementCallbacks(): void {
     this.towerPlacementManager.setTowerPlacedCallback((tower: Tower) => {
       const cost = this.towerManager.getTowerCost(tower.getType());
-      this.spendMoney(cost);
-      console.log(`Tower placed: ${tower.getType()} for $${cost}`);
+      if (this.spendMoney(cost)) {
+        console.log(`Tower placed: ${tower.getType()} for $${cost}`);
+      } else {
+        console.warn(`Failed to deduct money for tower: ${tower.getType()}`);
+      }
     });
   }
 

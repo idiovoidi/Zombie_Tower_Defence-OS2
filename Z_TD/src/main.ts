@@ -50,12 +50,12 @@ import { DevConfig } from './config/devConfig';
 
   // Create tower shop
   const towerShop = new TowerShop();
-  towerShop.position.set(10, 150);
+  towerShop.position.set(814, 150);
   uiManager.registerComponent('towerShop', towerShop);
 
   // Create tower info panel
   const towerInfoPanel = new TowerInfoPanel();
-  towerInfoPanel.position.set(814, 150);
+  towerInfoPanel.position.set(814, 670);
   uiManager.registerComponent('towerInfoPanel', towerInfoPanel);
 
   // Set up event handlers
