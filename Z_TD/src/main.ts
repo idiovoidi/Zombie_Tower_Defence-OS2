@@ -161,6 +161,8 @@ import { DevConfig } from './config/devConfig';
             }
           } else {
             DebugUtils.debug('Not enough money to place tower');
+            placementManager.cancelPlacement();
+            towerShop.clearSelection();
           }
         }
       } else {

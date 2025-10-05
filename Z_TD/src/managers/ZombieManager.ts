@@ -1,8 +1,10 @@
 import { Container } from 'pixi.js';
 import { Zombie } from '../objects/Zombie';
 import { ZombieFactory } from '../objects/ZombieFactory';
-import { WaveManager, ZombieGroup } from './WaveManager';
+import { WaveManager } from './WaveManager';
 import { MapManager } from './MapManager';
+import { BloodParticleSystem } from '../utils/BloodParticleSystem';
+import { CorpseManager } from './CorpseManager';
 
 export class ZombieManager {
   private zombies: Zombie[] = [];
@@ -12,11 +14,17 @@ export class ZombieManager {
   private spawnQueue: Array<{ type: string; delay: number }> = [];
   private spawnTimer: number = 0;
   private isSpawning: boolean = false;
+  private bloodParticleSystem: BloodParticleSystem;
+  private corpseManager: CorpseManager;
 
   constructor(container: Container, waveManager: WaveManager, mapManager: MapManager) {
     this.container = container;
     this.waveManager = waveManager;
     this.mapManager = mapManager;
+
+    // Initialize blood and corpse systems
+    this.bloodParticleSystem = new BloodParticleSystem(container);
+    this.corpseManager = new CorpseManager(container);
   }
 
   // Start spawning zombies for the current wave
@@ -88,6 +96,10 @@ export class ZombieManager {
         this.removeZombie(i);
       }
     }
+
+    // Update blood particles and corpses
+    this.bloodParticleSystem.update(deltaTime);
+    this.corpseManager.update(deltaTime);
   }
 
   // Spawn a single zombie
@@ -117,12 +129,27 @@ export class ZombieManager {
         console.log(`Zombie waypoints set: ${waypoints.length} waypoints`);
       }
 
+      // Listen for zombie death to trigger effects
+      zombie.on('zombieDeath', (data: { x: number; y: number; type: string; size: number }) => {
+        this.onZombieDeath(data);
+      });
+
       this.zombies.push(zombie);
       this.container.addChild(zombie);
       console.log(`✓ Zombie spawned successfully. Total zombies: ${this.zombies.length}`);
     } else {
       console.warn('Failed to create zombie');
     }
+  }
+
+  // Handle zombie death effects
+  private onZombieDeath(data: { x: number; y: number; type: string; size: number }): void {
+    // Create blood splatter
+    const intensity = data.size / 10; // Scale intensity based on zombie size
+    this.bloodParticleSystem.createBloodSplatter(data.x, data.y, intensity);
+
+    // Create corpse
+    this.corpseManager.createCorpse(data.x, data.y, data.type, data.size);
   }
 
   // Remove zombie from game
@@ -150,5 +177,17 @@ export class ZombieManager {
     this.zombies = [];
     this.spawnQueue = [];
     this.isSpawning = false;
+    this.bloodParticleSystem.clear();
+    this.corpseManager.clear();
+  }
+
+  // Get blood particle system (for external access if needed)
+  public getBloodParticleSystem(): BloodParticleSystem {
+    return this.bloodParticleSystem;
+  }
+
+  // Get corpse manager (for external access if needed)
+  public getCorpseManager(): CorpseManager {
+    return this.corpseManager;
   }
 }

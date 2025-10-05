@@ -1,64 +1,68 @@
+
 <!doctype html>
 <html lang="en">
-  <head>
+
+<head>
     <title>Code coverage report for managers/PathfindingManager.ts</title>
     <meta charset="utf-8" />
     <link rel="stylesheet" href="../prettify.css" />
     <link rel="stylesheet" href="../base.css" />
     <link rel="shortcut icon" type="image/x-icon" href="../favicon.png" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <style type="text/css">
-      .coverage-summary .sorter {
-        background-image: url(../sort-arrow-sprite.png);
-      }
+    <style type='text/css'>
+        .coverage-summary .sorter {
+            background-image: url(../sort-arrow-sprite.png);
+        }
     </style>
-  </head>
-
-  <body>
-    <div class="wrapper">
-      <div class="pad1">
-        <h1>
-          <a href="../index.html">All files</a> /
-          <a href="index.html">managers</a> PathfindingManager.ts
-        </h1>
-        <div class="clearfix">
-          <div class="fl pad1y space-right2">
-            <span class="strong">20.45% </span>
-            <span class="quiet">Statements</span>
-            <span class="fraction">9/44</span>
-          </div>
-
-          <div class="fl pad1y space-right2">
-            <span class="strong">21.42% </span>
-            <span class="quiet">Branches</span>
-            <span class="fraction">3/14</span>
-          </div>
-
-          <div class="fl pad1y space-right2">
-            <span class="strong">12.5% </span>
-            <span class="quiet">Functions</span>
-            <span class="fraction">1/8</span>
-          </div>
-
-          <div class="fl pad1y space-right2">
-            <span class="strong">20.93% </span>
-            <span class="quiet">Lines</span>
-            <span class="fraction">9/43</span>
-          </div>
+</head>
+    
+<body>
+<div class='wrapper'>
+    <div class='pad1'>
+        <h1><a href="../index.html">All files</a> / <a href="index.html">managers</a> PathfindingManager.ts</h1>
+        <div class='clearfix'>
+            
+            <div class='fl pad1y space-right2'>
+                <span class="strong">20.45% </span>
+                <span class="quiet">Statements</span>
+                <span class='fraction'>9/44</span>
+            </div>
+        
+            
+            <div class='fl pad1y space-right2'>
+                <span class="strong">21.42% </span>
+                <span class="quiet">Branches</span>
+                <span class='fraction'>3/14</span>
+            </div>
+        
+            
+            <div class='fl pad1y space-right2'>
+                <span class="strong">12.5% </span>
+                <span class="quiet">Functions</span>
+                <span class='fraction'>1/8</span>
+            </div>
+        
+            
+            <div class='fl pad1y space-right2'>
+                <span class="strong">20.93% </span>
+                <span class="quiet">Lines</span>
+                <span class='fraction'>9/43</span>
+            </div>
+        
+            
         </div>
         <p class="quiet">
-          Press <em>n</em> or <em>j</em> to go to the next uncovered block, <em>b</em>,
-          <em>p</em> or <em>k</em> for the previous block.
+            Press <em>n</em> or <em>j</em> to go to the next uncovered block, <em>b</em>, <em>p</em> or <em>k</em> for the previous block.
         </p>
         <template id="filterTemplate">
-          <div class="quiet">
-            Filter:
-            <input type="search" id="fileSearch" />
-          </div>
+            <div class="quiet">
+                Filter:
+                <input type="search" id="fileSearch">
+            </div>
         </template>
-      </div>
-      <div class="status-line low"></div>
-      <pre><table class="coverage">
+    </div>
+    <div class='status-line low'></div>
+    <pre><table class="coverage">
 <tr><td class="line-count quiet"><a name='L1'></a><a href='#L1'>1</a>
 <a name='L2'></a><a href='#L2'>2</a>
 <a name='L3'></a><a href='#L3'>3</a>
@@ -169,13 +173,14 @@
 <a name='L108'></a><a href='#L108'>108</a>
 <a name='L109'></a><a href='#L109'>109</a>
 <a name='L110'></a><a href='#L110'>110</a>
-<a name='L111'></a><a href='#L111'>111</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L111'></a><a href='#L111'>111</a>
+<a name='L112'></a><a href='#L112'>112</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">4x</span>
 <span class="cline-any cline-yes">4x</span>
 <span class="cline-any cline-yes">4x</span>
@@ -278,6 +283,7 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">// Pathfinding manager using pre-computed waypoints
 export interface Waypoint {
@@ -290,57 +296,57 @@ export class PathfindingManager {
   private gridWidth: number;
   private gridHeight: number;
   private cellSize: number;
-  
+&nbsp;
   constructor(gridWidth: number = 1024, gridHeight: number = 768, cellSize: number = 32) {
     this.gridWidth = gridWidth;
     this.gridHeight = gridHeight;
     this.cellSize = cellSize;
     this.waypoints = [];
   }
-  
+&nbsp;
   // Initialize waypoints for a specific map
   public <span class="fstat-no" title="function not covered" >initializeWaypoints(</span>mapName: string): void {
     // In a real implementation, this would load waypoints from a file or data structure
     // For now, we'll create a simple path
 <span class="cstat-no" title="statement not covered" >    this.waypoints = this.generateSimplePath();</span>
   }
-  
+&nbsp;
   // Generate a simple path for demonstration
   private <span class="fstat-no" title="function not covered" >generateSimplePath(</span>): Waypoint[] {
     const path: Waypoint[] = <span class="cstat-no" title="statement not covered" >[];</span>
-    
+&nbsp;
     // Start at the left side
 <span class="cstat-no" title="statement not covered" >    path.push({ x: 50, y: 384 });</span>
-    
+&nbsp;
     // Move right
 <span class="cstat-no" title="statement not covered" >    path.push({ x: 200, y: 384 });</span>
-    
+&nbsp;
     // Move down
 <span class="cstat-no" title="statement not covered" >    path.push({ x: 200, y: 500 });</span>
-    
+&nbsp;
     // Move right
 <span class="cstat-no" title="statement not covered" >    path.push({ x: 400, y: 500 });</span>
-    
+&nbsp;
     // Move up
 <span class="cstat-no" title="statement not covered" >    path.push({ x: 400, y: 200 });</span>
-    
+&nbsp;
     // Move right
 <span class="cstat-no" title="statement not covered" >    path.push({ x: 600, y: 200 });</span>
-    
+&nbsp;
     // Move down
 <span class="cstat-no" title="statement not covered" >    path.push({ x: 600, y: 600 });</span>
-    
+&nbsp;
     // Move right to end
 <span class="cstat-no" title="statement not covered" >    path.push({ x: 950, y: 600 });</span>
-    
+&nbsp;
 <span class="cstat-no" title="statement not covered" >    return path;</span>
   }
-  
+&nbsp;
   // Get the full path
   public <span class="fstat-no" title="function not covered" >getPath(</span>): Waypoint[] {
 <span class="cstat-no" title="statement not covered" >    return [...this.waypoints];</span>
   }
-  
+&nbsp;
   // Get the next waypoint for an entity at a specific index
   public <span class="fstat-no" title="function not covered" >getNextWaypoint(</span>currentIndex: number): Waypoint | null {
 <span class="cstat-no" title="statement not covered" >    if (currentIndex + 1 &lt; this.waypoints.length) {</span>
@@ -348,65 +354,65 @@ export class PathfindingManager {
     }
 <span class="cstat-no" title="statement not covered" >    return null;</span>
   }
-  
+&nbsp;
   // Get the closest waypoint to a position
   public <span class="fstat-no" title="function not covered" >getClosestWaypoint(</span>x: number, y: number): { waypoint: Waypoint; index: number } | null {
     let closestWaypoint: Waypoint | null = <span class="cstat-no" title="statement not covered" >null;</span>
     let closestIndex = <span class="cstat-no" title="statement not covered" >-1;</span>
     let closestDistance = <span class="cstat-no" title="statement not covered" >Infinity;</span>
-    
+&nbsp;
 <span class="cstat-no" title="statement not covered" >    for (let i = <span class="cstat-no" title="statement not covered" >0;</span> i &lt; this.waypoints.length; i++) {</span>
       const waypoint = <span class="cstat-no" title="statement not covered" >this.waypoints[i];</span>
       const distance = <span class="cstat-no" title="statement not covered" >Math.sqrt(Math.pow(waypoint.x - x, 2) + Math.pow(waypoint.y - y, 2));</span>
-      
+&nbsp;
 <span class="cstat-no" title="statement not covered" >      if (distance &lt; closestDistance) {</span>
 <span class="cstat-no" title="statement not covered" >        closestDistance = distance;</span>
 <span class="cstat-no" title="statement not covered" >        closestWaypoint = waypoint;</span>
 <span class="cstat-no" title="statement not covered" >        closestIndex = i;</span>
       }
     }
-    
+&nbsp;
 <span class="cstat-no" title="statement not covered" >    if (closestWaypoint) {</span>
 <span class="cstat-no" title="statement not covered" >      return { waypoint: closestWaypoint, index: closestIndex };</span>
     }
-    
+&nbsp;
 <span class="cstat-no" title="statement not covered" >    return null;</span>
   }
-  
+&nbsp;
   // Check if a position is at a waypoint
   public <span class="fstat-no" title="function not covered" >isAtWaypoint(</span>x: number, y: number, waypointIndex: number, tolerance: number = <span class="branch-0 cbranch-no" title="branch not covered" >5)</span>: boolean {
 <span class="cstat-no" title="statement not covered" >    if (waypointIndex &lt; 0 || waypointIndex &gt;= this.waypoints.length) {</span>
 <span class="cstat-no" title="statement not covered" >      return false;</span>
     }
-    
+&nbsp;
     const waypoint = <span class="cstat-no" title="statement not covered" >this.waypoints[waypointIndex];</span>
     const distance = <span class="cstat-no" title="statement not covered" >Math.sqrt(Math.pow(waypoint.x - x, 2) + Math.pow(waypoint.y - y, 2));</span>
-    
+&nbsp;
 <span class="cstat-no" title="statement not covered" >    return distance &lt;= tolerance;</span>
   }
-  
+&nbsp;
   // Get the total number of waypoints
   public <span class="fstat-no" title="function not covered" >getWaypointCount(</span>): number {
 <span class="cstat-no" title="statement not covered" >    return this.waypoints.length;</span>
   }
-}</pre></td></tr></table></pre>
+}
+&nbsp;</pre></td></tr></table></pre>
 
-      <div class="push"></div>
-      <!-- for sticky footer -->
-    </div>
-    <!-- /wrapper -->
-    <div class="footer quiet pad2 space-top1 center small">
-      Code coverage generated by
-      <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-      at 2025-10-04T06:02:34.504Z
-    </div>
-    <script src="../prettify.js"></script>
-    <script>
-      window.onload = function () {
-        prettyPrint();
-      };
-    </script>
-    <script src="../sorter.js"></script>
-    <script src="../block-navigation.js"></script>
-  </body>
+                <div class='push'></div><!-- for sticky footer -->
+            </div><!-- /wrapper -->
+            <div class='footer quiet pad2 space-top1 center small'>
+                Code coverage generated by
+                <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
+                at 2025-10-05T03:42:58.428Z
+            </div>
+        <script src="../prettify.js"></script>
+        <script>
+            window.onload = function () {
+                prettyPrint();
+            };
+        </script>
+        <script src="../sorter.js"></script>
+        <script src="../block-navigation.js"></script>
+    </body>
 </html>
+    

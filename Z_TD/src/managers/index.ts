@@ -10,3 +10,4 @@ export { TowerPlacementManager } from './TowerPlacementManager';
 export { UpgradeSystem } from './UpgradeSystem';
 export { WaveManager } from './WaveManager';
 export { ZombieManager } from './ZombieManager';
+export { CorpseManager } from './CorpseManager';

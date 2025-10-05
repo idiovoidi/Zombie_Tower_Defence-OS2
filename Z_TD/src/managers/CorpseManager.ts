@@ -39,9 +39,11 @@ export class CorpseManager {
 
     // Remove oldest corpse if we exceed max
     if (this.corpses.length > this.maxCorpses) {
-      const oldCorpse = this.corpses.shift()!;
-      this.container.removeChild(oldCorpse.graphics);
-      oldCorpse.graphics.destroy();
+      const oldCorpse = this.corpses.shift();
+      if (oldCorpse) {
+        this.container.removeChild(oldCorpse.graphics);
+        oldCorpse.graphics.destroy();
+      }
     }
   }
 

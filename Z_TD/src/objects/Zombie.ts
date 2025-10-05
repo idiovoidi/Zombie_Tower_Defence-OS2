@@ -3,9 +3,7 @@ import { TransformComponent } from '../components/TransformComponent';
 import { HealthComponent } from '../components/HealthComponent';
 import { GameConfig } from '../config/gameConfig';
 import { WaveManager } from '../managers/WaveManager';
-import { PathfindingManager } from '../managers/PathfindingManager';
-import { Graphics, Container } from 'pixi.js';
-import { VisualEffects } from '../utils/VisualEffects';
+import { Container, Graphics } from 'pixi.js';
 
 export class Zombie extends GameObject {
   private type: string;
@@ -48,7 +46,6 @@ export class Zombie extends GameObject {
   private initializeHealth(wave: number): void {
     const waveManager = new WaveManager();
     const health = waveManager.calculateZombieHealth(this.type, wave);
-    const damage = waveManager.calculateZombieDamage(this.type, wave);
 
     // Add health component
     this.healthComponent = new HealthComponent(health);
@@ -336,13 +333,7 @@ export class Zombie extends GameObject {
 
     // Visual feedback for damage
     if (this.visual) {
-      // Store original color values
-      const originalFill = (this.visual as any).fillColor || 0xff0000;
-      const originalAlpha = (this.visual as any).alpha || 1;
-
       // Flash red to indicate damage
-      // Note: This is a simplified approach - in a real implementation,
-      // you would use proper PIXI methods to change the visual properties
       this.visual.tint = 0xff0000;
 
       // Reset color after a short delay

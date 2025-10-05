@@ -1,63 +1,68 @@
+
 <!doctype html>
 <html lang="en">
-  <head>
+
+<head>
     <title>Code coverage report for managers/UpgradeSystem.ts</title>
     <meta charset="utf-8" />
     <link rel="stylesheet" href="../prettify.css" />
     <link rel="stylesheet" href="../base.css" />
     <link rel="shortcut icon" type="image/x-icon" href="../favicon.png" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <style type="text/css">
-      .coverage-summary .sorter {
-        background-image: url(../sort-arrow-sprite.png);
-      }
+    <style type='text/css'>
+        .coverage-summary .sorter {
+            background-image: url(../sort-arrow-sprite.png);
+        }
     </style>
-  </head>
-
-  <body>
-    <div class="wrapper">
-      <div class="pad1">
-        <h1>
-          <a href="../index.html">All files</a> / <a href="index.html">managers</a> UpgradeSystem.ts
-        </h1>
-        <div class="clearfix">
-          <div class="fl pad1y space-right2">
-            <span class="strong">94.44% </span>
-            <span class="quiet">Statements</span>
-            <span class="fraction">17/18</span>
-          </div>
-
-          <div class="fl pad1y space-right2">
-            <span class="strong">75% </span>
-            <span class="quiet">Branches</span>
-            <span class="fraction">3/4</span>
-          </div>
-
-          <div class="fl pad1y space-right2">
-            <span class="strong">100% </span>
-            <span class="quiet">Functions</span>
-            <span class="fraction">5/5</span>
-          </div>
-
-          <div class="fl pad1y space-right2">
-            <span class="strong">94.44% </span>
-            <span class="quiet">Lines</span>
-            <span class="fraction">17/18</span>
-          </div>
+</head>
+    
+<body>
+<div class='wrapper'>
+    <div class='pad1'>
+        <h1><a href="../index.html">All files</a> / <a href="index.html">managers</a> UpgradeSystem.ts</h1>
+        <div class='clearfix'>
+            
+            <div class='fl pad1y space-right2'>
+                <span class="strong">94.44% </span>
+                <span class="quiet">Statements</span>
+                <span class='fraction'>17/18</span>
+            </div>
+        
+            
+            <div class='fl pad1y space-right2'>
+                <span class="strong">75% </span>
+                <span class="quiet">Branches</span>
+                <span class='fraction'>3/4</span>
+            </div>
+        
+            
+            <div class='fl pad1y space-right2'>
+                <span class="strong">100% </span>
+                <span class="quiet">Functions</span>
+                <span class='fraction'>5/5</span>
+            </div>
+        
+            
+            <div class='fl pad1y space-right2'>
+                <span class="strong">94.44% </span>
+                <span class="quiet">Lines</span>
+                <span class='fraction'>17/18</span>
+            </div>
+        
+            
         </div>
         <p class="quiet">
-          Press <em>n</em> or <em>j</em> to go to the next uncovered block, <em>b</em>,
-          <em>p</em> or <em>k</em> for the previous block.
+            Press <em>n</em> or <em>j</em> to go to the next uncovered block, <em>b</em>, <em>p</em> or <em>k</em> for the previous block.
         </p>
         <template id="filterTemplate">
-          <div class="quiet">
-            Filter:
-            <input type="search" id="fileSearch" />
-          </div>
+            <div class="quiet">
+                Filter:
+                <input type="search" id="fileSearch">
+            </div>
         </template>
-      </div>
-      <div class="status-line high"></div>
-      <pre><table class="coverage">
+    </div>
+    <div class='status-line high'></div>
+    <pre><table class="coverage">
 <tr><td class="line-count quiet"><a name='L1'></a><a href='#L1'>1</a>
 <a name='L2'></a><a href='#L2'>2</a>
 <a name='L3'></a><a href='#L3'>3</a>
@@ -128,7 +133,8 @@
 <a name='L68'></a><a href='#L68'>68</a>
 <a name='L69'></a><a href='#L69'>69</a>
 <a name='L70'></a><a href='#L70'>70</a>
-<a name='L71'></a><a href='#L71'>71</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L71'></a><a href='#L71'>71</a>
+<a name='L72'></a><a href='#L72'>72</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1x</span>
@@ -198,16 +204,17 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">import { ResourceManager, ResourceCost } from './ResourceManager';
 import { ITower } from '../objects/Tower.interface';
 &nbsp;
 export class UpgradeSystem {
   private resourceManager: ResourceManager;
-  
+&nbsp;
   constructor(resourceManager: ResourceManager) {
     this.resourceManager = resourceManager;
   }
-  
+&nbsp;
   /**
    * Check if a tower can be upgraded
    * @param tower The tower to check
@@ -218,12 +225,12 @@ export class UpgradeSystem {
     <span class="missing-if-branch" title="if path not taken" >I</span>if (tower.getUpgradeLevel() &gt;= tower.getMaxUpgradeLevel()) {
 <span class="cstat-no" title="statement not covered" >      return false;</span>
     }
-    
+&nbsp;
     // Check if player has enough resources
     const cost = this.getUpgradeCost(tower);
     return this.resourceManager.canAfford(cost);
   }
-  
+&nbsp;
   /**
    * Perform an upgrade on a tower
    * @param tower The tower to upgrade
@@ -233,17 +240,17 @@ export class UpgradeSystem {
     if (!this.canUpgrade(tower)) {
       return false;
     }
-    
+&nbsp;
     // Spend resources
     const cost = this.getUpgradeCost(tower);
     this.resourceManager.spend(cost);
-    
+&nbsp;
     // Upgrade the tower
     tower.upgrade();
-    
+&nbsp;
     return true;
   }
-  
+&nbsp;
   /**
    * Get the cost to upgrade a tower
    * @param tower The tower to get upgrade cost for
@@ -252,15 +259,15 @@ export class UpgradeSystem {
   public getUpgradeCost(tower: ITower): ResourceCost {
     const baseCost = tower.getUpgradeCost();
     const level = tower.getUpgradeLevel();
-    
+&nbsp;
     // Scale cost based on current level (simple exponential scaling)
     const costMultiplier = Math.pow(1.5, level - 1);
-    
+&nbsp;
     return {
-      money: Math.floor(baseCost * costMultiplier)
+      money: Math.floor(baseCost * costMultiplier),
     };
   }
-  
+&nbsp;
   /**
    * Get the resource manager
    * @returns The resource manager
@@ -268,24 +275,24 @@ export class UpgradeSystem {
   public getResourceManager(): ResourceManager {
     return this.resourceManager;
   }
-}</pre></td></tr></table></pre>
+}
+&nbsp;</pre></td></tr></table></pre>
 
-      <div class="push"></div>
-      <!-- for sticky footer -->
-    </div>
-    <!-- /wrapper -->
-    <div class="footer quiet pad2 space-top1 center small">
-      Code coverage generated by
-      <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-      at 2025-10-04T06:02:34.354Z
-    </div>
-    <script src="../prettify.js"></script>
-    <script>
-      window.onload = function () {
-        prettyPrint();
-      };
-    </script>
-    <script src="../sorter.js"></script>
-    <script src="../block-navigation.js"></script>
-  </body>
+                <div class='push'></div><!-- for sticky footer -->
+            </div><!-- /wrapper -->
+            <div class='footer quiet pad2 space-top1 center small'>
+                Code coverage generated by
+                <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
+                at 2025-10-05T03:42:58.329Z
+            </div>
+        <script src="../prettify.js"></script>
+        <script>
+            window.onload = function () {
+                prettyPrint();
+            };
+        </script>
+        <script src="../sorter.js"></script>
+        <script src="../block-navigation.js"></script>
+    </body>
 </html>
+    

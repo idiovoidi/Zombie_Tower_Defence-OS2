@@ -1,63 +1,68 @@
+
 <!doctype html>
 <html lang="en">
-  <head>
+
+<head>
     <title>Code coverage report for managers/TowerManager.ts</title>
     <meta charset="utf-8" />
     <link rel="stylesheet" href="../prettify.css" />
     <link rel="stylesheet" href="../base.css" />
     <link rel="shortcut icon" type="image/x-icon" href="../favicon.png" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <style type="text/css">
-      .coverage-summary .sorter {
-        background-image: url(../sort-arrow-sprite.png);
-      }
+    <style type='text/css'>
+        .coverage-summary .sorter {
+            background-image: url(../sort-arrow-sprite.png);
+        }
     </style>
-  </head>
-
-  <body>
-    <div class="wrapper">
-      <div class="pad1">
-        <h1>
-          <a href="../index.html">All files</a> / <a href="index.html">managers</a> TowerManager.ts
-        </h1>
-        <div class="clearfix">
-          <div class="fl pad1y space-right2">
-            <span class="strong">100% </span>
-            <span class="quiet">Statements</span>
-            <span class="fraction">27/27</span>
-          </div>
-
-          <div class="fl pad1y space-right2">
-            <span class="strong">90% </span>
-            <span class="quiet">Branches</span>
-            <span class="fraction">9/10</span>
-          </div>
-
-          <div class="fl pad1y space-right2">
-            <span class="strong">100% </span>
-            <span class="quiet">Functions</span>
-            <span class="fraction">8/8</span>
-          </div>
-
-          <div class="fl pad1y space-right2">
-            <span class="strong">100% </span>
-            <span class="quiet">Lines</span>
-            <span class="fraction">24/24</span>
-          </div>
+</head>
+    
+<body>
+<div class='wrapper'>
+    <div class='pad1'>
+        <h1><a href="../index.html">All files</a> / <a href="index.html">managers</a> TowerManager.ts</h1>
+        <div class='clearfix'>
+            
+            <div class='fl pad1y space-right2'>
+                <span class="strong">100% </span>
+                <span class="quiet">Statements</span>
+                <span class='fraction'>27/27</span>
+            </div>
+        
+            
+            <div class='fl pad1y space-right2'>
+                <span class="strong">90% </span>
+                <span class="quiet">Branches</span>
+                <span class='fraction'>9/10</span>
+            </div>
+        
+            
+            <div class='fl pad1y space-right2'>
+                <span class="strong">100% </span>
+                <span class="quiet">Functions</span>
+                <span class='fraction'>8/8</span>
+            </div>
+        
+            
+            <div class='fl pad1y space-right2'>
+                <span class="strong">100% </span>
+                <span class="quiet">Lines</span>
+                <span class='fraction'>24/24</span>
+            </div>
+        
+            
         </div>
         <p class="quiet">
-          Press <em>n</em> or <em>j</em> to go to the next uncovered block, <em>b</em>,
-          <em>p</em> or <em>k</em> for the previous block.
+            Press <em>n</em> or <em>j</em> to go to the next uncovered block, <em>b</em>, <em>p</em> or <em>k</em> for the previous block.
         </p>
         <template id="filterTemplate">
-          <div class="quiet">
-            Filter:
-            <input type="search" id="fileSearch" />
-          </div>
+            <div class="quiet">
+                Filter:
+                <input type="search" id="fileSearch">
+            </div>
         </template>
-      </div>
-      <div class="status-line high"></div>
-      <pre><table class="coverage">
+    </div>
+    <div class='status-line high'></div>
+    <pre><table class="coverage">
 <tr><td class="line-count quiet"><a name='L1'></a><a href='#L1'>1</a>
 <a name='L2'></a><a href='#L2'>2</a>
 <a name='L3'></a><a href='#L3'>3</a>
@@ -175,7 +180,8 @@
 <a name='L115'></a><a href='#L115'>115</a>
 <a name='L116'></a><a href='#L116'>116</a>
 <a name='L117'></a><a href='#L117'>117</a>
-<a name='L118'></a><a href='#L118'>118</a></td><td class="line-coverage quiet"><span class="cline-any cline-yes">2x</span>
+<a name='L118'></a><a href='#L118'>118</a>
+<a name='L119'></a><a href='#L119'>119</a></td><td class="line-coverage quiet"><span class="cline-any cline-yes">2x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -292,6 +298,7 @@
 <span class="cline-any cline-yes">6x</span>
 <span class="cline-any cline-yes">6x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">import { GameConfig } from '../config/gameConfig';
 &nbsp;
 export interface TowerStats {
@@ -305,12 +312,12 @@ export interface TowerStats {
 &nbsp;
 export class TowerManager {
   private towerData: Map&lt;string, TowerStats&gt;;
-  
+&nbsp;
   constructor() {
     this.towerData = new Map&lt;string, TowerStats&gt;();
     this.initializeTowerData();
   }
-  
+&nbsp;
   // Initialize tower data based on design document
   private initializeTowerData(): void {
     // Machine Gun Tower
@@ -320,9 +327,9 @@ export class TowerManager {
       range: 150,
       fireRate: 10, // 10 shots per second
       specialAbility: 'High fire rate, good against swarms',
-      upgradeCostMultiplier: 0.75 // Upgrade cost multiplier
+      upgradeCostMultiplier: 0.75, // Upgrade cost multiplier
     });
-    
+&nbsp;
     // Sniper Tower
     this.towerData.set(GameConfig.TOWER_TYPES.SNIPER, {
       cost: 250,
@@ -330,9 +337,9 @@ export class TowerManager {
       range: 400,
       fireRate: 1, // 1 shot per second
       specialAbility: 'High single-target damage, armor-piercing',
-      upgradeCostMultiplier: 0.75
+      upgradeCostMultiplier: 0.75,
     });
-    
+&nbsp;
     // Shotgun Tower
     this.towerData.set(GameConfig.TOWER_TYPES.SHOTGUN, {
       cost: 180,
@@ -340,9 +347,9 @@ export class TowerManager {
       range: 100,
       fireRate: 3, // 3 shots per second
       specialAbility: 'Multiple target hits, good crowd control',
-      upgradeCostMultiplier: 0.75
+      upgradeCostMultiplier: 0.75,
     });
-    
+&nbsp;
     // Flame Tower
     this.towerData.set(GameConfig.TOWER_TYPES.FLAME, {
       cost: 200,
@@ -350,9 +357,9 @@ export class TowerManager {
       range: 120,
       fireRate: 5, // 5 shots per second
       specialAbility: 'Area damage over time, burning effect',
-      upgradeCostMultiplier: 0.75
+      upgradeCostMultiplier: 0.75,
     });
-    
+&nbsp;
     // Tesla Tower
     this.towerData.set(GameConfig.TOWER_TYPES.TESLA, {
       cost: 300,
@@ -360,73 +367,73 @@ export class TowerManager {
       range: 200,
       fireRate: 2, // 2 shots per second
       specialAbility: 'Chain lightning, affects multiple targets',
-      upgradeCostMultiplier: 0.75
+      upgradeCostMultiplier: 0.75,
     });
   }
-  
+&nbsp;
   // Get tower stats by type
   public getTowerStats(type: string): TowerStats | undefined {
     return this.towerData.get(type);
   }
-  
+&nbsp;
   // Get all tower types
   public getTowerTypes(): string[] {
     return Array.from(this.towerData.keys());
   }
-  
+&nbsp;
   // Calculate tower damage with upgrades
   public calculateTowerDamage(type: string, upgradeLevel: number): number {
     const baseStats = this.towerData.get(type);
     if (!baseStats) return 0;
-    
+&nbsp;
     // Simple damage scaling with upgrades
     return Math.floor(baseStats.damage * (1 + upgradeLevel * 0.5));
   }
-  
+&nbsp;
   // Calculate tower range with upgrades
   public calculateTowerRange(type: string, upgradeLevel: number): number {
     const baseStats = this.towerData.get(type);
     if (!baseStats) return 0;
-    
+&nbsp;
     // Simple range scaling with upgrades
     return Math.floor(baseStats.range * (1 + upgradeLevel * 0.2));
   }
-  
+&nbsp;
   // Calculate upgrade cost based on design formula
   public calculateUpgradeCost(type: string, upgradeLevel: number): number {
     const baseStats = this.towerData.get(type);
     if (!baseStats) return 0;
-    
+&nbsp;
     // Use the upgrade cost multiplier if available, otherwise default to 0.75
     const multiplier = baseStats.upgradeCostMultiplier || <span class="branch-1 cbranch-no" title="branch not covered" >0.75;</span>
-    
+&nbsp;
     // Formula: upgradeCost = baseCost × (upgradeLevel + 1) × upgradeCostMultiplier
     return Math.floor(baseStats.cost * (upgradeLevel + 1) * multiplier);
   }
-  
+&nbsp;
   // Get tower cost by type
   public getTowerCost(type: string): number {
     const baseStats = this.towerData.get(type);
     return baseStats ? baseStats.cost : 0;
   }
-}</pre></td></tr></table></pre>
+}
+&nbsp;</pre></td></tr></table></pre>
 
-      <div class="push"></div>
-      <!-- for sticky footer -->
-    </div>
-    <!-- /wrapper -->
-    <div class="footer quiet pad2 space-top1 center small">
-      Code coverage generated by
-      <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-      at 2025-10-04T06:02:34.354Z
-    </div>
-    <script src="../prettify.js"></script>
-    <script>
-      window.onload = function () {
-        prettyPrint();
-      };
-    </script>
-    <script src="../sorter.js"></script>
-    <script src="../block-navigation.js"></script>
-  </body>
+                <div class='push'></div><!-- for sticky footer -->
+            </div><!-- /wrapper -->
+            <div class='footer quiet pad2 space-top1 center small'>
+                Code coverage generated by
+                <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
+                at 2025-10-05T03:42:58.329Z
+            </div>
+        <script src="../prettify.js"></script>
+        <script>
+            window.onload = function () {
+                prettyPrint();
+            };
+        </script>
+        <script src="../sorter.js"></script>
+        <script src="../block-navigation.js"></script>
+    </body>
 </html>
+    
