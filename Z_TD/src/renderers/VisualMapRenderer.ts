@@ -48,6 +48,9 @@ export class VisualMapRenderer {
     this.mapContainer.rect(1024, 0, 4, 768);
     this.mapContainer.fill({ color: 0x654321 });
 
+    // Add destroyed houses at the top
+    this.renderDestroyedHouses(mapData);
+
     // Add some visual elements like trees or rocks
     this.addDecorativeElements(mapData);
   }
@@ -164,6 +167,162 @@ export class VisualMapRenderer {
     this.renderSurvivorCamp(mapData.waypoints[mapData.waypoints.length - 1]);
   }
 
+  private renderDestroyedHouses(mapData: MapData): void {
+    // Render several destroyed houses at the top of the map with varied positions
+    const houses = [
+      { x: 120, y: 50, width: 70, height: 60, destroyed: 0.8 },
+      { x: 280, y: 85, width: 80, height: 70, destroyed: 0.6 },
+      { x: 480, y: 45, width: 65, height: 55, destroyed: 0.9 },
+      { x: 650, y: 70, width: 75, height: 65, destroyed: 0.7 },
+      { x: 820, y: 55, width: 60, height: 50, destroyed: 0.85 },
+      { x: 950, y: 90, width: 55, height: 58, destroyed: 0.75 },
+    ];
+
+    for (const house of houses) {
+      this.renderDestroyedHouse(house.x, house.y, house.width, house.height, house.destroyed);
+    }
+  }
+
+  private renderDestroyedHouse(
+    x: number,
+    y: number,
+    width: number,
+    height: number,
+    destroyedLevel: number
+  ): void {
+    const wallHeight = height * (1 - destroyedLevel * 0.5);
+    const wallThickness = 6;
+
+    // Floor/foundation
+    this.mapContainer.rect(x, y + height, width, 8).fill(0x696969);
+    this.mapContainer.stroke({ width: 1, color: 0x4a4a4a });
+
+    // Back wall (solid, darkest for depth)
+    this.mapContainer.rect(x, y + height - wallHeight, width, wallHeight).fill(0x6b5d4f);
+    this.mapContainer.stroke({ width: 2, color: 0x4a3a2a });
+
+    // Left wall (damaged)
+    if (destroyedLevel < 0.85) {
+      const leftWallHeight = wallHeight * (1 - destroyedLevel * 0.3);
+      this.mapContainer
+        .rect(x, y + height - leftWallHeight, wallThickness, leftWallHeight)
+        .fill(0x8b7355);
+      this.mapContainer.stroke({ width: 1, color: 0x654321 });
+    }
+
+    // Right wall (more damaged)
+    if (destroyedLevel < 0.75) {
+      const rightWallHeight = wallHeight * (1 - destroyedLevel * 0.5);
+      this.mapContainer
+        .rect(
+          x + width - wallThickness,
+          y + height - rightWallHeight,
+          wallThickness,
+          rightWallHeight
+        )
+        .fill(0x8b7355);
+      this.mapContainer.stroke({ width: 1, color: 0x654321 });
+    }
+
+    // Front wall sections (with gaps)
+    const frontWallHeight = wallHeight * 0.9;
+    if (destroyedLevel < 0.8) {
+      // Left section
+      this.mapContainer
+        .rect(x + wallThickness, y + height - frontWallHeight, width * 0.3, frontWallHeight)
+        .fill(0xa0826d);
+      this.mapContainer.stroke({ width: 1, color: 0x654321 });
+      // Right section
+      this.mapContainer
+        .rect(
+          x + width * 0.65,
+          y + height - frontWallHeight,
+          width * 0.35 - wallThickness,
+          frontWallHeight
+        )
+        .fill(0xa0826d);
+      this.mapContainer.stroke({ width: 1, color: 0x654321 });
+    }
+
+    // Collapsed roof
+    if (destroyedLevel < 0.9) {
+      this.mapContainer
+        .moveTo(x + wallThickness, y + height - wallHeight)
+        .lineTo(x + width * 0.4, y + height - wallHeight - 12)
+        .lineTo(x + width * 0.8, y + height - wallHeight + 8)
+        .lineTo(x + width - wallThickness, y + height - wallHeight * 0.6)
+        .lineTo(x + wallThickness, y + height - wallHeight)
+        .fill({ color: 0x8b4513, alpha: 0.9 });
+      this.mapContainer.stroke({ width: 2, color: 0x654321 });
+    }
+
+    // Window
+    if (destroyedLevel < 0.75) {
+      const windowX = x + width * 0.2;
+      const windowY = y + height - frontWallHeight * 0.6;
+      this.mapContainer.rect(windowX, windowY, 14, 18).fill(0x1a1a1a);
+      this.mapContainer.stroke({ width: 2, color: 0x654321 });
+      // Broken glass
+      this.mapContainer
+        .moveTo(windowX, windowY)
+        .lineTo(windowX + 14, windowY + 18)
+        .stroke({ width: 1, color: 0x4a4a4a });
+      this.mapContainer
+        .moveTo(windowX + 14, windowY)
+        .lineTo(windowX, windowY + 18)
+        .stroke({ width: 1, color: 0x4a4a4a });
+    }
+
+    // Door
+    if (destroyedLevel < 0.8) {
+      const doorX = x + width * 0.45;
+      const doorY = y + height - frontWallHeight * 0.8;
+      const doorWidth = 18;
+      const doorHeight = frontWallHeight * 0.7;
+      // Frame
+      this.mapContainer.rect(doorX - 2, doorY, doorWidth + 4, doorHeight).fill(0x4a3a2a);
+      // Door (tilted)
+      this.mapContainer
+        .moveTo(doorX, doorY)
+        .lineTo(doorX + doorWidth, doorY + 5)
+        .lineTo(doorX + doorWidth - 3, doorY + doorHeight)
+        .lineTo(doorX - 3, doorY + doorHeight - 5)
+        .lineTo(doorX, doorY)
+        .fill(0x654321);
+      this.mapContainer.stroke({ width: 1, color: 0x4a3a2a });
+    }
+
+    // Rubble
+    const rubbleCount = Math.floor(8 + destroyedLevel * 15);
+    for (let i = 0; i < rubbleCount; i++) {
+      const rx = x + Math.random() * width;
+      const ry = y + height + 8 + Math.random() * 12;
+      const size = 4 + Math.random() * 6;
+      this.mapContainer.rect(rx, ry, size, size * 0.8).fill(0x696969);
+    }
+
+    // Burn marks
+    if (destroyedLevel > 0.6) {
+      this.mapContainer
+        .circle(x + width * 0.3, y + height - wallHeight * 0.5, 18)
+        .fill({ color: 0x1a1a1a, alpha: 0.5 });
+      this.mapContainer
+        .circle(x + width * 0.7, y + height - wallHeight * 0.3, 14)
+        .fill({ color: 0x1a1a1a, alpha: 0.4 });
+    }
+
+    // Smoke
+    if (destroyedLevel > 0.7) {
+      for (let i = 0; i < 4; i++) {
+        const sx = x + width * 0.5 + (Math.random() - 0.5) * 25;
+        const sy = y + height - wallHeight - 15 - i * 10;
+        this.mapContainer
+          .circle(sx, sy, 4 + i * 0.5)
+          .fill({ color: 0x808080, alpha: 0.35 - i * 0.08 });
+      }
+    }
+  }
+
   private addDecorativeElements(mapData: MapData): void {
     // Add some random decorative elements to make the map more visually interesting
     // This is a simplified implementation - in a full game this would be more sophisticated
@@ -171,8 +330,8 @@ export class VisualMapRenderer {
       const x = Math.random() * mapData.width;
       const y = Math.random() * mapData.height;
 
-      // Only place decorations away from the path
-      if (this.isAwayFromPath(x, y, mapData.waypoints)) {
+      // Only place decorations away from the path and not at the top (where houses are)
+      if (y > 150 && this.isAwayFromPath(x, y, mapData.waypoints)) {
         this.mapContainer.circle(x, y, 5 + Math.random() * 10);
         this.mapContainer.fill({ color: 0x228822 });
       }
