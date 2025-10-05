@@ -104,27 +104,11 @@ export class Tower extends GameObject implements ITower {
   // Shoot at a target
   public shoot(): void {
     this.lastShotTime = performance.now();
-    // Shooting logic would be implemented here
-
-    // Show visual effect for shooting
-    this.visual.clear();
-    this.visual.circle(0, 0, 20).fill(0xff0000);
-    this.visual.stroke({ width: 2, color: 0xffffff });
-
-    // Reset color after a short delay
-    setTimeout(() => {
-      this.visual.clear();
-      this.visual.circle(0, 0, 20).fill(0x0000ff);
-      this.visual.stroke({ width: 2, color: 0xffffff });
-    }, 100);
+    // Shooting logic is handled by showShootingEffect()
   }
 
   // Show shooting visual effects
   public showShootingEffect(): void {
-    // Store original barrel position for recoil animation
-    const originalX = this.barrel.x;
-    const originalY = this.barrel.y;
-
     // Create temporary muzzle flash on the barrel
     const flash = new Graphics();
     
@@ -160,15 +144,18 @@ export class Tower extends GameObject implements ITower {
 
     this.barrel.addChild(flash);
 
-    // Apply recoil animation (little man recoils back)
-    this.barrel.y = originalY + 2;
+    // Apply recoil animation (little man recoils back slightly)
+    const originalY = this.barrel.y;
+    this.barrel.y = 2;
 
     // Reset after a short delay
     setTimeout(() => {
-      this.barrel.removeChild(flash);
-      flash.destroy();
-      // Return to original position
-      this.barrel.y = originalY;
+      if (this.barrel && !this.barrel.destroyed) {
+        this.barrel.removeChild(flash);
+        flash.destroy();
+        // Return to original position
+        this.barrel.y = originalY;
+      }
     }, 100);
   }
 
@@ -390,14 +377,17 @@ export class Tower extends GameObject implements ITower {
     if (healthComponent) {
       const actualDamage = healthComponent.takeDamage(damage);
 
-      // Visual feedback for damage
-      this.visual.clear();
-      this.visual.circle(0, 0, 20).fill(0xff0000);
-      this.visual.stroke({ width: 2, color: 0xffffff });
+      // Visual feedback for damage - flash the tower red
+      const damageFlash = new Graphics();
+      damageFlash.circle(0, 0, 30).fill({ color: 0xff0000, alpha: 0.5 });
+      this.addChild(damageFlash);
 
-      // Reset color after a short delay
+      // Remove flash after a short delay
       setTimeout(() => {
-        this.updateVisual();
+        if (damageFlash && !damageFlash.destroyed) {
+          this.removeChild(damageFlash);
+          damageFlash.destroy();
+        }
       }, 100);
 
       return actualDamage;
