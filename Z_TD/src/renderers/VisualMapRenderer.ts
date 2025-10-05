@@ -28,11 +28,14 @@ export class VisualMapRenderer {
     const mapData = this.mapManager.getCurrentMap();
     if (!mapData) return;
 
-    // Render map background
+    // Render map background first
     this.renderMapBackground(mapData);
 
-    // Render path
+    // Render path on mapContainer (so it appears under graveyard)
     this.renderPath(mapData);
+
+    // Render graveyard and other foreground elements
+    this.renderForegroundElements(mapData);
   }
 
   private renderMapBackground(mapData: MapData): void {
@@ -47,12 +50,17 @@ export class VisualMapRenderer {
     // Draw separator line between play area and UI
     this.mapContainer.rect(1024, 0, 4, 768);
     this.mapContainer.fill({ color: 0x654321 });
+  }
 
+  private renderForegroundElements(mapData: MapData): void {
     // Add graveyard on the left (zombie spawn area)
     this.renderGraveyard(mapData);
 
     // Add destroyed houses at the top
     this.renderDestroyedHouses(mapData);
+
+    // Add survivor camp at the end of the path
+    this.renderSurvivorCamp(mapData.waypoints[mapData.waypoints.length - 1]);
 
     // Add some visual elements like trees or rocks
     this.addDecorativeElements(mapData);
@@ -65,7 +73,7 @@ export class VisualMapRenderer {
     const cornerRadius = 30; // Radius for corner curves
 
     // Build smooth path with curves at corners
-    this.pathGraphics.moveTo(mapData.waypoints[0].x, mapData.waypoints[0].y);
+    this.mapContainer.moveTo(mapData.waypoints[0].x, mapData.waypoints[0].y);
 
     // Draw the center line with curves
     for (let i = 0; i < mapData.waypoints.length; i++) {
@@ -75,10 +83,10 @@ export class VisualMapRenderer {
 
       if (!prev) {
         // First point - just move to it
-        this.pathGraphics.moveTo(curr.x, curr.y);
+        this.mapContainer.moveTo(curr.x, curr.y);
       } else if (!next) {
         // Last point - draw straight line to it
-        this.pathGraphics.lineTo(curr.x, curr.y);
+        this.mapContainer.lineTo(curr.x, curr.y);
       } else {
         // Middle point - create curved corner
         const v1x = curr.x - prev.x;
@@ -105,27 +113,27 @@ export class VisualMapRenderer {
         const endY = curr.y + n2y * curveEnd;
 
         // Draw line to curve start
-        this.pathGraphics.lineTo(startX, startY);
+        this.mapContainer.lineTo(startX, startY);
 
         // Draw quadratic curve through the corner
-        this.pathGraphics.quadraticCurveTo(curr.x, curr.y, endX, endY);
+        this.mapContainer.quadraticCurveTo(curr.x, curr.y, endX, endY);
       }
     }
 
     // Stroke the path with width
-    this.pathGraphics.stroke({ width: pathWidth, color: 0x8b7355, cap: 'round', join: 'round' });
+    this.mapContainer.stroke({ width: pathWidth, color: 0x8b7355, cap: 'round', join: 'round' });
 
     // Add border
-    this.pathGraphics.moveTo(mapData.waypoints[0].x, mapData.waypoints[0].y);
+    this.mapContainer.moveTo(mapData.waypoints[0].x, mapData.waypoints[0].y);
     for (let i = 0; i < mapData.waypoints.length; i++) {
       const prev = i > 0 ? mapData.waypoints[i - 1] : null;
       const curr = mapData.waypoints[i];
       const next = i < mapData.waypoints.length - 1 ? mapData.waypoints[i + 1] : null;
 
       if (!prev) {
-        this.pathGraphics.moveTo(curr.x, curr.y);
+        this.mapContainer.moveTo(curr.x, curr.y);
       } else if (!next) {
-        this.pathGraphics.lineTo(curr.x, curr.y);
+        this.mapContainer.lineTo(curr.x, curr.y);
       } else {
         const v1x = curr.x - prev.x;
         const v1y = curr.y - prev.y;
@@ -148,26 +156,17 @@ export class VisualMapRenderer {
         const endX = curr.x + n2x * curveEnd;
         const endY = curr.y + n2y * curveEnd;
 
-        this.pathGraphics.lineTo(startX, startY);
-        this.pathGraphics.quadraticCurveTo(curr.x, curr.y, endX, endY);
+        this.mapContainer.lineTo(startX, startY);
+        this.mapContainer.quadraticCurveTo(curr.x, curr.y, endX, endY);
       }
     }
 
-    this.pathGraphics.stroke({
+    this.mapContainer.stroke({
       width: pathWidth + 4,
       color: 0x654321,
       cap: 'round',
       join: 'round',
     });
-
-    // Draw waypoint markers for debugging
-    for (const waypoint of mapData.waypoints) {
-      this.pathGraphics.circle(waypoint.x, waypoint.y, 8);
-      this.pathGraphics.fill({ color: 0xff0000, alpha: 0.5 });
-    }
-
-    // Draw survivor camp at the end of the path
-    this.renderSurvivorCamp(mapData.waypoints[mapData.waypoints.length - 1]);
   }
 
   private renderGraveyard(mapData: MapData): void {
@@ -188,29 +187,105 @@ export class VisualMapRenderer {
     this.mapContainer
       .rect(graveyardX, graveyardY + graveyardHeight - 4, graveyardWidth, 4)
       .fill(0x8b4513); // Bottom fence
+
+    // Left fence (with gap for gate at spawn point)
+    const gateGapStart = 360 - graveyardY; // Gate starts at y: 360
+    const gateGapEnd = gateGapStart + 60; // Gate is 60px tall
+
+    // Left fence - top section (above gate)
     this.mapContainer
-      .rect(graveyardX, graveyardY, 4, graveyardHeight)
-      .fill(0x8b4513); // Left fence
+      .rect(graveyardX, graveyardY, 4, gateGapStart)
+      .fill(0x8b4513);
+
+    // Left fence - bottom section (below gate)
+    this.mapContainer
+      .rect(graveyardX, graveyardY + gateGapEnd, 4, graveyardHeight - gateGapEnd)
+      .fill(0x8b4513);
+
+    // Right fence (solid)
     this.mapContainer
       .rect(graveyardX + graveyardWidth - 4, graveyardY, 4, graveyardHeight)
-      .fill(0x8b4513); // Right fence
+      .fill(0x8b4513);
 
-    // Fence posts
+    // Fence posts (avoiding gate area)
     for (let i = 0; i <= graveyardHeight; i += 35) {
-      this.mapContainer.rect(graveyardX - 2, graveyardY + i, 8, 6).fill(0x654321);
+      // Skip posts in gate area
+      if (i < gateGapStart || i > gateGapEnd) {
+        this.mapContainer.rect(graveyardX - 2, graveyardY + i, 8, 6).fill(0x654321);
+      }
       this.mapContainer.rect(graveyardX + graveyardWidth - 6, graveyardY + i, 8, 6).fill(0x654321);
     }
 
-    // Broken gate (open, hanging)
-    const gateX = graveyardX - 2;
-    const gateY = graveyardY + graveyardHeight / 2 - 20;
+    // Gate opening (where zombies exit) - aligned with spawn point
+    const gateX = graveyardX;
+    const gateY = 360; // Aligned with spawn point at y: 384
+    const gateWidth = 50;
+    const gateHeight = 60;
+
+    // Gate posts (stone pillars)
+    this.mapContainer.rect(gateX - 8, gateY, 8, gateHeight).fill(0x696969);
+    this.mapContainer.stroke({ width: 2, color: 0x4a4a4a });
+    this.mapContainer.rect(gateX + gateWidth, gateY, 8, gateHeight).fill(0x696969);
+    this.mapContainer.stroke({ width: 2, color: 0x4a4a4a });
+
+    // Decorative skulls on gate posts
+    this.mapContainer.circle(gateX - 4, gateY + 10, 4).fill(0xf5f5dc);
+    this.mapContainer.circle(gateX - 6, gateY + 12, 1.5).fill(0x1a1a1a); // Eye
+    this.mapContainer.circle(gateX - 2, gateY + 12, 1.5).fill(0x1a1a1a); // Eye
+
+    this.mapContainer.circle(gateX + gateWidth + 4, gateY + 10, 4).fill(0xf5f5dc);
+    this.mapContainer.circle(gateX + gateWidth + 2, gateY + 12, 1.5).fill(0x1a1a1a); // Eye
+    this.mapContainer.circle(gateX + gateWidth + 6, gateY + 12, 1.5).fill(0x1a1a1a); // Eye
+
+    // Broken iron gate (left side, hanging)
     this.mapContainer
-      .moveTo(gateX, gateY)
-      .lineTo(gateX - 15, gateY + 5)
-      .lineTo(gateX - 15, gateY + 35)
-      .lineTo(gateX, gateY + 40)
-      .fill({ color: 0x654321, alpha: 0.7 });
-    this.mapContainer.stroke({ width: 2, color: 0x4a3a2a });
+      .moveTo(gateX - 8, gateY + 5)
+      .lineTo(gateX - 20, gateY + 10)
+      .lineTo(gateX - 20, gateY + 45)
+      .lineTo(gateX - 8, gateY + 50)
+      .fill({ color: 0x4a4a4a, alpha: 0.8 });
+    this.mapContainer.stroke({ width: 2, color: 0x2a2a2a });
+
+    // Gate bars (broken)
+    for (let i = 0; i < 3; i++) {
+      this.mapContainer
+        .moveTo(gateX - 18, gateY + 15 + i * 10)
+        .lineTo(gateX - 10, gateY + 15 + i * 10)
+        .stroke({ width: 2, color: 0x2a2a2a });
+    }
+
+    // Broken iron gate (right side, partially open)
+    this.mapContainer
+      .moveTo(gateX + gateWidth + 8, gateY + 5)
+      .lineTo(gateX + gateWidth + 15, gateY + 15)
+      .lineTo(gateX + gateWidth + 15, gateY + 50)
+      .lineTo(gateX + gateWidth + 8, gateY + 55)
+      .fill({ color: 0x4a4a4a, alpha: 0.8 });
+    this.mapContainer.stroke({ width: 2, color: 0x2a2a2a });
+
+    // Gate bars
+    for (let i = 0; i < 3; i++) {
+      this.mapContainer
+        .moveTo(gateX + gateWidth + 10, gateY + 20 + i * 10)
+        .lineTo(gateX + gateWidth + 13, gateY + 20 + i * 10)
+        .stroke({ width: 2, color: 0x2a2a2a });
+    }
+
+    // "RIP" sign above gate (weathered)
+    this.mapContainer.rect(gateX + 10, gateY - 15, 30, 12).fill(0x4a3a2a);
+    this.mapContainer.stroke({ width: 1, color: 0x2a1a1a });
+
+    // Chains hanging from gate
+    this.mapContainer
+      .moveTo(gateX - 8, gateY + 5)
+      .lineTo(gateX - 5, gateY + 15)
+      .lineTo(gateX - 8, gateY + 25)
+      .stroke({ width: 2, color: 0x4a4a4a });
+    this.mapContainer
+      .moveTo(gateX + gateWidth + 8, gateY + 5)
+      .lineTo(gateX + gateWidth + 5, gateY + 15)
+      .lineTo(gateX + gateWidth + 8, gateY + 25)
+      .stroke({ width: 2, color: 0x4a4a4a });
 
     // Gravestones (various types)
     const gravestones = [
