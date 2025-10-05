@@ -13,6 +13,7 @@ import { TowerCombatManager } from './TowerCombatManager';
 import { ProjectileManager } from './ProjectileManager';
 import { Tower } from '../objects/Tower';
 import { DevConfig } from '../config/devConfig';
+import { DebugConstants, applyDebugConstants } from '../config/debugConstants';
 
 export class GameManager {
   private app: Application;
@@ -42,15 +43,24 @@ export class GameManager {
   constructor(app: Application) {
     this.app = app;
     this.currentState = GameConfig.GAME_STATES.MAIN_MENU;
-    this.money = GameConfig.STARTING_MONEY;
-    this.lives = GameConfig.STARTING_LIVES;
-    this.wave = 1;
+    
+    // Apply debug constants if enabled
+    this.money = DebugConstants.ENABLED ? DebugConstants.STARTING_MONEY : GameConfig.STARTING_MONEY;
+    this.lives = DebugConstants.ENABLED ? DebugConstants.STARTING_LIVES : GameConfig.STARTING_LIVES;
+    this.wave = DebugConstants.ENABLED ? DebugConstants.START_AT_WAVE : 1;
     this.score = 0;
     this.resources = {
-      wood: 0,
-      metal: 0,
-      energy: 100,
+      wood: DebugConstants.ENABLED ? DebugConstants.STARTING_WOOD : 0,
+      metal: DebugConstants.ENABLED ? DebugConstants.STARTING_METAL : 0,
+      energy: DebugConstants.ENABLED ? DebugConstants.STARTING_ENERGY : 100,
     };
+    
+    if (DebugConstants.ENABLED) {
+      console.log('🔧 Debug Mode Enabled');
+      console.log(`💰 Starting Money: ${this.money}`);
+      console.log(`❤️ Starting Lives: ${this.lives}`);
+      console.log(`🌊 Starting Wave: ${this.wave}`);
+    }
 
     // Create game container for all game objects
     this.gameContainer = new Container();
@@ -119,9 +129,15 @@ export class GameManager {
     if (this.levelManager.loadLevel(levelId)) {
       const level = this.levelManager.getCurrentLevel();
       if (level) {
-        // Set level-specific game parameters
-        this.money = level.startingMoney;
-        this.lives = level.startingLives;
+        // Set level-specific game parameters (unless debug mode overrides)
+        if (DebugConstants.ENABLED) {
+          // Keep debug values
+          console.log('🔧 Using debug starting values instead of level defaults');
+        } else {
+          // Use level defaults
+          this.money = level.startingMoney;
+          this.lives = level.startingLives;
+        }
         // Apply resource modifiers
         // ... other level-specific initialization ...
 
