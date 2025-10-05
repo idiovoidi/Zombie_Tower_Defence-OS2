@@ -48,6 +48,9 @@ export class VisualMapRenderer {
     this.mapContainer.rect(1024, 0, 4, 768);
     this.mapContainer.fill({ color: 0x654321 });
 
+    // Add graveyard on the left (zombie spawn area)
+    this.renderGraveyard(mapData);
+
     // Add destroyed houses at the top
     this.renderDestroyedHouses(mapData);
 
@@ -165,6 +168,172 @@ export class VisualMapRenderer {
 
     // Draw survivor camp at the end of the path
     this.renderSurvivorCamp(mapData.waypoints[mapData.waypoints.length - 1]);
+  }
+
+  private renderGraveyard(mapData: MapData): void {
+    const graveyardX = 20;
+    const graveyardY = 250;
+    const graveyardWidth = 140;
+    const graveyardHeight = 280;
+
+    // Graveyard ground (darker, dead grass)
+    this.mapContainer
+      .rect(graveyardX, graveyardY, graveyardWidth, graveyardHeight)
+      .fill({ color: 0x2a4a2a, alpha: 0.8 });
+
+    // Rusty iron fence around graveyard
+    this.mapContainer
+      .rect(graveyardX, graveyardY, graveyardWidth, 4)
+      .fill(0x8b4513); // Top fence
+    this.mapContainer
+      .rect(graveyardX, graveyardY + graveyardHeight - 4, graveyardWidth, 4)
+      .fill(0x8b4513); // Bottom fence
+    this.mapContainer
+      .rect(graveyardX, graveyardY, 4, graveyardHeight)
+      .fill(0x8b4513); // Left fence
+    this.mapContainer
+      .rect(graveyardX + graveyardWidth - 4, graveyardY, 4, graveyardHeight)
+      .fill(0x8b4513); // Right fence
+
+    // Fence posts
+    for (let i = 0; i <= graveyardHeight; i += 35) {
+      this.mapContainer.rect(graveyardX - 2, graveyardY + i, 8, 6).fill(0x654321);
+      this.mapContainer.rect(graveyardX + graveyardWidth - 6, graveyardY + i, 8, 6).fill(0x654321);
+    }
+
+    // Broken gate (open, hanging)
+    const gateX = graveyardX - 2;
+    const gateY = graveyardY + graveyardHeight / 2 - 20;
+    this.mapContainer
+      .moveTo(gateX, gateY)
+      .lineTo(gateX - 15, gateY + 5)
+      .lineTo(gateX - 15, gateY + 35)
+      .lineTo(gateX, gateY + 40)
+      .fill({ color: 0x654321, alpha: 0.7 });
+    this.mapContainer.stroke({ width: 2, color: 0x4a3a2a });
+
+    // Gravestones (various types)
+    const gravestones = [
+      { x: 40, y: 280, type: 'cross', tilt: 0.1 },
+      { x: 80, y: 290, type: 'rect', tilt: -0.15 },
+      { x: 120, y: 285, type: 'round', tilt: 0.05 },
+      { x: 50, y: 330, type: 'rect', tilt: 0.2 },
+      { x: 95, y: 340, type: 'cross', tilt: -0.1 },
+      { x: 135, y: 335, type: 'rect', tilt: 0.15 },
+      { x: 35, y: 380, type: 'round', tilt: -0.05 },
+      { x: 75, y: 390, type: 'rect', tilt: 0.25 },
+      { x: 115, y: 385, type: 'cross', tilt: -0.2 },
+      { x: 145, y: 395, type: 'rect', tilt: 0.1 },
+      { x: 45, y: 440, type: 'round', tilt: 0.15 },
+      { x: 90, y: 450, type: 'rect', tilt: -0.1 },
+      { x: 130, y: 445, type: 'cross', tilt: 0.05 },
+      { x: 60, y: 490, type: 'rect', tilt: -0.2 },
+      { x: 105, y: 500, type: 'round', tilt: 0.1 },
+    ];
+
+    for (const stone of gravestones) {
+      this.renderGravestone(stone.x, stone.y, stone.type, stone.tilt);
+    }
+
+    // Dead tree in graveyard
+    this.renderDeadTree(graveyardX + 25, graveyardY + 180);
+
+    // Mist/fog effect
+    for (let i = 0; i < 8; i++) {
+      const mistX = graveyardX + Math.random() * graveyardWidth;
+      const mistY = graveyardY + graveyardHeight - 30 + Math.random() * 20;
+      this.mapContainer
+        .circle(mistX, mistY, 15 + Math.random() * 10)
+        .fill({ color: 0xcccccc, alpha: 0.15 });
+    }
+
+    // Open graves (where zombies emerge)
+    this.renderOpenGrave(graveyardX + 70, graveyardY + 120);
+    this.renderOpenGrave(graveyardX + 110, graveyardY + 160);
+  }
+
+  private renderGravestone(x: number, y: number, type: string, tilt: number): void {
+    const baseColor = 0x696969;
+    const darkColor = 0x4a4a4a;
+
+    if (type === 'rect') {
+      // Rectangular gravestone
+      this.mapContainer.rect(x - 8, y, 16, 25).fill(baseColor);
+      this.mapContainer.stroke({ width: 1, color: darkColor });
+      // Moss/weathering
+      this.mapContainer.circle(x - 3, y + 5, 3).fill({ color: 0x2a4a2a, alpha: 0.5 });
+      this.mapContainer.circle(x + 4, y + 15, 2).fill({ color: 0x2a4a2a, alpha: 0.5 });
+    } else if (type === 'round') {
+      // Rounded top gravestone
+      this.mapContainer.rect(x - 8, y + 8, 16, 20).fill(baseColor);
+      this.mapContainer.circle(x, y + 8, 8).fill(baseColor);
+      this.mapContainer.stroke({ width: 1, color: darkColor });
+      // Crack
+      this.mapContainer
+        .moveTo(x - 2, y + 5)
+        .lineTo(x + 1, y + 20)
+        .stroke({ width: 1, color: darkColor });
+    } else if (type === 'cross') {
+      // Cross gravestone
+      this.mapContainer.rect(x - 2, y, 4, 25).fill(baseColor); // Vertical
+      this.mapContainer.rect(x - 8, y + 8, 16, 4).fill(baseColor); // Horizontal
+      this.mapContainer.stroke({ width: 1, color: darkColor });
+    }
+
+    // Shadow/base
+    this.mapContainer.rect(x - 10, y + 25, 20, 3).fill({ color: 0x1a1a1a, alpha: 0.4 });
+  }
+
+  private renderDeadTree(x: number, y: number): void {
+    // Trunk
+    this.mapContainer.rect(x - 3, y, 6, 40).fill(0x4a3a2a);
+    this.mapContainer.stroke({ width: 1, color: 0x2a1a1a });
+
+    // Bare branches
+    this.mapContainer
+      .moveTo(x, y + 10)
+      .lineTo(x - 15, y)
+      .stroke({ width: 2, color: 0x4a3a2a });
+    this.mapContainer
+      .moveTo(x, y + 15)
+      .lineTo(x + 12, y + 5)
+      .stroke({ width: 2, color: 0x4a3a2a });
+    this.mapContainer
+      .moveTo(x, y + 25)
+      .lineTo(x - 10, y + 18)
+      .stroke({ width: 2, color: 0x4a3a2a });
+    this.mapContainer
+      .moveTo(x, y + 30)
+      .lineTo(x + 8, y + 25)
+      .stroke({ width: 1, color: 0x4a3a2a });
+
+    // Broken branch on ground
+    this.mapContainer
+      .moveTo(x + 10, y + 45)
+      .lineTo(x + 20, y + 48)
+      .stroke({ width: 2, color: 0x4a3a2a });
+  }
+
+  private renderOpenGrave(x: number, y: number): void {
+    // Grave hole (dark opening)
+    this.mapContainer.rect(x - 15, y, 30, 20).fill(0x1a1a1a);
+    this.mapContainer.stroke({ width: 2, color: 0x2a2a2a });
+
+    // Dirt piles on sides
+    this.mapContainer.circle(x - 20, y + 10, 8).fill(0x654321);
+    this.mapContainer.circle(x - 25, y + 15, 6).fill(0x654321);
+    this.mapContainer.circle(x + 20, y + 10, 8).fill(0x654321);
+    this.mapContainer.circle(x + 25, y + 15, 6).fill(0x654321);
+
+    // Broken coffin pieces
+    this.mapContainer.rect(x - 10, y + 5, 8, 3).fill(0x4a3a2a);
+    this.mapContainer.rect(x + 5, y + 12, 6, 3).fill(0x4a3a2a);
+
+    // Skeletal hand reaching out
+    this.mapContainer.circle(x - 5, y + 8, 2).fill(0xf5f5dc); // Palm
+    this.mapContainer.rect(x - 6, y + 6, 1, 4).fill(0xf5f5dc); // Finger
+    this.mapContainer.rect(x - 4, y + 5, 1, 5).fill(0xf5f5dc); // Finger
+    this.mapContainer.rect(x - 2, y + 6, 1, 4).fill(0xf5f5dc); // Finger
   }
 
   private renderDestroyedHouses(mapData: MapData): void {
