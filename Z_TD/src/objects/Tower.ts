@@ -121,56 +121,54 @@ export class Tower extends GameObject implements ITower {
 
   // Show shooting visual effects
   public showShootingEffect(): void {
-    // Store original position for recoil animation
-    const originalX = this.visual.x;
-    const originalY = this.visual.y;
+    // Store original barrel position for recoil animation
+    const originalX = this.barrel.x;
+    const originalY = this.barrel.y;
 
-    // Muzzle flash effect based on tower type
-    this.visual.clear();
-
+    // Create temporary muzzle flash on the barrel
+    const flash = new Graphics();
+    
     switch (this.type) {
       case GameConfig.TOWER_TYPES.MACHINE_GUN:
-        this.createMachineGunVisual();
-        // Add muzzle flash
-        this.visual.circle(0, -15, 8).fill(0xffff00); // Yellow flash
+        // Small rapid muzzle flash
+        flash.circle(0, -26, 4).fill(0xffff00);
         break;
       case GameConfig.TOWER_TYPES.SNIPER:
-        this.createSniperVisual();
-        // Add muzzle flash at barrel tip
-        this.visual.circle(0, -35, 6).fill(0xffff00); // Yellow flash
+        // Large bright flash at rifle tip
+        flash.circle(0, -36, 5).fill(0xffff00);
+        flash.circle(0, -36, 8).fill({ color: 0xffff00, alpha: 0.3 });
         break;
       case GameConfig.TOWER_TYPES.SHOTGUN:
-        this.createShotgunVisual();
-        // Add muzzle flash
-        this.visual.circle(0, 0, 12).fill(0xffff00); // Yellow flash
+        // Wide spread flash
+        flash.circle(-2, -22, 5).fill(0xffff00);
+        flash.circle(2, -22, 5).fill(0xffff00);
         break;
       case GameConfig.TOWER_TYPES.FLAME:
-        this.createFlameVisual();
-        // Add flame effect
-        this.visual.circle(0, 0, 12).fill(0xff4500); // Orange flame
+        // Flame burst
+        flash.circle(0, -26, 6).fill(0xff4500);
+        flash.circle(0, -28, 4).fill(0xff6347);
         break;
       case GameConfig.TOWER_TYPES.TESLA:
-        this.createTeslaVisual();
-        // Add electrical effect
-        this.visual.circle(0, 0, 15).fill(0x00bfff); // Light blue electricity
+        // Electric burst
+        flash.circle(0, -24, 6).fill(0x00ffff);
+        flash.moveTo(-4, -24).lineTo(4, -24).stroke({ width: 2, color: 0xffffff });
+        flash.moveTo(0, -28).lineTo(0, -20).stroke({ width: 2, color: 0xffffff });
         break;
       default:
-        // Default visual if type not recognized
-        this.visual.circle(0, 0, 20).fill(0x0000ff);
-        this.visual.stroke({ width: 2, color: 0xffffff });
-        this.visual.circle(0, -15, 8).fill(0xffff00); // Yellow flash
+        flash.circle(0, -26, 4).fill(0xffff00);
     }
 
-    // Apply recoil animation (short backward movement)
-    this.visual.x = originalX - 2;
-    this.visual.y = originalY - 2;
+    this.barrel.addChild(flash);
+
+    // Apply recoil animation (little man recoils back)
+    this.barrel.y = originalY + 2;
 
     // Reset after a short delay
     setTimeout(() => {
-      this.updateVisual();
+      this.barrel.removeChild(flash);
+      flash.destroy();
       // Return to original position
-      this.visual.x = originalX;
-      this.visual.y = originalY;
+      this.barrel.y = originalY;
     }, 100);
   }
 
@@ -190,61 +188,130 @@ export class Tower extends GameObject implements ITower {
 
   // Machine Gun Tower Visual
   private createMachineGunVisual(): void {
-    // Base (doesn't rotate)
-    this.visual.circle(0, 0, 20).fill(0x0000ff); // Blue
+    // Tower base (doesn't rotate)
+    this.visual.rect(-15, -5, 30, 25).fill(0x8b7355); // Brown tower base
     this.visual.stroke({ width: 2, color: 0x000000 });
+    
+    // Tower window
+    this.visual.rect(-10, 0, 8, 8).fill(0x4a4a4a); // Dark window
+    this.visual.rect(2, 0, 8, 8).fill(0x4a4a4a); // Dark window
 
-    // Barrel (rotates)
+    // Little man (rotates with barrel)
     this.barrel.clear();
-    this.barrel.moveTo(0, -20).lineTo(0, -35).stroke({ width: 3, color: 0x4169e1 });
+    // Head
+    this.barrel.circle(0, -18, 5).fill(0xffdbac); // Skin tone
+    this.barrel.stroke({ width: 1, color: 0x000000 });
+    // Body
+    this.barrel.rect(-3, -13, 6, 8).fill(0x0000ff); // Blue uniform
+    // Gun (machine gun)
+    this.barrel.rect(-1, -25, 2, 12).fill(0x2f4f4f); // Gun body
+    this.barrel.rect(-2, -26, 4, 2).fill(0x2f4f4f); // Gun barrel
   }
 
   // Sniper Tower Visual
   private createSniperVisual(): void {
-    // Base (doesn't rotate)
-    this.visual.ellipse(0, 0, 15, 25).fill(0x2f4f4f); // Dark slate gray
+    // Tall tower base (doesn't rotate)
+    this.visual.rect(-12, -10, 24, 30).fill(0x696969); // Gray tower
     this.visual.stroke({ width: 2, color: 0x000000 });
+    
+    // Tower top
+    this.visual.moveTo(-12, -10).lineTo(0, -18).lineTo(12, -10).fill(0x4a4a4a);
+    
+    // Sniper window
+    this.visual.rect(-6, -5, 12, 6).fill(0x2f4f4f);
 
-    // Long barrel (rotates)
+    // Little man with sniper rifle (rotates)
     this.barrel.clear();
-    this.barrel.moveTo(0, -25).lineTo(0, -45).stroke({ width: 2, color: 0x696969 });
+    // Head
+    this.barrel.circle(0, -20, 5).fill(0xffdbac);
+    this.barrel.stroke({ width: 1, color: 0x000000 });
+    // Body
+    this.barrel.rect(-3, -15, 6, 8).fill(0x2f4f4f); // Dark uniform
+    // Sniper rifle (long and thin)
+    this.barrel.rect(-1, -35, 2, 20).fill(0x1a1a1a); // Long rifle
+    this.barrel.circle(0, -36, 2).fill(0x1a1a1a); // Scope
   }
 
   // Shotgun Tower Visual
   private createShotgunVisual(): void {
-    // Base (doesn't rotate)
-    this.visual.roundRect(-18, -18, 36, 36, 8).fill(0x8b4513); // Saddle brown
+    // Bunker-style base (doesn't rotate)
+    this.visual.roundRect(-18, -8, 36, 28, 8).fill(0x8b4513); // Brown bunker
     this.visual.stroke({ width: 2, color: 0x000000 });
+    
+    // Sandbags
+    this.visual.circle(-12, 15, 4).fill(0xa0826d);
+    this.visual.circle(-4, 15, 4).fill(0xa0826d);
+    this.visual.circle(4, 15, 4).fill(0xa0826d);
+    this.visual.circle(12, 15, 4).fill(0xa0826d);
+    
+    // Firing slot
+    this.visual.rect(-8, 0, 16, 6).fill(0x4a4a4a);
 
-    // Double barrels (rotate)
+    // Little man with shotgun (rotates)
     this.barrel.clear();
-    this.barrel.moveTo(-5, -18).lineTo(-5, -30).stroke({ width: 2, color: 0xa0522d });
-    this.barrel.moveTo(5, -18).lineTo(5, -30).stroke({ width: 2, color: 0xa0522d });
+    // Head
+    this.barrel.circle(0, -16, 5).fill(0xffdbac);
+    this.barrel.stroke({ width: 1, color: 0x000000 });
+    // Body
+    this.barrel.rect(-3, -11, 6, 8).fill(0x8b4513); // Brown uniform
+    // Shotgun (double barrel)
+    this.barrel.rect(-3, -22, 2, 11).fill(0xa0522d);
+    this.barrel.rect(1, -22, 2, 11).fill(0xa0522d);
   }
 
   // Flame Tower Visual
   private createFlameVisual(): void {
-    // Base (doesn't rotate)
-    this.visual.circle(0, 0, 20).fill(0xff4500); // Orange red
+    // Round tower base (doesn't rotate)
+    this.visual.circle(0, 5, 18).fill(0xff4500); // Orange tower
     this.visual.stroke({ width: 2, color: 0x000000 });
+    
+    // Tower top
+    this.visual.circle(0, -10, 12).fill(0xff6347);
+    
+    // Heat vents
+    this.visual.rect(-10, 0, 3, 8).fill(0x8b0000);
+    this.visual.rect(7, 0, 3, 8).fill(0x8b0000);
 
-    // Flame nozzle (rotates)
+    // Little man with flamethrower (rotates)
     this.barrel.clear();
-    this.barrel.rect(-3, -20, 6, 15).fill(0xff0000);
-    this.barrel.circle(0, -22, 5).fill(0xff4500);
+    // Head with protective mask
+    this.barrel.circle(0, -18, 5).fill(0xffdbac);
+    this.barrel.circle(0, -18, 4).fill(0x4a4a4a); // Mask
+    this.barrel.stroke({ width: 1, color: 0x000000 });
+    // Body
+    this.barrel.rect(-3, -13, 6, 8).fill(0xff4500); // Orange suit
+    // Flamethrower
+    this.barrel.rect(-2, -24, 4, 11).fill(0xff0000); // Fuel tank
+    this.barrel.rect(-1, -26, 2, 8).fill(0x8b0000); // Nozzle
   }
 
   // Tesla Tower Visual
   private createTeslaVisual(): void {
-    // Base (doesn't rotate)
-    this.visual.circle(0, 0, 20).fill(0x00ced1); // Dark turquoise
+    // High-tech tower base (doesn't rotate)
+    this.visual.rect(-16, -5, 32, 25).fill(0x00ced1); // Turquoise tower
     this.visual.stroke({ width: 2, color: 0x000000 });
+    
+    // Tech panels
+    this.visual.rect(-12, 0, 8, 6).fill(0x7fffd4);
+    this.visual.rect(4, 0, 8, 6).fill(0x7fffd4);
+    
+    // Energy indicators
+    this.visual.circle(-8, 3, 2).fill(0x00ffff);
+    this.visual.circle(8, 3, 2).fill(0x00ffff);
 
-    // Electrical coil (rotates)
+    // Little man with tesla gun (rotates)
     this.barrel.clear();
-    this.barrel.circle(0, -15, 8).fill(0x7fffd4); // Aquamarine
-    this.barrel.moveTo(-5, -20).lineTo(5, -10).stroke({ width: 1, color: 0xffffff });
-    this.barrel.moveTo(5, -20).lineTo(-5, -10).stroke({ width: 1, color: 0xffffff });
+    // Head
+    this.barrel.circle(0, -18, 5).fill(0xffdbac);
+    this.barrel.stroke({ width: 1, color: 0x000000 });
+    // Body with tech suit
+    this.barrel.rect(-3, -13, 6, 8).fill(0x00ced1);
+    // Tesla coil gun
+    this.barrel.circle(0, -24, 4).fill(0x7fffd4); // Coil top
+    this.barrel.rect(-2, -24, 4, 9).fill(0x00bfff); // Coil body
+    // Electric arcs
+    this.barrel.moveTo(-3, -22).lineTo(3, -20).stroke({ width: 1, color: 0xffffff });
+    this.barrel.moveTo(3, -22).lineTo(-3, -20).stroke({ width: 1, color: 0xffffff });
   }
 
   /**

@@ -120,7 +120,8 @@ export class TowerShop extends UIComponent {
       }
     });
 
-    button.on('pointerdown', () => {
+    button.on('pointerdown', (event) => {
+      event.stopPropagation();
       this.selectTower(type);
     });
 

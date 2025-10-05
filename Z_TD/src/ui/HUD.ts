@@ -106,7 +106,8 @@ export class HUD extends UIComponent {
       bg.stroke({ width: 2, color: 0x00ff00 });
     });
 
-    button.on('pointerdown', () => {
+    button.on('pointerdown', (event) => {
+      event.stopPropagation();
       if (this.nextWaveCallback) {
         this.nextWaveCallback();
       }
