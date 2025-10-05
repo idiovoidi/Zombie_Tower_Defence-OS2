@@ -175,30 +175,37 @@ export class Tower extends GameObject implements ITower {
 
   // Machine Gun Tower Visual
   private createMachineGunVisual(): void {
-    // Tower base (doesn't rotate)
-    this.visual.rect(-15, -5, 30, 25).fill(0x8b7355); // Brown tower base
+    // Tower base (doesn't rotate) - gets larger with upgrades
+    const baseSize = 15 + this.upgradeLevel * 2;
+    this.visual.rect(-baseSize, -5, baseSize * 2, 25).fill(0x8b7355); // Brown tower base
     this.visual.stroke({ width: 2, color: 0x000000 });
     
     // Tower window
     this.visual.rect(-10, 0, 8, 8).fill(0x4a4a4a); // Dark window
     this.visual.rect(2, 0, 8, 8).fill(0x4a4a4a); // Dark window
 
+    // Upgrade stars
+    this.addUpgradeStars();
+
     // Little man (rotates with barrel)
     this.barrel.clear();
     // Head
     this.barrel.circle(0, -18, 5).fill(0xffdbac); // Skin tone
     this.barrel.stroke({ width: 1, color: 0x000000 });
-    // Body
-    this.barrel.rect(-3, -13, 6, 8).fill(0x0000ff); // Blue uniform
-    // Gun (machine gun)
-    this.barrel.rect(-1, -25, 2, 12).fill(0x2f4f4f); // Gun body
+    // Body - armor gets better with upgrades
+    const bodyColor = this.upgradeLevel >= 3 ? 0x4169e1 : 0x0000ff;
+    this.barrel.rect(-3, -13, 6, 8).fill(bodyColor); // Blue uniform
+    // Gun (machine gun) - gets longer with upgrades
+    const gunLength = 12 + this.upgradeLevel;
+    this.barrel.rect(-1, -25, 2, gunLength).fill(0x2f4f4f); // Gun body
     this.barrel.rect(-2, -26, 4, 2).fill(0x2f4f4f); // Gun barrel
   }
 
   // Sniper Tower Visual
   private createSniperVisual(): void {
-    // Tall tower base (doesn't rotate)
-    this.visual.rect(-12, -10, 24, 30).fill(0x696969); // Gray tower
+    // Tall tower base (doesn't rotate) - gets taller with upgrades
+    const towerHeight = 30 + this.upgradeLevel * 3;
+    this.visual.rect(-12, -10, 24, towerHeight).fill(0x696969); // Gray tower
     this.visual.stroke({ width: 2, color: 0x000000 });
     
     // Tower top
@@ -207,57 +214,80 @@ export class Tower extends GameObject implements ITower {
     // Sniper window
     this.visual.rect(-6, -5, 12, 6).fill(0x2f4f4f);
 
+    // Upgrade stars
+    this.addUpgradeStars();
+
     // Little man with sniper rifle (rotates)
     this.barrel.clear();
     // Head
     this.barrel.circle(0, -20, 5).fill(0xffdbac);
     this.barrel.stroke({ width: 1, color: 0x000000 });
-    // Body
-    this.barrel.rect(-3, -15, 6, 8).fill(0x2f4f4f); // Dark uniform
-    // Sniper rifle (long and thin)
-    this.barrel.rect(-1, -35, 2, 20).fill(0x1a1a1a); // Long rifle
-    this.barrel.circle(0, -36, 2).fill(0x1a1a1a); // Scope
+    // Body - better camo with upgrades
+    const bodyColor = this.upgradeLevel >= 3 ? 0x1a1a1a : 0x2f4f4f;
+    this.barrel.rect(-3, -15, 6, 8).fill(bodyColor); // Dark uniform
+    // Sniper rifle (long and thin) - gets longer with upgrades
+    const rifleLength = 20 + this.upgradeLevel * 2;
+    this.barrel.rect(-1, -35, 2, rifleLength).fill(0x1a1a1a); // Long rifle
+    this.barrel.circle(0, -36, 2 + this.upgradeLevel * 0.5).fill(0x1a1a1a); // Scope gets bigger
   }
 
   // Shotgun Tower Visual
   private createShotgunVisual(): void {
-    // Bunker-style base (doesn't rotate)
-    this.visual.roundRect(-18, -8, 36, 28, 8).fill(0x8b4513); // Brown bunker
+    // Bunker-style base (doesn't rotate) - gets wider with upgrades
+    const bunkerWidth = 36 + this.upgradeLevel * 4;
+    this.visual.roundRect(-bunkerWidth / 2, -8, bunkerWidth, 28, 8).fill(0x8b4513); // Brown bunker
     this.visual.stroke({ width: 2, color: 0x000000 });
     
-    // Sandbags
-    this.visual.circle(-12, 15, 4).fill(0xa0826d);
-    this.visual.circle(-4, 15, 4).fill(0xa0826d);
-    this.visual.circle(4, 15, 4).fill(0xa0826d);
-    this.visual.circle(12, 15, 4).fill(0xa0826d);
+    // More sandbags with upgrades
+    const sandbagCount = 4 + this.upgradeLevel;
+    for (let i = 0; i < sandbagCount; i++) {
+      const x = -bunkerWidth / 2 + 8 + (i * (bunkerWidth - 16) / (sandbagCount - 1));
+      this.visual.circle(x, 15, 4).fill(0xa0826d);
+    }
     
     // Firing slot
     this.visual.rect(-8, 0, 16, 6).fill(0x4a4a4a);
 
+    // Upgrade stars
+    this.addUpgradeStars();
+
     // Little man with shotgun (rotates)
     this.barrel.clear();
-    // Head
+    // Head - helmet with upgrades
     this.barrel.circle(0, -16, 5).fill(0xffdbac);
+    if (this.upgradeLevel >= 3) {
+      this.barrel.circle(0, -18, 5).fill(0x4a4a4a); // Helmet
+    }
     this.barrel.stroke({ width: 1, color: 0x000000 });
     // Body
     this.barrel.rect(-3, -11, 6, 8).fill(0x8b4513); // Brown uniform
-    // Shotgun (double barrel)
-    this.barrel.rect(-3, -22, 2, 11).fill(0xa0522d);
-    this.barrel.rect(1, -22, 2, 11).fill(0xa0522d);
+    // Shotgun (double barrel) - barrels get thicker with upgrades
+    const barrelWidth = 2 + this.upgradeLevel * 0.3;
+    this.barrel.rect(-3, -22, barrelWidth, 11).fill(0xa0522d);
+    this.barrel.rect(1, -22, barrelWidth, 11).fill(0xa0522d);
   }
 
   // Flame Tower Visual
   private createFlameVisual(): void {
-    // Round tower base (doesn't rotate)
-    this.visual.circle(0, 5, 18).fill(0xff4500); // Orange tower
+    // Round tower base (doesn't rotate) - gets bigger with upgrades
+    const towerSize = 18 + this.upgradeLevel * 2;
+    this.visual.circle(0, 5, towerSize).fill(0xff4500); // Orange tower
     this.visual.stroke({ width: 2, color: 0x000000 });
     
     // Tower top
-    this.visual.circle(0, -10, 12).fill(0xff6347);
+    this.visual.circle(0, -10, 12 + this.upgradeLevel).fill(0xff6347);
     
-    // Heat vents
-    this.visual.rect(-10, 0, 3, 8).fill(0x8b0000);
-    this.visual.rect(7, 0, 3, 8).fill(0x8b0000);
+    // More heat vents with upgrades
+    const ventCount = 2 + Math.floor(this.upgradeLevel / 2);
+    for (let i = 0; i < ventCount; i++) {
+      const angle = (i / ventCount) * Math.PI * 2;
+      const x = Math.cos(angle) * (towerSize - 5);
+      const y = Math.sin(angle) * (towerSize - 5);
+      this.visual.rect(x - 1.5, y, 3, 8).fill(0x8b0000);
+    }
+
+    // Upgrade stars
+    this.addUpgradeStars();
 
     // Little man with flamethrower (rotates)
     this.barrel.clear();
@@ -265,40 +295,54 @@ export class Tower extends GameObject implements ITower {
     this.barrel.circle(0, -18, 5).fill(0xffdbac);
     this.barrel.circle(0, -18, 4).fill(0x4a4a4a); // Mask
     this.barrel.stroke({ width: 1, color: 0x000000 });
-    // Body
-    this.barrel.rect(-3, -13, 6, 8).fill(0xff4500); // Orange suit
-    // Flamethrower
-    this.barrel.rect(-2, -24, 4, 11).fill(0xff0000); // Fuel tank
+    // Body - better suit with upgrades
+    const suitColor = this.upgradeLevel >= 3 ? 0xff6347 : 0xff4500;
+    this.barrel.rect(-3, -13, 6, 8).fill(suitColor); // Orange suit
+    // Flamethrower - bigger tank with upgrades
+    const tankSize = 4 + this.upgradeLevel * 0.5;
+    this.barrel.rect(-tankSize / 2, -24, tankSize, 11).fill(0xff0000); // Fuel tank
     this.barrel.rect(-1, -26, 2, 8).fill(0x8b0000); // Nozzle
   }
 
   // Tesla Tower Visual
   private createTeslaVisual(): void {
-    // High-tech tower base (doesn't rotate)
-    this.visual.rect(-16, -5, 32, 25).fill(0x00ced1); // Turquoise tower
+    // High-tech tower base (doesn't rotate) - gets more advanced with upgrades
+    const towerWidth = 32 + this.upgradeLevel * 3;
+    this.visual.rect(-towerWidth / 2, -5, towerWidth, 25).fill(0x00ced1); // Turquoise tower
     this.visual.stroke({ width: 2, color: 0x000000 });
     
     // Tech panels
     this.visual.rect(-12, 0, 8, 6).fill(0x7fffd4);
     this.visual.rect(4, 0, 8, 6).fill(0x7fffd4);
     
-    // Energy indicators
-    this.visual.circle(-8, 3, 2).fill(0x00ffff);
-    this.visual.circle(8, 3, 2).fill(0x00ffff);
+    // More energy indicators with upgrades
+    const indicatorCount = 2 + this.upgradeLevel;
+    for (let i = 0; i < indicatorCount; i++) {
+      const x = -towerWidth / 2 + 8 + (i * (towerWidth - 16) / (indicatorCount - 1));
+      this.visual.circle(x, 3, 2).fill(0x00ffff);
+    }
+
+    // Upgrade stars
+    this.addUpgradeStars();
 
     // Little man with tesla gun (rotates)
     this.barrel.clear();
     // Head
     this.barrel.circle(0, -18, 5).fill(0xffdbac);
     this.barrel.stroke({ width: 1, color: 0x000000 });
-    // Body with tech suit
-    this.barrel.rect(-3, -13, 6, 8).fill(0x00ced1);
-    // Tesla coil gun
-    this.barrel.circle(0, -24, 4).fill(0x7fffd4); // Coil top
+    // Body with tech suit - glows more with upgrades
+    const suitColor = this.upgradeLevel >= 3 ? 0x00ffff : 0x00ced1;
+    this.barrel.rect(-3, -13, 6, 8).fill(suitColor);
+    // Tesla coil gun - bigger coil with upgrades
+    const coilSize = 4 + this.upgradeLevel * 0.5;
+    this.barrel.circle(0, -24, coilSize).fill(0x7fffd4); // Coil top
     this.barrel.rect(-2, -24, 4, 9).fill(0x00bfff); // Coil body
-    // Electric arcs
-    this.barrel.moveTo(-3, -22).lineTo(3, -20).stroke({ width: 1, color: 0xffffff });
-    this.barrel.moveTo(3, -22).lineTo(-3, -20).stroke({ width: 1, color: 0xffffff });
+    // More electric arcs with upgrades
+    for (let i = 0; i < this.upgradeLevel; i++) {
+      const offset = i * 2;
+      this.barrel.moveTo(-3, -22 + offset).lineTo(3, -20 + offset).stroke({ width: 1, color: 0xffffff });
+      this.barrel.moveTo(3, -22 + offset).lineTo(-3, -20 + offset).stroke({ width: 1, color: 0xffffff });
+    }
   }
 
   /**
@@ -369,6 +413,9 @@ export class Tower extends GameObject implements ITower {
       healthComponent['maxHealth'] = newMaxHealth; // Note: In a real implementation, we'd add a setter for maxHealth
       healthComponent.heal(newMaxHealth); // This will set current health to max
     }
+
+    // Update visual to show upgrade
+    this.updateVisual();
   }
 
   // Apply damage to the tower
@@ -417,6 +464,33 @@ export class Tower extends GameObject implements ITower {
   public getHealthPercentage(): number {
     const healthComponent = this.getComponent<HealthComponent>('Health');
     return healthComponent ? healthComponent.getHealthPercentage() : 0;
+  }
+
+  // Add upgrade stars to show upgrade level
+  private addUpgradeStars(): void {
+    if (this.upgradeLevel <= 1) return;
+
+    const starCount = Math.min(this.upgradeLevel - 1, 5);
+    const starSize = 3;
+    const spacing = 8;
+    const startX = -(starCount - 1) * spacing / 2;
+
+    for (let i = 0; i < starCount; i++) {
+      const x = startX + i * spacing;
+      const y = -30;
+      
+      // Draw a simple star
+      this.visual.moveTo(x, y - starSize)
+        .lineTo(x + starSize * 0.3, y - starSize * 0.3)
+        .lineTo(x + starSize, y)
+        .lineTo(x + starSize * 0.3, y + starSize * 0.3)
+        .lineTo(x, y + starSize)
+        .lineTo(x - starSize * 0.3, y + starSize * 0.3)
+        .lineTo(x - starSize, y)
+        .lineTo(x - starSize * 0.3, y - starSize * 0.3)
+        .lineTo(x, y - starSize)
+        .fill(0xffd700); // Gold stars
+    }
   }
 
   // Update visual based on tower type
@@ -518,6 +592,9 @@ export class Tower extends GameObject implements ITower {
 
   // Show selection visual effects
   public showSelectionEffect(): void {
+    // Clean up any existing selection effect first
+    this.hideSelectionEffect();
+
     // Create a highlight effect around the tower
     const highlight = new Graphics();
     highlight.circle(0, 0, 25).fill({ color: 0xffff00, alpha: 0.3 }); // Yellow highlight with transparency
@@ -533,6 +610,15 @@ export class Tower extends GameObject implements ITower {
     let scale = 1;
     let growing = true;
     const pulse = () => {
+      // Check if highlight still exists before animating
+      if (!highlight || highlight.destroyed) {
+        if ((this as any).pulseInterval) {
+          clearInterval((this as any).pulseInterval);
+          delete (this as any).pulseInterval;
+        }
+        return;
+      }
+
       if (growing) {
         scale += 0.05;
         if (scale >= 1.2) growing = false;
@@ -549,17 +635,20 @@ export class Tower extends GameObject implements ITower {
 
   // Hide selection visual effects
   public hideSelectionEffect(): void {
-    // Remove highlight if it exists
-    if ((this as any).selectionHighlight) {
-      this.removeChild((this as any).selectionHighlight);
-      (this as any).selectionHighlight.destroy();
-      delete (this as any).selectionHighlight;
-    }
-
-    // Clear pulse animation if it exists
+    // Clear pulse animation first
     if ((this as any).pulseInterval) {
       clearInterval((this as any).pulseInterval);
       delete (this as any).pulseInterval;
+    }
+
+    // Remove highlight if it exists
+    if ((this as any).selectionHighlight) {
+      const highlight = (this as any).selectionHighlight;
+      if (highlight && !highlight.destroyed && highlight.parent) {
+        this.removeChild(highlight);
+        highlight.destroy();
+      }
+      delete (this as any).selectionHighlight;
     }
   }
 }

@@ -166,12 +166,7 @@ export class TowerPlacementManager {
       this.container.addChild(tower);
 
       // Make tower interactive for selection
-      tower.eventMode = 'static';
-      tower.cursor = 'pointer';
-      tower.on('pointerdown', (event: FederatedPointerEvent) => {
-        event.stopPropagation();
-        this.selectTower(tower);
-      });
+      this.setupTowerInteraction(tower);
 
       if (this.onTowerPlacedCallback) {
         this.onTowerPlacedCallback(tower);
@@ -184,11 +179,26 @@ export class TowerPlacementManager {
     return null;
   }
 
+  // Set up tower interaction (separated for reusability)
+  private setupTowerInteraction(tower: Tower): void {
+    tower.eventMode = 'static';
+    tower.cursor = 'pointer';
+    
+    // Remove any existing listeners to prevent duplicates
+    tower.removeAllListeners('pointerdown');
+    
+    tower.on('pointerdown', (event: FederatedPointerEvent) => {
+      event.stopPropagation();
+      this.selectTower(tower);
+    });
+  }
+
   // Select a tower
   public selectTower(tower: Tower | null): void {
     // Deselect previous
     if (this.selectedTower) {
       this.selectedTower.hideSelectionEffect();
+      this.selectedTower.hideRange();
     }
 
     this.selectedTower = tower;
@@ -197,6 +207,9 @@ export class TowerPlacementManager {
     if (this.selectedTower) {
       this.selectedTower.showSelectionEffect();
       this.selectedTower.showRange(this.container);
+      
+      // Ensure tower interaction is set up (in case it was lost)
+      this.setupTowerInteraction(this.selectedTower);
     }
 
     if (this.onTowerSelectedCallback) {
@@ -232,6 +245,16 @@ export class TowerPlacementManager {
 
     if (this.selectedTower.canUpgrade()) {
       this.selectedTower.upgrade();
+      
+      // Re-setup interaction after upgrade (visual update might affect hit areas)
+      this.setupTowerInteraction(this.selectedTower);
+      
+      // Refresh selection visuals
+      this.selectedTower.hideSelectionEffect();
+      this.selectedTower.showSelectionEffect();
+      this.selectedTower.hideRange();
+      this.selectedTower.showRange(this.container);
+      
       return true;
     }
 
