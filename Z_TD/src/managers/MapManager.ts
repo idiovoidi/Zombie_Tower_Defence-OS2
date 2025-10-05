@@ -114,4 +114,15 @@ export class MapManager {
   public getPathfindingManager(): PathfindingManager {
     return this.pathfindingManager;
   }
+
+  // Get spawn point (first waypoint)
+  public getSpawnPoint(): Waypoint | null {
+    const waypoints = this.getCurrentMapWaypoints();
+    return waypoints.length > 0 ? waypoints[0] : null;
+  }
+
+  // Get waypoints for zombie path
+  public getWaypoints(): Waypoint[] {
+    return this.getCurrentMapWaypoints();
+  }
 }

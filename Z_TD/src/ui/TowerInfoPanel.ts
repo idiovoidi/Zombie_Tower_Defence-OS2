@@ -1,203 +1,214 @@
 import { UIComponent } from './UIComponent';
-import { Text, Graphics } from 'pixi.js';
+import { Container, Graphics, Text } from 'pixi.js';
 import { Tower } from '../objects/Tower';
+import { TowerManager } from '../managers/TowerManager';
 
 export class TowerInfoPanel extends UIComponent {
-  private background: Graphics;
-  private towerNameText: Text;
-  private towerLevelText: Text;
-  private towerDamageText: Text;
-  private towerRangeText: Text;
-  private towerFireRateText: Text;
-  private upgradeCostText: Text;
-  private upgradeButton: Graphics;
-  private upgradeButtonText: Text;
-  private onUpgradeCallback: ((tower: Tower) => void) | null = null;
   private selectedTower: Tower | null = null;
+  private towerManager: TowerManager;
+  private upgradeButton!: Container;
+  private sellButton!: Container;
+  private infoText!: Text;
+  private statsText!: Text;
+  private onUpgradeCallback: (() => void) | null = null;
+  private onSellCallback: (() => void) | null = null;
 
   constructor() {
     super();
+    this.towerManager = new TowerManager();
+    this.createPanelUI();
+    this.visible = false; // Hidden by default
+  }
 
-    // Create background
-    this.background = new Graphics();
-    this.background.roundRect(0, 0, 300, 250, 10).fill(0x333333);
-    this.background.stroke({ width: 2, color: 0xffffff });
-    this.addChild(this.background);
+  private createPanelUI(): void {
+    // Panel background
+    const bg = new Graphics();
+    bg.roundRect(0, 0, 200, 300, 10).fill({ color: 0x1a1a1a, alpha: 0.9 });
+    bg.stroke({ width: 2, color: 0x444444 });
+    this.addChild(bg);
 
-    // Create tower name text
-    this.towerNameText = new Text({
-      text: 'No Tower Selected',
+    // Title
+    const title = new Text({
+      text: 'Tower Info',
       style: {
         fontFamily: 'Arial',
-        fontSize: 24,
+        fontSize: 18,
+        fill: 0xffffff,
         fontWeight: 'bold',
-        fill: 0xffffff,
-        align: 'center',
       },
     });
-    this.towerNameText.anchor.set(0.5);
-    this.towerNameText.position.set(150, 30);
-    this.addChild(this.towerNameText);
+    title.anchor.set(0.5, 0);
+    title.position.set(100, 10);
+    this.addChild(title);
 
-    // Create tower level text
-    this.towerLevelText = new Text({
-      text: 'Level: -',
+    // Info text
+    this.infoText = new Text({
+      text: '',
       style: {
         fontFamily: 'Arial',
-        fontSize: 18,
+        fontSize: 14,
         fill: 0xffffff,
-        align: 'left',
+        wordWrap: true,
+        wordWrapWidth: 180,
       },
     });
-    this.towerLevelText.position.set(20, 70);
-    this.addChild(this.towerLevelText);
+    this.infoText.position.set(10, 40);
+    this.addChild(this.infoText);
 
-    // Create tower damage text
-    this.towerDamageText = new Text({
-      text: 'Damage: -',
+    // Stats text
+    this.statsText = new Text({
+      text: '',
       style: {
         fontFamily: 'Arial',
-        fontSize: 18,
-        fill: 0xffffff,
-        align: 'left',
+        fontSize: 12,
+        fill: 0xcccccc,
+        wordWrap: true,
+        wordWrapWidth: 180,
       },
     });
-    this.towerDamageText.position.set(20, 100);
-    this.addChild(this.towerDamageText);
+    this.statsText.position.set(10, 120);
+    this.addChild(this.statsText);
 
-    // Create tower range text
-    this.towerRangeText = new Text({
-      text: 'Range: -',
-      style: {
-        fontFamily: 'Arial',
-        fontSize: 18,
-        fill: 0xffffff,
-        align: 'left',
-      },
+    // Upgrade button
+    this.upgradeButton = this.createButton('Upgrade', 10, 200, 0x00aa00);
+    this.upgradeButton.on('pointerdown', () => {
+      if (this.onUpgradeCallback) {
+        this.onUpgradeCallback();
+      }
     });
-    this.towerRangeText.position.set(20, 130);
-    this.addChild(this.towerRangeText);
-
-    // Create tower fire rate text
-    this.towerFireRateText = new Text({
-      text: 'Fire Rate: -',
-      style: {
-        fontFamily: 'Arial',
-        fontSize: 18,
-        fill: 0xffffff,
-        align: 'left',
-      },
-    });
-    this.towerFireRateText.position.set(20, 160);
-    this.addChild(this.towerFireRateText);
-
-    // Create upgrade cost text
-    this.upgradeCostText = new Text({
-      text: 'Upgrade Cost: $-',
-      style: {
-        fontFamily: 'Arial',
-        fontSize: 18,
-        fill: 0xffff00,
-        align: 'left',
-      },
-    });
-    this.upgradeCostText.position.set(20, 190);
-    this.addChild(this.upgradeCostText);
-
-    // Create upgrade button
-    this.upgradeButton = new Graphics();
-    this.upgradeButton.roundRect(0, 0, 120, 40, 5).fill(0x00aa00);
-    this.upgradeButton.position.set(90, 210);
-    this.upgradeButton.eventMode = 'static';
-    this.upgradeButton.cursor = 'pointer';
-    this.upgradeButton.on('pointerdown', () => this.onUpgradeClicked());
     this.addChild(this.upgradeButton);
 
-    // Create upgrade button text
-    this.upgradeButtonText = new Text({
-      text: 'UPGRADE',
+    // Sell button
+    this.sellButton = this.createButton('Sell', 10, 250, 0xaa0000);
+    this.sellButton.on('pointerdown', () => {
+      if (this.onSellCallback) {
+        this.onSellCallback();
+      }
+    });
+    this.addChild(this.sellButton);
+  }
+
+  private createButton(label: string, x: number, y: number, color: number): Container {
+    const button = new Container();
+    button.position.set(x, y);
+    button.eventMode = 'static';
+    button.cursor = 'pointer';
+
+    const bg = new Graphics();
+    bg.roundRect(0, 0, 180, 40, 5).fill(color);
+    bg.stroke({ width: 2, color: 0xffffff });
+    button.addChild(bg);
+
+    const text = new Text({
+      text: label,
       style: {
         fontFamily: 'Arial',
         fontSize: 16,
         fill: 0xffffff,
-        align: 'center',
+        fontWeight: 'bold',
       },
     });
-    this.upgradeButtonText.anchor.set(0.5);
-    this.upgradeButtonText.position.set(150, 230);
-    this.addChild(this.upgradeButtonText);
+    text.anchor.set(0.5);
+    text.position.set(90, 20);
+    button.addChild(text);
 
-    // Initially hide the panel
-    this.hide();
+    // Hover effects
+    button.on('pointerover', () => {
+      bg.clear();
+      bg.roundRect(0, 0, 180, 40, 5).fill(color);
+      bg.stroke({ width: 3, color: 0xffff00 });
+    });
+
+    button.on('pointerout', () => {
+      bg.clear();
+      bg.roundRect(0, 0, 180, 40, 5).fill(color);
+      bg.stroke({ width: 2, color: 0xffffff });
+    });
+
+    return button;
   }
 
-  public update(_deltaTime: number): void {
-    // Update tower info if a tower is selected
-    if (this.selectedTower) {
-      this.updateTowerInfo();
-    }
-  }
-
-  // Set the selected tower and update the panel
-  public setSelectedTower(tower: Tower | null): void {
+  public showTowerInfo(tower: Tower): void {
     this.selectedTower = tower;
-    if (tower) {
-      this.show();
-      this.updateTowerInfo();
+    this.visible = true;
+    this.updateInfo();
+  }
+
+  public hide(): void {
+    this.visible = false;
+    this.selectedTower = null;
+  }
+
+  private updateInfo(): void {
+    if (!this.selectedTower) return;
+
+    const type = this.selectedTower.getType();
+    const level = this.selectedTower.getUpgradeLevel();
+    const damage = this.selectedTower.getDamage();
+    const range = this.selectedTower.getRange();
+    const fireRate = this.selectedTower.getFireRate();
+
+    // Update info text
+    this.infoText.text = `Type: ${this.getTowerDisplayName(type)}\nLevel: ${level}/${this.selectedTower.getMaxUpgradeLevel()}`;
+
+    // Update stats text
+    this.statsText.text = `Damage: ${damage}\nRange: ${range}\nFire Rate: ${fireRate}/s\nHealth: ${this.selectedTower.getHealth()}/${this.selectedTower.getMaxHealth()}`;
+
+    // Update upgrade button
+    const upgradeCost = this.towerManager.calculateUpgradeCost(type, level);
+    const canUpgrade = this.selectedTower.canUpgrade();
+    const upgradeText = this.upgradeButton.getChildAt(1) as Text;
+
+    if (canUpgrade) {
+      upgradeText.text = `Upgrade ($${upgradeCost})`;
+      this.upgradeButton.alpha = 1;
+      (this.upgradeButton as any).interactive = true;
     } else {
-      this.hide();
+      upgradeText.text = 'Max Level';
+      this.upgradeButton.alpha = 0.5;
+      (this.upgradeButton as any).interactive = false;
+    }
+
+    // Update sell button (sell for 75% of total cost)
+    const baseCost = this.towerManager.getTowerCost(type);
+    let totalCost = baseCost;
+    for (let i = 1; i < level; i++) {
+      totalCost += this.towerManager.calculateUpgradeCost(type, i);
+    }
+    const sellValue = Math.floor(totalCost * 0.75);
+    const sellText = this.sellButton.getChildAt(1) as Text;
+    sellText.text = `Sell ($${sellValue})`;
+  }
+
+  private getTowerDisplayName(type: string): string {
+    switch (type) {
+      case 'MachineGun':
+        return 'Machine Gun';
+      case 'Sniper':
+        return 'Sniper';
+      case 'Shotgun':
+        return 'Shotgun';
+      case 'Flame':
+        return 'Flame';
+      case 'Tesla':
+        return 'Tesla';
+      default:
+        return type;
     }
   }
 
-  // Update the tower information displayed in the panel
-  private updateTowerInfo(): void {
-    if (!this.selectedTower) {
-      this.towerNameText.text = 'No Tower Selected';
-      this.towerLevelText.text = 'Level: -';
-      this.towerDamageText.text = 'Damage: -';
-      this.towerRangeText.text = 'Range: -';
-      this.towerFireRateText.text = 'Fire Rate: -';
-      this.upgradeCostText.text = 'Upgrade Cost: $-';
-      this.upgradeButton.visible = false;
-      return;
-    }
-
-    // Update tower information
-    this.towerNameText.text = `${this.selectedTower.getType()} Tower`;
-    this.towerLevelText.text = `Level: ${this.selectedTower.getUpgradeLevel()}/${this.selectedTower.getMaxUpgradeLevel()}`;
-    this.towerDamageText.text = `Damage: ${this.selectedTower.getDamage()}`;
-    this.towerRangeText.text = `Range: ${Math.floor(this.selectedTower.getRange())}`;
-    this.towerFireRateText.text = `Fire Rate: ${this.selectedTower.getFireRate()}/s`;
-
-    // Update upgrade cost and button state
-    if (this.selectedTower.canUpgrade()) {
-      const upgradeCost = this.selectedTower.getUpgradeCost();
-      this.upgradeCostText.text = `Upgrade Cost: $${upgradeCost}`;
-      this.upgradeButton.visible = true;
-
-      // Change button color based on whether upgrade is possible
-      // This would typically be handled by the UpgradeSystem checking resources
-      // For now, we'll just show the button as enabled
-      this.upgradeButton.clear();
-      this.upgradeButton.roundRect(0, 0, 120, 40, 5).fill(0x00aa00);
-    } else {
-      this.upgradeCostText.text = 'Max Level Reached';
-      this.upgradeButton.visible = false;
-    }
-  }
-
-  private onUpgradeClicked(): void {
-    if (this.selectedTower && this.onUpgradeCallback) {
-      this.onUpgradeCallback(this.selectedTower);
-    }
-  }
-
-  public setUpgradeCallback(callback: (tower: Tower) => void): void {
+  public setUpgradeCallback(callback: () => void): void {
     this.onUpgradeCallback = callback;
   }
 
-  // Position the panel on the screen
-  public setPosition(x: number, y: number): void {
-    this.position.set(x, y);
+  public setSellCallback(callback: () => void): void {
+    this.onSellCallback = callback;
+  }
+
+  public update(_deltaTime: number): void {
+    // Update info if tower is selected
+    if (this.selectedTower && this.visible) {
+      this.updateInfo();
+    }
   }
 }

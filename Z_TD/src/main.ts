@@ -1,9 +1,11 @@
-import { Application } from 'pixi.js';
+import { Application, FederatedPointerEvent } from 'pixi.js';
 import { GameManager } from './managers/GameManager';
 import { UIManager } from './ui/UIManager';
 import { HUD } from './ui/HUD';
 import { MainMenu } from './ui/MainMenu';
 import { LevelSelectMenu } from './ui/LevelSelectMenu';
+import { TowerShop } from './ui/TowerShop';
+import { TowerInfoPanel } from './ui/TowerInfoPanel';
 import { GameConfig } from './config/gameConfig';
 import { DebugUtils } from './utils/DebugUtils';
 import { DevConfig } from './config/devConfig';
@@ -46,6 +48,16 @@ import { DevConfig } from './config/devConfig';
   const levelSelectMenu = new LevelSelectMenu();
   uiManager.registerComponent('levelSelectMenu', levelSelectMenu);
 
+  // Create tower shop
+  const towerShop = new TowerShop();
+  towerShop.position.set(10, 150);
+  uiManager.registerComponent('towerShop', towerShop);
+
+  // Create tower info panel
+  const towerInfoPanel = new TowerInfoPanel();
+  towerInfoPanel.position.set(814, 150);
+  uiManager.registerComponent('towerInfoPanel', towerInfoPanel);
+
   // Set up event handlers
   mainMenu.setStartCallback(() => {
     DebugUtils.debug('Starting game from main menu');
@@ -67,6 +79,117 @@ import { DevConfig } from './config/devConfig';
     uiManager.setState(GameConfig.GAME_STATES.MAIN_MENU);
   });
 
+  // Set up next wave button callback
+  hud.setNextWaveCallback(() => {
+    DebugUtils.debug('Starting next wave');
+    gameManager.startNextWave();
+    hud.hideNextWaveButton();
+  });
+
+  // Set up tower shop callbacks
+  towerShop.setTowerSelectCallback((type: string) => {
+    DebugUtils.debug(`Tower selected: ${type}`);
+    const placementManager = gameManager.getTowerPlacementManager();
+    placementManager.startPlacement(type);
+  });
+
+  // Set up tower placement callbacks
+  const placementManager = gameManager.getTowerPlacementManager();
+
+  placementManager.setTowerSelectedCallback((tower) => {
+    if (tower) {
+      towerInfoPanel.showTowerInfo(tower);
+    } else {
+      towerInfoPanel.hide();
+    }
+  });
+
+  // Set up tower info panel callbacks
+  towerInfoPanel.setUpgradeCallback(() => {
+    const tower = placementManager.getSelectedTower();
+    if (tower) {
+      const upgradeCost = gameManager
+        .getTowerManager()
+        .calculateUpgradeCost(tower.getType(), tower.getUpgradeLevel());
+      if (gameManager.spendMoney(upgradeCost)) {
+        placementManager.upgradeSelectedTower();
+        DebugUtils.debug(`Tower upgraded for $${upgradeCost}`);
+      } else {
+        DebugUtils.debug('Not enough money to upgrade');
+      }
+    }
+  });
+
+  towerInfoPanel.setSellCallback(() => {
+    const tower = placementManager.getSelectedTower();
+    if (tower) {
+      // Calculate sell value (75% of total cost)
+      const baseCost = gameManager.getTowerManager().getTowerCost(tower.getType());
+      let totalCost = baseCost;
+      for (let i = 1; i < tower.getUpgradeLevel(); i++) {
+        totalCost += gameManager
+          .getTowerManager()
+          .calculateUpgradeCost(tower.getType(), i);
+      }
+      const sellValue = Math.floor(totalCost * 0.75);
+
+      placementManager.removeSelectedTower();
+      gameManager.addMoney(sellValue);
+      towerInfoPanel.hide();
+      DebugUtils.debug(`Tower sold for $${sellValue}`);
+    }
+  });
+
+  // Set up map click for tower placement
+  app.stage.eventMode = 'static';
+  app.stage.hitArea = app.screen;
+  app.stage.on('pointerdown', (event: FederatedPointerEvent) => {
+    if (gameManager.getCurrentState() === GameConfig.GAME_STATES.PLAYING) {
+      const placementManager = gameManager.getTowerPlacementManager();
+
+      if (placementManager.isInPlacementMode()) {
+        const pos = event.global;
+        const tower = placementManager.placeTower(pos.x, pos.y);
+        if (tower) {
+          towerShop.clearSelection();
+        }
+      } else {
+        // Deselect tower if clicking on empty space
+        placementManager.selectTower(null);
+      }
+    }
+  });
+
+  // Track mouse movement for ghost tower
+  app.stage.on('pointermove', (event: FederatedPointerEvent) => {
+    if (gameManager.getCurrentState() === GameConfig.GAME_STATES.PLAYING) {
+      const placementManager = gameManager.getTowerPlacementManager();
+      if (placementManager.isInPlacementMode()) {
+        const pos = event.global;
+        placementManager.updateGhostPosition(pos.x, pos.y);
+      }
+    }
+  });
+
+  // Cancel placement on right click or ESC
+  app.stage.on('rightdown', () => {
+    const placementManager = gameManager.getTowerPlacementManager();
+    if (placementManager.isInPlacementMode()) {
+      placementManager.cancelPlacement();
+      towerShop.clearSelection();
+    }
+  });
+
+  window.addEventListener('keydown', (event) => {
+    if (event.key === 'Escape') {
+      const placementManager = gameManager.getTowerPlacementManager();
+      if (placementManager.isInPlacementMode()) {
+        placementManager.cancelPlacement();
+        towerShop.clearSelection();
+      }
+    }
+  });
+
   // Initialize the game
   gameManager.init();
 
@@ -76,6 +199,9 @@ import { DevConfig } from './config/devConfig';
     const currentTime = performance.now();
     const deltaTime = (currentTime - lastTime) / 1000; // Convert to seconds
     lastTime = currentTime;
+
+    // Update game manager (handles zombies, waves, etc.)
+    gameManager.update(deltaTime);
 
     // Update game systems based on current state
     if (gameManager.getCurrentState() === GameConfig.GAME_STATES.PLAYING) {
@@ -94,6 +220,13 @@ import { DevConfig } from './config/devConfig';
     // Update resource display in HUD
     const resources = gameManager.getResources();
     hud.updateResources(resources.wood, resources.metal, resources.energy);
+
+    // Show next wave button when wave is complete
+    if (gameManager.getCurrentState() === GameConfig.GAME_STATES.WAVE_COMPLETE) {
+      hud.showNextWaveButton();
+    } else {
+      hud.hideNextWaveButton();
+    }
   });
 
   DebugUtils.info('Game initialized successfully');

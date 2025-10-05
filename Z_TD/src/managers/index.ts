@@ -5,5 +5,7 @@ export { ParticleManager } from './ParticleManager';
 export { PathfindingManager } from './PathfindingManager';
 export { ResourceManager } from './ResourceManager';
 export { TowerManager } from './TowerManager';
+export { TowerPlacementManager } from './TowerPlacementManager';
 export { UpgradeSystem } from './UpgradeSystem';
 export { WaveManager } from './WaveManager';
+export { ZombieManager } from './ZombieManager';

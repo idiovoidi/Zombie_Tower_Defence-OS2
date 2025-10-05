@@ -1,12 +1,15 @@
-import { Application } from 'pixi.js';
+import { Application, Container } from 'pixi.js';
 import { GameConfig } from '../config/gameConfig';
 import { TowerManager } from './TowerManager';
+import { TowerPlacementManager } from './TowerPlacementManager';
 import { WaveManager } from './WaveManager';
+import { ZombieManager } from './ZombieManager';
 import { MapManager } from './MapManager';
 import { LevelManager } from './LevelManager';
 import { VisualMapRenderer } from '../renderers/VisualMapRenderer';
 import { ResourceManager } from './ResourceManager';
 import { UpgradeSystem } from './UpgradeSystem';
+import { Tower } from '../objects/Tower';
 
 export class GameManager {
   private app: Application;
@@ -21,12 +24,15 @@ export class GameManager {
     energy: number;
   };
   private towerManager: TowerManager;
+  private towerPlacementManager: TowerPlacementManager;
   private waveManager: WaveManager;
+  private zombieManager: ZombieManager;
   private mapManager: MapManager;
   private levelManager: LevelManager;
   private visualMapRenderer: VisualMapRenderer;
   private resourceManager: ResourceManager;
   private upgradeSystem: UpgradeSystem;
+  private gameContainer: Container;
 
   constructor(app: Application) {
     this.app = app;
@@ -41,14 +47,27 @@ export class GameManager {
       energy: 100,
     };
 
+    // Create game container for all game objects
+    this.gameContainer = new Container();
+    app.stage.addChild(this.gameContainer);
+
     // Initialize managers
     this.towerManager = new TowerManager();
     this.waveManager = new WaveManager();
     this.mapManager = new MapManager();
+    this.zombieManager = new ZombieManager(this.gameContainer, this.waveManager, this.mapManager);
+    this.towerPlacementManager = new TowerPlacementManager(
+      this.gameContainer,
+      this.towerManager,
+      this.mapManager
+    );
     this.levelManager = new LevelManager(this.mapManager);
     this.visualMapRenderer = new VisualMapRenderer(app, this.mapManager);
     this.resourceManager = new ResourceManager();
     this.upgradeSystem = new UpgradeSystem(this.resourceManager);
+
+    // Set up tower placement callbacks
+    this.setupTowerPlacementCallbacks();
   }
 
   // Initialize the game
@@ -67,9 +86,19 @@ export class GameManager {
     console.log('Setting up resource generation...');
   }
 
+  // Set up tower placement callbacks
+  private setupTowerPlacementCallbacks(): void {
+    this.towerPlacementManager.setTowerPlacedCallback((tower: Tower) => {
+      const cost = this.towerManager.getTowerCost(tower.getType());
+      this.spendMoney(cost);
+      console.log(`Tower placed: ${tower.getType()} for $${cost}`);
+    });
+  }
+
   // Start the game
   public startGame(): void {
     this.currentState = GameConfig.GAME_STATES.PLAYING;
+    this.zombieManager.startWave();
     console.log('Game started');
   }
 
@@ -88,6 +117,10 @@ export class GameManager {
         this.visualMapRenderer.renderMap(level.map);
 
         this.currentState = GameConfig.GAME_STATES.PLAYING;
+        
+        // Start spawning zombies
+        this.zombieManager.startWave();
+        
         console.log(`Game started with level: ${level.name}`);
       }
     } else {
@@ -233,5 +266,57 @@ export class GameManager {
 
   public getUpgradeSystem(): UpgradeSystem {
     return this.upgradeSystem;
+  }
+
+  public getZombieManager(): ZombieManager {
+    return this.zombieManager;
+  }
+
+  public getTowerPlacementManager(): TowerPlacementManager {
+    return this.towerPlacementManager;
+  }
+
+  // Update game state
+  public update(deltaTime: number): void {
+    if (this.currentState === GameConfig.GAME_STATES.PLAYING) {
+      // Update zombie manager
+      this.zombieManager.update(deltaTime);
+
+      // Check if wave is complete
+      if (this.zombieManager.isWaveComplete()) {
+        this.onWaveComplete();
+      }
+
+      // Check for zombies that reached the end
+      const zombies = this.zombieManager.getZombies();
+      for (const zombie of zombies) {
+        if (zombie.hasReachedEnd()) {
+          this.loseLife();
+          // Remove zombie after it reaches the end
+          const index = zombies.indexOf(zombie);
+          if (index > -1) {
+            (this.zombieManager as any).removeZombie(index);
+          }
+        }
+      }
+    }
+  }
+
+  // Handle wave completion
+  private onWaveComplete(): void {
+    console.log(`Wave ${this.wave} complete!`);
+    this.currentState = GameConfig.GAME_STATES.WAVE_COMPLETE;
+    
+    // Award bonus money for completing wave
+    this.addMoney(50 + this.wave * 10);
+  }
+
+  // Start next wave
+  public startNextWave(): void {
+    this.wave++;
+    this.waveManager.nextWave();
+    this.zombieManager.startWave();
+    this.currentState = GameConfig.GAME_STATES.PLAYING;
+    console.log(`Starting wave ${this.wave}`);
   }
 }

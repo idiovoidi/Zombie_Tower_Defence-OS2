@@ -4,6 +4,7 @@ import { GameConfig } from '../config/gameConfig';
 import { HUD } from './HUD';
 import { MainMenu } from './MainMenu';
 import { LevelSelectMenu } from './LevelSelectMenu';
+import { TowerShop } from './TowerShop';
 import { TowerInfoPanel } from './TowerInfoPanel';
 
 export class UIManager {
@@ -60,6 +61,7 @@ export class UIManager {
         this.setComponentVisibility('mainMenu', true);
         this.setComponentVisibility('levelSelectMenu', false);
         this.setComponentVisibility('hud', false);
+        this.setComponentVisibility('towerShop', false);
         this.setComponentVisibility('towerInfoPanel', false);
         break;
       case GameConfig.GAME_STATES.LEVEL_SELECT:
@@ -67,6 +69,7 @@ export class UIManager {
         this.setComponentVisibility('mainMenu', false);
         this.setComponentVisibility('levelSelectMenu', true);
         this.setComponentVisibility('hud', false);
+        this.setComponentVisibility('towerShop', false);
         this.setComponentVisibility('towerInfoPanel', false);
         break;
       case GameConfig.GAME_STATES.PLAYING:
@@ -74,13 +77,15 @@ export class UIManager {
         this.setComponentVisibility('mainMenu', false);
         this.setComponentVisibility('levelSelectMenu', false);
         this.setComponentVisibility('hud', true);
-        this.setComponentVisibility('towerInfoPanel', true);
+        this.setComponentVisibility('towerShop', true);
+        this.setComponentVisibility('towerInfoPanel', false);
         break;
       case GameConfig.GAME_STATES.PAUSED:
         // Show pause menu
         this.setComponentVisibility('mainMenu', false);
         this.setComponentVisibility('levelSelectMenu', false);
         this.setComponentVisibility('hud', true);
+        this.setComponentVisibility('towerShop', false);
         this.setComponentVisibility('towerInfoPanel', false);
         break;
       case GameConfig.GAME_STATES.GAME_OVER:
@@ -88,6 +93,7 @@ export class UIManager {
         this.setComponentVisibility('mainMenu', false);
         this.setComponentVisibility('levelSelectMenu', false);
         this.setComponentVisibility('hud', false);
+        this.setComponentVisibility('towerShop', false);
         this.setComponentVisibility('towerInfoPanel', false);
         break;
       case GameConfig.GAME_STATES.VICTORY:
@@ -95,6 +101,7 @@ export class UIManager {
         this.setComponentVisibility('mainMenu', false);
         this.setComponentVisibility('levelSelectMenu', false);
         this.setComponentVisibility('hud', false);
+        this.setComponentVisibility('towerShop', false);
         this.setComponentVisibility('towerInfoPanel', false);
         break;
     }
