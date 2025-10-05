@@ -39,9 +39,50 @@ export class VisualMapRenderer {
   }
 
   private renderMapBackground(mapData: MapData): void {
-    // Draw grass background for play area
+    // Draw apocalyptic ground texture for play area
+    // Base layer - dark, dead grass
     this.mapContainer.rect(0, 0, mapData.width, mapData.height);
-    this.mapContainer.fill({ color: 0x33aa33 });
+    this.mapContainer.fill({ color: 0x3a4a2a }); // Dark olive green
+
+    // Add texture variation with darker patches (dead grass/dirt)
+    for (let i = 0; i < 150; i++) {
+      const x = Math.random() * mapData.width;
+      const y = Math.random() * mapData.height;
+      const size = 20 + Math.random() * 40;
+      const darkness = 0.2 + Math.random() * 0.3;
+      this.mapContainer.circle(x, y, size).fill({ color: 0x2a3a1a, alpha: darkness });
+    }
+
+    // Add brown dirt patches
+    for (let i = 0; i < 80; i++) {
+      const x = Math.random() * mapData.width;
+      const y = Math.random() * mapData.height;
+      const size = 15 + Math.random() * 30;
+      const alpha = 0.3 + Math.random() * 0.4;
+      this.mapContainer.circle(x, y, size).fill({ color: 0x4a3a2a, alpha });
+    }
+
+    // Add scattered debris/rocks
+    for (let i = 0; i < 60; i++) {
+      const x = Math.random() * mapData.width;
+      const y = Math.random() * mapData.height;
+      const size = 3 + Math.random() * 8;
+      this.mapContainer.circle(x, y, size).fill({ color: 0x4a4a4a, alpha: 0.6 });
+    }
+
+    // Add cracks in the ground
+    for (let i = 0; i < 30; i++) {
+      const x = Math.random() * mapData.width;
+      const y = Math.random() * mapData.height;
+      const length = 20 + Math.random() * 40;
+      const angle = Math.random() * Math.PI * 2;
+      const endX = x + Math.cos(angle) * length;
+      const endY = y + Math.sin(angle) * length;
+      this.mapContainer
+        .moveTo(x, y)
+        .lineTo(endX, endY)
+        .stroke({ width: 1 + Math.random() * 2, color: 0x2a2a2a, alpha: 0.5 });
+    }
 
     // Draw UI panel background on the right
     this.mapContainer.rect(1024, 0, 256, 768);
@@ -568,16 +609,52 @@ export class VisualMapRenderer {
   }
 
   private addDecorativeElements(mapData: MapData): void {
-    // Add some random decorative elements to make the map more visually interesting
-    // This is a simplified implementation - in a full game this would be more sophisticated
-    for (let i = 0; i < 20; i++) {
+    // Add apocalyptic decorative elements
+    for (let i = 0; i < 25; i++) {
       const x = Math.random() * mapData.width;
       const y = Math.random() * mapData.height;
 
       // Only place decorations away from the path and not at the top (where houses are)
       if (y > 150 && this.isAwayFromPath(x, y, mapData.waypoints)) {
-        this.mapContainer.circle(x, y, 5 + Math.random() * 10);
-        this.mapContainer.fill({ color: 0x228822 });
+        const decorType = Math.random();
+
+        if (decorType < 0.3) {
+          // Dead bushes/shrubs (dark brown)
+          const size = 8 + Math.random() * 12;
+          this.mapContainer.circle(x, y, size).fill({ color: 0x3a2a1a, alpha: 0.8 });
+          this.mapContainer.circle(x - 3, y - 2, size * 0.6).fill({ color: 0x2a1a0a, alpha: 0.6 });
+        } else if (decorType < 0.5) {
+          // Rocks/debris
+          const size = 6 + Math.random() * 10;
+          this.mapContainer.rect(x, y, size, size * 0.8).fill(0x5a5a5a);
+          this.mapContainer.stroke({ width: 1, color: 0x3a3a3a });
+        } else if (decorType < 0.7) {
+          // Dead tree stumps
+          this.mapContainer.rect(x - 3, y, 6, 12).fill(0x4a3a2a);
+          this.mapContainer.stroke({ width: 1, color: 0x2a1a1a });
+          // Broken branch
+          this.mapContainer
+            .moveTo(x, y + 4)
+            .lineTo(x - 8, y + 2)
+            .stroke({ width: 2, color: 0x4a3a2a });
+        } else {
+          // Withered grass patches (very dark green)
+          const size = 10 + Math.random() * 15;
+          this.mapContainer.circle(x, y, size).fill({ color: 0x2a3a1a, alpha: 0.5 });
+        }
+      }
+    }
+
+    // Add some scattered bones/skulls for extra apocalyptic feel
+    for (let i = 0; i < 8; i++) {
+      const x = Math.random() * mapData.width;
+      const y = Math.random() * mapData.height;
+
+      if (y > 150 && this.isAwayFromPath(x, y, mapData.waypoints)) {
+        // Small skull
+        this.mapContainer.circle(x, y, 4).fill(0xf5f5dc);
+        this.mapContainer.circle(x - 2, y, 1.5).fill(0x1a1a1a); // Eye socket
+        this.mapContainer.circle(x + 2, y, 1.5).fill(0x1a1a1a); // Eye socket
       }
     }
   }
