@@ -17,10 +17,10 @@ jest.mock('../objects/ZombieFactory', () => {
           hasReachedEnd: jest.fn().mockReturnValue(false),
           getType: jest.fn().mockReturnValue(type),
           getReward: jest.fn().mockReturnValue(10),
-          getSpeed: jest.fn().mockReturnValue(50)
+          getSpeed: jest.fn().mockReturnValue(50),
         };
-      })
-    }
+      }),
+    },
   };
 });
 
@@ -55,10 +55,10 @@ describe('WaveManager', () => {
         // Set current wave
         (waveManager as any).currentWave = wave;
         const zombies = waveManager.getCurrentWaveZombies();
-        
+
         // Should have 2 zombie types (Basic and Fast)
         expect(zombies.length).toBe(2);
-        
+
         // Check zombie types
         expect(zombies[0].type).toBe(GameConfig.ZOMBIE_TYPES.BASIC);
         expect(zombies[1].type).toBe(GameConfig.ZOMBIE_TYPES.FAST);
@@ -70,10 +70,10 @@ describe('WaveManager', () => {
         // Set current wave
         (waveManager as any).currentWave = wave;
         const zombies = waveManager.getCurrentWaveZombies();
-        
+
         // Should have 3 zombie types (Basic, Fast, and Tank)
         expect(zombies.length).toBe(3);
-        
+
         // Check zombie types
         expect(zombies[0].type).toBe(GameConfig.ZOMBIE_TYPES.BASIC);
         expect(zombies[1].type).toBe(GameConfig.ZOMBIE_TYPES.FAST);
@@ -85,10 +85,10 @@ describe('WaveManager', () => {
       // Set current wave to 45
       (waveManager as any).currentWave = 45;
       const zombies = waveManager.getCurrentWaveZombies();
-      
+
       // Should have 7 zombie types
       expect(zombies.length).toBe(7);
-      
+
       // Check zombie types
       expect(zombies[0].type).toBe(GameConfig.ZOMBIE_TYPES.BASIC);
       expect(zombies[1].type).toBe(GameConfig.ZOMBIE_TYPES.FAST);
@@ -193,7 +193,7 @@ describe('WaveManager', () => {
     test('should create different zombies for different waves', () => {
       // Get zombies for wave 1
       const wave1Zombies = waveManager.createWaveZombies();
-      
+
       // Advance to wave 6 and get zombies
       waveManager.nextWave();
       waveManager.nextWave();
@@ -201,7 +201,7 @@ describe('WaveManager', () => {
       waveManager.nextWave();
       waveManager.nextWave();
       const wave6Zombies = waveManager.createWaveZombies();
-      
+
       // Both should create zombies
       expect(wave1Zombies.length).toBeGreaterThan(0);
       expect(wave6Zombies.length).toBeGreaterThan(0);

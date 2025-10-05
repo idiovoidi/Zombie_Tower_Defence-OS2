@@ -102,10 +102,10 @@ This scales linearly—e.g., 30 armor reduces incoming damage by 30%. The result
 public takeDamage(damage: number): number {
   const reducedDamage = damage * (1 - this.armor / 100);
   const actualDamage = Math.max(1, Math.floor(reducedDamage));
-  
+
   this.currentHealth -= actualDamage;
   this.currentHealth = Math.max(0, this.currentHealth);
-  
+
   return actualDamage;
 }
 ```
@@ -165,11 +165,11 @@ In the `Zombie` class, the `HealthComponent` is instantiated during setup using 
 private initializeStats(wave: number): void {
   const waveManager = new WaveManager();
   const health = waveManager.calculateZombieHealth(this.type, wave);
-  
+
   // Add health component
   const healthComponent = new HealthComponent(health);
   this.addComponent(healthComponent);
-  
+
   // Set speed and reward based on type
   // ... rest of initialization
 }
@@ -221,6 +221,7 @@ ReturnDamage --> End([Method complete])
 ## WaveManager Integration and Resource Rewards
 
 When a zombie is eliminated:
+
 1. The game checks if `isAlive()` returns `false`
 2. The zombie's `reward` value is added to player resources
 3. The entity is destroyed and removed from the scene
@@ -269,7 +270,9 @@ Could apply temporary modifiers (e.g., speed boost, damage increase).
 class BuffComponent extends Component {
   private duration: number;
   private effects: Map<string, number>;
-  public update(deltaTime: number) { /* reduce duration, remove if expired */ }
+  public update(deltaTime: number) {
+    /* reduce duration, remove if expired */
+  }
 }
 ```
 
@@ -281,7 +284,9 @@ Could provide temporary damage absorption before health is affected.
 class ShieldComponent extends Component {
   private shieldPoints: number;
   private maxShieldPoints: number;
-  public absorbDamage(damage: number): number { /* return damage after absorption */ }
+  public absorbDamage(damage: number): number {
+    /* return damage after absorption */
+  }
 }
 ```
 
@@ -293,7 +298,9 @@ Could provide periodic health regeneration for entities.
 class RegenerationComponent extends Component {
   private regenerationRate: number;
   private regenerationAmount: number;
-  public update(deltaTime: number) { /* apply periodic healing */ }
+  public update(deltaTime: number) {
+    /* apply periodic healing */
+  }
 }
 ```
 

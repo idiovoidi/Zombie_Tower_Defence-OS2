@@ -12,7 +12,7 @@ const mockContainer = jest.fn().mockImplementation(() => {
     fill: jest.fn().mockReturnThis(),
     stroke: jest.fn().mockReturnThis(),
     roundRect: jest.fn().mockReturnThis(),
-    visible: true
+    visible: true,
   };
 });
 
@@ -23,21 +23,21 @@ const mockGraphics = jest.fn().mockImplementation(() => {
     fill: jest.fn().mockReturnThis(),
     stroke: jest.fn().mockReturnThis(),
     roundRect: jest.fn().mockReturnThis(),
-    position: { set: jest.fn() }
+    position: { set: jest.fn() },
   };
 });
 
-const mockText = jest.fn().mockImplementation((options) => {
+const mockText = jest.fn().mockImplementation(options => {
   return {
     text: options.text,
     style: options.style,
     position: { set: jest.fn() },
-    anchor: { set: jest.fn() }
+    anchor: { set: jest.fn() },
   };
 });
 
 module.exports = {
   Container: mockContainer,
   Graphics: mockGraphics,
-  Text: mockText
+  Text: mockText,
 };

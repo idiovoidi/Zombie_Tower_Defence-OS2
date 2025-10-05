@@ -12,7 +12,7 @@ describe('Zombie Visual Implementation', () => {
   it('should create visual representation for Basic Zombie', () => {
     // Check that visual elements are created
     expect(zombie).toBeTruthy();
-    
+
     // In a real test, we would check the graphics object properties
     // For now, we'll just verify the zombie was created successfully
   });
@@ -50,7 +50,7 @@ describe('Zombie Visual Implementation', () => {
   it('should show damage effect', () => {
     // Test that the damage effect method exists and can be called
     expect(typeof zombie.showDamageEffect).toBe('function');
-    
+
     // Call the method to ensure it doesn't throw errors
     expect(() => {
       zombie.showDamageEffect(10);
@@ -60,7 +60,7 @@ describe('Zombie Visual Implementation', () => {
   it('should show death effect', () => {
     // Test that the death effect method exists and can be called
     expect(typeof zombie.showDeathEffect).toBe('function');
-    
+
     // Call the method to ensure it doesn't throw errors
     expect(() => {
       zombie.showDeathEffect();

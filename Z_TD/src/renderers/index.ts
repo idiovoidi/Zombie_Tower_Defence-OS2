@@ -1,0 +1,1 @@
+export { VisualMapRenderer } from './VisualMapRenderer';

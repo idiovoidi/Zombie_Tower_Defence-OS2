@@ -24,7 +24,7 @@ export class LevelManager {
   private currentLevel: string;
   private unlockedLevels: Set<string>;
   private mapManager: MapManager;
-  
+
   constructor(mapManager: MapManager) {
     this.levels = new Map<string, LevelData>();
     this.currentLevel = '';
@@ -32,7 +32,7 @@ export class LevelManager {
     this.mapManager = mapManager;
     this.initializeLevels();
   }
-  
+
   private initializeLevels(): void {
     // Initialize predefined levels
     this.levels.set('level1', {
@@ -43,9 +43,9 @@ export class LevelManager {
       difficulty: 'Easy',
       startingMoney: 500,
       startingLives: 20,
-      resourceModifiers: { wood: 1.0, metal: 1.0, energy: 1.0 }
+      resourceModifiers: { wood: 1.0, metal: 1.0, energy: 1.0 },
     });
-    
+
     this.levels.set('level2', {
       id: 'level2',
       name: 'Forest Path',
@@ -55,9 +55,9 @@ export class LevelManager {
       startingMoney: 400,
       startingLives: 15,
       resourceModifiers: { wood: 1.5, metal: 0.8, energy: 1.0 },
-      unlockConditions: { previousLevel: 'level1' }
+      unlockConditions: { previousLevel: 'level1' },
     });
-    
+
     this.levels.set('level3', {
       id: 'level3',
       name: 'Urban Maze',
@@ -67,43 +67,42 @@ export class LevelManager {
       startingMoney: 300,
       startingLives: 10,
       resourceModifiers: { wood: 0.8, metal: 1.5, energy: 1.2 },
-      unlockConditions: { previousLevel: 'level2' }
+      unlockConditions: { previousLevel: 'level2' },
     });
-    
+
     // Unlock the first level by default
     this.unlockedLevels.add('level1');
   }
-  
+
   public loadLevel(levelId: string): boolean {
     if (!this.levels.has(levelId) || !this.unlockedLevels.has(levelId)) {
       console.warn(`Level ${levelId} not found or not unlocked`);
       return false;
     }
-    
+
     this.currentLevel = levelId;
     const level = this.levels.get(levelId)!;
-    
+
     // Load the map for this level
     this.mapManager.loadMap(level.map);
-    
+
     return true;
   }
-  
+
   public getCurrentLevel(): LevelData | undefined {
     return this.levels.get(this.currentLevel);
   }
-  
+
   public getAvailableLevels(): LevelData[] {
-    return Array.from(this.levels.values())
-      .filter(level => this.unlockedLevels.has(level.id));
+    return Array.from(this.levels.values()).filter(level => this.unlockedLevels.has(level.id));
   }
-  
+
   public unlockLevel(levelId: string): void {
     if (this.levels.has(levelId)) {
       this.unlockedLevels.add(levelId);
     }
   }
-  
+
   public isLevelUnlocked(levelId: string): boolean {
     return this.unlockedLevels.has(levelId);
   }

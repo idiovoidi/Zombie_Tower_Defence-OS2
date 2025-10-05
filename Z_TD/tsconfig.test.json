@@ -1,10 +1,9 @@
 {
   "extends": "./tsconfig.json",
   "compilerOptions": {
+    "types": ["jest", "node"],
     "module": "ESNext",
-    "moduleResolution": "node",
-    "allowSyntheticDefaultImports": true,
-    "esModuleInterop": true
+    "moduleResolution": "node"
   },
-  "include": ["src/**/*.test.ts", "src/**/*"]
+  "include": ["src/**/*", "__mocks__/**/*"]
 }
