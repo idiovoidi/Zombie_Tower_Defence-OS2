@@ -73,6 +73,7 @@ export class UIManager {
         this.setComponentVisibility('towerInfoPanel', false);
         break;
       case GameConfig.GAME_STATES.PLAYING:
+      case GameConfig.GAME_STATES.WAVE_COMPLETE:
         // Show game UI components, hide menu
         this.setComponentVisibility('mainMenu', false);
         this.setComponentVisibility('levelSelectMenu', false);

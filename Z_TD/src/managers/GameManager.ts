@@ -9,7 +9,9 @@ import { LevelManager } from './LevelManager';
 import { VisualMapRenderer } from '../renderers/VisualMapRenderer';
 import { ResourceManager } from './ResourceManager';
 import { UpgradeSystem } from './UpgradeSystem';
+import { TowerCombatManager } from './TowerCombatManager';
 import { Tower } from '../objects/Tower';
+import { DevConfig } from '../config/devConfig';
 
 export class GameManager {
   private app: Application;
@@ -32,6 +34,7 @@ export class GameManager {
   private visualMapRenderer: VisualMapRenderer;
   private resourceManager: ResourceManager;
   private upgradeSystem: UpgradeSystem;
+  private towerCombatManager: TowerCombatManager;
   private gameContainer: Container;
 
   constructor(app: Application) {
@@ -50,6 +53,7 @@ export class GameManager {
     // Create game container for all game objects
     this.gameContainer = new Container();
     app.stage.addChild(this.gameContainer);
+    console.log('Game container created and added to stage');
 
     // Initialize managers
     this.towerManager = new TowerManager();
@@ -65,6 +69,7 @@ export class GameManager {
     this.visualMapRenderer = new VisualMapRenderer(app, this.mapManager);
     this.resourceManager = new ResourceManager();
     this.upgradeSystem = new UpgradeSystem(this.resourceManager);
+    this.towerCombatManager = new TowerCombatManager();
 
     // Set up tower placement callbacks
     this.setupTowerPlacementCallbacks();
@@ -114,9 +119,16 @@ export class GameManager {
         // ... other level-specific initialization ...
 
         // Render the map for this level
+        console.log(`Rendering map: ${level.map}`);
         this.visualMapRenderer.renderMap(level.map);
+        console.log('Map rendered');
 
         this.currentState = GameConfig.GAME_STATES.PLAYING;
+        
+        // Spawn test towers for debugging (if enabled)
+        if ((DevConfig as any).TESTING?.SPAWN_TEST_TOWERS) {
+          this.spawnTestTowers();
+        }
         
         // Start spawning zombies
         this.zombieManager.startWave();
@@ -126,6 +138,32 @@ export class GameManager {
     } else {
       console.error(`Failed to load level: ${levelId}`);
     }
+  }
+
+  // Spawn test towers for debugging
+  private spawnTestTowers(): void {
+    console.log('Spawning test towers...');
+    const testTowers = [
+      { x: 300, y: 300, type: GameConfig.TOWER_TYPES.MACHINE_GUN },
+      { x: 500, y: 300, type: GameConfig.TOWER_TYPES.SNIPER },
+      { x: 700, y: 300, type: GameConfig.TOWER_TYPES.SHOTGUN },
+    ];
+
+    testTowers.forEach((config, index) => {
+      console.log(`Attempting to place test tower ${index + 1}: ${config.type} at (${config.x}, ${config.y})`);
+      // Start placement mode with the tower type
+      this.towerPlacementManager.startPlacement(config.type);
+      // Place the tower
+      const tower = this.towerPlacementManager.placeTower(config.x, config.y);
+      if (tower) {
+        console.log(`✓ Test tower ${index + 1} (${config.type}) placed successfully`);
+      } else {
+        console.warn(`✗ Failed to place test tower ${index + 1} (${config.type})`);
+      }
+    });
+    
+    const placedTowers = this.towerPlacementManager.getPlacedTowers();
+    console.log(`Total towers placed: ${placedTowers.length}`);
   }
 
   // Pause the game
@@ -282,13 +320,19 @@ export class GameManager {
       // Update zombie manager
       this.zombieManager.update(deltaTime);
 
+      // Update tower combat
+      const towers = this.towerPlacementManager.getPlacedTowers();
+      const zombies = this.zombieManager.getZombies();
+      this.towerCombatManager.setTowers(towers);
+      this.towerCombatManager.setZombies(zombies);
+      this.towerCombatManager.update(deltaTime);
+
       // Check if wave is complete
       if (this.zombieManager.isWaveComplete()) {
         this.onWaveComplete();
       }
 
       // Check for zombies that reached the end
-      const zombies = this.zombieManager.getZombies();
       for (const zombie of zombies) {
         if (zombie.hasReachedEnd()) {
           this.loseLife();

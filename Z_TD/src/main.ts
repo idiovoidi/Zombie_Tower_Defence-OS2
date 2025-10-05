@@ -62,7 +62,7 @@ import { DevConfig } from './config/devConfig';
   mainMenu.setStartCallback(() => {
     DebugUtils.debug('Starting game from main menu');
     // Show level select menu instead of starting game directly
-    uiManager.setState('LevelSelect');
+    uiManager.setState(GameConfig.GAME_STATES.LEVEL_SELECT);
     // Update level select menu with available levels
     const levels = gameManager.getLevelManager().getAvailableLevels();
     levelSelectMenu.updateLevels(levels);
@@ -149,9 +149,19 @@ import { DevConfig } from './config/devConfig';
 
       if (placementManager.isInPlacementMode()) {
         const pos = event.global;
-        const tower = placementManager.placeTower(pos.x, pos.y);
-        if (tower) {
-          towerShop.clearSelection();
+        
+        // Check if player has enough money before placing
+        const selectedType = towerShop.getSelectedTowerType();
+        if (selectedType) {
+          const cost = gameManager.getTowerManager().getTowerCost(selectedType);
+          if (gameManager.getMoney() >= cost) {
+            const tower = placementManager.placeTower(pos.x, pos.y);
+            if (tower) {
+              towerShop.clearSelection();
+            }
+          } else {
+            DebugUtils.debug('Not enough money to place tower');
+          }
         }
       } else {
         // Deselect tower if clicking on empty space
@@ -192,6 +202,14 @@ import { DevConfig } from './config/devConfig';
 
   // Initialize the game
   gameManager.init();
+
+  // Quick start for testing
+  if (DevConfig.TESTING.SKIP_MENU && DevConfig.TESTING.AUTO_START_GAME) {
+    DebugUtils.info('Quick start enabled - skipping menus');
+    const defaultLevel = DevConfig.TESTING.DEFAULT_LEVEL || 'level1';
+    gameManager.startGameWithLevel(defaultLevel);
+    uiManager.setState(GameConfig.GAME_STATES.PLAYING);
+  }
 
   // Listen for animate update
   let lastTime = performance.now();

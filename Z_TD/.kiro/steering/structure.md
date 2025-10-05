@@ -23,25 +23,33 @@ src/
 ## Architecture Patterns
 
 ### Manager Pattern
+
 Core game systems are organized as managers (GameManager, TowerManager, WaveManager, etc.). Each manager:
+
 - Handles a specific domain of game logic
 - Is instantiated and coordinated by GameManager
 - Exposes public methods for interaction
 - Uses callbacks for cross-manager communication
 
 ### Component-Based Entities
+
 Game objects (Tower, Zombie) use composition:
+
 - Extend base GameObject class
 - Compose functionality with components (HealthComponent, TransformComponent)
 - Implement specific interfaces (Tower.interface.ts)
 
 ### Factory Pattern
+
 Object creation uses factories:
+
 - TowerFactory for creating tower instances
 - ZombieFactory for creating zombie instances
 
 ### UI Components
+
 UI elements extend UIComponent base class:
+
 - Self-contained PixiJS Container instances
 - Registered with UIManager for lifecycle management
 - Use callbacks to communicate with game systems
@@ -49,6 +57,7 @@ UI elements extend UIComponent base class:
 ## Path Aliases
 
 All major directories have path aliases configured:
+
 - `@/` → `src/`
 - `@components/` → `src/components/`
 - `@managers/` → `src/managers/`

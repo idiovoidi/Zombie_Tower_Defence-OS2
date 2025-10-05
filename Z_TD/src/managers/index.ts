@@ -4,6 +4,7 @@ export { MapManager } from './MapManager';
 export { ParticleManager } from './ParticleManager';
 export { PathfindingManager } from './PathfindingManager';
 export { ResourceManager } from './ResourceManager';
+export { TowerCombatManager } from './TowerCombatManager';
 export { TowerManager } from './TowerManager';
 export { TowerPlacementManager } from './TowerPlacementManager';
 export { UpgradeSystem } from './UpgradeSystem';

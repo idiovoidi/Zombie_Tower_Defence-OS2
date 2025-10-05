@@ -13,8 +13,10 @@ export class VisualMapRenderer {
     this.mapManager = mapManager;
     this.mapContainer = new Graphics();
     this.pathGraphics = new Graphics();
-    this.app.stage.addChild(this.mapContainer);
-    this.app.stage.addChild(this.pathGraphics);
+    
+    // Add to stage at the beginning (index 0) so it renders behind everything
+    this.app.stage.addChildAt(this.mapContainer, 0);
+    this.app.stage.addChildAt(this.pathGraphics, 1);
   }
 
   public renderMap(mapName: string): void {
@@ -45,16 +47,45 @@ export class VisualMapRenderer {
   private renderPath(mapData: MapData): void {
     if (mapData.waypoints.length < 2) return;
 
-    // Draw path
-    this.pathGraphics.stroke({ width: 40, color: 0x555555 });
-    this.pathGraphics.fill({ color: 0x888888 });
-
-    // Move to first point
-    this.pathGraphics.moveTo(mapData.waypoints[0].x, mapData.waypoints[0].y);
-
-    // Draw lines between waypoints
-    for (let i = 1; i < mapData.waypoints.length; i++) {
-      this.pathGraphics.lineTo(mapData.waypoints[i].x, mapData.waypoints[i].y);
+    // Draw path with a visible dirt/road texture
+    const pathWidth = 50;
+    
+    // Draw path segments
+    for (let i = 0; i < mapData.waypoints.length - 1; i++) {
+      const p1 = mapData.waypoints[i];
+      const p2 = mapData.waypoints[i + 1];
+      
+      // Calculate perpendicular offset for path width
+      const dx = p2.x - p1.x;
+      const dy = p2.y - p1.y;
+      const length = Math.sqrt(dx * dx + dy * dy);
+      const nx = -dy / length;
+      const ny = dx / length;
+      
+      // Draw path segment as a polygon
+      const halfWidth = pathWidth / 2;
+      this.pathGraphics.poly([
+        p1.x + nx * halfWidth, p1.y + ny * halfWidth,
+        p1.x - nx * halfWidth, p1.y - ny * halfWidth,
+        p2.x - nx * halfWidth, p2.y - ny * halfWidth,
+        p2.x + nx * halfWidth, p2.y + ny * halfWidth,
+      ]);
+      this.pathGraphics.fill({ color: 0x8b7355 }); // Brown dirt color
+      
+      // Add path border
+      this.pathGraphics.poly([
+        p1.x + nx * halfWidth, p1.y + ny * halfWidth,
+        p1.x - nx * halfWidth, p1.y - ny * halfWidth,
+        p2.x - nx * halfWidth, p2.y - ny * halfWidth,
+        p2.x + nx * halfWidth, p2.y + ny * halfWidth,
+      ]);
+      this.pathGraphics.stroke({ width: 2, color: 0x654321 }); // Darker brown border
+    }
+    
+    // Draw waypoint markers for debugging
+    for (const waypoint of mapData.waypoints) {
+      this.pathGraphics.circle(waypoint.x, waypoint.y, 8);
+      this.pathGraphics.fill({ color: 0xff0000, alpha: 0.5 });
     }
   }
 

@@ -28,10 +28,12 @@ export const DevConfig = {
 
   // Testing settings
   TESTING: {
-    AUTO_START_GAME: false,
-    SKIP_MENU: false,
-    UNLOCK_ALL_LEVELS: false,
+    AUTO_START_GAME: true,
+    SKIP_MENU: true,
+    DEFAULT_LEVEL: 'level1',
+    UNLOCK_ALL_LEVELS: true,
     INFINITE_RESOURCES: false,
     NO_COOLDOWN: false,
+    SPAWN_TEST_TOWERS: true,
   },
 };

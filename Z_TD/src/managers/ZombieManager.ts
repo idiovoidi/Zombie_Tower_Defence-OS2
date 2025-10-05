@@ -101,6 +101,8 @@ export class ZombieManager {
       return;
     }
 
+    console.log(`Spawning zombie: ${type} at (${spawnPoint.x}, ${spawnPoint.y})`);
+
     const zombie = ZombieFactory.createZombie(
       type,
       spawnPoint.x,
@@ -112,10 +114,14 @@ export class ZombieManager {
       // Set waypoints for zombie path
       if (waypoints.length > 0) {
         (zombie as any).waypoints = waypoints;
+        console.log(`Zombie waypoints set: ${waypoints.length} waypoints`);
       }
 
       this.zombies.push(zombie);
       this.container.addChild(zombie);
+      console.log(`✓ Zombie spawned successfully. Total zombies: ${this.zombies.length}`);
+    } else {
+      console.warn('Failed to create zombie');
     }
   }
 
