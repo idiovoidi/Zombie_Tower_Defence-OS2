@@ -13,7 +13,7 @@ export class VisualMapRenderer {
     this.mapManager = mapManager;
     this.mapContainer = new Graphics();
     this.pathGraphics = new Graphics();
-    
+
     // Add to stage at the beginning (index 0) so it renders behind everything
     this.app.stage.addChildAt(this.mapContainer, 0);
     this.app.stage.addChildAt(this.pathGraphics, 1);
@@ -47,41 +47,105 @@ export class VisualMapRenderer {
   private renderPath(mapData: MapData): void {
     if (mapData.waypoints.length < 2) return;
 
-    // Draw path with a visible dirt/road texture
     const pathWidth = 50;
-    
-    // Draw path segments
-    for (let i = 0; i < mapData.waypoints.length - 1; i++) {
-      const p1 = mapData.waypoints[i];
-      const p2 = mapData.waypoints[i + 1];
-      
-      // Calculate perpendicular offset for path width
-      const dx = p2.x - p1.x;
-      const dy = p2.y - p1.y;
-      const length = Math.sqrt(dx * dx + dy * dy);
-      const nx = -dy / length;
-      const ny = dx / length;
-      
-      // Draw path segment as a polygon
-      const halfWidth = pathWidth / 2;
-      this.pathGraphics.poly([
-        p1.x + nx * halfWidth, p1.y + ny * halfWidth,
-        p1.x - nx * halfWidth, p1.y - ny * halfWidth,
-        p2.x - nx * halfWidth, p2.y - ny * halfWidth,
-        p2.x + nx * halfWidth, p2.y + ny * halfWidth,
-      ]);
-      this.pathGraphics.fill({ color: 0x8b7355 }); // Brown dirt color
-      
-      // Add path border
-      this.pathGraphics.poly([
-        p1.x + nx * halfWidth, p1.y + ny * halfWidth,
-        p1.x - nx * halfWidth, p1.y - ny * halfWidth,
-        p2.x - nx * halfWidth, p2.y - ny * halfWidth,
-        p2.x + nx * halfWidth, p2.y + ny * halfWidth,
-      ]);
-      this.pathGraphics.stroke({ width: 2, color: 0x654321 }); // Darker brown border
+    const cornerRadius = 30; // Radius for corner curves
+
+    // Build smooth path with curves at corners
+    this.pathGraphics.moveTo(mapData.waypoints[0].x, mapData.waypoints[0].y);
+
+    // Draw the center line with curves
+    for (let i = 0; i < mapData.waypoints.length; i++) {
+      const prev = i > 0 ? mapData.waypoints[i - 1] : null;
+      const curr = mapData.waypoints[i];
+      const next = i < mapData.waypoints.length - 1 ? mapData.waypoints[i + 1] : null;
+
+      if (!prev) {
+        // First point - just move to it
+        this.pathGraphics.moveTo(curr.x, curr.y);
+      } else if (!next) {
+        // Last point - draw straight line to it
+        this.pathGraphics.lineTo(curr.x, curr.y);
+      } else {
+        // Middle point - create curved corner
+        const v1x = curr.x - prev.x;
+        const v1y = curr.y - prev.y;
+        const v2x = next.x - curr.x;
+        const v2y = next.y - curr.y;
+
+        const len1 = Math.sqrt(v1x * v1x + v1y * v1y);
+        const len2 = Math.sqrt(v2x * v2x + v2y * v2y);
+
+        // Normalize vectors
+        const n1x = v1x / len1;
+        const n1y = v1y / len1;
+        const n2x = v2x / len2;
+        const n2y = v2y / len2;
+
+        // Calculate curve start and end points
+        const curveStart = Math.min(cornerRadius, len1 / 2);
+        const curveEnd = Math.min(cornerRadius, len2 / 2);
+
+        const startX = curr.x - n1x * curveStart;
+        const startY = curr.y - n1y * curveStart;
+        const endX = curr.x + n2x * curveEnd;
+        const endY = curr.y + n2y * curveEnd;
+
+        // Draw line to curve start
+        this.pathGraphics.lineTo(startX, startY);
+
+        // Draw quadratic curve through the corner
+        this.pathGraphics.quadraticCurveTo(curr.x, curr.y, endX, endY);
+      }
     }
-    
+
+    // Stroke the path with width
+    this.pathGraphics.stroke({ width: pathWidth, color: 0x8b7355, cap: 'round', join: 'round' });
+
+    // Add border
+    this.pathGraphics.moveTo(mapData.waypoints[0].x, mapData.waypoints[0].y);
+    for (let i = 0; i < mapData.waypoints.length; i++) {
+      const prev = i > 0 ? mapData.waypoints[i - 1] : null;
+      const curr = mapData.waypoints[i];
+      const next = i < mapData.waypoints.length - 1 ? mapData.waypoints[i + 1] : null;
+
+      if (!prev) {
+        this.pathGraphics.moveTo(curr.x, curr.y);
+      } else if (!next) {
+        this.pathGraphics.lineTo(curr.x, curr.y);
+      } else {
+        const v1x = curr.x - prev.x;
+        const v1y = curr.y - prev.y;
+        const v2x = next.x - curr.x;
+        const v2y = next.y - curr.y;
+
+        const len1 = Math.sqrt(v1x * v1x + v1y * v1y);
+        const len2 = Math.sqrt(v2x * v2x + v2y * v2y);
+
+        const n1x = v1x / len1;
+        const n1y = v1y / len1;
+        const n2x = v2x / len2;
+        const n2y = v2y / len2;
+
+        const curveStart = Math.min(cornerRadius, len1 / 2);
+        const curveEnd = Math.min(cornerRadius, len2 / 2);
+
+        const startX = curr.x - n1x * curveStart;
+        const startY = curr.y - n1y * curveStart;
+        const endX = curr.x + n2x * curveEnd;
+        const endY = curr.y + n2y * curveEnd;
+
+        this.pathGraphics.lineTo(startX, startY);
+        this.pathGraphics.quadraticCurveTo(curr.x, curr.y, endX, endY);
+      }
+    }
+
+    this.pathGraphics.stroke({
+      width: pathWidth + 4,
+      color: 0x654321,
+      cap: 'round',
+      join: 'round',
+    });
+
     // Draw waypoint markers for debugging
     for (const waypoint of mapData.waypoints) {
       this.pathGraphics.circle(waypoint.x, waypoint.y, 8);
