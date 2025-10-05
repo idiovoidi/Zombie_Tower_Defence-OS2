@@ -189,16 +189,22 @@ export class Tower extends GameObject implements ITower {
 
     // Little man (rotates with barrel)
     this.barrel.clear();
-    // Head
-    this.barrel.circle(0, -18, 5).fill(0xffdbac); // Skin tone
-    this.barrel.stroke({ width: 1, color: 0x000000 });
     // Body - armor gets better with upgrades
     const bodyColor = this.upgradeLevel >= 3 ? 0x4169e1 : 0x0000ff;
     this.barrel.rect(-3, -13, 6, 8).fill(bodyColor); // Blue uniform
-    // Gun (machine gun) - gets longer with upgrades
-    const gunLength = 12 + this.upgradeLevel;
-    this.barrel.rect(-1, -25, 2, gunLength).fill(0x2f4f4f); // Gun body
-    this.barrel.rect(-2, -26, 4, 2).fill(0x2f4f4f); // Gun barrel
+    // Arms holding gun
+    this.barrel.rect(-4, -11, 2, 4).fill(0xffdbac); // Left arm
+    this.barrel.rect(2, -11, 2, 4).fill(0xffdbac); // Right arm
+    // Gun (machine gun) - held in front
+    const gunLength = 8 + this.upgradeLevel;
+    this.barrel.rect(-1, -10, 2, gunLength).fill(0x2f4f4f); // Gun body
+    this.barrel.rect(-2, -11, 4, 2).fill(0x2f4f4f); // Gun barrel
+    // Head
+    this.barrel.circle(0, -18, 5).fill(0xffdbac); // Skin tone
+    this.barrel.stroke({ width: 1, color: 0x000000 });
+    // Military cap
+    this.barrel.rect(-5, -21, 10, 3).fill(0x0000ff);
+    this.barrel.rect(-3, -23, 6, 2).fill(0x0000ff); // Cap top
   }
 
   // Sniper Tower Visual
@@ -219,16 +225,24 @@ export class Tower extends GameObject implements ITower {
 
     // Little man with sniper rifle (rotates)
     this.barrel.clear();
-    // Head
-    this.barrel.circle(0, -20, 5).fill(0xffdbac);
-    this.barrel.stroke({ width: 1, color: 0x000000 });
     // Body - better camo with upgrades
     const bodyColor = this.upgradeLevel >= 3 ? 0x1a1a1a : 0x2f4f4f;
     this.barrel.rect(-3, -15, 6, 8).fill(bodyColor); // Dark uniform
-    // Sniper rifle (long and thin) - gets longer with upgrades
-    const rifleLength = 20 + this.upgradeLevel * 2;
-    this.barrel.rect(-1, -35, 2, rifleLength).fill(0x1a1a1a); // Long rifle
-    this.barrel.circle(0, -36, 2 + this.upgradeLevel * 0.5).fill(0x1a1a1a); // Scope gets bigger
+    // Arms holding rifle
+    this.barrel.rect(-4, -13, 2, 4).fill(0xffdbac); // Left arm
+    this.barrel.rect(2, -13, 2, 4).fill(0xffdbac); // Right arm
+    // Sniper rifle (long and thin) - held in front
+    const rifleLength = 12 + this.upgradeLevel * 2;
+    this.barrel.rect(-1, -12, 2, rifleLength).fill(0x1a1a1a); // Long rifle
+    this.barrel.circle(0, -13, 2 + this.upgradeLevel * 0.5).fill(0x1a1a1a); // Scope
+    // Head
+    this.barrel.circle(0, -20, 5).fill(0xffdbac);
+    this.barrel.stroke({ width: 1, color: 0x000000 });
+    // Tactical sunglasses
+    this.barrel.rect(-4, -20, 8, 2).fill(0x1a1a1a);
+    // Boonie hat
+    this.barrel.circle(0, -23, 6).fill(0x2f4f4f);
+    this.barrel.rect(-6, -21, 12, 1).fill(0x2f4f4f); // Hat brim
   }
 
   // Shotgun Tower Visual
@@ -291,17 +305,24 @@ export class Tower extends GameObject implements ITower {
 
     // Little man with flamethrower (rotates)
     this.barrel.clear();
-    // Head with protective mask
-    this.barrel.circle(0, -18, 5).fill(0xffdbac);
-    this.barrel.circle(0, -18, 4).fill(0x4a4a4a); // Mask
-    this.barrel.stroke({ width: 1, color: 0x000000 });
     // Body - better suit with upgrades
     const suitColor = this.upgradeLevel >= 3 ? 0xff6347 : 0xff4500;
     this.barrel.rect(-3, -13, 6, 8).fill(suitColor); // Orange suit
-    // Flamethrower - bigger tank with upgrades
-    const tankSize = 4 + this.upgradeLevel * 0.5;
-    this.barrel.rect(-tankSize / 2, -24, tankSize, 11).fill(0xff0000); // Fuel tank
-    this.barrel.rect(-1, -26, 2, 8).fill(0x8b0000); // Nozzle
+    // Arms holding flamethrower
+    this.barrel.rect(-4, -11, 2, 4).fill(0xff4500); // Left arm (suited)
+    this.barrel.rect(2, -11, 2, 4).fill(0xff4500); // Right arm (suited)
+    // Flamethrower - held in front
+    const tankSize = 3 + this.upgradeLevel * 0.5;
+    this.barrel.rect(-tankSize / 2, -10, tankSize, 8).fill(0xff0000); // Fuel tank
+    this.barrel.rect(-1, -11, 2, 6).fill(0x8b0000); // Nozzle
+    // Head with protective mask
+    this.barrel.circle(0, -18, 5).fill(0xffdbac);
+    this.barrel.stroke({ width: 1, color: 0x000000 });
+    // Full face gas mask
+    this.barrel.circle(0, -18, 4).fill(0x4a4a4a); // Mask
+    this.barrel.circle(-2, -19, 1.5).fill(0x1a1a1a); // Left eye lens
+    this.barrel.circle(2, -19, 1.5).fill(0x1a1a1a); // Right eye lens
+    this.barrel.circle(0, -15, 2).fill(0x2a2a2a); // Filter
   }
 
   // Tesla Tower Visual
@@ -327,22 +348,30 @@ export class Tower extends GameObject implements ITower {
 
     // Little man with tesla gun (rotates)
     this.barrel.clear();
-    // Head
-    this.barrel.circle(0, -18, 5).fill(0xffdbac);
-    this.barrel.stroke({ width: 1, color: 0x000000 });
     // Body with tech suit - glows more with upgrades
     const suitColor = this.upgradeLevel >= 3 ? 0x00ffff : 0x00ced1;
     this.barrel.rect(-3, -13, 6, 8).fill(suitColor);
-    // Tesla coil gun - bigger coil with upgrades
-    const coilSize = 4 + this.upgradeLevel * 0.5;
-    this.barrel.circle(0, -24, coilSize).fill(0x7fffd4); // Coil top
-    this.barrel.rect(-2, -24, 4, 9).fill(0x00bfff); // Coil body
-    // More electric arcs with upgrades
-    for (let i = 0; i < this.upgradeLevel; i++) {
+    // Arms holding tesla gun
+    this.barrel.rect(-4, -11, 2, 4).fill(0x00ced1); // Left arm
+    this.barrel.rect(2, -11, 2, 4).fill(0x00ced1); // Right arm
+    // Tesla coil gun - held in front
+    const coilSize = 3 + this.upgradeLevel * 0.5;
+    this.barrel.circle(0, -10, coilSize).fill(0x7fffd4); // Coil top
+    this.barrel.rect(-2, -10, 4, 7).fill(0x00bfff); // Coil body
+    // Electric arcs on gun
+    for (let i = 0; i < Math.min(this.upgradeLevel, 2); i++) {
       const offset = i * 2;
-      this.barrel.moveTo(-3, -22 + offset).lineTo(3, -20 + offset).stroke({ width: 1, color: 0xffffff });
-      this.barrel.moveTo(3, -22 + offset).lineTo(-3, -20 + offset).stroke({ width: 1, color: 0xffffff });
+      this.barrel.moveTo(-2, -8 + offset).lineTo(2, -6 + offset).stroke({ width: 1, color: 0xffffff });
     }
+    // Head
+    this.barrel.circle(0, -18, 5).fill(0xffdbac);
+    this.barrel.stroke({ width: 1, color: 0x000000 });
+    // Futuristic visor/goggles
+    this.barrel.rect(-4, -19, 8, 3).fill(0x00ffff);
+    this.barrel.rect(-4, -19, 8, 3).fill({ color: 0x00ffff, alpha: 0.5 });
+    // Tech headset
+    this.barrel.rect(-5, -21, 2, 4).fill(0x00ced1); // Left earpiece
+    this.barrel.rect(3, -21, 2, 4).fill(0x00ced1); // Right earpiece
   }
 
   /**
