@@ -264,9 +264,10 @@ export class GameManager {
     return { ...this.resources };
   }
 
-  public loseLife(): void {
-    this.lives--;
+  public loseLife(amount: number = 1): void {
+    this.lives -= amount;
     if (this.lives <= 0) {
+      this.lives = 0;
       this.gameOver();
     }
   }
@@ -358,7 +359,11 @@ export class GameManager {
       // Check for zombies that reached the end
       for (const zombie of zombies) {
         if (zombie.hasReachedEnd()) {
-          this.loseLife();
+          // Lose lives based on zombie damage
+          const damage = zombie.getDamage();
+          this.loseLife(damage);
+          console.log(`💀 ${zombie.getType()} zombie reached camp! -${damage} survivors`);
+          
           // Remove zombie after it reaches the end
           const index = zombies.indexOf(zombie);
           if (index > -1) {

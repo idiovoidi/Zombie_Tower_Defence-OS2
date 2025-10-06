@@ -26,7 +26,7 @@ export class HUD extends UIComponent {
     this.addChild(this.moneyText);
 
     this.livesText = new Text({
-      text: 'Lives: 0',
+      text: 'Survivors: 100',
       style: {
         fontFamily: 'Arial',
         fontSize: 24,
@@ -126,7 +126,7 @@ export class HUD extends UIComponent {
   }
 
   public updateLives(lives: number): void {
-    this.livesText.text = `Lives: ${lives}`;
+    this.livesText.text = `Survivors: ${lives}`;
   }
 
   public updateWave(wave: number): void {

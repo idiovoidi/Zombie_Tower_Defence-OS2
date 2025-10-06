@@ -6,9 +6,12 @@ import { MainMenu } from './ui/MainMenu';
 import { LevelSelectMenu } from './ui/LevelSelectMenu';
 import { TowerShop } from './ui/TowerShop';
 import { TowerInfoPanel } from './ui/TowerInfoPanel';
+import { DebugInfoPanel } from './ui/DebugInfoPanel';
+import { ZombieBestiary } from './ui/ZombieBestiary';
 import { GameConfig } from './config/gameConfig';
 import { DebugUtils } from './utils/DebugUtils';
 import { DevConfig } from './config/devConfig';
+import { DebugConstants } from './config/debugConstants';
 
 (async () => {
   // Initialize debug utilities
@@ -58,6 +61,21 @@ import { DevConfig } from './config/devConfig';
   towerInfoPanel.position.set(1040, 550);
   uiManager.registerComponent('towerInfoPanel', towerInfoPanel);
 
+  // Create debug info panel (right side, below tower info panel)
+  const debugInfoPanel = new DebugInfoPanel();
+  debugInfoPanel.position.set(1040, 720);
+  uiManager.registerComponent('debugInfoPanel', debugInfoPanel);
+  if (DebugConstants.ENABLED) {
+    debugInfoPanel.show();
+  } else {
+    debugInfoPanel.hide();
+  }
+
+  // Create zombie bestiary (right side, below debug panel)
+  const zombieBestiary = new ZombieBestiary();
+  zombieBestiary.position.set(1040, 770);
+  uiManager.registerComponent('zombieBestiary', zombieBestiary);
+
   // Set up event handlers
   mainMenu.setStartCallback(() => {
     DebugUtils.debug('Starting game from main menu');
@@ -96,7 +114,7 @@ import { DevConfig } from './config/devConfig';
   // Set up tower placement callbacks
   const placementManager = gameManager.getTowerPlacementManager();
 
-  placementManager.setTowerSelectedCallback((tower) => {
+  placementManager.setTowerSelectedCallback(tower => {
     if (tower) {
       towerInfoPanel.showTowerInfo(tower);
     } else {
@@ -127,9 +145,7 @@ import { DevConfig } from './config/devConfig';
       const baseCost = gameManager.getTowerManager().getTowerCost(tower.getType());
       let totalCost = baseCost;
       for (let i = 1; i < tower.getUpgradeLevel(); i++) {
-        totalCost += gameManager
-          .getTowerManager()
-          .calculateUpgradeCost(tower.getType(), i);
+        totalCost += gameManager.getTowerManager().calculateUpgradeCost(tower.getType(), i);
       }
       const sellValue = Math.floor(totalCost * 0.75);
 
@@ -149,7 +165,7 @@ import { DevConfig } from './config/devConfig';
 
       if (placementManager.isInPlacementMode()) {
         const pos = event.global;
-        
+
         // Check if player has enough money before placing
         const selectedType = towerShop.getSelectedTowerType();
         if (selectedType) {
@@ -192,7 +208,7 @@ import { DevConfig } from './config/devConfig';
     }
   });
 
-  window.addEventListener('keydown', (event) => {
+  window.addEventListener('keydown', event => {
     if (event.key === 'Escape') {
       const placementManager = gameManager.getTowerPlacementManager();
       if (placementManager.isInPlacementMode()) {
@@ -215,10 +231,22 @@ import { DevConfig } from './config/devConfig';
 
   // Listen for animate update
   let lastTime = performance.now();
+  let frameCount = 0;
+  let fpsUpdateTime = performance.now();
+  let currentFPS = 60;
+
   app.ticker.add(() => {
     const currentTime = performance.now();
     const deltaTime = currentTime - lastTime; // Keep in milliseconds
     lastTime = currentTime;
+
+    // Calculate FPS
+    frameCount++;
+    if (currentTime - fpsUpdateTime >= 1000) {
+      currentFPS = frameCount;
+      frameCount = 0;
+      fpsUpdateTime = currentTime;
+    }
 
     // Update game manager (handles zombies, waves, etc.)
     gameManager.update(deltaTime);
@@ -240,6 +268,19 @@ import { DevConfig } from './config/devConfig';
     // Update resource display in HUD
     const resources = gameManager.getResources();
     hud.updateResources(resources.wood, resources.metal, resources.energy);
+
+    // Update debug info panel
+    if (DebugConstants.ENABLED && debugInfoPanel.visible) {
+      const zombies = gameManager.getZombieManager().getZombies();
+      const towers = gameManager.getTowerPlacementManager().getPlacedTowers();
+
+      debugInfoPanel.updateStats({
+        activeZombies: zombies.length,
+        activeTowers: towers.length,
+        waveProgress: `${gameManager.getWave()}`,
+        fps: currentFPS,
+      });
+    }
 
     // Show next wave button when wave is complete
     if (gameManager.getCurrentState() === GameConfig.GAME_STATES.WAVE_COMPLETE) {

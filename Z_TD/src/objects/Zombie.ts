@@ -9,6 +9,7 @@ export class Zombie extends GameObject {
   private type: string;
   private speed: number = 0;
   private reward: number = 0;
+  private damage: number = 1; // Damage dealt to survivor camp
   private currentWaypointIndex: number = 0;
   private waypoints: { x: number; y: number }[] = [];
   private visual!: Graphics;
@@ -51,39 +52,47 @@ export class Zombie extends GameObject {
     this.healthComponent = new HealthComponent(health);
     this.addComponent(this.healthComponent);
 
-    // Set speed based on type
+    // Set speed, reward, and damage based on type
     switch (this.type) {
       case GameConfig.ZOMBIE_TYPES.BASIC:
         this.speed = 50; // pixels per second
         this.reward = 10;
+        this.damage = 1; // 1 survivor killed
         break;
       case GameConfig.ZOMBIE_TYPES.FAST:
         this.speed = 100;
         this.reward = 15;
+        this.damage = 1; // Fast but weak
         break;
       case GameConfig.ZOMBIE_TYPES.TANK:
         this.speed = 25;
         this.reward = 50;
+        this.damage = 5; // Massive damage
         break;
       case GameConfig.ZOMBIE_TYPES.ARMORED:
         this.speed = 40;
         this.reward = 30;
+        this.damage = 3; // Heavy damage
         break;
       case GameConfig.ZOMBIE_TYPES.SWARM:
         this.speed = 60;
         this.reward = 5;
+        this.damage = 1; // Small but numerous
         break;
       case GameConfig.ZOMBIE_TYPES.STEALTH:
         this.speed = 70;
         this.reward = 25;
+        this.damage = 2; // Moderate damage
         break;
       case GameConfig.ZOMBIE_TYPES.MECHANICAL:
         this.speed = 55;
         this.reward = 40;
+        this.damage = 4; // High-tech threat
         break;
       default:
         this.speed = 50;
         this.reward = 10;
+        this.damage = 1;
     }
   }
 
@@ -408,5 +417,9 @@ export class Zombie extends GameObject {
 
   public getSpeed(): number {
     return this.speed;
+  }
+
+  public getDamage(): number {
+    return this.damage;
   }
 }
