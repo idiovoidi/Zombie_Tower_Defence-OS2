@@ -45,23 +45,28 @@ export class DebugInfoPanel extends UIComponent {
 
     this.addChild(this.toggleButton);
 
-    // Main panel (hidden by default)
+    // Main panel (hidden by default) - will be added to stage separately
     this.background = new Graphics();
     this.contentContainer = new Container();
     this.contentContainer.visible = false;
 
     this.createPanelContent();
   }
+  
+  // Get the content container to add it to the stage separately
+  public getContentContainer(): Container {
+    return this.contentContainer;
+  }
 
   private createPanelContent(): void {
-    // Background - centered on screen (640x384 is center of 1280x768)
+    // Position at absolute screen coordinates (centered)
     const panelWidth = 280;
     const panelHeight = 580;
-    // Position relative to screen center, not button position
-    const centerX = 640 - this.x; // Screen center minus button x position
-    const centerY = 384 - this.y; // Screen center minus button y position
-    const panelLeft = centerX - panelWidth / 2;
-    const panelTop = centerY - panelHeight / 2;
+    this.contentContainer.position.set(640 - panelWidth / 2, 384 - panelHeight / 2);
+    
+    // Background - simple positioning from (0,0)
+    const panelLeft = 0;
+    const panelTop = 0;
 
     this.background
       .roundRect(panelLeft, panelTop, panelWidth, panelHeight, 10)

@@ -137,24 +137,31 @@ export class ZombieBestiary extends UIComponent {
 
     this.addChild(this.toggleButton);
 
-    // Main content container
+    // Main content container - will be added to stage separately
     this.contentContainer = new Container();
     this.contentContainer.visible = false;
     this.createContent();
-    this.addChild(this.contentContainer);
+  }
+
+  // Get the content container to add it to the stage separately
+  public getContentContainer(): Container {
+    return this.contentContainer;
   }
 
   private createContent(): void {
-    // Background panel - centered on screen (640x384 is center of 1280x768)
+    // Position at absolute screen coordinates (top-left)
+    this.contentContainer.position.set(20, 20);
+
+    // Background panel - simple positioning from (0,0)
     const panelWidth = 870;
     const panelHeight = 620;
-    const centerX = 640 - this.x; // Screen center minus button x position
-    const centerY = 384 - this.y; // Screen center minus button y position
-    const panelLeft = centerX - panelWidth / 2;
-    const panelTop = centerY - panelHeight / 2;
-    
+    const panelLeft = 0;
+    const panelTop = 0;
+
     this.background = new Graphics();
-    this.background.roundRect(panelLeft, panelTop, panelWidth, panelHeight, 10).fill({ color: 0x1a1a1a, alpha: 0.98 });
+    this.background
+      .roundRect(panelLeft, panelTop, panelWidth, panelHeight, 10)
+      .fill({ color: 0x1a1a1a, alpha: 0.98 });
     this.background.stroke({ width: 3, color: 0xff0000 });
     this.contentContainer.addChild(this.background);
 
@@ -169,7 +176,7 @@ export class ZombieBestiary extends UIComponent {
       },
     });
     title.anchor.set(0.5, 0);
-    title.position.set(centerX, panelTop + 15);
+    title.position.set(panelLeft + panelWidth / 2, panelTop + 15);
     this.contentContainer.addChild(title);
 
     // Subtitle
@@ -183,7 +190,7 @@ export class ZombieBestiary extends UIComponent {
       },
     });
     subtitle.anchor.set(0.5, 0);
-    subtitle.position.set(centerX, panelTop + 47);
+    subtitle.position.set(panelLeft + panelWidth / 2, panelTop + 47);
     this.contentContainer.addChild(subtitle);
 
     // Create zombie cards
@@ -273,7 +280,7 @@ export class ZombieBestiary extends UIComponent {
       `💀 ${zombie.damage} survivor${zombie.damage > 1 ? 's' : ''}`,
     ];
 
-    stats.forEach((stat) => {
+    stats.forEach(stat => {
       const statText = new Text({
         text: stat,
         style: {

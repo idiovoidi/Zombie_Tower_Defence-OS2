@@ -65,6 +65,8 @@ import { DebugConstants } from './config/debugConstants';
   const debugInfoPanel = new DebugInfoPanel();
   debugInfoPanel.position.set(1260, 720);
   uiManager.registerComponent('debugInfoPanel', debugInfoPanel);
+  // Add the content panel separately to the stage so it appears on top
+  app.stage.addChild(debugInfoPanel.getContentContainer());
   if (DebugConstants.ENABLED) {
     debugInfoPanel.show();
   } else {
@@ -75,6 +77,8 @@ import { DebugConstants } from './config/debugConstants';
   const zombieBestiary = new ZombieBestiary();
   zombieBestiary.position.set(1260, 770);
   uiManager.registerComponent('zombieBestiary', zombieBestiary);
+  // Add the content panel separately to the stage so it appears on top
+  app.stage.addChild(zombieBestiary.getContentContainer());
 
   // Set up event handlers
   mainMenu.setStartCallback(() => {
