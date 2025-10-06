@@ -4,6 +4,10 @@ export const GameConfig = {
   SCREEN_WIDTH: 1280,
   SCREEN_HEIGHT: 768,
 
+  // UI Layout dimensions
+  UI_SHOP_WIDTH: 220,
+  UI_BOTTOM_BAR_HEIGHT: 80,
+
   // Game states
   GAME_STATES: {
     MAIN_MENU: 'MainMenu',

@@ -17,35 +17,38 @@ export class TowerShop extends UIComponent {
   }
 
   private createShopUI(): void {
+    const shopWidth = 220;
+    const shopHeight = GameConfig.SCREEN_HEIGHT;
+
     // Main panel background - corrugated metal
-    const metalBg = TextureGenerator.createCorrugatedMetal(220, 520);
-    metalBg.position.set(-10, -10);
+    const metalBg = TextureGenerator.createCorrugatedMetal(shopWidth, shopHeight);
     this.addChild(metalBg);
 
     // Inner panel - rusty metal plate
-    const innerBg = TextureGenerator.createRustyMetal(200, 500);
+    const innerBg = TextureGenerator.createRustyMetal(shopWidth - 20, shopHeight - 20);
+    innerBg.position.set(10, 10);
     this.addChild(innerBg);
 
     // Riveted border frame
     const frame = new Graphics();
-    frame.rect(0, 0, 200, 500).stroke({ width: 3, color: 0x2a2a2a });
+    frame.rect(0, 0, shopWidth, shopHeight).stroke({ width: 3, color: 0x2a2a2a });
     this.addChild(frame);
 
     // Corner rivets
-    this.addRivets(frame);
+    this.addRivets(frame, shopWidth, shopHeight);
 
     // Title bar - weathered metal
     const titleBg = new Graphics();
-    titleBg.rect(5, 5, 190, 35).fill(0x3a3a3a);
-    titleBg.rect(5, 5, 190, 35).stroke({ width: 2, color: 0x1a1a1a });
+    titleBg.rect(10, 10, shopWidth - 20, 40).fill(0x3a3a3a);
+    titleBg.rect(10, 10, shopWidth - 20, 40).stroke({ width: 2, color: 0x1a1a1a });
     this.addChild(titleBg);
 
     // Caution stripes on title bar edges
     const cautionLeft = new Graphics();
-    cautionLeft.rect(5, 5, 8, 35).fill(0xffcc00);
+    cautionLeft.rect(10, 10, 8, 40).fill(0xffcc00);
     this.addChild(cautionLeft);
     const cautionRight = new Graphics();
-    cautionRight.rect(187, 5, 8, 35).fill(0xffcc00);
+    cautionRight.rect(shopWidth - 18, 10, 8, 40).fill(0xffcc00);
     this.addChild(cautionRight);
 
     // Title text with apocalyptic styling
@@ -61,7 +64,7 @@ export class TowerShop extends UIComponent {
       },
     });
     title.anchor.set(0.5, 0.5);
-    title.position.set(100, 22);
+    title.position.set(shopWidth / 2, 25);
     this.addChild(title);
 
     // Subtitle
@@ -76,12 +79,12 @@ export class TowerShop extends UIComponent {
       },
     });
     subtitle.anchor.set(0.5, 0.5);
-    subtitle.position.set(100, 35);
+    subtitle.position.set(shopWidth / 2, 42);
     this.addChild(subtitle);
 
     // Create tower buttons
     const towerTypes = this.towerManager.getTowerTypes();
-    let yPos = 55;
+    let yPos = 65;
 
     for (const type of towerTypes) {
       const button = this.createTowerButton(type, yPos);
@@ -101,20 +104,20 @@ export class TowerShop extends UIComponent {
       },
     });
     warning.anchor.set(0.5, 0.5);
-    warning.position.set(100, 490);
+    warning.position.set(shopWidth / 2, shopHeight - 15);
     this.addChild(warning);
   }
 
-  private addRivets(container: Container): void {
+  private addRivets(container: Container, width: number, height: number): void {
     const rivetPositions = [
       [3, 3],
-      [197, 3],
-      [3, 497],
-      [197, 497],
-      [100, 3],
-      [100, 497],
-      [3, 250],
-      [197, 250],
+      [width - 3, 3],
+      [3, height - 3],
+      [width - 3, height - 3],
+      [width / 2, 3],
+      [width / 2, height - 3],
+      [3, height / 2],
+      [width - 3, height / 2],
     ];
 
     rivetPositions.forEach(([x, y]) => {

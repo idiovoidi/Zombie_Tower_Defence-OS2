@@ -21,12 +21,12 @@ export class BottomBar extends UIComponent {
     const barHeight = 80;
 
     // Main background - corrugated metal
-    const metalBg = TextureGenerator.createCorrugatedMetal(width + 20, barHeight + 20);
-    metalBg.position.set(-10, -10);
+    const metalBg = TextureGenerator.createCorrugatedMetal(width, barHeight);
     this.addChild(metalBg);
 
     // Inner panel - rusty metal
-    const innerBg = TextureGenerator.createRustyMetal(width, barHeight);
+    const innerBg = TextureGenerator.createRustyMetal(width - 20, barHeight - 20);
+    innerBg.position.set(10, 10);
     this.addChild(innerBg);
 
     // Top border with rivets
@@ -41,10 +41,13 @@ export class BottomBar extends UIComponent {
       this.addChild(rivet);
     }
 
-    // Create info panels
-    const panelWidth = 180;
+    // Calculate responsive panel widths
+    const availableWidth = width - 200; // Reserve space for next wave button
     const panelSpacing = 10;
-    let xPos = 10;
+    const numPanels = 4; // money, lives, wave, resources
+    const totalSpacing = panelSpacing * (numPanels + 1);
+    const panelWidth = Math.floor((availableWidth - totalSpacing) / numPanels);
+    let xPos = panelSpacing;
 
     // Money panel
     const moneyPanel = this.createInfoPanel('FUNDS', '$', 0x00ff00, panelWidth);
@@ -67,18 +70,18 @@ export class BottomBar extends UIComponent {
     this.waveValue = wavePanel.getChildByName('value') as Text;
     xPos += panelWidth + panelSpacing;
 
-    // Resources panel (wider)
-    const resourcesPanel = this.createResourcesPanel(220);
+    // Resources panel
+    const resourcesPanel = this.createResourcesPanel(panelWidth);
     resourcesPanel.position.set(xPos, 10);
     this.addChild(resourcesPanel);
     this.woodValue = resourcesPanel.getChildByName('wood') as Text;
     this.metalValue = resourcesPanel.getChildByName('metal') as Text;
     this.energyValue = resourcesPanel.getChildByName('energy') as Text;
-    xPos += 220 + panelSpacing;
+    xPos += panelWidth + panelSpacing;
 
     // Next wave button (right side)
     this.nextWaveButton = this.createNextWaveButton();
-    this.nextWaveButton.position.set(width - 160, 15);
+    this.nextWaveButton.position.set(width - 165, 15);
     this.nextWaveButton.visible = false;
     this.addChild(this.nextWaveButton);
 

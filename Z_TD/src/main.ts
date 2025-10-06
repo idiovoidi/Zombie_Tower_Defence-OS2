@@ -44,9 +44,16 @@ import { DebugConstants } from './config/debugConstants';
   const hud = new HUD();
   uiManager.registerComponent('hud', hud);
 
-  // Create bottom bar (positioned at bottom of screen)
-  const bottomBar = new BottomBar(1280);
-  bottomBar.position.set(0, 688); // 768 - 80 = 688
+  // Calculate responsive positions based on screen dimensions
+  const screenWidth = GameConfig.SCREEN_WIDTH;
+  const screenHeight = GameConfig.SCREEN_HEIGHT;
+  const shopWidth = GameConfig.UI_SHOP_WIDTH;
+  const bottomBarHeight = GameConfig.UI_BOTTOM_BAR_HEIGHT;
+
+  // Create bottom bar (positioned at bottom of screen, full width minus shop)
+  const bottomBarWidth = screenWidth - shopWidth;
+  const bottomBar = new BottomBar(bottomBarWidth);
+  bottomBar.position.set(0, screenHeight - bottomBarHeight);
   uiManager.registerComponent('bottomBar', bottomBar);
 
   // Create main menu
@@ -57,19 +64,19 @@ import { DebugConstants } from './config/debugConstants';
   const levelSelectMenu = new LevelSelectMenu();
   uiManager.registerComponent('levelSelectMenu', levelSelectMenu);
 
-  // Create tower shop (positioned on the right side)
+  // Create tower shop (positioned on the right side, full height)
   const towerShop = new TowerShop();
-  towerShop.position.set(1040, 20);
+  towerShop.position.set(screenWidth - shopWidth, 0);
   uiManager.registerComponent('towerShop', towerShop);
 
   // Create tower info panel (positioned below tower shop)
   const towerInfoPanel = new TowerInfoPanel();
-  towerInfoPanel.position.set(1040, 550);
+  towerInfoPanel.position.set(screenWidth - shopWidth, 550);
   uiManager.registerComponent('towerInfoPanel', towerInfoPanel);
 
   // Create debug info panel (right side, below tower info panel)
   const debugInfoPanel = new DebugInfoPanel();
-  debugInfoPanel.position.set(1260, 720);
+  debugInfoPanel.position.set(screenWidth - 20, screenHeight - 48);
   uiManager.registerComponent('debugInfoPanel', debugInfoPanel);
   // Add the content panel separately to the stage so it appears on top
   app.stage.addChild(debugInfoPanel.getContentContainer());
@@ -81,7 +88,7 @@ import { DebugConstants } from './config/debugConstants';
 
   // Create zombie bestiary (right side, below debug panel)
   const zombieBestiary = new ZombieBestiary();
-  zombieBestiary.position.set(1260, 770);
+  zombieBestiary.position.set(screenWidth - 20, screenHeight - 2);
   uiManager.registerComponent('zombieBestiary', zombieBestiary);
   // Add the content panel separately to the stage so it appears on top
   app.stage.addChild(zombieBestiary.getContentContainer());
