@@ -2,82 +2,112 @@
 
 ## Overview
 
-The Survivor Camp has been redesigned with an apocalyptic, military-fortified aesthetic matching the Tower Shop and Bottom Bar. It represents the last bastion of humanity - a heavily fortified compound with corrugated metal walls, concrete bunkers, and defensive positions.
+The Survivor Camp represents a makeshift settlement where the last survivors have gathered. It features military-style tents, improvised defenses, and scavenged materials - a lived-in camp that shows both resourcefulness and desperation. The design matches the apocalyptic RTS aesthetic of the Tower Shop and Bottom Bar while maintaining a more organic, camp-like feel.
 
 ## Visual Design
 
-### Outer Perimeter (130px × 110px)
+### Makeshift Perimeter
 
-- **Walls**: Corrugated metal panels (gray #5a5a5a)
-- **Border**: Heavy dark metal frame (4px, #2a2a2a)
-- **Corrugation Effect**: Vertical ridges every 8px for industrial look
-- **Rust Streaks**: Random vertical rust marks (#8b4513) for weathering
-- **Corner Reinforcements**: Metal plates with 4 rivets each corner
+- **Fence Sections**: Scrap metal panels with gaps (not solid walls)
+- **Left/Right Sides**: 5 vertical metal panels each with rust spots and rivets
+- **Back Fence**: Chain-link style metal sections
+- **Material**: Salvaged corrugated metal (#5a5a5a)
+- **Weathering**: Rust spots and worn edges
 
-### Main Bunker/Shelter (70px × 40px)
+### Main Tent (64px × 35px base)
 
-- **Base**: Concrete structure (#5a5a5a) with dark border
-- **Roof**: Angled metal panels (#4a4a4a) forming peaked roof
-- **Roof Panels**: Vertical seam lines for segmented appearance
-- **Door**: Reinforced metal door (24px × 10px) with rivet details
-- **Weathering**: Concrete cracks for battle-worn appearance
+- **Material**: Military-style olive green tarp (#6b7c3a, #5a6a2a)
+- **Style**: Peaked roof with center seam
+- **Panels**: Visible tent sections and seams
+- **Patches**: Repair patches showing wear (#4a4a4a, #3a3a3a)
+- **Entrance**: Rolled-up flap at front
+- **Support**: Rope lines to stakes on sides
+- **Details**: Weathered, patched, lived-in appearance
+
+### Small Tent (Left Side)
+
+- **Material**: Brown/tan tarp (#8b7355, #a0826d)
+- **Style**: Simple A-frame design
+- **Size**: Smaller personal shelter
+- **Purpose**: Additional sleeping quarters
 
 ### Defensive Structures
 
 #### Sandbag Barriers
 - **Material**: Tan/brown sandbags (#8b7355)
-- **Placement**: Left and right sides of camp entrance
-- **Style**: Rounded rectangles stacked in defensive positions
+- **Placement**: Organic clusters at left and right entrances (4 bags each side)
+- **Style**: Rounded rectangles with texture lines
 - **Border**: Dark brown outline (#654321)
+- **Purpose**: Improvised defensive positions
 
-#### Metal Supply Crates (18px × 18px each)
-- **Base**: Dark metal (#4a4a4a) with heavy border
-- **Caution Stripes**: Yellow/black warning pattern on top
-- **Rivets**: 4 corner rivets for industrial look
-- **Placement**: Left side of camp (3 crates stacked)
+#### Wooden Supply Crates (16px × 16px each)
+- **Base**: Weathered wood (#8b7355)
+- **Planks**: Visible wood grain lines
+- **Metal Bands**: Dark metal strapping (#4a4a4a)
+- **Placement**: Left side of camp (3 crates)
+- **Style**: Scavenged supply containers
 
-### Watchtower (24px × 48px)
+### Makeshift Watchtower
 
-- **Structure**: Metal scaffolding with cross-beams
-- **Base**: Dark metal frame (#4a4a4a)
-- **Cross-beams**: Horizontal supports every 15px
-- **Vertical Supports**: 3px wide metal columns
-- **Platform**: Metal grating (34px × 8px) with line details
-- **Guard**: Armed figure on platform with rifle
-- **Antenna**: Communication tower with red warning light
+- **Structure**: Wood construction with cross-braces
+- **Legs**: Two wooden posts (#654321)
+- **Bracing**: X-pattern cross supports
+- **Platform**: Wood planks with visible seams (#8b7355)
+- **Railing**: Simple wooden rail
+- **Guard**: Armed survivor on platform
+- **Radio Antenna**: Metal pole with red warning light
 
-### Fire/Heating
+### Central Campfire
 
-- **Barrel**: Metal oil drum (16px × 12px) with horizontal bands
+- **Fire Pit**: Stone ring (8 stones arranged in circle)
+- **Stones**: Gray rocks (#5a5a5a) with dark borders
 - **Fire**: Layered flames (orange → yellow gradient)
-- **Placement**: Center front of camp
-- **Details**: Riveted metal construction
+- **Logs**: Seating logs on two sides (#654321)
+- **Placement**: Center of camp gathering area
 
-### Survivors
+### Survivors (4 figures)
 
-#### Armed Guard (Watchtower)
-- **Head**: Flesh tone (#ffdbac)
-- **Body**: Armored/tactical gear (#4a4a4a)
-- **Weapon**: Rifle silhouette
+1. **Watchtower Guard**
+   - On elevated platform
+   - Armed with rifle
+   - Brown clothing (#654321)
+   - Defensive position
 
-#### Ground Survivors (2 figures)
-1. **Armed Survivor**
-   - Weapon in hand
-   - Brown/tan clothing (#654321)
-   - Defensive posture
+2. **Sitting Survivor**
+   - By campfire on log
+   - Blue clothing (#4169e1)
+   - Resting/warming
 
-2. **Worker Survivor**
-   - Tool in hand
+3. **Standing Guard**
+   - Armed patrol
+   - Brown clothing (#654321)
+   - Weapon ready
+
+4. **Worker**
+   - Near supply crates
    - Gray work clothes (#4a4a4a)
-   - Active/working pose
+   - Organizing supplies
+
+### Camp Details
+
+#### Laundry Line
+- **Line**: Rope strung between tent areas
+- **Clothes**: Blue and green garments hanging
+- **Purpose**: Shows lived-in, everyday camp life
+
+#### Tent Stakes and Ropes
+- **Stakes**: Wooden posts driven into ground
+- **Ropes**: Support lines from tent corners
+- **Purpose**: Realistic tent setup
 
 ### Warning Sign (80px × 18px)
 
-- **Background**: Dark metal plate (#3a3a3a)
-- **Border**: Heavy frame (3px, #2a2a2a)
-- **Edge Stripes**: Yellow caution stripes on left/right edges
-- **Inner Panel**: Green "SAFE ZONE" indicator (#00aa00)
-- **Rivets**: 4 corner rivets
+- **Background**: Wooden board (#8b7355)
+- **Border**: Wood frame (#654321)
+- **Edge Stripes**: Hand-painted yellow warning stripes
+- **Inner Panel**: Green "SAFE ZONE" painted area (#00aa00)
+- **Fasteners**: Nails/screws in corners (#4a4a4a)
+- **Style**: Makeshift painted sign
 - **Position**: Above camp entrance
 
 ## Color Palette
