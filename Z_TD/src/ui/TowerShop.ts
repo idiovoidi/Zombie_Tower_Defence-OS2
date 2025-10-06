@@ -284,50 +284,136 @@ export class TowerShop extends UIComponent {
 
   private createTowerIcon(type: string): Graphics {
     const icon = new Graphics();
+    const scale = 0.5; // Scale down to fit in icon plate
 
     switch (type) {
       case GameConfig.TOWER_TYPES.MACHINE_GUN:
-        // Tower base
-        icon.rect(-8, 0, 16, 12).fill(0x8b7355);
-        // Little man with gun
-        icon.circle(0, -8, 3).fill(0xffdbac); // Head
-        icon.rect(-2, -5, 4, 5).fill(0x0000ff); // Body
-        icon.rect(0, -12, 1, 6).fill(0x2f4f4f); // Gun
+        // Level 1 Machine Gun - Wooden barricade
+        const mgBaseSize = 15;
+        icon.rect(-mgBaseSize * scale, -5 * scale, mgBaseSize * 2 * scale, 25 * scale).fill(0x8b7355);
+        icon.stroke({ width: 1, color: 0x654321 });
+        // Wood planks
+        for (let i = -mgBaseSize; i < mgBaseSize; i += 6) {
+          icon
+            .moveTo(i * scale, -5 * scale)
+            .lineTo(i * scale, 20 * scale)
+            .stroke({ width: 1, color: 0x654321, alpha: 0.3 });
+        }
+        // Sandbags
+        icon.roundRect(-12 * scale, 12 * scale, 10 * scale, 6 * scale, 2 * scale).fill(0x8b7355);
+        icon.roundRect(2 * scale, 12 * scale, 10 * scale, 6 * scale, 2 * scale).fill(0x8b7355);
+        // Little man
+        icon.rect(-3 * scale, -13 * scale, 6 * scale, 8 * scale).fill(0x654321);
+        icon.rect(-4 * scale, -11 * scale, 2 * scale, 4 * scale).fill(0xffdbac);
+        icon.rect(2 * scale, -11 * scale, 2 * scale, 4 * scale).fill(0xffdbac);
+        icon.rect(-1 * scale, -10 * scale, 2 * scale, 8 * scale).fill(0x2f4f4f);
+        icon.circle(0, -18 * scale, 5 * scale).fill(0xffdbac);
+        icon.rect(-5 * scale, -21 * scale, 10 * scale, 2 * scale).fill(0x8b0000); // Bandana
         break;
+
       case GameConfig.TOWER_TYPES.SNIPER:
-        // Tower base
-        icon.rect(-6, -2, 12, 14).fill(0x696969);
-        // Little man with sniper
-        icon.circle(0, -10, 3).fill(0xffdbac); // Head
-        icon.rect(-2, -7, 4, 5).fill(0x2f4f4f); // Body
-        icon.rect(0, -16, 1, 10).fill(0x1a1a1a); // Long rifle
+        // Level 1 Sniper - Wooden platform
+        const sniperHeight = 30;
+        icon.rect(-12 * scale, -10 * scale, 24 * scale, sniperHeight * scale).fill(0x8b7355);
+        icon.stroke({ width: 1, color: 0x654321 });
+        // Wood planks
+        for (let y = -10; y < sniperHeight - 10; y += 5) {
+          icon
+            .moveTo(-12 * scale, y * scale)
+            .lineTo(12 * scale, y * scale)
+            .stroke({ width: 1, color: 0x654321, alpha: 0.3 });
+        }
+        // Wooden roof
+        icon
+          .moveTo(-12 * scale, -10 * scale)
+          .lineTo(0, -18 * scale)
+          .lineTo(12 * scale, -10 * scale)
+          .fill(0x654321);
+        // Window
+        icon.rect(-6 * scale, -5 * scale, 12 * scale, 6 * scale).fill(0x4a4a4a);
+        // Little man
+        icon.rect(-3 * scale, -15 * scale, 6 * scale, 8 * scale).fill(0x654321);
+        icon.rect(-4 * scale, -13 * scale, 2 * scale, 4 * scale).fill(0xffdbac);
+        icon.rect(2 * scale, -13 * scale, 2 * scale, 4 * scale).fill(0xffdbac);
+        icon.rect(-1 * scale, -12 * scale, 2 * scale, 12 * scale).fill(0x1a1a1a);
+        icon.circle(0, -20 * scale, 5 * scale).fill(0xffdbac);
+        icon.circle(0, -23 * scale, 6 * scale).fill(0x654321); // Boonie hat
         break;
+
       case GameConfig.TOWER_TYPES.SHOTGUN:
-        // Bunker base
-        icon.roundRect(-9, 0, 18, 12, 3).fill(0x8b4513);
-        // Little man with shotgun
-        icon.circle(0, -8, 3).fill(0xffdbac); // Head
-        icon.rect(-2, -5, 4, 5).fill(0x8b4513); // Body
-        icon.rect(-1, -11, 1, 6).fill(0xa0522d); // Shotgun barrel
-        icon.rect(1, -11, 1, 6).fill(0xa0522d); // Shotgun barrel
+        // Level 1 Shotgun - Sandbag wall
+        const shotgunWidth = 36;
+        icon.roundRect(-shotgunWidth / 2 * scale, -8 * scale, shotgunWidth * scale, 28 * scale, 8 * scale).fill(0x8b7355);
+        icon.stroke({ width: 1, color: 0x654321 });
+        // Sandbag texture
+        for (let x = -shotgunWidth / 2 + 5; x < shotgunWidth / 2; x += 8) {
+          icon.roundRect(x * scale, -5 * scale, 7 * scale, 10 * scale, 2 * scale).fill({ color: 0x654321, alpha: 0.3 });
+          icon.roundRect(x * scale, 5 * scale, 7 * scale, 10 * scale, 2 * scale).fill({ color: 0x654321, alpha: 0.3 });
+        }
+        // Firing gap
+        icon.rect(-8 * scale, 0, 16 * scale, 6 * scale).fill(0x4a4a4a);
+        // Little man
+        icon.rect(-3 * scale, -11 * scale, 6 * scale, 8 * scale).fill(0x654321);
+        icon.rect(-4 * scale, -9 * scale, 2 * scale, 4 * scale).fill(0xffdbac);
+        icon.rect(2 * scale, -9 * scale, 2 * scale, 4 * scale).fill(0xffdbac);
+        icon.rect(-3 * scale, -8 * scale, 2 * scale, 8 * scale).fill(0xa0522d);
+        icon.rect(1 * scale, -8 * scale, 2 * scale, 8 * scale).fill(0xa0522d);
+        icon.circle(0, -16 * scale, 5 * scale).fill(0xffdbac);
+        icon.rect(-5 * scale, -19 * scale, 10 * scale, 3 * scale).fill(0x654321); // Cap
         break;
+
       case GameConfig.TOWER_TYPES.FLAME:
-        // Round tower
-        icon.circle(0, 2, 9).fill(0xff4500);
-        // Little man with flamethrower
-        icon.circle(0, -8, 3).fill(0xffdbac); // Head
-        icon.circle(0, -8, 2).fill(0x4a4a4a); // Mask
-        icon.rect(-2, -5, 4, 5).fill(0xff4500); // Body
-        icon.rect(-1, -12, 2, 7).fill(0xff0000); // Flamethrower
+        // Level 1 Flame - Barrel platform
+        const flameSize = 18;
+        icon.circle(0, 5 * scale, flameSize * scale).fill(0x8b4513);
+        icon.stroke({ width: 1, color: 0x654321 });
+        // Oil barrels
+        icon.rect(-8 * scale, -5 * scale, 6 * scale, 12 * scale).fill(0x4a4a4a);
+        icon.rect(2 * scale, -5 * scale, 6 * scale, 12 * scale).fill(0x4a4a4a);
+        // Barrel bands
+        icon.rect(-8 * scale, -2 * scale, 6 * scale, 2 * scale).fill(0x5a5a5a);
+        icon.rect(2 * scale, -2 * scale, 6 * scale, 2 * scale).fill(0x5a5a5a);
+        // Warning paint
+        icon.circle(-5 * scale, 0, 3 * scale).fill({ color: 0xff4500, alpha: 0.7 });
+        icon.circle(5 * scale, 0, 3 * scale).fill({ color: 0xff4500, alpha: 0.7 });
+        // Little man
+        icon.rect(-3 * scale, -13 * scale, 6 * scale, 8 * scale).fill(0x654321);
+        icon.rect(-4 * scale, -11 * scale, 2 * scale, 4 * scale).fill(0xffdbac);
+        icon.rect(2 * scale, -11 * scale, 2 * scale, 4 * scale).fill(0xffdbac);
+        icon.rect(-1.5 * scale, -10 * scale, 3 * scale, 8 * scale).fill(0xff0000);
+        icon.rect(-1 * scale, -11 * scale, 2 * scale, 6 * scale).fill(0x8b0000);
+        icon.circle(0, -18 * scale, 5 * scale).fill(0xffdbac);
+        icon.rect(-4 * scale, -19 * scale, 8 * scale, 2 * scale).fill(0x1a1a1a); // Goggles
         break;
+
       case GameConfig.TOWER_TYPES.TESLA:
-        // Tech tower
-        icon.rect(-8, 0, 16, 12).fill(0x00ced1);
-        // Little man with tesla gun
-        icon.circle(0, -8, 3).fill(0xffdbac); // Head
-        icon.rect(-2, -5, 4, 5).fill(0x00ced1); // Body
-        icon.circle(0, -12, 2).fill(0x7fffd4); // Tesla coil
-        icon.rect(-1, -12, 2, 5).fill(0x00bfff); // Coil body
+        // Level 1 Tesla - Scavenged tech
+        const teslaWidth = 32;
+        icon.rect(-teslaWidth / 2 * scale, -5 * scale, teslaWidth * scale, 25 * scale).fill(0x5a5a5a);
+        icon.stroke({ width: 1, color: 0x3a3a3a });
+        // Exposed wiring
+        icon
+          .moveTo(-teslaWidth / 2 * scale + 5 * scale, 0)
+          .lineTo(teslaWidth / 2 * scale - 5 * scale, 0)
+          .stroke({ width: 1, color: 0x00ced1 });
+        icon
+          .moveTo(-teslaWidth / 2 * scale + 5 * scale, 10 * scale)
+          .lineTo(teslaWidth / 2 * scale - 5 * scale, 10 * scale)
+          .stroke({ width: 1, color: 0x00ced1 });
+        // Makeshift panels
+        icon.rect(-12 * scale, 2 * scale, 8 * scale, 6 * scale).fill(0x4a4a4a);
+        icon.rect(4 * scale, 2 * scale, 8 * scale, 6 * scale).fill(0x4a4a4a);
+        // Basic indicators
+        icon.circle(-8 * scale, 5 * scale, 2 * scale).fill(0x00ffff);
+        icon.circle(8 * scale, 5 * scale, 2 * scale).fill(0x00ffff);
+        // Little man
+        icon.rect(-3 * scale, -13 * scale, 6 * scale, 8 * scale).fill(0x4a4a4a);
+        icon.rect(-4 * scale, -11 * scale, 2 * scale, 4 * scale).fill(0xffdbac);
+        icon.rect(2 * scale, -11 * scale, 2 * scale, 4 * scale).fill(0xffdbac);
+        icon.circle(0, -10 * scale, 3 * scale).fill(0x7fffd4);
+        icon.rect(-2 * scale, -10 * scale, 4 * scale, 7 * scale).fill(0x00bfff);
+        icon.circle(0, -18 * scale, 5 * scale).fill(0xffdbac);
+        icon.rect(-4 * scale, -19 * scale, 8 * scale, 2 * scale).fill(0x4a4a4a); // Goggles
         break;
     }
 

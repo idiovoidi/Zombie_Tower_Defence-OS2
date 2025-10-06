@@ -22,12 +22,22 @@ Each tower button features:
 - **Background**: Concrete texture with cracks and dirt spots
 - **Metal Frame**: Dark border that glows yellow on hover
 - **Icon Plate**: Riveted metal plate (50x70px) with corner rivets
-- **Tower Icon**: Centered on the metal plate
+- **Tower Icon**: Actual Level 1 tower model (scaled to 50%) showing makeshift aesthetic
 - **Info Panel**: Semi-transparent dark background for stats
 - **Tower Name**: Uppercase stencil-style font in yellow with black stroke
 - **Cost Display**: Green monospace font with "COST:" label
 - **Stats**: Red for damage (DMG), cyan for range (RNG)
 - **Status LED**: Green indicator light in top-right corner
+
+### Tower Icons (Level 1 Models)
+
+Icons display the actual Level 1 tower appearance at 50% scale:
+
+- **Machine Gun**: Wooden barricade with sandbags, survivor with bandana
+- **Sniper**: Wooden platform with peaked roof, survivor with boonie hat
+- **Shotgun**: Sandbag wall with texture, survivor with cap
+- **Flame**: Barrel platform with oil drums, survivor with goggles
+- **Tesla**: Scavenged tech with exposed wiring, survivor with basic goggles
 
 ### Interactive States
 
