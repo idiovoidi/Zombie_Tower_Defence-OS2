@@ -53,7 +53,7 @@ export class TowerShop extends UIComponent {
 
     // Title text with apocalyptic styling
     const title = new Text({
-      text: '⚠ ARMORY ⚠',
+      text: '⚠ ZOMBIE ⚠',
       style: {
         fontFamily: 'Impact, Arial Black, sans-serif',
         fontSize: 22,
