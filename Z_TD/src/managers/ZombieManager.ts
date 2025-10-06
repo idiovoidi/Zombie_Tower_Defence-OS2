@@ -22,9 +22,20 @@ export class ZombieManager {
     this.waveManager = waveManager;
     this.mapManager = mapManager;
 
-    // Initialize blood and corpse systems
-    this.bloodParticleSystem = new BloodParticleSystem(container);
-    this.corpseManager = new CorpseManager(container);
+    // Create separate containers for proper z-ordering
+    const corpseContainer = new Container();
+    const zombieContainer = new Container();
+
+    // Add containers in correct order (corpses below zombies)
+    container.addChild(corpseContainer);
+    container.addChild(zombieContainer);
+
+    // Initialize blood and corpse systems with proper containers
+    this.bloodParticleSystem = new BloodParticleSystem(corpseContainer); // Blood on ground layer
+    this.corpseManager = new CorpseManager(corpseContainer); // Corpses on ground layer
+
+    // Update zombie container reference
+    this.container = zombieContainer;
   }
 
   // Start spawning zombies for the current wave
