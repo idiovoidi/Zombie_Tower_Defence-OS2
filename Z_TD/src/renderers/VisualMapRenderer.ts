@@ -386,47 +386,159 @@ export class VisualMapRenderer {
     const graveyardWidth = 140;
     const graveyardHeight = 280;
 
-    // Graveyard ground (darker, dead grass)
+    // Graveyard ground - base layer (very dark, cursed earth)
     this.mapContainer
       .rect(graveyardX, graveyardY, graveyardWidth, graveyardHeight)
-      .fill({ color: 0x2a4a2a, alpha: 0.8 });
+      .fill({ color: 0x1a2a1a });
 
-    // Rusty iron fence around graveyard
-    this.mapContainer.rect(graveyardX, graveyardY, graveyardWidth, 4).fill(0x8b4513); // Top fence
-    this.mapContainer
-      .rect(graveyardX, graveyardY + graveyardHeight - 4, graveyardWidth, 4)
-      .fill(0x8b4513); // Bottom fence
+    // Add dead grass patches (darker than surrounding area)
+    for (let i = 0; i < 30; i++) {
+      const x = graveyardX + Math.random() * graveyardWidth;
+      const y = graveyardY + Math.random() * graveyardHeight;
+      const size = 8 + Math.random() * 15;
+      const points = 5 + Math.floor(Math.random() * 3);
 
-    // Right fence (with gap for gate at spawn point)
+      this.mapContainer.moveTo(x, y);
+      for (let j = 0; j < points; j++) {
+        const angle = (j / points) * Math.PI * 2;
+        const radius = size * (0.6 + Math.random() * 0.6);
+        this.mapContainer.lineTo(x + Math.cos(angle) * radius, y + Math.sin(angle) * radius);
+      }
+      this.mapContainer.fill({ color: 0x2a3a2a, alpha: 0.4 + Math.random() * 0.3 });
+    }
+
+    // Add disturbed earth patches (where zombies emerged)
+    for (let i = 0; i < 20; i++) {
+      const x = graveyardX + Math.random() * graveyardWidth;
+      const y = graveyardY + Math.random() * graveyardHeight;
+      const size = 10 + Math.random() * 20;
+      const points = 4 + Math.floor(Math.random() * 3);
+
+      this.mapContainer.moveTo(x, y);
+      for (let j = 0; j < points; j++) {
+        const angle = (j / points) * Math.PI * 2;
+        const radius = size * (0.5 + Math.random() * 0.7);
+        this.mapContainer.lineTo(x + Math.cos(angle) * radius, y + Math.sin(angle) * radius);
+      }
+      this.mapContainer.fill({ color: 0x4a3a2a, alpha: 0.5 + Math.random() * 0.3 });
+    }
+
+    // Add scattered bones and debris
+    for (let i = 0; i < 25; i++) {
+      const x = graveyardX + Math.random() * graveyardWidth;
+      const y = graveyardY + Math.random() * graveyardHeight;
+      const size = 2 + Math.random() * 4;
+      this.mapContainer
+        .rect(x, y, size, size * 2)
+        .fill({ color: 0xf5f5dc, alpha: 0.6 + Math.random() * 0.3 });
+    }
+
+    // Add dark stains (blood/decay)
+    for (let i = 0; i < 15; i++) {
+      const x = graveyardX + Math.random() * graveyardWidth;
+      const y = graveyardY + Math.random() * graveyardHeight;
+      const size = 8 + Math.random() * 15;
+      this.mapContainer
+        .circle(x, y, size)
+        .fill({ color: 0x1a1a1a, alpha: 0.3 + Math.random() * 0.2 });
+    }
+
+    // Weathered iron fence around graveyard
     const gateGapStart = 360 - graveyardY; // Gate starts at y: 360
     const gateGapEnd = gateGapStart + 60; // Gate is 60px tall
 
-    // Left fence (solid)
-    this.mapContainer.rect(graveyardX, graveyardY, 4, graveyardHeight).fill(0x8b4513);
-
-    // Right fence - top section (above gate)
+    // Top fence - rusty and weathered
+    this.mapContainer.rect(graveyardX, graveyardY, graveyardWidth, 5).fill(0x6a4513);
     this.mapContainer
-      .rect(graveyardX + graveyardWidth - 4, graveyardY, 4, gateGapStart)
-      .fill(0x8b4513);
+      .rect(graveyardX, graveyardY, graveyardWidth, 5)
+      .stroke({ width: 1, color: 0x4a3013 });
+    // Add rust spots on top fence
+    for (let i = 0; i < 8; i++) {
+      const x = graveyardX + (i / 8) * graveyardWidth;
+      this.mapContainer.circle(x, graveyardY + 2, 2).fill({ color: 0x8b4513, alpha: 0.7 });
+    }
 
-    // Right fence - bottom section (below gate)
+    // Bottom fence - rusty and weathered
+    this.mapContainer
+      .rect(graveyardX, graveyardY + graveyardHeight - 5, graveyardWidth, 5)
+      .fill(0x6a4513);
+    this.mapContainer
+      .rect(graveyardX, graveyardY + graveyardHeight - 5, graveyardWidth, 5)
+      .stroke({ width: 1, color: 0x4a3013 });
+    // Add rust spots on bottom fence
+    for (let i = 0; i < 8; i++) {
+      const x = graveyardX + (i / 8) * graveyardWidth;
+      this.mapContainer
+        .circle(x, graveyardY + graveyardHeight - 3, 2)
+        .fill({ color: 0x8b4513, alpha: 0.7 });
+    }
+
+    // Left fence (solid) - weathered
+    this.mapContainer.rect(graveyardX, graveyardY, 5, graveyardHeight).fill(0x6a4513);
+    this.mapContainer
+      .rect(graveyardX, graveyardY, 5, graveyardHeight)
+      .stroke({ width: 1, color: 0x4a3013 });
+    // Add vertical rust streaks
+    for (let i = 0; i < 5; i++) {
+      const y = graveyardY + (i / 5) * graveyardHeight;
+      this.mapContainer
+        .moveTo(graveyardX + 2, y)
+        .lineTo(graveyardX + 2, y + 20)
+        .stroke({ width: 1, color: 0x8b4513, alpha: 0.5 });
+    }
+
+    // Right fence - top section (above gate) - weathered
+    this.mapContainer
+      .rect(graveyardX + graveyardWidth - 5, graveyardY, 5, gateGapStart)
+      .fill(0x6a4513);
+    this.mapContainer
+      .rect(graveyardX + graveyardWidth - 5, graveyardY, 5, gateGapStart)
+      .stroke({ width: 1, color: 0x4a3013 });
+
+    // Right fence - bottom section (below gate) - weathered
     this.mapContainer
       .rect(
-        graveyardX + graveyardWidth - 4,
+        graveyardX + graveyardWidth - 5,
         graveyardY + gateGapEnd,
-        4,
+        5,
         graveyardHeight - gateGapEnd
       )
-      .fill(0x8b4513);
+      .fill(0x6a4513);
+    this.mapContainer
+      .rect(
+        graveyardX + graveyardWidth - 5,
+        graveyardY + gateGapEnd,
+        5,
+        graveyardHeight - gateGapEnd
+      )
+      .stroke({ width: 1, color: 0x4a3013 });
 
-    // Fence posts (avoiding gate area on right side)
+    // Fence posts (avoiding gate area on right side) - weathered wood
     for (let i = 0; i <= graveyardHeight; i += 35) {
-      this.mapContainer.rect(graveyardX - 2, graveyardY + i, 8, 6).fill(0x654321);
-      // Skip posts in gate area on right side
+      // Left posts
+      this.mapContainer.rect(graveyardX - 3, graveyardY + i, 9, 7).fill(0x5a4321);
+      this.mapContainer
+        .rect(graveyardX - 3, graveyardY + i, 9, 7)
+        .stroke({ width: 1, color: 0x3a2a11 });
+      // Wood grain
+      this.mapContainer
+        .moveTo(graveyardX - 2, graveyardY + i + 1)
+        .lineTo(graveyardX + 4, graveyardY + i + 1)
+        .stroke({ width: 1, color: 0x4a3211, alpha: 0.5 });
+
+      // Right posts (skip gate area)
       if (i < gateGapStart || i > gateGapEnd) {
         this.mapContainer
-          .rect(graveyardX + graveyardWidth - 6, graveyardY + i, 8, 6)
-          .fill(0x654321);
+          .rect(graveyardX + graveyardWidth - 6, graveyardY + i, 9, 7)
+          .fill(0x5a4321);
+        this.mapContainer
+          .rect(graveyardX + graveyardWidth - 6, graveyardY + i, 9, 7)
+          .stroke({ width: 1, color: 0x3a2a11 });
+        // Wood grain
+        this.mapContainer
+          .moveTo(graveyardX + graveyardWidth - 5, graveyardY + i + 1)
+          .lineTo(graveyardX + graveyardWidth + 1, graveyardY + i + 1)
+          .stroke({ width: 1, color: 0x4a3211, alpha: 0.5 });
       }
     }
 
@@ -436,70 +548,151 @@ export class VisualMapRenderer {
     const gateWidth = 50;
     const gateHeight = 60;
 
-    // Gate posts (stone pillars)
-    this.mapContainer.rect(gateX - 8, gateY, 8, gateHeight).fill(0x696969);
-    this.mapContainer.stroke({ width: 2, color: 0x4a4a4a });
-    this.mapContainer.rect(gateX + gateWidth, gateY, 8, gateHeight).fill(0x696969);
-    this.mapContainer.stroke({ width: 2, color: 0x4a4a4a });
+    // Gate posts (weathered stone pillars with cracks)
+    this.mapContainer.rect(gateX - 8, gateY, 8, gateHeight).fill(0x5a5a5a);
+    this.mapContainer.rect(gateX - 8, gateY, 8, gateHeight).stroke({ width: 2, color: 0x3a3a3a });
+    // Add cracks to left pillar
+    this.mapContainer
+      .moveTo(gateX - 6, gateY + 10)
+      .lineTo(gateX - 4, gateY + 25)
+      .stroke({ width: 1, color: 0x2a2a2a, alpha: 0.7 });
+    // Moss/weathering on left pillar
+    for (let i = 0; i < 3; i++) {
+      this.mapContainer
+        .circle(gateX - 5 + Math.random() * 3, gateY + 15 + i * 15, 2)
+        .fill({ color: 0x2a4a2a, alpha: 0.6 });
+    }
 
-    // Decorative skulls on gate posts
-    this.mapContainer.circle(gateX - 4, gateY + 10, 4).fill(0xf5f5dc);
-    this.mapContainer.circle(gateX - 6, gateY + 12, 1.5).fill(0x1a1a1a); // Eye
-    this.mapContainer.circle(gateX - 2, gateY + 12, 1.5).fill(0x1a1a1a); // Eye
+    this.mapContainer.rect(gateX + gateWidth, gateY, 8, gateHeight).fill(0x5a5a5a);
+    this.mapContainer
+      .rect(gateX + gateWidth, gateY, 8, gateHeight)
+      .stroke({ width: 2, color: 0x3a3a3a });
+    // Add cracks to right pillar
+    this.mapContainer
+      .moveTo(gateX + gateWidth + 2, gateY + 15)
+      .lineTo(gateX + gateWidth + 4, gateY + 30)
+      .stroke({ width: 1, color: 0x2a2a2a, alpha: 0.7 });
+    // Moss/weathering on right pillar
+    for (let i = 0; i < 3; i++) {
+      this.mapContainer
+        .circle(gateX + gateWidth + 2 + Math.random() * 3, gateY + 20 + i * 15, 2)
+        .fill({ color: 0x2a4a2a, alpha: 0.6 });
+    }
 
-    this.mapContainer.circle(gateX + gateWidth + 4, gateY + 10, 4).fill(0xf5f5dc);
-    this.mapContainer.circle(gateX + gateWidth + 2, gateY + 12, 1.5).fill(0x1a1a1a); // Eye
-    this.mapContainer.circle(gateX + gateWidth + 6, gateY + 12, 1.5).fill(0x1a1a1a); // Eye
+    // Decorative skulls on gate posts (more detailed)
+    // Left skull
+    this.mapContainer.circle(gateX - 4, gateY + 10, 5).fill(0xe5e5cc);
+    this.mapContainer.circle(gateX - 4, gateY + 10, 5).stroke({ width: 1, color: 0xc5c5ac });
+    this.mapContainer.circle(gateX - 6, gateY + 9, 2).fill(0x1a1a1a); // Left eye
+    this.mapContainer.circle(gateX - 2, gateY + 9, 2).fill(0x1a1a1a); // Right eye
+    // Nose cavity
+    this.mapContainer
+      .moveTo(gateX - 4, gateY + 11)
+      .lineTo(gateX - 4, gateY + 13)
+      .stroke({ width: 1, color: 0x1a1a1a });
+    // Jaw
+    this.mapContainer
+      .moveTo(gateX - 6, gateY + 13)
+      .lineTo(gateX - 2, gateY + 13)
+      .stroke({ width: 1, color: 0x1a1a1a });
 
-    // Broken iron gate (left side, hanging inward)
+    // Right skull
+    this.mapContainer.circle(gateX + gateWidth + 4, gateY + 10, 5).fill(0xe5e5cc);
+    this.mapContainer
+      .circle(gateX + gateWidth + 4, gateY + 10, 5)
+      .stroke({ width: 1, color: 0xc5c5ac });
+    this.mapContainer.circle(gateX + gateWidth + 2, gateY + 9, 2).fill(0x1a1a1a); // Left eye
+    this.mapContainer.circle(gateX + gateWidth + 6, gateY + 9, 2).fill(0x1a1a1a); // Right eye
+    // Nose cavity
+    this.mapContainer
+      .moveTo(gateX + gateWidth + 4, gateY + 11)
+      .lineTo(gateX + gateWidth + 4, gateY + 13)
+      .stroke({ width: 1, color: 0x1a1a1a });
+    // Jaw
+    this.mapContainer
+      .moveTo(gateX + gateWidth + 2, gateY + 13)
+      .lineTo(gateX + gateWidth + 6, gateY + 13)
+      .stroke({ width: 1, color: 0x1a1a1a });
+
+    // Broken iron gate (left side, hanging inward) - more rusted
     this.mapContainer
       .moveTo(gateX - 8, gateY + 5)
       .lineTo(gateX - 2, gateY + 10)
       .lineTo(gateX - 2, gateY + 45)
       .lineTo(gateX - 8, gateY + 50)
-      .fill({ color: 0x4a4a4a, alpha: 0.8 });
-    this.mapContainer.stroke({ width: 2, color: 0x2a2a2a });
+      .fill({ color: 0x5a4a3a, alpha: 0.9 });
+    this.mapContainer.stroke({ width: 2, color: 0x3a2a1a });
+    // Rust spots on left gate
+    for (let i = 0; i < 4; i++) {
+      this.mapContainer
+        .circle(gateX - 5, gateY + 15 + i * 10, 2)
+        .fill({ color: 0x8b4513, alpha: 0.8 });
+    }
 
-    // Gate bars (broken)
+    // Gate bars (broken and rusted)
     for (let i = 0; i < 3; i++) {
       this.mapContainer
         .moveTo(gateX - 6, gateY + 15 + i * 10)
         .lineTo(gateX - 2, gateY + 15 + i * 10)
-        .stroke({ width: 2, color: 0x2a2a2a });
+        .stroke({ width: 2, color: 0x3a2a1a });
     }
 
-    // Broken iron gate (right side, swung open outward)
+    // Broken iron gate (right side, swung open outward) - more rusted
     this.mapContainer
       .moveTo(gateX + gateWidth + 8, gateY + 5)
       .lineTo(gateX + gateWidth + 20, gateY + 10)
       .lineTo(gateX + gateWidth + 20, gateY + 50)
       .lineTo(gateX + gateWidth + 8, gateY + 55)
-      .fill({ color: 0x4a4a4a, alpha: 0.8 });
-    this.mapContainer.stroke({ width: 2, color: 0x2a2a2a });
+      .fill({ color: 0x5a4a3a, alpha: 0.9 });
+    this.mapContainer.stroke({ width: 2, color: 0x3a2a1a });
+    // Rust spots on right gate
+    for (let i = 0; i < 4; i++) {
+      this.mapContainer
+        .circle(gateX + gateWidth + 14, gateY + 20 + i * 10, 2)
+        .fill({ color: 0x8b4513, alpha: 0.8 });
+    }
 
     // Gate bars
     for (let i = 0; i < 3; i++) {
       this.mapContainer
         .moveTo(gateX + gateWidth + 10, gateY + 20 + i * 10)
         .lineTo(gateX + gateWidth + 18, gateY + 20 + i * 10)
-        .stroke({ width: 2, color: 0x2a2a2a });
+        .stroke({ width: 2, color: 0x3a2a1a });
     }
 
-    // "RIP" sign above gate (weathered)
-    this.mapContainer.rect(gateX + 10, gateY - 15, 30, 12).fill(0x4a3a2a);
-    this.mapContainer.stroke({ width: 1, color: 0x2a1a1a });
+    // "RIP" sign above gate (heavily weathered)
+    this.mapContainer.rect(gateX + 10, gateY - 15, 30, 12).fill(0x3a2a1a);
+    this.mapContainer.rect(gateX + 10, gateY - 15, 30, 12).stroke({ width: 2, color: 0x2a1a0a });
+    // Cracks in sign
+    this.mapContainer
+      .moveTo(gateX + 15, gateY - 15)
+      .lineTo(gateX + 18, gateY - 3)
+      .stroke({ width: 1, color: 0x1a0a0a, alpha: 0.7 });
 
-    // Chains hanging from gate
+    // Rusty chains hanging from gate
     this.mapContainer
       .moveTo(gateX - 8, gateY + 5)
       .lineTo(gateX - 5, gateY + 15)
       .lineTo(gateX - 8, gateY + 25)
-      .stroke({ width: 2, color: 0x4a4a4a });
+      .stroke({ width: 2, color: 0x5a4a3a });
+    // Chain links
+    for (let i = 0; i < 3; i++) {
+      this.mapContainer
+        .circle(gateX - 6, gateY + 10 + i * 8, 2)
+        .stroke({ width: 1, color: 0x3a2a1a });
+    }
+
     this.mapContainer
       .moveTo(gateX + gateWidth + 8, gateY + 5)
       .lineTo(gateX + gateWidth + 11, gateY + 15)
       .lineTo(gateX + gateWidth + 8, gateY + 25)
-      .stroke({ width: 2, color: 0x4a4a4a });
+      .stroke({ width: 2, color: 0x5a4a3a });
+    // Chain links
+    for (let i = 0; i < 3; i++) {
+      this.mapContainer
+        .circle(gateX + gateWidth + 9, gateY + 10 + i * 8, 2)
+        .stroke({ width: 1, color: 0x3a2a1a });
+    }
 
     // Gravestones (various types)
     const gravestones = [
@@ -524,16 +717,37 @@ export class VisualMapRenderer {
       this.renderGravestone(stone.x, stone.y, stone.type, stone.tilt);
     }
 
-    // Dead tree in graveyard
+    // Dead trees in graveyard (multiple for atmosphere)
     this.renderDeadTree(graveyardX + 25, graveyardY + 180);
+    this.renderDeadTree(graveyardX + 115, graveyardY + 220);
 
-    // Mist/fog effect
-    for (let i = 0; i < 8; i++) {
+    // Eerie mist/fog effect (more layers for depth)
+    for (let i = 0; i < 15; i++) {
       const mistX = graveyardX + Math.random() * graveyardWidth;
-      const mistY = graveyardY + graveyardHeight - 30 + Math.random() * 20;
+      const mistY = graveyardY + graveyardHeight - 40 + Math.random() * 30;
+      const size = 18 + Math.random() * 15;
       this.mapContainer
-        .circle(mistX, mistY, 15 + Math.random() * 10)
-        .fill({ color: 0xcccccc, alpha: 0.15 });
+        .circle(mistX, mistY, size)
+        .fill({ color: 0xb0c0b0, alpha: 0.12 + Math.random() * 0.08 });
+    }
+
+    // Ground fog (lower layer)
+    for (let i = 0; i < 10; i++) {
+      const mistX = graveyardX + Math.random() * graveyardWidth;
+      const mistY = graveyardY + graveyardHeight - 15 + Math.random() * 10;
+      const size = 25 + Math.random() * 20;
+      this.mapContainer
+        .circle(mistX, mistY, size)
+        .fill({ color: 0xa0b0a0, alpha: 0.15 + Math.random() * 0.1 });
+    }
+
+    // Add eerie green glow spots (supernatural effect)
+    for (let i = 0; i < 5; i++) {
+      const glowX = graveyardX + Math.random() * graveyardWidth;
+      const glowY = graveyardY + Math.random() * graveyardHeight;
+      this.mapContainer
+        .circle(glowX, glowY, 8 + Math.random() * 8)
+        .fill({ color: 0x00ff00, alpha: 0.08 });
     }
 
     // Open graves (where zombies emerge)
