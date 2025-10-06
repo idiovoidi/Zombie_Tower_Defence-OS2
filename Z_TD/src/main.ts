@@ -63,7 +63,7 @@ import { DebugConstants } from './config/debugConstants';
 
   // Create debug info panel (right side, below tower info panel)
   const debugInfoPanel = new DebugInfoPanel();
-  debugInfoPanel.position.set(1040, 720);
+  debugInfoPanel.position.set(1260, 720);
   uiManager.registerComponent('debugInfoPanel', debugInfoPanel);
   if (DebugConstants.ENABLED) {
     debugInfoPanel.show();
@@ -73,7 +73,7 @@ import { DebugConstants } from './config/debugConstants';
 
   // Create zombie bestiary (right side, below debug panel)
   const zombieBestiary = new ZombieBestiary();
-  zombieBestiary.position.set(1040, 770);
+  zombieBestiary.position.set(1260, 770);
   uiManager.registerComponent('zombieBestiary', zombieBestiary);
 
   // Set up event handlers

@@ -145,11 +145,16 @@ export class ZombieBestiary extends UIComponent {
   }
 
   private createContent(): void {
-    // Background panel - positioned to open to the left
+    // Background panel - centered on screen (640x384 is center of 1280x768)
     const panelWidth = 870;
     const panelHeight = 620;
+    const centerX = 640 - this.x; // Screen center minus button x position
+    const centerY = 384 - this.y; // Screen center minus button y position
+    const panelLeft = centerX - panelWidth / 2;
+    const panelTop = centerY - panelHeight / 2;
+    
     this.background = new Graphics();
-    this.background.roundRect(-panelWidth, 45, panelWidth, panelHeight, 10).fill({ color: 0x1a1a1a, alpha: 0.98 });
+    this.background.roundRect(panelLeft, panelTop, panelWidth, panelHeight, 10).fill({ color: 0x1a1a1a, alpha: 0.98 });
     this.background.stroke({ width: 3, color: 0xff0000 });
     this.contentContainer.addChild(this.background);
 
@@ -164,7 +169,7 @@ export class ZombieBestiary extends UIComponent {
       },
     });
     title.anchor.set(0.5, 0);
-    title.position.set(-panelWidth / 2, 60);
+    title.position.set(centerX, panelTop + 15);
     this.contentContainer.addChild(title);
 
     // Subtitle
@@ -178,12 +183,12 @@ export class ZombieBestiary extends UIComponent {
       },
     });
     subtitle.anchor.set(0.5, 0);
-    subtitle.position.set(-panelWidth / 2, 92);
+    subtitle.position.set(centerX, panelTop + 47);
     this.contentContainer.addChild(subtitle);
 
     // Create zombie cards
-    let xPos = -panelWidth + 20;
-    let yPos = 125;
+    let xPos = panelLeft + 20;
+    let yPos = panelTop + 80;
     const cardWidth = 270;
     const cardHeight = 235;
     const spacing = 15;
@@ -197,7 +202,7 @@ export class ZombieBestiary extends UIComponent {
       // Layout: 3 columns
       xPos += cardWidth + spacing;
       if ((index + 1) % 3 === 0) {
-        xPos = -panelWidth + 20;
+        xPos = panelLeft + 20;
         yPos += cardHeight + spacing;
       }
     });
@@ -224,7 +229,7 @@ export class ZombieBestiary extends UIComponent {
     closeText.anchor.set(0.5);
     closeButton.addChild(closeText);
 
-    closeButton.position.set(-30, 65);
+    closeButton.position.set(panelLeft + panelWidth - 30, panelTop + 20);
     closeButton.on('pointerdown', () => {
       this.close();
     });

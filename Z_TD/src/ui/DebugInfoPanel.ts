@@ -54,14 +54,23 @@ export class DebugInfoPanel extends UIComponent {
   }
 
   private createPanelContent(): void {
-    // Background - opens to the left
+    // Background - centered on screen (640x384 is center of 1280x768)
     const panelWidth = 280;
     const panelHeight = 580;
-    this.background.roundRect(-panelWidth, 35, panelWidth, panelHeight, 10).fill({ color: 0x1a1a1a, alpha: 0.95 });
+    // Position relative to screen center, not button position
+    const centerX = 640 - this.x; // Screen center minus button x position
+    const centerY = 384 - this.y; // Screen center minus button y position
+    const panelLeft = centerX - panelWidth / 2;
+    const panelTop = centerY - panelHeight / 2;
+
+    this.background
+      .roundRect(panelLeft, panelTop, panelWidth, panelHeight, 10)
+      .fill({ color: 0x1a1a1a, alpha: 0.95 });
     this.background.stroke({ width: 2, color: 0x00ff00 });
     this.contentContainer.addChild(this.background);
 
     // Title
+
     this.titleText = new Text({
       text: 'Debug Information',
       style: {
@@ -71,7 +80,7 @@ export class DebugInfoPanel extends UIComponent {
         fontWeight: 'bold',
       },
     });
-    this.titleText.position.set(-panelWidth + 10, 45);
+    this.titleText.position.set(panelLeft + 10, panelTop + 10);
     this.contentContainer.addChild(this.titleText);
 
     // Zombie Types Section
@@ -84,7 +93,7 @@ export class DebugInfoPanel extends UIComponent {
         fontWeight: 'bold',
       },
     });
-    zombieTitle.position.set(-panelWidth + 10, 75);
+    zombieTitle.position.set(panelLeft + 10, panelTop + 40);
     this.contentContainer.addChild(zombieTitle);
 
     // Create text for each zombie type
@@ -98,8 +107,8 @@ export class DebugInfoPanel extends UIComponent {
       { type: 'Mechanical', color: 0x00ffff, desc: 'Robot' },
     ];
 
-    let yPos = 98;
-    zombieTypes.forEach((zombie) => {
+    let yPos = panelTop + 63;
+    zombieTypes.forEach(zombie => {
       const text = new Text({
         text: `${zombie.type}: ${zombie.desc}`,
         style: {
@@ -108,7 +117,7 @@ export class DebugInfoPanel extends UIComponent {
           fill: zombie.color,
         },
       });
-      text.position.set(-panelWidth + 20, yPos);
+      text.position.set(panelLeft + 20, yPos);
       this.contentContainer.addChild(text);
       this.zombieInfoTexts.set(zombie.type, text);
       yPos += 16;
@@ -124,7 +133,7 @@ export class DebugInfoPanel extends UIComponent {
         fontWeight: 'bold',
       },
     });
-    statsTitle.position.set(10, yPos + 20);
+    statsTitle.position.set(panelLeft + 10, yPos + 20);
     this.contentContainer.addChild(statsTitle);
 
     // Create stat text fields
@@ -138,7 +147,7 @@ export class DebugInfoPanel extends UIComponent {
     ];
 
     yPos += 45;
-    statFields.forEach((field) => {
+    statFields.forEach(field => {
       const text = new Text({
         text: `${field}: 0`,
         style: {
@@ -147,7 +156,7 @@ export class DebugInfoPanel extends UIComponent {
           fill: 0xffffff,
         },
       });
-      text.position.set(20, yPos);
+      text.position.set(panelLeft + 20, yPos);
       this.contentContainer.addChild(text);
       this.gameStatsTexts.set(field, text);
       yPos += 20;
@@ -163,7 +172,7 @@ export class DebugInfoPanel extends UIComponent {
         fontWeight: 'bold',
       },
     });
-    controlsTitle.position.set(10, yPos + 20);
+    controlsTitle.position.set(panelLeft + 10, yPos + 20);
     this.contentContainer.addChild(controlsTitle);
 
     const controls = [
@@ -176,7 +185,7 @@ export class DebugInfoPanel extends UIComponent {
     ];
 
     yPos += 45;
-    controls.forEach((control) => {
+    controls.forEach(control => {
       const text = new Text({
         text: control,
         style: {
@@ -185,7 +194,7 @@ export class DebugInfoPanel extends UIComponent {
           fill: 0xcccccc,
         },
       });
-      text.position.set(20, yPos);
+      text.position.set(panelLeft + 20, yPos);
       this.contentContainer.addChild(text);
       yPos += 18;
     });
@@ -200,7 +209,7 @@ export class DebugInfoPanel extends UIComponent {
         fontWeight: 'bold',
       },
     });
-    configTitle.position.set(10, yPos + 20);
+    configTitle.position.set(panelLeft + 10, yPos + 20);
     this.contentContainer.addChild(configTitle);
 
     const configText = new Text({
@@ -212,7 +221,7 @@ export class DebugInfoPanel extends UIComponent {
         fontStyle: 'italic',
       },
     });
-    configText.position.set(20, yPos + 45);
+    configText.position.set(panelLeft + 20, yPos + 45);
     this.contentContainer.addChild(configText);
 
     this.addChild(this.contentContainer);
