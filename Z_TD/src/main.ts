@@ -2,6 +2,7 @@ import { Application, FederatedPointerEvent } from 'pixi.js';
 import { GameManager } from './managers/GameManager';
 import { UIManager } from './ui/UIManager';
 import { HUD } from './ui/HUD';
+import { BottomBar } from './ui/BottomBar';
 import { MainMenu } from './ui/MainMenu';
 import { LevelSelectMenu } from './ui/LevelSelectMenu';
 import { TowerShop } from './ui/TowerShop';
@@ -42,6 +43,11 @@ import { DebugConstants } from './config/debugConstants';
   // Create HUD
   const hud = new HUD();
   uiManager.registerComponent('hud', hud);
+
+  // Create bottom bar (positioned at bottom of screen)
+  const bottomBar = new BottomBar(1280);
+  bottomBar.position.set(0, 688); // 768 - 80 = 688
+  uiManager.registerComponent('bottomBar', bottomBar);
 
   // Create main menu
   const mainMenu = new MainMenu();
@@ -112,6 +118,13 @@ import { DebugConstants } from './config/debugConstants';
     DebugUtils.debug('Starting next wave');
     gameManager.startNextWave();
     hud.hideNextWaveButton();
+  });
+
+  // Set up bottom bar next wave button callback
+  bottomBar.setNextWaveCallback(() => {
+    DebugUtils.debug('Starting next wave');
+    gameManager.startNextWave();
+    bottomBar.hideNextWaveButton();
   });
 
   // Set up tower shop callbacks
@@ -279,6 +292,12 @@ import { DebugConstants } from './config/debugConstants';
     const resources = gameManager.getResources();
     hud.updateResources(resources.wood, resources.metal, resources.energy);
 
+    // Update bottom bar with current game state
+    bottomBar.updateMoney(gameManager.getMoney());
+    bottomBar.updateLives(gameManager.getLives());
+    bottomBar.updateWave(gameManager.getWave());
+    bottomBar.updateResources(resources.wood, resources.metal, resources.energy);
+
     // Update debug info panel
     if (DebugConstants.ENABLED && debugInfoPanel.visible) {
       const zombies = gameManager.getZombieManager().getZombies();
@@ -295,8 +314,10 @@ import { DebugConstants } from './config/debugConstants';
     // Show next wave button when wave is complete
     if (gameManager.getCurrentState() === GameConfig.GAME_STATES.WAVE_COMPLETE) {
       hud.showNextWaveButton();
+      bottomBar.showNextWaveButton();
     } else {
       hud.hideNextWaveButton();
+      bottomBar.hideNextWaveButton();
     }
   });
 

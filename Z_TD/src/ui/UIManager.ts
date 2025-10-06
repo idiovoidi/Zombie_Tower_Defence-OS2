@@ -61,6 +61,7 @@ export class UIManager {
         this.setComponentVisibility('mainMenu', true);
         this.setComponentVisibility('levelSelectMenu', false);
         this.setComponentVisibility('hud', false);
+        this.setComponentVisibility('bottomBar', false);
         this.setComponentVisibility('towerShop', false);
         this.setComponentVisibility('towerInfoPanel', false);
         break;
@@ -69,6 +70,7 @@ export class UIManager {
         this.setComponentVisibility('mainMenu', false);
         this.setComponentVisibility('levelSelectMenu', true);
         this.setComponentVisibility('hud', false);
+        this.setComponentVisibility('bottomBar', false);
         this.setComponentVisibility('towerShop', false);
         this.setComponentVisibility('towerInfoPanel', false);
         break;
@@ -78,6 +80,7 @@ export class UIManager {
         this.setComponentVisibility('mainMenu', false);
         this.setComponentVisibility('levelSelectMenu', false);
         this.setComponentVisibility('hud', true);
+        this.setComponentVisibility('bottomBar', true);
         this.setComponentVisibility('towerShop', true);
         this.setComponentVisibility('towerInfoPanel', false);
         break;
@@ -86,6 +89,7 @@ export class UIManager {
         this.setComponentVisibility('mainMenu', false);
         this.setComponentVisibility('levelSelectMenu', false);
         this.setComponentVisibility('hud', true);
+        this.setComponentVisibility('bottomBar', true);
         this.setComponentVisibility('towerShop', false);
         this.setComponentVisibility('towerInfoPanel', false);
         break;
@@ -94,6 +98,7 @@ export class UIManager {
         this.setComponentVisibility('mainMenu', false);
         this.setComponentVisibility('levelSelectMenu', false);
         this.setComponentVisibility('hud', false);
+        this.setComponentVisibility('bottomBar', false);
         this.setComponentVisibility('towerShop', false);
         this.setComponentVisibility('towerInfoPanel', false);
         break;
@@ -102,6 +107,7 @@ export class UIManager {
         this.setComponentVisibility('mainMenu', false);
         this.setComponentVisibility('levelSelectMenu', false);
         this.setComponentVisibility('hud', false);
+        this.setComponentVisibility('bottomBar', false);
         this.setComponentVisibility('towerShop', false);
         this.setComponentVisibility('towerInfoPanel', false);
         break;
