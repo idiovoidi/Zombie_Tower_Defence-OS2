@@ -554,12 +554,11 @@ export class VisualMapRenderer {
   private renderDestroyedHouses(mapData: MapData): void {
     // Render several destroyed houses at the top of the map with varied positions
     const houses = [
-      { x: 120, y: 50, width: 70, height: 60, destroyed: 0.8 },
-      { x: 280, y: 85, width: 80, height: 70, destroyed: 0.6 },
-      { x: 480, y: 45, width: 65, height: 55, destroyed: 0.9 },
-      { x: 650, y: 70, width: 75, height: 65, destroyed: 0.7 },
-      { x: 820, y: 55, width: 60, height: 50, destroyed: 0.85 },
-      { x: 950, y: 90, width: 55, height: 58, destroyed: 0.75 },
+      { x: 120, y: 20, width: 70, height: 60, destroyed: 0.8 },
+      { x: 280, y: 45, width: 80, height: 70, destroyed: 0.6 },
+      { x: 480, y: 15, width: 65, height: 55, destroyed: 0.9 },
+      { x: 650, y: 35, width: 75, height: 65, destroyed: 0.7 },
+      { x: 950, y: 50, width: 55, height: 58, destroyed: 0.75 },
     ];
 
     for (const house of houses) {
