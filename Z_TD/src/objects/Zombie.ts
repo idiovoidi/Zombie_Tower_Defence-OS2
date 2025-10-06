@@ -8,6 +8,7 @@ import { Container, Graphics } from 'pixi.js';
 export class Zombie extends GameObject {
   private type: string;
   private speed: number = 0;
+  private baseSpeed: number = 0; // Base speed before variation
   private reward: number = 0;
   private damage: number = 1; // Damage dealt to survivor camp
   private currentWaypointIndex: number = 0;
@@ -18,6 +19,9 @@ export class Zombie extends GameObject {
   private healthBarFg!: Graphics;
   private healthComponent!: HealthComponent;
   private transformComponent!: TransformComponent;
+  private swayTime: number = 0; // Time accumulator for sway animation
+  private swayOffset: number = 0; // Random offset for varied sway timing
+  private speedVariation: number = 1.0; // Random speed multiplier for variation
 
   constructor(type: string, x: number, y: number, wave: number) {
     super();
@@ -37,6 +41,9 @@ export class Zombie extends GameObject {
       { x: x + 100, y: y },
     ]; // Placeholder
 
+    // Random sway offset so zombies don't all sway in sync
+    this.swayOffset = Math.random() * Math.PI * 2;
+
     // Initialize health component based on zombie type
     this.initializeHealth(wave);
 
@@ -52,48 +59,52 @@ export class Zombie extends GameObject {
     this.healthComponent = new HealthComponent(health);
     this.addComponent(this.healthComponent);
 
-    // Set speed, reward, and damage based on type
+    // Set base speed, reward, and damage based on type
     switch (this.type) {
       case GameConfig.ZOMBIE_TYPES.BASIC:
-        this.speed = 50; // pixels per second
+        this.baseSpeed = 50; // pixels per second
         this.reward = 10;
         this.damage = 1; // 1 survivor killed
         break;
       case GameConfig.ZOMBIE_TYPES.FAST:
-        this.speed = 100;
+        this.baseSpeed = 100;
         this.reward = 15;
         this.damage = 1; // Fast but weak
         break;
       case GameConfig.ZOMBIE_TYPES.TANK:
-        this.speed = 25;
+        this.baseSpeed = 25;
         this.reward = 50;
         this.damage = 5; // Massive damage
         break;
       case GameConfig.ZOMBIE_TYPES.ARMORED:
-        this.speed = 40;
+        this.baseSpeed = 40;
         this.reward = 30;
         this.damage = 3; // Heavy damage
         break;
       case GameConfig.ZOMBIE_TYPES.SWARM:
-        this.speed = 60;
+        this.baseSpeed = 60;
         this.reward = 5;
         this.damage = 1; // Small but numerous
         break;
       case GameConfig.ZOMBIE_TYPES.STEALTH:
-        this.speed = 70;
+        this.baseSpeed = 70;
         this.reward = 25;
         this.damage = 2; // Moderate damage
         break;
       case GameConfig.ZOMBIE_TYPES.MECHANICAL:
-        this.speed = 55;
+        this.baseSpeed = 55;
         this.reward = 40;
         this.damage = 4; // High-tech threat
         break;
       default:
-        this.speed = 50;
+        this.baseSpeed = 50;
         this.reward = 10;
         this.damage = 1;
     }
+    
+    // Apply random speed variation (±15%) for more organic movement
+    this.speedVariation = 0.85 + Math.random() * 0.3;
+    this.speed = this.baseSpeed * this.speedVariation;
   }
 
   // Update visual representation based on zombie type
@@ -327,12 +338,52 @@ export class Zombie extends GameObject {
     const moveX = normalizedDx * this.speed * (deltaTime / 1000);
     const moveY = normalizedDy * this.speed * (deltaTime / 1000);
 
-    // Update container position
-    this.position.x += moveX;
-    this.position.y += moveY;
+    // Add shambling sway effect - perpendicular to movement direction
+    this.swayTime += deltaTime / 1000;
+    const swayFrequency = 1.5 + Math.random() * 0.5; // Varied sway speed (1.5-2.0 cycles/sec)
+    const swayAmplitude = this.getSwayAmplitude(); // How far they sway (pixels)
+    
+    // Multiple sine waves for more organic, unpredictable movement
+    const primarySway = Math.sin(this.swayTime * swayFrequency * Math.PI * 2 + this.swayOffset);
+    const secondarySway = Math.sin(this.swayTime * swayFrequency * 1.7 * Math.PI * 2 + this.swayOffset * 0.7) * 0.3;
+    const swayValue = primarySway + secondarySway;
+    
+    // Calculate perpendicular direction for sway (rotate 90 degrees)
+    const perpX = -normalizedDy;
+    const perpY = normalizedDx;
+    
+    // Apply sway offset perpendicular to movement direction
+    const swayX = perpX * swayValue * swayAmplitude;
+    const swayY = perpY * swayValue * swayAmplitude;
+
+    // Update container position with movement and sway
+    this.position.x += moveX + swayX * (deltaTime / 1000);
+    this.position.y += moveY + swayY * (deltaTime / 1000);
 
     // Update transform component to stay in sync
     this.transformComponent.setPosition(this.position.x, this.position.y);
+  }
+
+  // Get sway amplitude based on zombie type (increased for more shambling)
+  private getSwayAmplitude(): number {
+    switch (this.type) {
+      case GameConfig.ZOMBIE_TYPES.BASIC:
+        return 18; // Heavy shamble
+      case GameConfig.ZOMBIE_TYPES.FAST:
+        return 10; // Quick, darting movement
+      case GameConfig.ZOMBIE_TYPES.TANK:
+        return 25; // Massive lumbering sway
+      case GameConfig.ZOMBIE_TYPES.ARMORED:
+        return 14; // Heavy armored shamble
+      case GameConfig.ZOMBIE_TYPES.SWARM:
+        return 22; // Very erratic, chaotic movement
+      case GameConfig.ZOMBIE_TYPES.STEALTH:
+        return 12; // Weaving, unpredictable
+      case GameConfig.ZOMBIE_TYPES.MECHANICAL:
+        return 8; // Slight mechanical drift
+      default:
+        return 18;
+    }
   }
 
   // Show damage indicator when taking damage
