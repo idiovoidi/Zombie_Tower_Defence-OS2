@@ -139,8 +139,25 @@ export class Tower extends GameObject implements ITower {
         // Flamethrower starts at -10, extends down by 6
         // Nozzle tip is at -10 + 6 = -4
         const flameTip = -10 + 6;
-        flash.circle(0, flameTip, 6).fill(0xff4500);
-        flash.circle(0, flameTip + 2, 4).fill(0xff6347);
+        // Hot core (white/yellow)
+        flash.circle(0, flameTip, 4).fill({ color: 0xffffff, alpha: 0.9 });
+        flash.circle(0, flameTip, 6).fill({ color: 0xffff00, alpha: 0.8 });
+        // Orange middle layer
+        flash.circle(0, flameTip + 2, 8).fill({ color: 0xffa500, alpha: 0.7 });
+        // Red outer layer
+        flash.circle(0, flameTip + 4, 10).fill({ color: 0xff4500, alpha: 0.6 });
+        // Flame particles bursting out
+        for (let i = 0; i < 6; i++) {
+          const angle = (i / 6) * Math.PI * 2;
+          const dist = 8 + Math.random() * 4;
+          const particleX = Math.cos(angle) * dist;
+          const particleY = flameTip + Math.sin(angle) * dist;
+          const particleSize = 2 + Math.random() * 3;
+          const particleColor = Math.random() > 0.5 ? 0xff6347 : 0xff8c00;
+          flash.circle(particleX, particleY, particleSize).fill({ color: particleColor, alpha: 0.8 });
+        }
+        // Smoke puff
+        flash.circle(0, flameTip + 8, 6).fill({ color: 0x4a4a4a, alpha: 0.4 });
         break;
       case GameConfig.TOWER_TYPES.TESLA:
         // Tesla gun starts at -10, extends down by 7

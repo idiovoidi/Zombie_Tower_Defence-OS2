@@ -52,8 +52,11 @@ export class Projectile extends Container {
         this.visual.circle(0, 0, 2).fill(0xffa500);
         break;
       case 'flame':
-        // Orange flame particle
-        this.visual.circle(0, 0, 4).fill({ color: 0xff4500, alpha: 0.8 });
+        // Fireball with glow
+        this.visual.circle(0, 0, 8).fill({ color: 0xff6600, alpha: 0.4 }); // Outer glow
+        this.visual.circle(0, 0, 6).fill({ color: 0xff8800, alpha: 0.6 }); // Middle
+        this.visual.circle(0, 0, 4).fill({ color: 0xffaa00, alpha: 0.8 }); // Inner
+        this.visual.circle(0, 0, 2).fill({ color: 0xffff00, alpha: 1 }); // Hot core
         break;
       case 'tesla':
         // Blue electric bolt
@@ -115,19 +118,93 @@ export class Projectile extends Container {
 
     switch (this.projectileType) {
       case 'flame':
-        this.visual.circle(0, 0, 8).fill({ color: 0xff4500, alpha: 0.6 });
+        this.createFirePool();
         break;
       case 'tesla':
         this.visual.circle(0, 0, 10).fill({ color: 0x00bfff, alpha: 0.6 });
+        setTimeout(() => {
+          this.destroy();
+        }, 100);
         break;
       default:
         this.visual.circle(0, 0, 5).fill({ color: 0xffff00, alpha: 0.6 });
+        setTimeout(() => {
+          this.destroy();
+        }, 100);
     }
+  }
 
-    // Fade out and destroy
-    setTimeout(() => {
-      this.destroy();
-    }, 100);
+  private createFirePool(): void {
+    // Create lingering fire pool on the ground
+    const firePool = new Graphics();
+    
+    // Draw fire pool with multiple layers
+    const poolSize = 25;
+    
+    // Outer smoke/heat distortion
+    for (let i = 0; i < 8; i++) {
+      const angle = (i / 8) * Math.PI * 2;
+      const dist = poolSize * 0.8 + Math.random() * 5;
+      const x = Math.cos(angle) * dist;
+      const y = Math.sin(angle) * dist;
+      const size = 6 + Math.random() * 4;
+      firePool.circle(x, y, size).fill({ color: 0x4a4a4a, alpha: 0.3 });
+    }
+    
+    // Fire particles
+    for (let i = 0; i < 15; i++) {
+      const angle = Math.random() * Math.PI * 2;
+      const dist = Math.random() * poolSize;
+      const x = Math.cos(angle) * dist;
+      const y = Math.sin(angle) * dist;
+      const size = 3 + Math.random() * 5;
+      
+      // Color varies from yellow center to red edges
+      const distRatio = dist / poolSize;
+      let color: number;
+      if (distRatio < 0.3) {
+        color = Math.random() > 0.5 ? 0xffff00 : 0xffffff; // Hot center
+      } else if (distRatio < 0.6) {
+        color = Math.random() > 0.5 ? 0xffa500 : 0xff8c00; // Orange middle
+      } else {
+        color = Math.random() > 0.5 ? 0xff4500 : 0xff6347; // Red edges
+      }
+      
+      firePool.circle(x, y, size).fill({ color, alpha: 0.7 + Math.random() * 0.3 });
+    }
+    
+    // Hot core
+    firePool.circle(0, 0, 8).fill({ color: 0xffffff, alpha: 0.9 });
+    firePool.circle(0, 0, 12).fill({ color: 0xffff00, alpha: 0.7 });
+    firePool.circle(0, 0, 16).fill({ color: 0xffa500, alpha: 0.5 });
+    
+    // Add fire pool to parent at current position
+    if (this.parent) {
+      firePool.position.set(this.position.x, this.position.y);
+      this.parent.addChild(firePool);
+      
+      // Animate fire pool fading out
+      let elapsed = 0;
+      const duration = 2000; // Fire lasts 2 seconds
+      const fadeInterval = setInterval(() => {
+        elapsed += 50;
+        const progress = elapsed / duration;
+        
+        if (progress >= 1) {
+          clearInterval(fadeInterval);
+          if (firePool.parent) {
+            firePool.parent.removeChild(firePool);
+          }
+          firePool.destroy();
+        } else {
+          // Fade out
+          firePool.alpha = 1 - progress;
+        }
+      }, 50);
+    }
+    
+    // Destroy the projectile immediately
+    this.destroy();
   }
 
   public isDestroyed(): boolean {

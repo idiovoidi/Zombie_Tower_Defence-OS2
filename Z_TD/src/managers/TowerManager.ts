@@ -54,7 +54,7 @@ export class TowerManager {
       cost: 200,
       damage: 30,
       range: 120,
-      fireRate: 5, // 5 shots per second
+      fireRate: 0.75, // 0.75 shots per second (one shot every ~1.3 seconds)
       specialAbility: 'Area damage over time, burning effect',
       upgradeCostMultiplier: 0.75,
     });
