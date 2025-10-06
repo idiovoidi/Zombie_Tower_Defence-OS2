@@ -676,33 +676,96 @@ export class VisualMapRenderer {
       this.mapContainer.stroke({ width: 1, color: 0x4a3a2a });
     }
 
-    // Rubble
+    // Rubble - irregular chunks
     const rubbleCount = Math.floor(8 + destroyedLevel * 15);
     for (let i = 0; i < rubbleCount; i++) {
       const rx = x + Math.random() * width;
       const ry = y + height + 8 + Math.random() * 12;
       const size = 4 + Math.random() * 6;
-      this.mapContainer.rect(rx, ry, size, size * 0.8).fill(0x696969);
+      // Irregular rubble shapes - use poly for closed shapes
+      const points = 3 + Math.floor(Math.random() * 3);
+      const rubblePath: number[] = [];
+      for (let j = 0; j < points; j++) {
+        const angle = (j / points) * Math.PI * 2;
+        const radius = size * (0.7 + Math.random() * 0.5);
+        rubblePath.push(rx + Math.cos(angle) * radius);
+        rubblePath.push(ry + Math.sin(angle) * radius);
+      }
+      this.mapContainer.poly(rubblePath).fill(0x696969);
     }
 
-    // Burn marks
+    // Burn marks - irregular scorch patterns using rectangles instead
     if (destroyedLevel > 0.6) {
-      this.mapContainer
-        .circle(x + width * 0.3, y + height - wallHeight * 0.5, 18)
-        .fill({ color: 0x1a1a1a, alpha: 0.5 });
-      this.mapContainer
-        .circle(x + width * 0.7, y + height - wallHeight * 0.3, 14)
-        .fill({ color: 0x1a1a1a, alpha: 0.4 });
+      // Left burn mark - multiple overlapping rectangles for organic look
+      const burnX1 = x + width * 0.3;
+      const burnY1 = y + height - wallHeight * 0.5;
+      for (let i = 0; i < 5; i++) {
+        const offsetX = (Math.random() - 0.5) * 12;
+        const offsetY = (Math.random() - 0.5) * 12;
+        const burnSize = 8 + Math.random() * 8;
+        this.mapContainer
+          .rect(burnX1 + offsetX - burnSize / 2, burnY1 + offsetY - burnSize / 2, burnSize, burnSize)
+          .fill({ color: 0x1a1a1a, alpha: 0.3 });
+      }
+
+      // Right burn mark
+      const burnX2 = x + width * 0.7;
+      const burnY2 = y + height - wallHeight * 0.3;
+      for (let i = 0; i < 4; i++) {
+        const offsetX = (Math.random() - 0.5) * 10;
+        const offsetY = (Math.random() - 0.5) * 10;
+        const burnSize = 6 + Math.random() * 6;
+        this.mapContainer
+          .rect(burnX2 + offsetX - burnSize / 2, burnY2 + offsetY - burnSize / 2, burnSize, burnSize)
+          .fill({ color: 0x1a1a1a, alpha: 0.25 });
+      }
     }
 
-    // Smoke
+    // Smoke - use ellipses for organic puffs
     if (destroyedLevel > 0.7) {
       for (let i = 0; i < 4; i++) {
         const sx = x + width * 0.5 + (Math.random() - 0.5) * 25;
         const sy = y + height - wallHeight - 15 - i * 10;
+        const smokeSize = 4 + i * 0.5;
+        // Use ellipse for organic smoke
         this.mapContainer
-          .circle(sx, sy, 4 + i * 0.5)
+          .ellipse(sx, sy, smokeSize * 1.2, smokeSize * 0.8)
           .fill({ color: 0x808080, alpha: 0.35 - i * 0.08 });
+      }
+    }
+
+    // Add cracks in walls
+    if (destroyedLevel > 0.5) {
+      // Vertical cracks
+      for (let i = 0; i < 3; i++) {
+        const crackX = x + width * (0.2 + i * 0.3);
+        const crackY = y + height - wallHeight;
+        this.mapContainer
+          .moveTo(crackX, crackY)
+          .lineTo(crackX + (Math.random() - 0.5) * 8, crackY + wallHeight * 0.6)
+          .stroke({ width: 2, color: 0x2a2a2a, alpha: 0.6 });
+      }
+    }
+
+    // Add bullet holes / impact marks - use small rectangles
+    if (destroyedLevel > 0.6) {
+      for (let i = 0; i < 5; i++) {
+        const holeX = x + Math.random() * width;
+        const holeY = y + height - wallHeight * Math.random();
+        const holeSize = 2 + Math.random() * 2;
+        // Small dark rectangles for bullet impacts
+        this.mapContainer
+          .rect(holeX - holeSize / 2, holeY - holeSize / 2, holeSize, holeSize)
+          .fill({ color: 0x1a1a1a, alpha: 0.7 });
+        // Add small cracks around impact
+        for (let j = 0; j < 3; j++) {
+          const angle = (j / 3) * Math.PI * 2 + Math.random();
+          const crackLength = 3 + Math.random() * 3;
+          this.mapContainer
+            .moveTo(holeX, holeY)
+            .lineTo(holeX + Math.cos(angle) * crackLength, holeY + Math.sin(angle) * crackLength)
+            .stroke({ width: 1, color: 0x2a2a2a, alpha: 0.5 });
+        }
       }
     }
   }
