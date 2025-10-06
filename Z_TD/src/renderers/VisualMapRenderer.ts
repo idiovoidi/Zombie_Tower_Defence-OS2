@@ -1032,9 +1032,7 @@ export class VisualMapRenderer {
     this.pathGraphics.rect(campX - 38, campY - 58, 6, 14).fill({ color: 0xffcc00, alpha: 0.8 });
     this.pathGraphics.rect(campX + 32, campY - 58, 6, 14).fill({ color: 0xffcc00, alpha: 0.8 });
     // Text area
-    this.pathGraphics
-      .rect(campX - 35, campY - 56, 70, 12)
-      .fill({ color: 0x00aa00, alpha: 0.7 });
+    this.pathGraphics.rect(campX - 35, campY - 56, 70, 12).fill({ color: 0x00aa00, alpha: 0.7 });
     this.pathGraphics.stroke({ width: 2, color: 0x008800 });
     // Nails/screws
     this.pathGraphics.circle(campX - 36, campY - 56, 1.5).fill(0x4a4a4a);

@@ -187,210 +187,438 @@ export class Tower extends GameObject implements ITower {
 
   // Machine Gun Tower Visual
   private createMachineGunVisual(): void {
-    // Tower base (doesn't rotate) - gets larger with upgrades
     const baseSize = 15 + this.upgradeLevel * 2;
-    this.visual.rect(-baseSize, -5, baseSize * 2, 25).fill(0x8b7355); // Brown tower base
-    this.visual.stroke({ width: 2, color: 0x000000 });
-    
-    // Tower window
-    this.visual.rect(-10, 0, 8, 8).fill(0x4a4a4a); // Dark window
-    this.visual.rect(2, 0, 8, 8).fill(0x4a4a4a); // Dark window
 
-    // Upgrade stars
+    if (this.upgradeLevel <= 2) {
+      // Level 1-2: Wooden barricade with sandbags
+      this.visual.rect(-baseSize, -5, baseSize * 2, 25).fill(0x8b7355); // Wood base
+      this.visual.stroke({ width: 2, color: 0x654321 });
+      // Wood planks
+      for (let i = -baseSize; i < baseSize; i += 6) {
+        this.visual.moveTo(i, -5).lineTo(i, 20).stroke({ width: 1, color: 0x654321, alpha: 0.3 });
+      }
+      // Sandbags
+      this.visual.roundRect(-12, 12, 10, 6, 2).fill(0x8b7355);
+      this.visual.roundRect(2, 12, 10, 6, 2).fill(0x8b7355);
+    } else if (this.upgradeLevel <= 4) {
+      // Level 3-4: Reinforced position with metal plates
+      this.visual.rect(-baseSize, -5, baseSize * 2, 25).fill(0x5a5a5a); // Metal base
+      this.visual.stroke({ width: 2, color: 0x3a3a3a });
+      // Metal panels
+      this.visual.rect(-baseSize + 2, -3, baseSize - 4, 10).fill(0x4a4a4a);
+      this.visual.rect(4, -3, baseSize - 4, 10).fill(0x4a4a4a);
+      // Rivets
+      for (let x = -baseSize + 5; x < baseSize; x += 8) {
+        this.visual.circle(x, 0, 1.5).fill(0x6a6a6a);
+        this.visual.circle(x, 15, 1.5).fill(0x6a6a6a);
+      }
+    } else {
+      // Level 5: Military fortification
+      this.visual.rect(-baseSize, -5, baseSize * 2, 25).fill(0x4a4a4a); // Dark metal
+      this.visual.stroke({ width: 3, color: 0x2a2a2a });
+      // Armored plates
+      this.visual.rect(-baseSize + 2, -3, baseSize - 4, 10).fill(0x3a3a3a);
+      this.visual.rect(4, -3, baseSize - 4, 10).fill(0x3a3a3a);
+      // Caution stripes
+      this.visual.rect(-baseSize, -5, 4, 25).fill({ color: 0xffcc00, alpha: 0.5 });
+      this.visual.rect(baseSize - 4, -5, 4, 25).fill({ color: 0xffcc00, alpha: 0.5 });
+      // Heavy rivets
+      for (let x = -baseSize + 5; x < baseSize; x += 6) {
+        this.visual.circle(x, 0, 2).fill(0x6a6a6a);
+        this.visual.circle(x, 15, 2).fill(0x6a6a6a);
+      }
+    }
+
     this.addUpgradeStars();
 
     // Little man (rotates with barrel)
     this.barrel.clear();
-    // Body - armor gets better with upgrades
-    const bodyColor = this.upgradeLevel >= 3 ? 0x4169e1 : 0x0000ff;
-    this.barrel.rect(-3, -13, 6, 8).fill(bodyColor); // Blue uniform
-    // Arms holding gun
-    this.barrel.rect(-4, -11, 2, 4).fill(0xffdbac); // Left arm
-    this.barrel.rect(2, -11, 2, 4).fill(0xffdbac); // Right arm
-    // Gun (machine gun) - held in front
+    // Body - gear improves with upgrades
+    let bodyColor = 0x654321; // Brown civilian
+    if (this.upgradeLevel >= 3) bodyColor = 0x4a4a4a; // Gray tactical
+    if (this.upgradeLevel >= 5) bodyColor = 0x2a2a2a; // Black military
+    this.barrel.rect(-3, -13, 6, 8).fill(bodyColor);
+    // Arms
+    this.barrel.rect(-4, -11, 2, 4).fill(0xffdbac);
+    this.barrel.rect(2, -11, 2, 4).fill(0xffdbac);
+    // Gun - gets bigger with upgrades
     const gunLength = 8 + this.upgradeLevel;
-    this.barrel.rect(-1, -10, 2, gunLength).fill(0x2f4f4f); // Gun body
-    this.barrel.rect(-2, -11, 4, 2).fill(0x2f4f4f); // Gun barrel
+    this.barrel.rect(-1, -10, 2, gunLength).fill(0x2f4f4f);
+    this.barrel.rect(-2, -11, 4, 2).fill(0x2f4f4f);
     // Head
-    this.barrel.circle(0, -18, 5).fill(0xffdbac); // Skin tone
+    this.barrel.circle(0, -18, 5).fill(0xffdbac);
     this.barrel.stroke({ width: 1, color: 0x000000 });
-    // Military cap
-    this.barrel.rect(-5, -21, 10, 3).fill(0x0000ff);
-    this.barrel.rect(-3, -23, 6, 2).fill(0x0000ff); // Cap top
+    // Headgear improves with level
+    if (this.upgradeLevel <= 2) {
+      // Bandana
+      this.barrel.rect(-5, -21, 10, 2).fill(0x8b0000);
+    } else if (this.upgradeLevel <= 4) {
+      // Cap
+      this.barrel.rect(-5, -21, 10, 3).fill(0x4a4a4a);
+      this.barrel.rect(-3, -23, 6, 2).fill(0x4a4a4a);
+    } else {
+      // Military helmet
+      this.barrel.circle(0, -20, 5).fill(0x2a2a2a);
+      this.barrel.rect(-4, -21, 8, 2).fill(0x1a1a1a);
+    }
   }
 
   // Sniper Tower Visual
   private createSniperVisual(): void {
-    // Tall tower base (doesn't rotate) - gets taller with upgrades
     const towerHeight = 30 + this.upgradeLevel * 3;
-    this.visual.rect(-12, -10, 24, towerHeight).fill(0x696969); // Gray tower
-    this.visual.stroke({ width: 2, color: 0x000000 });
-    
-    // Tower top
-    this.visual.moveTo(-12, -10).lineTo(0, -18).lineTo(12, -10).fill(0x4a4a4a);
-    
-    // Sniper window
-    this.visual.rect(-6, -5, 12, 6).fill(0x2f4f4f);
 
-    // Upgrade stars
+    if (this.upgradeLevel <= 2) {
+      // Level 1-2: Wooden platform/treehouse style
+      this.visual.rect(-12, -10, 24, towerHeight).fill(0x8b7355); // Wood
+      this.visual.stroke({ width: 2, color: 0x654321 });
+      // Wood planks
+      for (let y = -10; y < towerHeight - 10; y += 5) {
+        this.visual.moveTo(-12, y).lineTo(12, y).stroke({ width: 1, color: 0x654321, alpha: 0.3 });
+      }
+      // Wooden roof
+      this.visual.moveTo(-12, -10).lineTo(0, -18).lineTo(12, -10).fill(0x654321);
+      // Window
+      this.visual.rect(-6, -5, 12, 6).fill(0x4a4a4a);
+    } else if (this.upgradeLevel <= 4) {
+      // Level 3-4: Reinforced watchtower
+      this.visual.rect(-12, -10, 24, towerHeight).fill(0x5a5a5a); // Metal frame
+      this.visual.stroke({ width: 2, color: 0x3a3a3a });
+      // Cross braces
+      this.visual.moveTo(-10, 0).lineTo(10, towerHeight - 15).stroke({ width: 2, color: 0x4a4a4a });
+      this.visual.moveTo(10, 0).lineTo(-10, towerHeight - 15).stroke({ width: 2, color: 0x4a4a4a });
+      // Metal roof
+      this.visual.moveTo(-12, -10).lineTo(0, -18).lineTo(12, -10).fill(0x4a4a4a);
+      // Firing slit
+      this.visual.rect(-8, -5, 16, 4).fill(0x2a2a2a);
+    } else {
+      // Level 5: Military observation tower
+      this.visual.rect(-12, -10, 24, towerHeight).fill(0x4a4a4a); // Dark metal
+      this.visual.stroke({ width: 3, color: 0x2a2a2a });
+      // Armored panels
+      this.visual.rect(-10, -8, 20, 10).fill(0x3a3a3a);
+      this.visual.rect(-10, 8, 20, 10).fill(0x3a3a3a);
+      // Rivets
+      for (let y = -5; y < towerHeight - 10; y += 8) {
+        this.visual.circle(-10, y, 1.5).fill(0x6a6a6a);
+        this.visual.circle(10, y, 1.5).fill(0x6a6a6a);
+      }
+      // Armored roof
+      this.visual.moveTo(-12, -10).lineTo(0, -18).lineTo(12, -10).fill(0x2a2a2a);
+      // Reinforced slit
+      this.visual.rect(-8, -5, 16, 4).fill(0x1a1a1a);
+      this.visual.stroke({ width: 2, color: 0xffcc00 });
+    }
+
     this.addUpgradeStars();
 
     // Little man with sniper rifle (rotates)
     this.barrel.clear();
-    // Body - better camo with upgrades
-    const bodyColor = this.upgradeLevel >= 3 ? 0x1a1a1a : 0x2f4f4f;
-    this.barrel.rect(-3, -15, 6, 8).fill(bodyColor); // Dark uniform
-    // Arms holding rifle
-    this.barrel.rect(-4, -13, 2, 4).fill(0xffdbac); // Left arm
-    this.barrel.rect(2, -13, 2, 4).fill(0xffdbac); // Right arm
-    // Sniper rifle (long and thin) - held in front
+    // Body - camo improves
+    let bodyColor = 0x654321; // Brown
+    if (this.upgradeLevel >= 3) bodyColor = 0x3a4a2a; // Camo green
+    if (this.upgradeLevel >= 5) bodyColor = 0x1a1a1a; // Black ops
+    this.barrel.rect(-3, -15, 6, 8).fill(bodyColor);
+    // Arms
+    this.barrel.rect(-4, -13, 2, 4).fill(0xffdbac);
+    this.barrel.rect(2, -13, 2, 4).fill(0xffdbac);
+    // Sniper rifle - gets longer
     const rifleLength = 12 + this.upgradeLevel * 2;
-    this.barrel.rect(-1, -12, 2, rifleLength).fill(0x1a1a1a); // Long rifle
+    this.barrel.rect(-1, -12, 2, rifleLength).fill(0x1a1a1a);
     this.barrel.circle(0, -13, 2 + this.upgradeLevel * 0.5).fill(0x1a1a1a); // Scope
     // Head
     this.barrel.circle(0, -20, 5).fill(0xffdbac);
     this.barrel.stroke({ width: 1, color: 0x000000 });
-    // Tactical sunglasses
-    this.barrel.rect(-4, -20, 8, 2).fill(0x1a1a1a);
-    // Boonie hat
-    this.barrel.circle(0, -23, 6).fill(0x2f4f4f);
-    this.barrel.rect(-6, -21, 12, 1).fill(0x2f4f4f); // Hat brim
+    // Headgear
+    if (this.upgradeLevel <= 2) {
+      // Boonie hat
+      this.barrel.circle(0, -23, 6).fill(0x654321);
+      this.barrel.rect(-6, -21, 12, 1).fill(0x654321);
+    } else if (this.upgradeLevel <= 4) {
+      // Tactical cap with sunglasses
+      this.barrel.rect(-5, -22, 10, 3).fill(0x3a4a2a);
+      this.barrel.rect(-4, -20, 8, 2).fill(0x1a1a1a); // Sunglasses
+    } else {
+      // Full tactical helmet with visor
+      this.barrel.circle(0, -20, 5).fill(0x1a1a1a);
+      this.barrel.rect(-4, -20, 8, 2).fill(0x4a4a4a); // Visor
+    }
   }
 
   // Shotgun Tower Visual
   private createShotgunVisual(): void {
-    // Bunker-style base (doesn't rotate) - gets wider with upgrades
     const bunkerWidth = 36 + this.upgradeLevel * 4;
-    this.visual.roundRect(-bunkerWidth / 2, -8, bunkerWidth, 28, 8).fill(0x8b4513); // Brown bunker
-    this.visual.stroke({ width: 2, color: 0x000000 });
-    
-    // More sandbags with upgrades
-    const sandbagCount = 4 + this.upgradeLevel;
-    for (let i = 0; i < sandbagCount; i++) {
-      const x = -bunkerWidth / 2 + 8 + (i * (bunkerWidth - 16) / (sandbagCount - 1));
-      this.visual.circle(x, 15, 4).fill(0xa0826d);
-    }
-    
-    // Firing slot
-    this.visual.rect(-8, 0, 16, 6).fill(0x4a4a4a);
 
-    // Upgrade stars
+    if (this.upgradeLevel <= 2) {
+      // Level 1-2: Sandbag wall
+      this.visual.roundRect(-bunkerWidth / 2, -8, bunkerWidth, 28, 8).fill(0x8b7355); // Sandbags
+      this.visual.stroke({ width: 2, color: 0x654321 });
+      // Sandbag texture
+      for (let x = -bunkerWidth / 2 + 5; x < bunkerWidth / 2; x += 8) {
+        this.visual.roundRect(x, -5, 7, 10, 2).fill({ color: 0x654321, alpha: 0.3 });
+        this.visual.roundRect(x, 5, 7, 10, 2).fill({ color: 0x654321, alpha: 0.3 });
+      }
+      // Firing gap
+      this.visual.rect(-8, 0, 16, 6).fill(0x4a4a4a);
+    } else if (this.upgradeLevel <= 4) {
+      // Level 3-4: Reinforced bunker with metal
+      this.visual.roundRect(-bunkerWidth / 2, -8, bunkerWidth, 28, 8).fill(0x5a5a5a); // Metal
+      this.visual.stroke({ width: 2, color: 0x3a3a3a });
+      // Metal panels
+      this.visual.rect(-bunkerWidth / 2 + 4, -5, bunkerWidth / 2 - 12, 10).fill(0x4a4a4a);
+      this.visual.rect(8, -5, bunkerWidth / 2 - 12, 10).fill(0x4a4a4a);
+      // Sandbags on top
+      for (let i = 0; i < 4; i++) {
+        const x = -bunkerWidth / 2 + 10 + (i * (bunkerWidth - 20) / 3);
+        this.visual.roundRect(x, -10, 8, 6, 2).fill(0x8b7355);
+      }
+      // Firing slit
+      this.visual.rect(-10, 0, 20, 5).fill(0x2a2a2a);
+    } else {
+      // Level 5: Heavy fortified bunker
+      this.visual.roundRect(-bunkerWidth / 2, -8, bunkerWidth, 28, 8).fill(0x4a4a4a); // Dark metal
+      this.visual.stroke({ width: 3, color: 0x2a2a2a });
+      // Armored plates
+      this.visual.rect(-bunkerWidth / 2 + 4, -5, bunkerWidth / 2 - 12, 12).fill(0x3a3a3a);
+      this.visual.rect(8, -5, bunkerWidth / 2 - 12, 12).fill(0x3a3a3a);
+      // Caution stripes
+      this.visual.rect(-bunkerWidth / 2, -8, 6, 28).fill({ color: 0xffcc00, alpha: 0.4 });
+      this.visual.rect(bunkerWidth / 2 - 6, -8, 6, 28).fill({ color: 0xffcc00, alpha: 0.4 });
+      // Heavy rivets
+      for (let x = -bunkerWidth / 2 + 8; x < bunkerWidth / 2; x += 8) {
+        this.visual.circle(x, -5, 2).fill(0x6a6a6a);
+        this.visual.circle(x, 15, 2).fill(0x6a6a6a);
+      }
+      // Reinforced firing port
+      this.visual.rect(-10, 0, 20, 5).fill(0x1a1a1a);
+      this.visual.stroke({ width: 2, color: 0xffcc00 });
+    }
+
     this.addUpgradeStars();
 
     // Little man with shotgun (rotates)
     this.barrel.clear();
-    // Body
-    this.barrel.rect(-3, -11, 6, 8).fill(0x8b4513); // Brown uniform
-    // Arms holding shotgun
-    this.barrel.rect(-4, -9, 2, 4).fill(0xffdbac); // Left arm
-    this.barrel.rect(2, -9, 2, 4).fill(0xffdbac); // Right arm
-    // Shotgun (double barrel) - held in front
+    // Body - armor improves
+    let bodyColor = 0x654321; // Brown
+    if (this.upgradeLevel >= 3) bodyColor = 0x4a4a4a; // Gray armor
+    if (this.upgradeLevel >= 5) bodyColor = 0x2a2a2a; // Heavy armor
+    this.barrel.rect(-3, -11, 6, 8).fill(bodyColor);
+    // Arms
+    this.barrel.rect(-4, -9, 2, 4).fill(0xffdbac);
+    this.barrel.rect(2, -9, 2, 4).fill(0xffdbac);
+    // Shotgun - gets wider
     const barrelWidth = 2 + this.upgradeLevel * 0.3;
     this.barrel.rect(-3, -8, barrelWidth, 8).fill(0xa0522d);
     this.barrel.rect(1, -8, barrelWidth, 8).fill(0xa0522d);
     // Head
     this.barrel.circle(0, -16, 5).fill(0xffdbac);
     this.barrel.stroke({ width: 1, color: 0x000000 });
-    // Helmet (always present, gets better with upgrades)
-    if (this.upgradeLevel >= 3) {
-      this.barrel.circle(0, -18, 5).fill(0x4a4a4a); // Full helmet
-      this.barrel.rect(-2, -19, 4, 1).fill(0x8b8b8b); // Visor
+    // Headgear
+    if (this.upgradeLevel <= 2) {
+      // Basic cap
+      this.barrel.rect(-5, -19, 10, 3).fill(0x654321);
+    } else if (this.upgradeLevel <= 4) {
+      // Tactical helmet
+      this.barrel.rect(-5, -19, 10, 3).fill(0x4a4a4a);
+      this.barrel.circle(0, -18, 4).fill(0x4a4a4a);
     } else {
-      this.barrel.rect(-5, -19, 10, 3).fill(0x4a4a4a); // Basic helmet
+      // Full combat helmet with visor
+      this.barrel.circle(0, -18, 5).fill(0x2a2a2a);
+      this.barrel.rect(-2, -19, 4, 1).fill(0x8b8b8b);
     }
   }
 
   // Flame Tower Visual
   private createFlameVisual(): void {
-    // Round tower base (doesn't rotate) - gets bigger with upgrades
     const towerSize = 18 + this.upgradeLevel * 2;
-    this.visual.circle(0, 5, towerSize).fill(0xff4500); // Orange tower
-    this.visual.stroke({ width: 2, color: 0x000000 });
-    
-    // Tower top
-    this.visual.circle(0, -10, 12 + this.upgradeLevel).fill(0xff6347);
-    
-    // More heat vents with upgrades
-    const ventCount = 2 + Math.floor(this.upgradeLevel / 2);
-    for (let i = 0; i < ventCount; i++) {
-      const angle = (i / ventCount) * Math.PI * 2;
-      const x = Math.cos(angle) * (towerSize - 5);
-      const y = Math.sin(angle) * (towerSize - 5);
-      this.visual.rect(x - 1.5, y, 3, 8).fill(0x8b0000);
+
+    if (this.upgradeLevel <= 2) {
+      // Level 1-2: Makeshift barrel platform
+      this.visual.circle(0, 5, towerSize).fill(0x8b4513); // Wood platform
+      this.visual.stroke({ width: 2, color: 0x654321 });
+      // Oil barrels
+      this.visual.rect(-8, -5, 6, 12).fill(0x4a4a4a);
+      this.visual.rect(2, -5, 6, 12).fill(0x4a4a4a);
+      // Barrel bands
+      this.visual.rect(-8, -2, 6, 2).fill(0x5a5a5a);
+      this.visual.rect(2, -2, 6, 2).fill(0x5a5a5a);
+      // Warning paint
+      this.visual.circle(-5, 0, 3).fill({ color: 0xff4500, alpha: 0.7 });
+      this.visual.circle(5, 0, 3).fill({ color: 0xff4500, alpha: 0.7 });
+    } else if (this.upgradeLevel <= 4) {
+      // Level 3-4: Reinforced fuel station
+      this.visual.circle(0, 5, towerSize).fill(0x5a5a5a); // Metal platform
+      this.visual.stroke({ width: 2, color: 0x3a3a3a });
+      // Fuel tanks
+      this.visual.circle(0, 0, 10).fill(0xff4500);
+      this.visual.stroke({ width: 2, color: 0x8b0000 });
+      // Heat vents
+      for (let i = 0; i < 4; i++) {
+        const angle = (i / 4) * Math.PI * 2;
+        const x = Math.cos(angle) * (towerSize - 5);
+        const y = 5 + Math.sin(angle) * (towerSize - 5);
+        this.visual.rect(x - 1.5, y, 3, 6).fill(0x8b0000);
+      }
+      // Caution stripes
+      for (let i = 0; i < 8; i += 2) {
+        const angle = (i / 8) * Math.PI * 2;
+        const x = Math.cos(angle) * towerSize;
+        const y = 5 + Math.sin(angle) * towerSize;
+        this.visual.circle(x, y, 3).fill(0xffcc00);
+      }
+    } else {
+      // Level 5: Military incinerator unit
+      this.visual.circle(0, 5, towerSize).fill(0x4a4a4a); // Dark metal
+      this.visual.stroke({ width: 3, color: 0x2a2a2a });
+      // Armored fuel core
+      this.visual.circle(0, 0, 12).fill(0xff4500);
+      this.visual.stroke({ width: 3, color: 0x8b0000 });
+      // Advanced vents
+      const ventCount = 6;
+      for (let i = 0; i < ventCount; i++) {
+        const angle = (i / ventCount) * Math.PI * 2;
+        const x = Math.cos(angle) * (towerSize - 5);
+        const y = 5 + Math.sin(angle) * (towerSize - 5);
+        this.visual.rect(x - 2, y, 4, 8).fill(0x8b0000);
+        this.visual.stroke({ width: 1, color: 0xff4500 });
+      }
+      // Caution markings
+      this.visual.circle(0, -10, 8).fill({ color: 0xffcc00, alpha: 0.5 });
+      this.visual.circle(0, -10, 6).fill({ color: 0xff0000, alpha: 0.5 });
     }
 
-    // Upgrade stars
     this.addUpgradeStars();
 
     // Little man with flamethrower (rotates)
     this.barrel.clear();
-    // Body - better suit with upgrades
-    const suitColor = this.upgradeLevel >= 3 ? 0xff6347 : 0xff4500;
-    this.barrel.rect(-3, -13, 6, 8).fill(suitColor); // Orange suit
-    // Arms holding flamethrower
-    this.barrel.rect(-4, -11, 2, 4).fill(0xff4500); // Left arm (suited)
-    this.barrel.rect(2, -11, 2, 4).fill(0xff4500); // Right arm (suited)
-    // Flamethrower - held in front
+    // Body - protective gear improves
+    let suitColor = 0x654321; // Brown clothes
+    if (this.upgradeLevel >= 3) suitColor = 0xff4500; // Fire suit
+    if (this.upgradeLevel >= 5) suitColor = 0xff6347; // Advanced suit
+    this.barrel.rect(-3, -13, 6, 8).fill(suitColor);
+    // Arms
+    const armColor = this.upgradeLevel >= 3 ? 0xff4500 : 0xffdbac;
+    this.barrel.rect(-4, -11, 2, 4).fill(armColor);
+    this.barrel.rect(2, -11, 2, 4).fill(armColor);
+    // Flamethrower - gets bigger
     const tankSize = 3 + this.upgradeLevel * 0.5;
-    this.barrel.rect(-tankSize / 2, -10, tankSize, 8).fill(0xff0000); // Fuel tank
-    this.barrel.rect(-1, -11, 2, 6).fill(0x8b0000); // Nozzle
-    // Head with protective mask
+    this.barrel.rect(-tankSize / 2, -10, tankSize, 8).fill(0xff0000);
+    this.barrel.rect(-1, -11, 2, 6).fill(0x8b0000);
+    // Head
     this.barrel.circle(0, -18, 5).fill(0xffdbac);
     this.barrel.stroke({ width: 1, color: 0x000000 });
-    // Full face gas mask
-    this.barrel.circle(0, -18, 4).fill(0x4a4a4a); // Mask
-    this.barrel.circle(-2, -19, 1.5).fill(0x1a1a1a); // Left eye lens
-    this.barrel.circle(2, -19, 1.5).fill(0x1a1a1a); // Right eye lens
-    this.barrel.circle(0, -15, 2).fill(0x2a2a2a); // Filter
+    // Protective gear
+    if (this.upgradeLevel <= 2) {
+      // Bandana/goggles
+      this.barrel.rect(-4, -19, 8, 2).fill(0x1a1a1a);
+    } else if (this.upgradeLevel <= 4) {
+      // Gas mask
+      this.barrel.circle(0, -18, 4).fill(0x4a4a4a);
+      this.barrel.circle(-2, -19, 1.5).fill(0x1a1a1a);
+      this.barrel.circle(2, -19, 1.5).fill(0x1a1a1a);
+      this.barrel.circle(0, -15, 2).fill(0x2a2a2a);
+    } else {
+      // Full hazmat helmet
+      this.barrel.circle(0, -18, 5).fill(0xff4500);
+      this.barrel.rect(-3, -19, 6, 3).fill({ color: 0x1a1a1a, alpha: 0.5 }); // Visor
+    }
   }
 
   // Tesla Tower Visual
   private createTeslaVisual(): void {
-    // High-tech tower base (doesn't rotate) - gets more advanced with upgrades
     const towerWidth = 32 + this.upgradeLevel * 3;
-    this.visual.rect(-towerWidth / 2, -5, towerWidth, 25).fill(0x00ced1); // Turquoise tower
-    this.visual.stroke({ width: 2, color: 0x000000 });
-    
-    // Tech panels
-    this.visual.rect(-12, 0, 8, 6).fill(0x7fffd4);
-    this.visual.rect(4, 0, 8, 6).fill(0x7fffd4);
-    
-    // More energy indicators with upgrades
-    const indicatorCount = 2 + this.upgradeLevel;
-    for (let i = 0; i < indicatorCount; i++) {
-      const x = -towerWidth / 2 + 8 + (i * (towerWidth - 16) / (indicatorCount - 1));
-      this.visual.circle(x, 3, 2).fill(0x00ffff);
+
+    if (this.upgradeLevel <= 2) {
+      // Level 1-2: Scavenged tech setup
+      this.visual.rect(-towerWidth / 2, -5, towerWidth, 25).fill(0x5a5a5a); // Metal base
+      this.visual.stroke({ width: 2, color: 0x3a3a3a });
+      // Exposed wiring
+      this.visual.moveTo(-towerWidth / 2 + 5, 0).lineTo(towerWidth / 2 - 5, 0).stroke({ width: 2, color: 0x00ced1 });
+      this.visual.moveTo(-towerWidth / 2 + 5, 10).lineTo(towerWidth / 2 - 5, 10).stroke({ width: 2, color: 0x00ced1 });
+      // Makeshift panels
+      this.visual.rect(-12, 2, 8, 6).fill(0x4a4a4a);
+      this.visual.rect(4, 2, 8, 6).fill(0x4a4a4a);
+      // Basic indicators
+      this.visual.circle(-8, 5, 2).fill(0x00ffff);
+      this.visual.circle(8, 5, 2).fill(0x00ffff);
+    } else if (this.upgradeLevel <= 4) {
+      // Level 3-4: Improved tech station
+      this.visual.rect(-towerWidth / 2, -5, towerWidth, 25).fill(0x00ced1); // Cyan base
+      this.visual.stroke({ width: 2, color: 0x008b8b });
+      // Tech panels
+      this.visual.rect(-14, 0, 10, 8).fill(0x7fffd4);
+      this.visual.rect(4, 0, 10, 8).fill(0x7fffd4);
+      // Energy conduits
+      for (let x = -towerWidth / 2 + 5; x < towerWidth / 2; x += 8) {
+        this.visual.rect(x, -3, 2, 23).fill({ color: 0x00ffff, alpha: 0.3 });
+      }
+      // Multiple indicators
+      for (let i = 0; i < 4; i++) {
+        const x = -towerWidth / 2 + 10 + (i * (towerWidth - 20) / 3);
+        this.visual.circle(x, 3, 2).fill(0x00ffff);
+      }
+    } else {
+      // Level 5: Advanced energy weapon platform
+      this.visual.rect(-towerWidth / 2, -5, towerWidth, 25).fill(0x00ced1); // Cyan
+      this.visual.stroke({ width: 3, color: 0x008b8b });
+      // Armored tech panels
+      this.visual.rect(-14, -2, 10, 10).fill(0x7fffd4);
+      this.visual.rect(4, -2, 10, 10).fill(0x7fffd4);
+      // Energy grid
+      for (let x = -towerWidth / 2 + 4; x < towerWidth / 2; x += 6) {
+        this.visual.rect(x, -4, 2, 24).fill({ color: 0x00ffff, alpha: 0.4 });
+      }
+      // Advanced indicators
+      const indicatorCount = 6;
+      for (let i = 0; i < indicatorCount; i++) {
+        const x = -towerWidth / 2 + 8 + (i * (towerWidth - 16) / (indicatorCount - 1));
+        this.visual.circle(x, 3, 2.5).fill(0x00ffff);
+        this.visual.circle(x, 3, 1.5).fill(0xffffff);
+      }
+      // Caution markings
+      this.visual.rect(-towerWidth / 2, -5, 4, 25).fill({ color: 0xffcc00, alpha: 0.3 });
+      this.visual.rect(towerWidth / 2 - 4, -5, 4, 25).fill({ color: 0xffcc00, alpha: 0.3 });
     }
 
-    // Upgrade stars
     this.addUpgradeStars();
 
     // Little man with tesla gun (rotates)
     this.barrel.clear();
-    // Body with tech suit - glows more with upgrades
-    const suitColor = this.upgradeLevel >= 3 ? 0x00ffff : 0x00ced1;
+    // Body - tech suit improves
+    let suitColor = 0x4a4a4a; // Gray
+    if (this.upgradeLevel >= 3) suitColor = 0x00ced1; // Cyan suit
+    if (this.upgradeLevel >= 5) suitColor = 0x00ffff; // Glowing suit
     this.barrel.rect(-3, -13, 6, 8).fill(suitColor);
-    // Arms holding tesla gun
-    this.barrel.rect(-4, -11, 2, 4).fill(0x00ced1); // Left arm
-    this.barrel.rect(2, -11, 2, 4).fill(0x00ced1); // Right arm
-    // Tesla coil gun - held in front
+    // Arms
+    const armColor = this.upgradeLevel >= 3 ? 0x00ced1 : 0xffdbac;
+    this.barrel.rect(-4, -11, 2, 4).fill(armColor);
+    this.barrel.rect(2, -11, 2, 4).fill(armColor);
+    // Tesla coil gun - gets bigger
     const coilSize = 3 + this.upgradeLevel * 0.5;
-    this.barrel.circle(0, -10, coilSize).fill(0x7fffd4); // Coil top
-    this.barrel.rect(-2, -10, 4, 7).fill(0x00bfff); // Coil body
-    // Electric arcs on gun
-    for (let i = 0; i < Math.min(this.upgradeLevel, 2); i++) {
+    this.barrel.circle(0, -10, coilSize).fill(0x7fffd4);
+    this.barrel.rect(-2, -10, 4, 7).fill(0x00bfff);
+    // Electric arcs
+    for (let i = 0; i < Math.min(this.upgradeLevel, 3); i++) {
       const offset = i * 2;
       this.barrel.moveTo(-2, -8 + offset).lineTo(2, -6 + offset).stroke({ width: 1, color: 0xffffff });
     }
     // Head
     this.barrel.circle(0, -18, 5).fill(0xffdbac);
     this.barrel.stroke({ width: 1, color: 0x000000 });
-    // Futuristic visor/goggles
-    this.barrel.rect(-4, -19, 8, 3).fill(0x00ffff);
-    this.barrel.rect(-4, -19, 8, 3).fill({ color: 0x00ffff, alpha: 0.5 });
-    // Tech headset
-    this.barrel.rect(-5, -21, 2, 4).fill(0x00ced1); // Left earpiece
-    this.barrel.rect(3, -21, 2, 4).fill(0x00ced1); // Right earpiece
+    // Tech gear
+    if (this.upgradeLevel <= 2) {
+      // Basic goggles
+      this.barrel.rect(-4, -19, 8, 2).fill(0x4a4a4a);
+    } else if (this.upgradeLevel <= 4) {
+      // Tech visor
+      this.barrel.rect(-4, -19, 8, 3).fill(0x00ffff);
+      this.barrel.rect(-4, -19, 8, 3).fill({ color: 0x00ffff, alpha: 0.5 });
+    } else {
+      // Full tech helmet
+      this.barrel.circle(0, -18, 5).fill(0x00ced1);
+      this.barrel.rect(-4, -19, 8, 3).fill({ color: 0x00ffff, alpha: 0.7 });
+      this.barrel.rect(-5, -21, 2, 4).fill(0x00ced1);
+      this.barrel.rect(3, -21, 2, 4).fill(0x00ced1);
+    }
   }
 
   /**

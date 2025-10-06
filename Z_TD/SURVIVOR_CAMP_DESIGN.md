@@ -137,48 +137,52 @@ The Survivor Camp represents a makeshift settlement where the last survivors hav
 
 ```
                     ┌─ SAFE ZONE ─┐
-                    │  (Warning)   │
+                    │ (Wood Sign)  │
                     └──────────────┘
-        ┌────────────────────────────────────┐
-        │ ●                              ● A │  ← Antenna
-        │                                  N │
-        │  □□□    /\                    ┌──┐│
-        │  □□□   /  \  Bunker           │░░││  ← Watchtower
-        │  □□□  /____\                  │░░││     with guard
-        │       │    │                  └──┘│
-        │       │ ▓▓ │  Door                │
-        │  ▓▓▓  └────┘                  ▓▓▓ │  ← Sandbags
-        │  ▓▓▓    ☺☺   Barrel Fire      ▓▓▓ │
-        │ ●                              ●   │
-        └────────────────────────────────────┘
-         Corrugated metal walls with rust
+        ║  ║  ║  ║  ║  ║  ║  ║  ║  ║  ← Scrap fence
+        ║                              ║
+        ║  □□□   /\      ~clothes~  A ║  ← Antenna
+        ║  □□□  /  \  Main Tent    ┌┴┐║
+        ║  □□□ /____\              │☺│║  ← Watchtower
+        ║  Crates  │  │   /\       └─┘║     (wood)
+        ║          │▓▓│  /  \          ║
+        ║  ▓▓▓▓    └──┘ Small Tent    ║
+        ║  ▓▓▓▓     ☺    ☺        ▓▓▓▓║  ← Sandbags
+        ║          (🔥)  Campfire  ▓▓▓▓║
+        ║  ☺      ═══               ☺  ║
+        ║        Logs                  ║
+        ║  ║  ║  ║  ║  ║  ║  ║  ║  ║  ║
+         Makeshift perimeter with gaps
 ```
 
 ## Key Features
 
-### Industrial Aesthetic
-- Corrugated metal panels with vertical ridges
-- Riveted corner reinforcements
-- Metal scaffolding and grating
-- Weathered and rusted surfaces
+### Makeshift Aesthetic
+- Scrap metal fence sections with gaps
+- Weathered military tents with patches
+- Wooden crates and structures
+- Improvised defenses
 
-### Military Fortification
-- Defensive sandbag positions
-- Armed guards and watchtower
-- Communication antenna
-- Reinforced bunker entrance
+### Camp Life Elements
+- Central campfire with stone ring
+- Laundry hanging between tents
+- Multiple survivors doing different activities
+- Seating logs around fire
+- Supply organization area
 
-### Survival Elements
-- Supply crates with caution markings
-- Barrel fire for warmth
-- Working survivors
-- Safe zone designation
+### Defensive Measures
+- Sandbag barrier clusters
+- Makeshift wooden watchtower
+- Armed guards on patrol
+- Radio communication antenna
+- Perimeter fence (incomplete but functional)
 
-### Battle-Worn Details
-- Concrete cracks
-- Rust streaks on metal
-- Heavy reinforcements
-- Tactical positioning
+### Lived-In Details
+- Tent patches and repairs
+- Rope lines and stakes
+- Scattered supplies
+- Multiple activity areas
+- Organic, non-military layout
 
 ## Design Consistency
 
@@ -285,14 +289,15 @@ Potential additions to enhance the camp:
 
 The survivor camp embodies:
 
-- **Resilience**: Heavily fortified against threats
-- **Organization**: Military-style defensive layout
-- **Survival**: Practical elements (fire, supplies, shelter)
-- **Hope**: Safe zone marking, organized resistance
-- **Realism**: Battle-worn, weathered appearance
-- **Consistency**: Matches overall apocalyptic RTS theme
+- **Resourcefulness**: Built from scavenged materials
+- **Community**: Multiple survivors living and working together
+- **Improvisation**: Makeshift defenses and structures
+- **Survival**: Practical elements (fire, shelter, supplies, laundry)
+- **Hope**: Safe zone marking, organized community
+- **Realism**: Lived-in, weathered, organic appearance
+- **Consistency**: Matches apocalyptic RTS theme while feeling like an actual camp
 
-The camp serves as both a gameplay objective and a visual anchor that reinforces the game's post-apocalyptic setting and the stakes of defending the last survivors.
+The camp serves as both a gameplay objective and a visual anchor that shows what the player is defending - not just a military installation, but a community of survivors trying to rebuild and survive together.
 
 ---
 
