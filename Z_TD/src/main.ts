@@ -9,6 +9,7 @@ import { TowerShop } from './ui/TowerShop';
 import { TowerInfoPanel } from './ui/TowerInfoPanel';
 import { DebugInfoPanel } from './ui/DebugInfoPanel';
 import { ZombieBestiary } from './ui/ZombieBestiary';
+import { WaveInfoPanel } from './ui/WaveInfoPanel';
 import { GameConfig } from './config/gameConfig';
 import { DebugUtils } from './utils/DebugUtils';
 import { DevConfig } from './config/devConfig';
@@ -98,6 +99,20 @@ import { DebugConstants } from './config/debugConstants';
     console.log(`🧟 Spawning test zombie: ${type}`);
     gameManager.getZombieManager().spawnZombieType(type);
   });
+
+  // Create wave info panel (left side, below debug panel)
+  const waveInfoPanel = new WaveInfoPanel();
+  waveInfoPanel.position.set(20, screenHeight - 48);
+  uiManager.registerComponent('waveInfoPanel', waveInfoPanel);
+  // Add the content panel separately to the stage so it appears on top
+  app.stage.addChild(waveInfoPanel.getContentContainer());
+  // Set wave manager reference
+  waveInfoPanel.setWaveManager(gameManager.getWaveManager());
+  if (DebugConstants.ENABLED) {
+    waveInfoPanel.show();
+  } else {
+    waveInfoPanel.hide();
+  }
 
   // Set up event handlers
   mainMenu.setStartCallback(() => {
@@ -316,6 +331,11 @@ import { DebugConstants } from './config/debugConstants';
         waveProgress: `${gameManager.getWave()}`,
         fps: currentFPS,
       });
+    }
+
+    // Update wave info panel
+    if (DebugConstants.ENABLED && waveInfoPanel.visible) {
+      waveInfoPanel.updateCurrentWave(gameManager.getWave());
     }
 
     // Show next wave button when wave is complete

@@ -5,3 +5,4 @@ export { MainMenu } from './MainMenu';
 export { TowerInfoPanel } from './TowerInfoPanel';
 export { UIComponent } from './UIComponent';
 export { UIManager } from './UIManager';
+export { WaveInfoPanel } from './WaveInfoPanel';
