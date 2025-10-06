@@ -79,6 +79,12 @@ import { DebugConstants } from './config/debugConstants';
   uiManager.registerComponent('zombieBestiary', zombieBestiary);
   // Add the content panel separately to the stage so it appears on top
   app.stage.addChild(zombieBestiary.getContentContainer());
+  
+  // Set up spawn callback for testing zombie types
+  zombieBestiary.setSpawnCallback((type: string) => {
+    console.log(`🧟 Spawning test zombie: ${type}`);
+    gameManager.getZombieManager().spawnZombieType(type);
+  });
 
   // Set up event handlers
   mainMenu.setStartCallback(() => {

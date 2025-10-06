@@ -201,4 +201,9 @@ export class ZombieManager {
   public getCorpseManager(): CorpseManager {
     return this.corpseManager;
   }
+
+  // Spawn a specific zombie type (for debugging/testing)
+  public spawnZombieType(type: string): void {
+    this.spawnZombie(type);
+  }
 }

@@ -20,7 +20,7 @@ export class ZombieBestiary extends UIComponent {
   private toggleButton!: Container;
   private contentContainer!: Container;
   private zombieCards: Container[] = [];
-  private scrollOffset: number = 0;
+  private onSpawnZombie?: (type: string) => void;
 
   private zombieData: ZombieInfo[] = [
     {
@@ -326,7 +326,43 @@ export class ZombieBestiary extends UIComponent {
       card.addChild(charText);
     });
 
+    // Spawn button (for debugging)
+    const spawnButton = new Container();
+    spawnButton.eventMode = 'static';
+    spawnButton.cursor = 'pointer';
+
+    const spawnBg = new Graphics();
+    spawnBg.roundRect(0, 0, width - padding * 2, 25, 5).fill({ color: zombie.color, alpha: 0.8 });
+    spawnBg.stroke({ width: 1, color: 0xffffff });
+    spawnButton.addChild(spawnBg);
+
+    const spawnText = new Text({
+      text: '🧟 Spawn Test',
+      style: {
+        fontFamily: 'Arial',
+        fontSize: 11,
+        fill: 0xffffff,
+        fontWeight: 'bold',
+      },
+    });
+    spawnText.anchor.set(0.5);
+    spawnText.position.set((width - padding * 2) / 2, 12.5);
+    spawnButton.addChild(spawnText);
+
+    spawnButton.position.set(padding, height - 30);
+    spawnButton.on('pointerdown', () => {
+      if (this.onSpawnZombie) {
+        this.onSpawnZombie(zombie.type);
+      }
+    });
+    card.addChild(spawnButton);
+
     return card;
+  }
+  
+  // Set callback for spawning zombies
+  public setSpawnCallback(callback: (type: string) => void): void {
+    this.onSpawnZombie = callback;
   }
 
   private createZombieVisual(type: string, color: number): Graphics {
