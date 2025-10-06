@@ -146,9 +146,19 @@ export class Tower extends GameObject implements ITower {
         // Tesla gun starts at -10, extends down by 7
         // Gun tip is at -10 + 7 = -3
         const teslaTip = -10 + 7;
-        flash.circle(0, teslaTip, 6).fill(0x00ffff);
-        flash.moveTo(-4, teslaTip).lineTo(4, teslaTip).stroke({ width: 2, color: 0xffffff });
-        flash.moveTo(0, teslaTip - 4).lineTo(0, teslaTip + 4).stroke({ width: 2, color: 0xffffff });
+        // Electric discharge effect (bright cyan core)
+        flash.circle(0, teslaTip, 8).fill({ color: 0x00ffff, alpha: 0.9 });
+        flash.circle(0, teslaTip, 5).fill({ color: 0xffffff, alpha: 0.8 });
+        // Outer glow
+        flash.circle(0, teslaTip, 12).fill({ color: 0x00ffff, alpha: 0.4 });
+        // Electric sparks radiating outward
+        for (let i = 0; i < 6; i++) {
+          const angle = (i / 6) * Math.PI * 2;
+          const sparkLength = 6 + Math.random() * 4;
+          const endX = Math.cos(angle) * sparkLength;
+          const endY = teslaTip + Math.sin(angle) * sparkLength;
+          flash.moveTo(0, teslaTip).lineTo(endX, endY).stroke({ width: 2, color: 0xffffff, alpha: 0.8 });
+        }
         break;
       default:
         flash.circle(0, 0, 4).fill(0xffff00);

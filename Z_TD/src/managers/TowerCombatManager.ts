@@ -2,7 +2,7 @@ import { Tower } from '../objects/Tower';
 import { Zombie } from '../objects/Zombie';
 import { TransformComponent } from '../components/TransformComponent';
 import { ProjectileManager } from './ProjectileManager';
-import { Container } from 'pixi.js';
+import { Container, Graphics } from 'pixi.js';
 
 export class TowerCombatManager {
   private towers: Tower[] = [];
@@ -85,6 +85,12 @@ export class TowerCombatManager {
     const damage = tower.getDamage();
     const projectileType = tower.getProjectileType();
 
+    // Tesla tower uses instant lightning arc instead of projectile
+    if (projectileType === 'tesla') {
+      this.createLightningArc(tower, spawnPos, target, damage);
+      return;
+    }
+
     // Different projectile speeds based on tower type
     let speed = 500; // Default speed
     switch (projectileType) {
@@ -96,9 +102,6 @@ export class TowerCombatManager {
         break;
       case 'flame':
         speed = 300; // Slow
-        break;
-      case 'tesla':
-        speed = 800; // Fast
         break;
     }
 
@@ -135,5 +138,99 @@ export class TowerCombatManager {
         target
       );
     }
+  }
+
+  private createLightningArc(
+    tower: Tower,
+    spawnPos: { x: number; y: number },
+    target: Zombie,
+    damage: number
+  ): void {
+    // Apply damage instantly
+    target.takeDamage(damage);
+
+    // Create visual lightning arc effect
+    const lightningGraphics = new Graphics();
+
+    // Draw arcing lightning bolt
+    const startX = spawnPos.x;
+    const startY = spawnPos.y;
+    const endX = target.position.x;
+    const endY = target.position.y;
+
+    // Calculate segments for the arc
+    const segments = 8;
+    const points: { x: number; y: number }[] = [];
+
+    for (let i = 0; i <= segments; i++) {
+      const t = i / segments;
+      const x = startX + (endX - startX) * t;
+      const y = startY + (endY - startY) * t;
+
+      // Add random offset perpendicular to the line (except for start and end)
+      if (i > 0 && i < segments) {
+        const perpX = -(endY - startY);
+        const perpY = endX - startX;
+        const length = Math.sqrt(perpX * perpX + perpY * perpY);
+        const normalizedPerpX = perpX / length;
+        const normalizedPerpY = perpY / length;
+
+        const offset = (Math.random() - 0.5) * 20; // Random offset
+        points.push({
+          x: x + normalizedPerpX * offset,
+          y: y + normalizedPerpY * offset,
+        });
+      } else {
+        points.push({ x, y });
+      }
+    }
+
+    // Draw main lightning bolt (bright cyan)
+    lightningGraphics.moveTo(points[0].x, points[0].y);
+    for (let i = 1; i < points.length; i++) {
+      lightningGraphics.lineTo(points[i].x, points[i].y);
+    }
+    lightningGraphics.stroke({ width: 3, color: 0x00ffff });
+
+    // Draw glow effect (wider, semi-transparent)
+    lightningGraphics.moveTo(points[0].x, points[0].y);
+    for (let i = 1; i < points.length; i++) {
+      lightningGraphics.lineTo(points[i].x, points[i].y);
+    }
+    lightningGraphics.stroke({ width: 6, color: 0x00ffff, alpha: 0.5 });
+
+    // Draw outer glow (even wider, more transparent)
+    lightningGraphics.moveTo(points[0].x, points[0].y);
+    for (let i = 1; i < points.length; i++) {
+      lightningGraphics.lineTo(points[i].x, points[i].y);
+    }
+    lightningGraphics.stroke({ width: 10, color: 0xffffff, alpha: 0.3 });
+
+    // Add branching arcs (smaller side bolts)
+    for (let i = 2; i < points.length - 2; i += 2) {
+      if (Math.random() > 0.5) {
+        const branchLength = 15 + Math.random() * 20;
+        const angle = Math.random() * Math.PI * 2;
+        const branchEndX = points[i].x + Math.cos(angle) * branchLength;
+        const branchEndY = points[i].y + Math.sin(angle) * branchLength;
+
+        lightningGraphics.moveTo(points[i].x, points[i].y);
+        lightningGraphics.lineTo(branchEndX, branchEndY);
+        lightningGraphics.stroke({ width: 2, color: 0x00ffff, alpha: 0.7 });
+      }
+    }
+
+    // Add to tower's parent container
+    if (tower.parent) {
+      tower.parent.addChild(lightningGraphics);
+    }
+
+    // Remove lightning after short duration
+    setTimeout(() => {
+      if (lightningGraphics.parent) {
+        lightningGraphics.parent.removeChild(lightningGraphics);
+      }
+      lightningGraphics.destroy();
+    }, 100); // Lightning lasts 100ms
   }
 }
