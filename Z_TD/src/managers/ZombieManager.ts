@@ -102,7 +102,7 @@ export class ZombieManager {
     this.corpseManager.update(deltaTime);
   }
 
-  // Spawn a single zombie
+  // Spawn a single zombie with swarm positioning
   private spawnZombie(type: string): void {
     // Get spawn position from map
     const spawnPoint = this.mapManager.getSpawnPoint();
@@ -113,12 +113,23 @@ export class ZombieManager {
       return;
     }
 
-    console.log(`Spawning zombie: ${type} at (${spawnPoint.x}, ${spawnPoint.y})`);
+    // Add random offset for swarm effect (spread zombies in a group)
+    const swarmRadius = 40; // Spread radius in pixels
+    const angle = Math.random() * Math.PI * 2; // Random angle
+    const distance = Math.random() * swarmRadius; // Random distance from center
+    
+    const offsetX = Math.cos(angle) * distance;
+    const offsetY = Math.sin(angle) * distance;
+    
+    const spawnX = spawnPoint.x + offsetX;
+    const spawnY = spawnPoint.y + offsetY;
+
+    console.log(`Spawning zombie: ${type} at (${spawnX.toFixed(1)}, ${spawnY.toFixed(1)})`);
 
     const zombie = ZombieFactory.createZombie(
       type,
-      spawnPoint.x,
-      spawnPoint.y,
+      spawnX,
+      spawnY,
       this.waveManager.getCurrentWave()
     );
 
