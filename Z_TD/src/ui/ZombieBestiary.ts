@@ -368,49 +368,222 @@ export class ZombieBestiary extends UIComponent {
   private createZombieVisual(type: string, color: number): Graphics {
     const visual = new Graphics();
 
-    // Simplified zombie representation
-    // Body
-    visual.rect(-8, 0, 16, 20).fill(color);
-    visual.stroke({ width: 1, color: 0x000000 });
-
-    // Head
-    visual.circle(0, -8, 8).fill(color);
-    visual.stroke({ width: 1, color: 0x000000 });
-
-    // Eyes (red)
-    visual.circle(-3, -8, 2).fill(0xff0000);
-    visual.circle(3, -8, 2).fill(0xff0000);
-
-    // Arms (reaching forward)
-    visual.rect(-12, 5, 4, 10).fill(color);
-    visual.rect(8, 5, 4, 10).fill(color);
-
-    // Type-specific details
+    // Use actual zombie visuals from the game
     switch (type) {
-      case GameConfig.ZOMBIE_TYPES.TANK:
-        // Make it bigger
-        visual.scale.set(1.3);
+      case GameConfig.ZOMBIE_TYPES.BASIC:
+        this.createBasicZombieVisual(visual);
         break;
-      case GameConfig.ZOMBIE_TYPES.SWARM:
-        // Make it smaller
-        visual.scale.set(0.7);
+      case GameConfig.ZOMBIE_TYPES.FAST:
+        this.createFastZombieVisual(visual);
+        break;
+      case GameConfig.ZOMBIE_TYPES.TANK:
+        this.createTankZombieVisual(visual);
         break;
       case GameConfig.ZOMBIE_TYPES.ARMORED:
-        // Add armor plates
-        visual.rect(-6, 2, 12, 8).fill(0x4a4a4a);
+        this.createArmoredZombieVisual(visual);
         break;
-      case GameConfig.ZOMBIE_TYPES.MECHANICAL:
-        // Add mechanical parts
-        visual.circle(-5, -8, 1.5).fill(0x00ffff);
-        visual.circle(5, -8, 1.5).fill(0x00ffff);
+      case GameConfig.ZOMBIE_TYPES.SWARM:
+        this.createSwarmZombieVisual(visual);
         break;
       case GameConfig.ZOMBIE_TYPES.STEALTH:
-        // Make semi-transparent
-        visual.alpha = 0.6;
+        this.createStealthZombieVisual(visual);
         break;
+      case GameConfig.ZOMBIE_TYPES.MECHANICAL:
+        this.createMechanicalZombieVisual(visual);
+        break;
+      default:
+        visual.circle(0, 0, 15).fill(0x6b8e23);
+        visual.stroke({ width: 2, color: 0x000000 });
     }
 
+    // Scale up for better visibility in bestiary
+    visual.scale.set(1.5);
+
     return visual;
+  }
+
+  // Basic Zombie Visual - Rotting flesh appearance
+  private createBasicZombieVisual(visual: Graphics): void {
+    visual.circle(0, 0, 10).fill(0x5a6a4a);
+    visual.circle(0, 0, 10).stroke({ width: 1.5, color: 0x3a4a2a });
+    visual.circle(-4, -2, 3.5).fill({ color: 0x3a4a2a, alpha: 0.8 });
+    visual.circle(4, 2, 2.5).fill({ color: 0x2a3a1a, alpha: 0.7 });
+    visual.circle(-2, 4, 2).fill({ color: 0x4a3a2a, alpha: 0.6 });
+    visual.circle(5, -3, 1.5).fill(0xe5e5cc);
+    visual.circle(-5, 3, 1.2).fill(0xe5e5cc);
+    visual.circle(-3, -3, 2).fill(0x8b0000);
+    visual.circle(-3, -3, 1.2).fill(0xff4444);
+    visual.circle(3, -3, 2).fill(0x8b0000);
+    visual.circle(3, -3, 1.2).fill(0xff4444);
+    visual.rect(-4, 3, 8, 3).fill(0x1a1a1a);
+    for (let i = 0; i < 4; i++) {
+      visual.rect(-3 + i * 2, 3, 1, 1.5).fill(0xe5e5cc);
+    }
+    visual.circle(-6, 0, 1.5).fill({ color: 0x8b0000, alpha: 0.7 });
+    visual.circle(2, 5, 1).fill({ color: 0x8b0000, alpha: 0.6 });
+  }
+
+  // Fast Zombie Visual - Leaner, more aggressive
+  private createFastZombieVisual(visual: Graphics): void {
+    visual.ellipse(0, 0, 7, 13).fill(0x6a7a3a);
+    visual.ellipse(0, 0, 7, 13).stroke({ width: 1.5, color: 0x4a5a2a });
+    visual.circle(-3, -5, 2.5).fill({ color: 0x8b2a2a, alpha: 0.8 });
+    visual.circle(4, 3, 2).fill({ color: 0x7a1a1a, alpha: 0.7 });
+    visual.circle(-2, 5, 1.5).fill({ color: 0x6a1a1a, alpha: 0.6 });
+    for (let i = 0; i < 3; i++) {
+      visual.moveTo(-4, -2 + i * 3).lineTo(4, -2 + i * 3).stroke({ width: 1, color: 0xe5e5cc, alpha: 0.6 });
+    }
+    visual.circle(-2, -6, 2.5).fill(0xff0000);
+    visual.circle(-2, -6, 1.5).fill(0xff6666);
+    visual.circle(2, -6, 2.5).fill(0xff0000);
+    visual.circle(2, -6, 1.5).fill(0xff6666);
+    visual.rect(-4, 5, 8, 3).fill(0x1a1a1a);
+    visual.moveTo(-3, 5).lineTo(-2, 8).lineTo(-1, 5).fill(0xe5e5cc);
+    visual.moveTo(1, 5).lineTo(2, 8).lineTo(3, 5).fill(0xe5e5cc);
+    visual.circle(0, 9, 1).fill({ color: 0x8b0000, alpha: 0.8 });
+    visual.circle(-2, 10, 0.8).fill({ color: 0x8b0000, alpha: 0.7 });
+  }
+
+  // Tank Zombie Visual - Massive and bloated
+  private createTankZombieVisual(visual: Graphics): void {
+    visual.roundRect(-15, -15, 30, 30, 6).fill(0x4a5a2a);
+    visual.roundRect(-15, -15, 30, 30, 6).stroke({ width: 2.5, color: 0x2a3a1a });
+    visual.circle(-6, -6, 7).fill({ color: 0x6a7a3a, alpha: 0.8 });
+    visual.circle(7, 5, 6).fill({ color: 0x5a6a2a, alpha: 0.7 });
+    visual.circle(-4, 8, 5).fill({ color: 0x7a8a4a, alpha: 0.6 });
+    visual.circle(-8, -2, 3).fill({ color: 0xaaaa44, alpha: 0.7 });
+    visual.circle(9, -4, 2.5).fill({ color: 0x999933, alpha: 0.7 });
+    visual.circle(2, 10, 2).fill({ color: 0x888822, alpha: 0.6 });
+    visual.circle(-7, -10, 2.5).fill(0x4a0000);
+    visual.circle(-7, -10, 1.5).fill(0xff0000);
+    visual.circle(7, -10, 2.5).fill(0x4a0000);
+    visual.circle(7, -10, 1.5).fill(0xff0000);
+    for (let i = 0; i < 4; i++) {
+      visual.moveTo(-12, -8 + i * 6).lineTo(12, -8 + i * 6).stroke({ width: 2, color: 0x1a1a1a });
+      for (let j = 0; j < 5; j++) {
+        visual.circle(-10 + j * 5, -8 + i * 6, 1).fill(0x1a1a1a);
+      }
+    }
+    visual.circle(10, 0, 2).fill(0xe5e5cc);
+    visual.circle(-10, 4, 1.8).fill(0xe5e5cc);
+    visual.circle(-9, 10, 2).fill({ color: 0x8b0000, alpha: 0.8 });
+    visual.circle(8, -8, 1.5).fill({ color: 0x8b0000, alpha: 0.7 });
+  }
+
+  // Armored Zombie Visual - Plated and protected
+  private createArmoredZombieVisual(visual: Graphics): void {
+    visual.circle(0, 0, 11).fill(0x5a6a4a);
+    visual.circle(0, 0, 11).stroke({ width: 1, color: 0x3a4a2a });
+    visual.rect(-10, -7, 20, 5).fill(0x5a5a5a);
+    visual.rect(-10, -7, 20, 5).stroke({ width: 1.5, color: 0x3a3a3a });
+    visual.rect(-10, 3, 20, 5).fill(0x5a5a5a);
+    visual.rect(-10, 3, 20, 5).stroke({ width: 1.5, color: 0x3a3a3a });
+    visual.circle(-7, -5, 1.5).fill({ color: 0x8b4513, alpha: 0.8 });
+    visual.circle(6, -4, 1.2).fill({ color: 0x8b4513, alpha: 0.7 });
+    visual.circle(-5, 5, 1.3).fill({ color: 0x8b4513, alpha: 0.8 });
+    visual.circle(7, 6, 1).fill({ color: 0x8b4513, alpha: 0.7 });
+    visual.moveTo(-8, -5).lineTo(-4, -3).stroke({ width: 1.5, color: 0x2a2a2a });
+    visual.moveTo(5, 5).lineTo(8, 7).stroke({ width: 1.5, color: 0x2a2a2a });
+    visual.rect(-9, -13, 18, 7).fill(0x6a6a6a);
+    visual.rect(-9, -13, 18, 7).stroke({ width: 2, color: 0x4a4a4a });
+    visual.circle(-6, -10, 1.5).fill(0x3a3a3a);
+    visual.circle(5, -11, 1.2).fill(0x3a3a3a);
+    visual.rect(-7, -10, 5, 2.5).fill(0x8b0000);
+    visual.rect(-7, -10, 3, 1.5).fill(0xff0000);
+    visual.rect(2, -10, 5, 2.5).fill(0x8b0000);
+    visual.rect(2, -10, 3, 1.5).fill(0xff0000);
+    visual.circle(-8, -5, 1).fill(0x4a4a4a);
+    visual.circle(8, -5, 1).fill(0x4a4a4a);
+    visual.circle(-8, 5, 1).fill(0x4a4a4a);
+    visual.circle(8, 5, 1).fill(0x4a4a4a);
+    visual.circle(-3, 0, 2).fill({ color: 0x8b0000, alpha: 0.6 });
+    visual.circle(4, -2, 1.5).fill({ color: 0x8b0000, alpha: 0.5 });
+  }
+
+  // Swarm Zombie Visual - Small and numerous
+  private createSwarmZombieVisual(visual: Graphics): void {
+    visual.circle(0, 0, 6).fill(0x7a8a5a);
+    visual.circle(0, 0, 6).stroke({ width: 1, color: 0x5a6a3a });
+    visual.circle(-2, -1, 2.5).fill({ color: 0x5a6a3a, alpha: 0.8 });
+    visual.circle(2, 2, 2).fill({ color: 0x4a5a2a, alpha: 0.7 });
+    visual.circle(-1, 3, 1.5).fill({ color: 0x3a4a1a, alpha: 0.6 });
+    visual.circle(3, -2, 1).fill(0xe5e5cc);
+    visual.circle(-3, 2, 0.8).fill(0xe5e5cc);
+    visual.circle(-2, -2, 1.5).fill(0x8b0000);
+    visual.circle(-2, -2, 1).fill(0xff3333);
+    visual.circle(2, -2, 1.5).fill(0x8b0000);
+    visual.circle(2, -2, 1).fill(0xff3333);
+    visual.rect(-2, 2, 4, 1.5).fill(0x1a1a1a);
+    visual.rect(-1, 2, 0.5, 1).fill(0xe5e5cc);
+    visual.rect(0.5, 2, 0.5, 1).fill(0xe5e5cc);
+    visual.circle(-3, 0, 0.8).fill({ color: 0x8b0000, alpha: 0.7 });
+    visual.circle(1, 4, 0.6).fill({ color: 0x8b0000, alpha: 0.6 });
+  }
+
+  // Stealth Zombie Visual - Shadowy and translucent
+  private createStealthZombieVisual(visual: Graphics): void {
+    visual.circle(0, 0, 12).fill({ color: 0x4a5a6a, alpha: 0.3 });
+    visual.circle(0, 0, 10).fill({ color: 0x3a4a5a, alpha: 0.5 });
+    visual.circle(0, 0, 10).stroke({ width: 1, color: 0x2a3a4a, alpha: 0.6 });
+    visual.circle(0, 0, 6).fill({ color: 0x2a3a4a, alpha: 0.7 });
+    for (let i = 0; i < 6; i++) {
+      const angle = (i / 6) * Math.PI * 2;
+      const x = Math.cos(angle) * 10;
+      const y = Math.sin(angle) * 10;
+      visual.moveTo(0, 0).lineTo(x, y).stroke({ width: 1.5, color: 0x3a4a5a, alpha: 0.4 });
+    }
+    visual.circle(-3, -3, 2.5).fill({ color: 0x00aa00, alpha: 0.9 });
+    visual.circle(-3, -3, 1.5).fill({ color: 0x00ff00, alpha: 0.9 });
+    visual.circle(3, -3, 2.5).fill({ color: 0x00aa00, alpha: 0.9 });
+    visual.circle(3, -3, 1.5).fill({ color: 0x00ff00, alpha: 0.9 });
+    visual.circle(-3, -3, 3.5).fill({ color: 0x00ff00, alpha: 0.2 });
+    visual.circle(3, -3, 3.5).fill({ color: 0x00ff00, alpha: 0.2 });
+    visual.circle(0, 0, 3).fill({ color: 0xe5e5cc, alpha: 0.3 });
+    visual.circle(-2, 2, 1.5).fill({ color: 0xe5e5cc, alpha: 0.25 });
+    visual.circle(2, 2, 1.5).fill({ color: 0xe5e5cc, alpha: 0.25 });
+  }
+
+  // Mechanical Zombie Visual - Robotic and industrial
+  private createMechanicalZombieVisual(visual: Graphics): void {
+    visual.circle(0, 0, 12).fill(0x6a7a8a);
+    visual.circle(0, 0, 12).stroke({ width: 2, color: 0x4a5a6a });
+    for (let i = 0; i < 8; i++) {
+      const angle = (i * Math.PI) / 4;
+      const x1 = Math.cos(angle) * 12;
+      const y1 = Math.sin(angle) * 12;
+      const x2 = Math.cos(angle) * 15;
+      const y2 = Math.sin(angle) * 15;
+      visual.moveTo(x1, y1).lineTo(x2, y2).stroke({ width: 2.5, color: 0x3a4a5a });
+    }
+    visual.circle(-7, -5, 2).fill({ color: 0x8b4513, alpha: 0.7 });
+    visual.circle(8, 3, 1.8).fill({ color: 0x8b4513, alpha: 0.6 });
+    visual.circle(-4, 7, 1.5).fill({ color: 0x8b4513, alpha: 0.7 });
+    visual.circle(0, 0, 7).fill(0x4a5a6a);
+    visual.circle(0, 0, 5).fill(0x3a4a5a);
+    visual.circle(0, 0, 3).fill({ color: 0xff6600, alpha: 0.6 });
+    visual.circle(-4, -5, 3).fill(0xaa8800);
+    visual.circle(-4, -5, 2).fill(0xffcc00);
+    visual.circle(-4, -5, 1).fill(0xffff00);
+    visual.circle(4, -5, 3).fill(0xaa8800);
+    visual.circle(4, -5, 2).fill(0xffcc00);
+    visual.circle(4, -5, 1).fill(0xffff00);
+    visual.circle(-4, -5, 4).fill({ color: 0xffff00, alpha: 0.3 });
+    visual.circle(4, -5, 4).fill({ color: 0xffff00, alpha: 0.3 });
+    visual.circle(-7, 0, 2).fill(0x3a3a3a);
+    visual.circle(-7, 0, 1).fill(0x5a5a5a);
+    visual.circle(7, 0, 2).fill(0x3a3a3a);
+    visual.circle(7, 0, 1).fill(0x5a5a5a);
+    visual.circle(0, 8, 2).fill(0x3a3a3a);
+    visual.circle(0, 8, 1).fill(0x5a5a5a);
+    visual.moveTo(-8, -8).lineTo(-6, -4).lineTo(-7, 0).stroke({ width: 1.5, color: 0xff6600, alpha: 0.8 });
+    visual.moveTo(8, -6).lineTo(6, -2).lineTo(7, 2).stroke({ width: 1.5, color: 0xff6600, alpha: 0.8 });
+    for (let i = 0; i < 3; i++) {
+      const angle = Math.random() * Math.PI * 2;
+      const dist = 10 + Math.random() * 3;
+      visual.circle(Math.cos(angle) * dist, Math.sin(angle) * dist, 0.8).fill({ color: 0xffff00, alpha: 0.9 });
+    }
+    visual.circle(-5, 5, 2).fill({ color: 0x1a1a1a, alpha: 0.7 });
+    visual.circle(6, -3, 1.5).fill({ color: 0x1a1a1a, alpha: 0.6 });
   }
 
   public toggle(): void {
