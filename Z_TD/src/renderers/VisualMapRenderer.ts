@@ -48,91 +48,157 @@ export class VisualMapRenderer {
 
   private renderMapBackground(mapData: MapData): void {
     // Draw apocalyptic ground texture for play area
-    // Base layer - weathered grass (brighter)
+    // Base layer - darker, more desolate ground
     this.mapContainer.rect(0, 0, mapData.width, mapData.height);
-    this.mapContainer.fill({ color: 0x4a5a3a }); // Olive green
+    this.mapContainer.fill({ color: 0x3a4a2a }); // Darker olive green
 
-    // Add organic darker grass patches with irregular shapes
-    for (let i = 0; i < 100; i++) {
+    // Add varied dirt/mud patches for texture variation
+    for (let i = 0; i < 80; i++) {
       const x = Math.random() * mapData.width;
       const y = Math.random() * mapData.height;
-      const size = 25 + Math.random() * 50;
-      const points = 5 + Math.floor(Math.random() * 4); // 5-8 points for irregular shape
+      const size = 30 + Math.random() * 60;
+      const points = 6 + Math.floor(Math.random() * 5);
 
-      // Create irregular blob shape
       this.mapContainer.moveTo(x, y);
       for (let j = 0; j < points; j++) {
         const angle = (j / points) * Math.PI * 2;
-        const radius = size * (0.7 + Math.random() * 0.6); // Vary radius for organic look
-        const px = x + Math.cos(angle) * radius;
-        const py = y + Math.sin(angle) * radius;
-        this.mapContainer.lineTo(px, py);
-      }
-      this.mapContainer.fill({ color: 0x3a4a2a, alpha: 0.3 + Math.random() * 0.3 });
-    }
-
-    // Add brown dirt patches with irregular shapes
-    for (let i = 0; i < 60; i++) {
-      const x = Math.random() * mapData.width;
-      const y = Math.random() * mapData.height;
-      const size = 20 + Math.random() * 35;
-      const points = 4 + Math.floor(Math.random() * 3);
-
-      this.mapContainer.moveTo(x, y);
-      for (let j = 0; j < points; j++) {
-        const angle = (j / points) * Math.PI * 2 + Math.random() * 0.5;
         const radius = size * (0.6 + Math.random() * 0.7);
         const px = x + Math.cos(angle) * radius;
         const py = y + Math.sin(angle) * radius;
         this.mapContainer.lineTo(px, py);
       }
-      this.mapContainer.fill({ color: 0x5a4a3a, alpha: 0.4 + Math.random() * 0.3 });
+      this.mapContainer.fill({ color: 0x4a5a3a, alpha: 0.4 + Math.random() * 0.3 });
     }
 
-    // Add small rock clusters (irregular shapes)
-    for (let i = 0; i < 40; i++) {
+    // Dead grass patches (lighter, sparse)
+    for (let i = 0; i < 120; i++) {
       const x = Math.random() * mapData.width;
       const y = Math.random() * mapData.height;
-      const size = 4 + Math.random() * 10;
-      const points = 3 + Math.floor(Math.random() * 3);
+      const size = 15 + Math.random() * 30;
+      const points = 5 + Math.floor(Math.random() * 4);
 
       this.mapContainer.moveTo(x, y);
       for (let j = 0; j < points; j++) {
         const angle = (j / points) * Math.PI * 2;
-        const radius = size * (0.8 + Math.random() * 0.4);
+        const radius = size * (0.7 + Math.random() * 0.5);
         const px = x + Math.cos(angle) * radius;
         const py = y + Math.sin(angle) * radius;
         this.mapContainer.lineTo(px, py);
       }
-      this.mapContainer.fill({ color: 0x5a5a5a, alpha: 0.5 + Math.random() * 0.3 });
+      this.mapContainer.fill({ color: 0x5a6a4a, alpha: 0.2 + Math.random() * 0.2 });
     }
 
-    // Add organic ground cracks (branching)
-    for (let i = 0; i < 25; i++) {
+    // Barren dirt patches (brown/tan)
+    for (let i = 0; i < 70; i++) {
       const x = Math.random() * mapData.width;
       const y = Math.random() * mapData.height;
-      const mainLength = 30 + Math.random() * 50;
+      const size = 25 + Math.random() * 45;
+      const points = 4 + Math.floor(Math.random() * 4);
+
+      this.mapContainer.moveTo(x, y);
+      for (let j = 0; j < points; j++) {
+        const angle = (j / points) * Math.PI * 2 + Math.random() * 0.5;
+        const radius = size * (0.5 + Math.random() * 0.8);
+        const px = x + Math.cos(angle) * radius;
+        const py = y + Math.sin(angle) * radius;
+        this.mapContainer.lineTo(px, py);
+      }
+      this.mapContainer.fill({ color: 0x6a5a4a, alpha: 0.3 + Math.random() * 0.3 });
+    }
+
+    // Scattered rocks and debris
+    for (let i = 0; i < 60; i++) {
+      const x = Math.random() * mapData.width;
+      const y = Math.random() * mapData.height;
+      const size = 3 + Math.random() * 12;
+      const points = 3 + Math.floor(Math.random() * 4);
+
+      this.mapContainer.moveTo(x, y);
+      for (let j = 0; j < points; j++) {
+        const angle = (j / points) * Math.PI * 2;
+        const radius = size * (0.7 + Math.random() * 0.5);
+        const px = x + Math.cos(angle) * radius;
+        const py = y + Math.sin(angle) * radius;
+        this.mapContainer.lineTo(px, py);
+      }
+      this.mapContainer.fill({ color: 0x5a5a5a, alpha: 0.4 + Math.random() * 0.4 });
+    }
+
+    // Small pebbles scattered around
+    for (let i = 0; i < 100; i++) {
+      const x = Math.random() * mapData.width;
+      const y = Math.random() * mapData.height;
+      const size = 1 + Math.random() * 3;
+      this.mapContainer
+        .circle(x, y, size)
+        .fill({ color: 0x6a6a6a, alpha: 0.5 + Math.random() * 0.3 });
+    }
+
+    // Add organic ground cracks (branching) - more prominent
+    for (let i = 0; i < 35; i++) {
+      const x = Math.random() * mapData.width;
+      const y = Math.random() * mapData.height;
+      const mainLength = 40 + Math.random() * 70;
       const angle = Math.random() * Math.PI * 2;
 
       // Main crack
       let currentX = x;
       let currentY = y;
-      const segments = 3 + Math.floor(Math.random() * 4);
+      const segments = 4 + Math.floor(Math.random() * 5);
 
       for (let j = 0; j < segments; j++) {
         const segmentLength = mainLength / segments;
-        const segmentAngle = angle + (Math.random() - 0.5) * 0.5;
+        const segmentAngle = angle + (Math.random() - 0.5) * 0.6;
         const nextX = currentX + Math.cos(segmentAngle) * segmentLength;
         const nextY = currentY + Math.sin(segmentAngle) * segmentLength;
 
+        // Main crack line (darker, thicker)
         this.mapContainer
           .moveTo(currentX, currentY)
           .lineTo(nextX, nextY)
-          .stroke({ width: 1 + Math.random(), color: 0x3a3a2a, alpha: 0.4 });
+          .stroke({ width: 1.5 + Math.random() * 0.5, color: 0x2a2a1a, alpha: 0.6 });
+
+        // Add small branch cracks
+        if (Math.random() > 0.6) {
+          const branchAngle = segmentAngle + (Math.random() - 0.5) * Math.PI;
+          const branchLength = segmentLength * (0.3 + Math.random() * 0.4);
+          const branchX = currentX + Math.cos(branchAngle) * branchLength;
+          const branchY = currentY + Math.sin(branchAngle) * branchLength;
+          this.mapContainer
+            .moveTo(currentX, currentY)
+            .lineTo(branchX, branchY)
+            .stroke({ width: 1, color: 0x2a2a1a, alpha: 0.4 });
+        }
 
         currentX = nextX;
         currentY = nextY;
       }
+    }
+
+    // Add weathering stains and discoloration
+    for (let i = 0; i < 40; i++) {
+      const x = Math.random() * mapData.width;
+      const y = Math.random() * mapData.height;
+      const size = 20 + Math.random() * 40;
+      this.mapContainer
+        .circle(x, y, size)
+        .fill({ color: 0x2a3a1a, alpha: 0.15 + Math.random() * 0.15 });
+    }
+
+    // Add subtle grass tufts (small details)
+    for (let i = 0; i < 150; i++) {
+      const x = Math.random() * mapData.width;
+      const y = Math.random() * mapData.height;
+      const size = 2 + Math.random() * 4;
+      // Small irregular shapes for grass
+      const points = 3 + Math.floor(Math.random() * 3);
+      this.mapContainer.moveTo(x, y);
+      for (let j = 0; j < points; j++) {
+        const angle = (j / points) * Math.PI * 2;
+        const radius = size * (0.8 + Math.random() * 0.4);
+        this.mapContainer.lineTo(x + Math.cos(angle) * radius, y + Math.sin(angle) * radius);
+      }
+      this.mapContainer.fill({ color: 0x4a5a3a, alpha: 0.3 + Math.random() * 0.2 });
     }
 
     // Draw UI panel background on the right
@@ -711,7 +777,12 @@ export class VisualMapRenderer {
         const offsetY = (Math.random() - 0.5) * 12;
         const burnSize = 8 + Math.random() * 8;
         this.mapContainer
-          .rect(burnX1 + offsetX - burnSize / 2, burnY1 + offsetY - burnSize / 2, burnSize, burnSize)
+          .rect(
+            burnX1 + offsetX - burnSize / 2,
+            burnY1 + offsetY - burnSize / 2,
+            burnSize,
+            burnSize
+          )
           .fill({ color: 0x1a1a1a, alpha: 0.3 });
       }
 
@@ -723,7 +794,12 @@ export class VisualMapRenderer {
         const offsetY = (Math.random() - 0.5) * 10;
         const burnSize = 6 + Math.random() * 6;
         this.mapContainer
-          .rect(burnX2 + offsetX - burnSize / 2, burnY2 + offsetY - burnSize / 2, burnSize, burnSize)
+          .rect(
+            burnX2 + offsetX - burnSize / 2,
+            burnY2 + offsetY - burnSize / 2,
+            burnSize,
+            burnSize
+          )
           .fill({ color: 0x1a1a1a, alpha: 0.25 });
       }
     }
@@ -1222,13 +1298,17 @@ export class VisualMapRenderer {
     const stageChildCount = this.app.stage.children.length;
     console.log('🏕️ Stage has', stageChildCount, 'children, adding camp click area');
     this.app.stage.addChild(this.campClickArea);
-    console.log('🏕️ Camp click area added, now stage has', this.app.stage.children.length, 'children');
+    console.log(
+      '🏕️ Camp click area added, now stage has',
+      this.app.stage.children.length,
+      'children'
+    );
   }
 
   public clear(): void {
     this.mapContainer.clear();
     this.pathGraphics.clear();
-    
+
     // Clean up click area
     if (this.campClickArea) {
       this.app.stage.removeChild(this.campClickArea);
