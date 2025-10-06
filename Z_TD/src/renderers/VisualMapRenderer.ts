@@ -154,102 +154,155 @@ export class VisualMapRenderer {
     if (mapData.waypoints.length < 2) return;
 
     const pathWidth = 50;
-    const cornerRadius = 30; // Radius for corner curves
+    const cornerRadius = 30;
 
-    // Build smooth path with curves at corners
-    this.mapContainer.moveTo(mapData.waypoints[0].x, mapData.waypoints[0].y);
+    // Helper function to draw path
+    const drawPathLine = (graphics: Graphics, waypoints: Waypoint[]) => {
+      graphics.moveTo(waypoints[0].x, waypoints[0].y);
 
-    // Draw the center line with curves
-    for (let i = 0; i < mapData.waypoints.length; i++) {
-      const prev = i > 0 ? mapData.waypoints[i - 1] : null;
-      const curr = mapData.waypoints[i];
-      const next = i < mapData.waypoints.length - 1 ? mapData.waypoints[i + 1] : null;
+      for (let i = 0; i < waypoints.length; i++) {
+        const prev = i > 0 ? waypoints[i - 1] : null;
+        const curr = waypoints[i];
+        const next = i < waypoints.length - 1 ? waypoints[i + 1] : null;
 
-      if (!prev) {
-        // First point - just move to it
-        this.mapContainer.moveTo(curr.x, curr.y);
-      } else if (!next) {
-        // Last point - draw straight line to it
-        this.mapContainer.lineTo(curr.x, curr.y);
-      } else {
-        // Middle point - create curved corner
-        const v1x = curr.x - prev.x;
-        const v1y = curr.y - prev.y;
-        const v2x = next.x - curr.x;
-        const v2y = next.y - curr.y;
+        if (!prev) {
+          graphics.moveTo(curr.x, curr.y);
+        } else if (!next) {
+          graphics.lineTo(curr.x, curr.y);
+        } else {
+          const v1x = curr.x - prev.x;
+          const v1y = curr.y - prev.y;
+          const v2x = next.x - curr.x;
+          const v2y = next.y - curr.y;
 
-        const len1 = Math.sqrt(v1x * v1x + v1y * v1y);
-        const len2 = Math.sqrt(v2x * v2x + v2y * v2y);
+          const len1 = Math.sqrt(v1x * v1x + v1y * v1y);
+          const len2 = Math.sqrt(v2x * v2x + v2y * v2y);
 
-        // Normalize vectors
-        const n1x = v1x / len1;
-        const n1y = v1y / len1;
-        const n2x = v2x / len2;
-        const n2y = v2y / len2;
+          const n1x = v1x / len1;
+          const n1y = v1y / len1;
+          const n2x = v2x / len2;
+          const n2y = v2y / len2;
 
-        // Calculate curve start and end points
-        const curveStart = Math.min(cornerRadius, len1 / 2);
-        const curveEnd = Math.min(cornerRadius, len2 / 2);
+          const curveStart = Math.min(cornerRadius, len1 / 2);
+          const curveEnd = Math.min(cornerRadius, len2 / 2);
 
-        const startX = curr.x - n1x * curveStart;
-        const startY = curr.y - n1y * curveStart;
-        const endX = curr.x + n2x * curveEnd;
-        const endY = curr.y + n2y * curveEnd;
+          const startX = curr.x - n1x * curveStart;
+          const startY = curr.y - n1y * curveStart;
+          const endX = curr.x + n2x * curveEnd;
+          const endY = curr.y + n2y * curveEnd;
 
-        // Draw line to curve start
-        this.mapContainer.lineTo(startX, startY);
-
-        // Draw quadratic curve through the corner
-        this.mapContainer.quadraticCurveTo(curr.x, curr.y, endX, endY);
+          graphics.lineTo(startX, startY);
+          graphics.quadraticCurveTo(curr.x, curr.y, endX, endY);
+        }
       }
-    }
+    };
 
-    // Stroke the path with width
-    this.mapContainer.stroke({ width: pathWidth, color: 0x8b7355, cap: 'round', join: 'round' });
-
-    // Add border
-    this.mapContainer.moveTo(mapData.waypoints[0].x, mapData.waypoints[0].y);
-    for (let i = 0; i < mapData.waypoints.length; i++) {
-      const prev = i > 0 ? mapData.waypoints[i - 1] : null;
-      const curr = mapData.waypoints[i];
-      const next = i < mapData.waypoints.length - 1 ? mapData.waypoints[i + 1] : null;
-
-      if (!prev) {
-        this.mapContainer.moveTo(curr.x, curr.y);
-      } else if (!next) {
-        this.mapContainer.lineTo(curr.x, curr.y);
-      } else {
-        const v1x = curr.x - prev.x;
-        const v1y = curr.y - prev.y;
-        const v2x = next.x - curr.x;
-        const v2y = next.y - curr.y;
-
-        const len1 = Math.sqrt(v1x * v1x + v1y * v1y);
-        const len2 = Math.sqrt(v2x * v2x + v2y * v2y);
-
-        const n1x = v1x / len1;
-        const n1y = v1y / len1;
-        const n2x = v2x / len2;
-        const n2y = v2y / len2;
-
-        const curveStart = Math.min(cornerRadius, len1 / 2);
-        const curveEnd = Math.min(cornerRadius, len2 / 2);
-
-        const startX = curr.x - n1x * curveStart;
-        const startY = curr.y - n1y * curveStart;
-        const endX = curr.x + n2x * curveEnd;
-        const endY = curr.y + n2y * curveEnd;
-
-        this.mapContainer.lineTo(startX, startY);
-        this.mapContainer.quadraticCurveTo(curr.x, curr.y, endX, endY);
-      }
-    }
-
+    // Draw dark border first (darker dirt edges)
+    drawPathLine(this.mapContainer, mapData.waypoints);
     this.mapContainer.stroke({
-      width: pathWidth + 4,
-      color: 0x654321,
+      width: pathWidth + 8,
+      color: 0x4a3a2a,
       cap: 'round',
       join: 'round',
+    });
+
+    // Draw main path (worn dirt)
+    drawPathLine(this.mapContainer, mapData.waypoints);
+    this.mapContainer.stroke({ width: pathWidth, color: 0x6a5a4a, cap: 'round', join: 'round' });
+
+    // Add center worn track (darker from heavy use)
+    drawPathLine(this.mapContainer, mapData.waypoints);
+    this.mapContainer.stroke({
+      width: pathWidth * 0.6,
+      color: 0x5a4a3a,
+      cap: 'round',
+      join: 'round',
+      alpha: 0.7,
+    });
+
+    // Add tire/cart tracks (two parallel lines)
+    const trackOffset = pathWidth * 0.25;
+
+    // Calculate perpendicular offsets for tracks
+    for (let i = 0; i < mapData.waypoints.length - 1; i++) {
+      const curr = mapData.waypoints[i];
+      const next = mapData.waypoints[i + 1];
+
+      const dx = next.x - curr.x;
+      const dy = next.y - curr.y;
+      const len = Math.sqrt(dx * dx + dy * dy);
+      const nx = -dy / len;
+      const ny = dx / len;
+
+      // Left track
+      this.mapContainer.moveTo(curr.x + nx * trackOffset, curr.y + ny * trackOffset);
+      this.mapContainer.lineTo(next.x + nx * trackOffset, next.y + ny * trackOffset);
+      this.mapContainer.stroke({ width: 3, color: 0x4a3a2a, alpha: 0.6 });
+
+      // Right track
+      this.mapContainer.moveTo(curr.x - nx * trackOffset, curr.y - ny * trackOffset);
+      this.mapContainer.lineTo(next.x - nx * trackOffset, next.y - ny * trackOffset);
+      this.mapContainer.stroke({ width: 3, color: 0x4a3a2a, alpha: 0.6 });
+    }
+
+    // Add dirt texture - random small patches along path
+    for (let i = 0; i < mapData.waypoints.length - 1; i++) {
+      const curr = mapData.waypoints[i];
+      const next = mapData.waypoints[i + 1];
+
+      const dx = next.x - curr.x;
+      const dy = next.y - curr.y;
+      const len = Math.sqrt(dx * dx + dy * dy);
+      const steps = Math.floor(len / 15);
+
+      for (let j = 0; j < steps; j++) {
+        const t = j / steps;
+        const x = curr.x + dx * t;
+        const y = curr.y + dy * t;
+
+        // Random dirt patches
+        if (Math.random() > 0.7) {
+          const size = 3 + Math.random() * 5;
+          const offsetX = (Math.random() - 0.5) * pathWidth * 0.6;
+          const offsetY = (Math.random() - 0.5) * pathWidth * 0.6;
+          this.mapContainer.circle(x + offsetX, y + offsetY, size).fill({
+            color: 0x4a3a2a,
+            alpha: 0.3 + Math.random() * 0.3,
+          });
+        }
+
+        // Random small rocks
+        if (Math.random() > 0.85) {
+          const size = 2 + Math.random() * 3;
+          const offsetX = (Math.random() - 0.5) * pathWidth * 0.5;
+          const offsetY = (Math.random() - 0.5) * pathWidth * 0.5;
+          this.mapContainer.circle(x + offsetX, y + offsetY, size).fill({
+            color: 0x5a5a5a,
+            alpha: 0.5 + Math.random() * 0.3,
+          });
+        }
+
+        // Footprints (small ovals)
+        if (Math.random() > 0.8) {
+          const offsetX = (Math.random() - 0.5) * pathWidth * 0.4;
+          const offsetY = (Math.random() - 0.5) * pathWidth * 0.4;
+          const angle = Math.random() * Math.PI * 2;
+          this.mapContainer.ellipse(x + offsetX, y + offsetY, 3, 5).fill({
+            color: 0x3a2a1a,
+            alpha: 0.2 + Math.random() * 0.2,
+          });
+        }
+      }
+    }
+
+    // Add edge wear - lighter dirt at edges
+    drawPathLine(this.mapContainer, mapData.waypoints);
+    this.mapContainer.stroke({
+      width: pathWidth + 4,
+      color: 0x7a6a5a,
+      cap: 'round',
+      join: 'round',
+      alpha: 0.3,
     });
   }
 
