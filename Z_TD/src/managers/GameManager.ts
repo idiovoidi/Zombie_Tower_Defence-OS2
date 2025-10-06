@@ -338,6 +338,10 @@ export class GameManager {
     return this.towerPlacementManager;
   }
 
+  public getMapRenderer(): VisualMapRenderer {
+    return this.visualMapRenderer;
+  }
+
   // Update game state
   public update(deltaTime: number): void {
     if (this.currentState === GameConfig.GAME_STATES.PLAYING) {

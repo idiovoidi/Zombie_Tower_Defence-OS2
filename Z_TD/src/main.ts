@@ -1,5 +1,6 @@
 import { Application, FederatedPointerEvent } from 'pixi.js';
 import { GameManager } from './managers/GameManager';
+import { CampUpgradeManager } from './managers/CampUpgradeManager';
 import { UIManager } from './ui/UIManager';
 import { HUD } from './ui/HUD';
 import { BottomBar } from './ui/BottomBar';
@@ -10,6 +11,7 @@ import { TowerInfoPanel } from './ui/TowerInfoPanel';
 import { DebugInfoPanel } from './ui/DebugInfoPanel';
 import { ZombieBestiary } from './ui/ZombieBestiary';
 import { WaveInfoPanel } from './ui/WaveInfoPanel';
+import { CampUpgradePanel } from './ui/CampUpgradePanel';
 import { GameConfig } from './config/gameConfig';
 import { DebugUtils } from './utils/DebugUtils';
 import { DevConfig } from './config/devConfig';
@@ -114,6 +116,44 @@ import { DebugConstants } from './config/debugConstants';
     waveInfoPanel.hide();
   }
 
+  // Create camp upgrade system
+  const campUpgradeManager = new CampUpgradeManager();
+
+  // Create camp upgrade panel
+  const campUpgradePanel = new CampUpgradePanel();
+  campUpgradePanel.setCampUpgradeManager(campUpgradeManager);
+  uiManager.registerComponent('campUpgradePanel', campUpgradePanel);
+  // Add the content panel separately to the stage so it appears on top
+  app.stage.addChild(campUpgradePanel.getContentContainer());
+  campUpgradePanel.hide(); // Hidden by default
+
+  // Set up camp upgrade callback
+  campUpgradePanel.setUpgradeCallback((upgradeId: string, cost: number) => {
+    if (gameManager.getMoney() >= cost) {
+      gameManager.spendMoney(cost);
+      DebugUtils.debug(`Purchased camp upgrade: ${upgradeId} for $${cost}`);
+      return true;
+    } else {
+      DebugUtils.debug('Not enough money for camp upgrade');
+      return false;
+    }
+  });
+
+  // Set up camp click callback (will be set after map is loaded)
+  const setupCampClickCallback = () => {
+    const mapRenderer = gameManager.getMapRenderer();
+    if (mapRenderer) {
+      DebugUtils.debug('Setting up camp click callback');
+      mapRenderer.setCampClickCallback(() => {
+        DebugUtils.debug('🏕️ Camp clicked - opening upgrade panel');
+        campUpgradePanel.show();
+      });
+      DebugUtils.debug('Camp click callback set successfully');
+    } else {
+      DebugUtils.debug('⚠️ Map renderer not available');
+    }
+  };
+
   // Set up event handlers
   mainMenu.setStartCallback(() => {
     DebugUtils.debug('Starting game from main menu');
@@ -128,6 +168,8 @@ import { DebugConstants } from './config/debugConstants';
     DebugUtils.debug(`Loading level: ${levelId}`);
     gameManager.startGameWithLevel(levelId);
     uiManager.setState(gameManager.getCurrentState());
+    // Setup camp click callback after map is loaded
+    setupCampClickCallback();
   });
 
   levelSelectMenu.setBackCallback(() => {
@@ -205,6 +247,11 @@ import { DebugConstants } from './config/debugConstants';
   app.stage.eventMode = 'static';
   app.stage.hitArea = app.screen;
   app.stage.on('pointerdown', (event: FederatedPointerEvent) => {
+    // Check if event was already handled by a child (like camp click area)
+    if (event.defaultPrevented) {
+      return;
+    }
+
     if (gameManager.getCurrentState() === GameConfig.GAME_STATES.PLAYING) {
       const placementManager = gameManager.getTowerPlacementManager();
 
@@ -272,6 +319,8 @@ import { DebugConstants } from './config/debugConstants';
     const defaultLevel = DevConfig.TESTING.DEFAULT_LEVEL || 'level1';
     gameManager.startGameWithLevel(defaultLevel);
     uiManager.setState(GameConfig.GAME_STATES.PLAYING);
+    // Setup camp click callback after map is loaded
+    setupCampClickCallback();
   }
 
   // Listen for animate update
@@ -337,6 +386,9 @@ import { DebugConstants } from './config/debugConstants';
     if (DebugConstants.ENABLED && waveInfoPanel.visible) {
       waveInfoPanel.updateCurrentWave(gameManager.getWave());
     }
+
+    // Update camp upgrade panel money
+    campUpgradePanel.setMoneyAvailable(gameManager.getMoney());
 
     // Show next wave button when wave is complete
     if (gameManager.getCurrentState() === GameConfig.GAME_STATES.WAVE_COMPLETE) {

@@ -1,4 +1,4 @@
-import { Application, Graphics } from 'pixi.js';
+import { Application, Graphics, Container } from 'pixi.js';
 import { MapManager, MapData } from '../managers/MapManager';
 import { Waypoint } from '../managers/PathfindingManager';
 
@@ -7,6 +7,8 @@ export class VisualMapRenderer {
   private mapManager: MapManager;
   private mapContainer: Graphics;
   private pathGraphics: Graphics;
+  private campClickArea: Container | null = null;
+  private onCampClickCallback: (() => void) | null = null;
 
   constructor(app: Application, mapManager: MapManager) {
     this.app = app;
@@ -17,6 +19,12 @@ export class VisualMapRenderer {
     // Add to stage at the beginning (index 0) so it renders behind everything
     this.app.stage.addChildAt(this.mapContainer, 0);
     this.app.stage.addChildAt(this.pathGraphics, 1);
+  }
+
+  public setCampClickCallback(callback: () => void): void {
+    console.log('🏕️ setCampClickCallback called, callback is:', typeof callback);
+    this.onCampClickCallback = callback;
+    console.log('🏕️ Callback stored, onCampClickCallback is now:', typeof this.onCampClickCallback);
   }
 
   public renderMap(mapName: string): void {
@@ -1154,10 +1162,78 @@ export class VisualMapRenderer {
     this.pathGraphics.circle(campX + 36, campY - 56, 1.5).fill(0x4a4a4a);
     this.pathGraphics.circle(campX - 36, campY - 44, 1.5).fill(0x4a4a4a);
     this.pathGraphics.circle(campX + 36, campY - 44, 1.5).fill(0x4a4a4a);
+
+    // Create clickable area for camp
+    this.createCampClickArea(campX, campY);
+  }
+
+  private createCampClickArea(campX: number, campY: number): void {
+    // Remove old click area if it exists
+    if (this.campClickArea) {
+      this.app.stage.removeChild(this.campClickArea);
+      this.campClickArea.destroy();
+    }
+
+    console.log('🏕️ Creating camp click area at', campX, campY);
+
+    // Create new clickable container
+    this.campClickArea = new Container();
+    this.campClickArea.eventMode = 'static';
+    this.campClickArea.cursor = 'pointer';
+
+    // Create invisible hitbox covering the camp area
+    const hitbox = new Graphics();
+    hitbox.rect(campX - 65, campY - 60, 130, 110).fill({ color: 0x000000, alpha: 0.001 });
+    hitbox.eventMode = 'static';
+    this.campClickArea.addChild(hitbox);
+
+    // Add hover effect - highlight border
+    const hoverBorder = new Graphics();
+    hoverBorder.visible = false;
+    this.campClickArea.addChild(hoverBorder);
+
+    // Hover events
+    this.campClickArea.on('pointerover', () => {
+      console.log('🏕️ Camp hover');
+      hoverBorder.clear();
+      hoverBorder.rect(campX - 65, campY - 60, 130, 110).stroke({ width: 3, color: 0xffcc00 });
+      hoverBorder.visible = true;
+    });
+
+    this.campClickArea.on('pointerout', () => {
+      console.log('🏕️ Camp hover out');
+      hoverBorder.visible = false;
+    });
+
+    // Click event
+    this.campClickArea.on('pointerdown', event => {
+      console.log('🏕️ Camp pointerdown event fired!');
+      event.stopPropagation();
+      event.preventDefault();
+      if (this.onCampClickCallback) {
+        console.log('🏕️ Calling camp click callback');
+        this.onCampClickCallback();
+      } else {
+        console.log('⚠️ No camp click callback set!');
+      }
+    });
+
+    // Add to stage at a high z-index to ensure it's on top
+    const stageChildCount = this.app.stage.children.length;
+    console.log('🏕️ Stage has', stageChildCount, 'children, adding camp click area');
+    this.app.stage.addChild(this.campClickArea);
+    console.log('🏕️ Camp click area added, now stage has', this.app.stage.children.length, 'children');
   }
 
   public clear(): void {
     this.mapContainer.clear();
     this.pathGraphics.clear();
+    
+    // Clean up click area
+    if (this.campClickArea) {
+      this.app.stage.removeChild(this.campClickArea);
+      this.campClickArea.destroy();
+      this.campClickArea = null;
+    }
   }
 }

@@ -1,4 +1,5 @@
 export { BottomBar } from './BottomBar';
+export { CampUpgradePanel } from './CampUpgradePanel';
 export { HUD } from './HUD';
 export { LevelSelectMenu } from './LevelSelectMenu';
 export { MainMenu } from './MainMenu';
