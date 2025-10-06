@@ -809,74 +809,191 @@ export class VisualMapRenderer {
     const campX = endpoint.x;
     const campY = endpoint.y;
 
-    // Wooden fence perimeter
-    this.pathGraphics.rect(campX - 60, campY - 50, 120, 100).fill(0x8b4513);
-    this.pathGraphics.stroke({ width: 3, color: 0x654321 });
+    // Outer perimeter - corrugated metal walls
+    this.pathGraphics.rect(campX - 65, campY - 55, 130, 110).fill(0x5a5a5a);
+    this.pathGraphics.stroke({ width: 4, color: 0x2a2a2a });
 
-    // Fence posts
-    for (let i = -60; i <= 60; i += 20) {
-      this.pathGraphics.rect(campX + i - 2, campY - 50, 4, 100).fill(0x654321);
-    }
-    for (let i = -50; i <= 50; i += 20) {
-      this.pathGraphics.rect(campX - 60, campY + i - 2, 120, 4).fill(0x654321);
+    // Corrugation effect on walls
+    for (let i = -65; i < 65; i += 8) {
+      this.pathGraphics.rect(campX + i, campY - 55, 4, 110).fill({ color: 0x6a6a6a, alpha: 0.5 });
     }
 
-    // Main shelter/tent
+    // Rust streaks on walls
+    for (let i = 0; i < 8; i++) {
+      const x = campX - 60 + Math.random() * 120;
+      this.pathGraphics.rect(x, campY - 55, 2, 110).fill({ color: 0x8b4513, alpha: 0.3 });
+    }
+
+    // Corner reinforcements with rivets
+    const corners = [
+      [campX - 65, campY - 55],
+      [campX + 65, campY - 55],
+      [campX - 65, campY + 55],
+      [campX + 65, campY + 55],
+    ];
+    corners.forEach(([x, y]) => {
+      // Metal corner plate
+      this.pathGraphics.rect(x - 8, y - 8, 16, 16).fill(0x4a4a4a);
+      this.pathGraphics.stroke({ width: 2, color: 0x2a2a2a });
+      // Rivets
+      this.pathGraphics.circle(x - 4, y - 4, 2).fill(0x6a6a6a);
+      this.pathGraphics.circle(x + 4, y - 4, 2).fill(0x6a6a6a);
+      this.pathGraphics.circle(x - 4, y + 4, 2).fill(0x6a6a6a);
+      this.pathGraphics.circle(x + 4, y + 4, 2).fill(0x6a6a6a);
+    });
+
+    // Main bunker/shelter - concrete and metal
+    this.pathGraphics.rect(campX - 35, campY - 15, 70, 40).fill(0x5a5a5a); // Concrete base
+    this.pathGraphics.stroke({ width: 3, color: 0x3a3a3a });
+
+    // Bunker roof - angled metal
+    this.pathGraphics
+      .moveTo(campX - 40, campY - 15)
+      .lineTo(campX, campY - 35)
+      .lineTo(campX + 40, campY - 15)
+      .lineTo(campX - 40, campY - 15)
+      .fill(0x4a4a4a);
+    this.pathGraphics.stroke({ width: 2, color: 0x2a2a2a });
+
+    // Roof panels
+    for (let i = -35; i < 35; i += 10) {
+      this.pathGraphics
+        .moveTo(campX + i, campY - 15 - Math.abs(i) * 0.5)
+        .lineTo(campX + i, campY - 15)
+        .stroke({ width: 1, color: 0x3a3a3a });
+    }
+
+    // Bunker door - reinforced metal
+    this.pathGraphics.rect(campX - 12, campY + 15, 24, 10).fill(0x3a3a3a);
+    this.pathGraphics.stroke({ width: 2, color: 0x2a2a2a });
+    // Door rivets
+    for (let x = -10; x <= 10; x += 10) {
+      this.pathGraphics.circle(campX + x, campY + 18, 1.5).fill(0x5a5a5a);
+      this.pathGraphics.circle(campX + x, campY + 22, 1.5).fill(0x5a5a5a);
+    }
+
+    // Concrete cracks
     this.pathGraphics
       .moveTo(campX - 30, campY - 10)
-      .lineTo(campX, campY - 35)
-      .lineTo(campX + 30, campY - 10)
-      .lineTo(campX - 30, campY - 10)
-      .fill(0x8b7355);
-    this.pathGraphics.rect(campX - 30, campY - 10, 60, 30).fill(0xa0826d);
-    this.pathGraphics.stroke({ width: 2, color: 0x654321 });
-
-    // Tent entrance
-    this.pathGraphics.rect(campX - 10, campY + 10, 20, 10).fill(0x4a4a4a);
-
-    // Campfire in front
-    this.pathGraphics.circle(campX, campY + 30, 8).fill(0x8b4513); // Fire pit
-    this.pathGraphics.circle(campX, campY + 30, 5).fill(0xff4500); // Fire
-    this.pathGraphics.circle(campX, campY + 28, 3).fill(0xffa500); // Flame
-
-    // Supply crates
-    this.pathGraphics.rect(campX - 45, campY - 30, 15, 15).fill(0x8b7355);
-    this.pathGraphics.stroke({ width: 1, color: 0x654321 });
-    this.pathGraphics.rect(campX - 45, campY - 10, 15, 15).fill(0x8b7355);
-    this.pathGraphics.stroke({ width: 1, color: 0x654321 });
-
-    // Watchtower
-    this.pathGraphics.rect(campX + 35, campY - 40, 20, 50).fill(0x8b7355);
-    this.pathGraphics.stroke({ width: 2, color: 0x654321 });
-    this.pathGraphics.rect(campX + 30, campY - 45, 30, 10).fill(0x654321); // Platform
-    this.pathGraphics.circle(campX + 45, campY - 40, 3).fill(0xffdbac); // Guard head
-
-    // Flag on watchtower
+      .lineTo(campX - 20, campY + 5)
+      .stroke({ width: 1, color: 0x3a3a3a, alpha: 0.7 });
     this.pathGraphics
-      .moveTo(campX + 55, campY - 45)
-      .lineTo(campX + 55, campY - 60)
-      .stroke({
-        width: 2,
-        color: 0x654321,
-      });
+      .moveTo(campX + 25, campY)
+      .lineTo(campX + 30, campY + 15)
+      .stroke({ width: 1, color: 0x3a3a3a, alpha: 0.7 });
+
+    // Sandbag barriers
+    const drawSandbag = (x: number, y: number) => {
+      this.pathGraphics.roundRect(x, y, 12, 8, 2).fill(0x8b7355);
+      this.pathGraphics.stroke({ width: 1, color: 0x654321 });
+    };
+    // Left barrier
+    drawSandbag(campX - 55, campY + 35);
+    drawSandbag(campX - 55, campY + 25);
+    drawSandbag(campX - 42, campY + 30);
+    // Right barrier
+    drawSandbag(campX + 43, campY + 35);
+    drawSandbag(campX + 43, campY + 25);
+    drawSandbag(campX + 30, campY + 30);
+
+    // Metal supply crates with caution stripes
+    const drawCrate = (x: number, y: number) => {
+      this.pathGraphics.rect(x, y, 18, 18).fill(0x4a4a4a);
+      this.pathGraphics.stroke({ width: 2, color: 0x2a2a2a });
+      // Caution stripe
+      this.pathGraphics.rect(x + 2, y + 2, 14, 4).fill(0xffcc00);
+      this.pathGraphics.rect(x + 2, y + 6, 7, 4).fill(0x1a1a1a);
+      this.pathGraphics.rect(x + 9, y + 6, 7, 4).fill(0xffcc00);
+      // Rivets
+      this.pathGraphics.circle(x + 3, y + 3, 1.5).fill(0x6a6a6a);
+      this.pathGraphics.circle(x + 15, y + 3, 1.5).fill(0x6a6a6a);
+      this.pathGraphics.circle(x + 3, y + 15, 1.5).fill(0x6a6a6a);
+      this.pathGraphics.circle(x + 15, y + 15, 1.5).fill(0x6a6a6a);
+    };
+    drawCrate(campX - 55, campY - 35);
+    drawCrate(campX - 55, campY - 15);
+    drawCrate(campX - 35, campY - 35);
+
+    // Watchtower - metal scaffolding
+    // Tower base
+    this.pathGraphics.rect(campX + 38, campY - 38, 24, 48).fill(0x4a4a4a);
+    this.pathGraphics.stroke({ width: 3, color: 0x2a2a2a });
+    // Scaffolding cross-beams
+    for (let y = -35; y < 10; y += 15) {
+      this.pathGraphics
+        .moveTo(campX + 38, campY + y)
+        .lineTo(campX + 62, campY + y)
+        .stroke({ width: 2, color: 0x3a3a3a });
+    }
+    // Vertical supports
+    this.pathGraphics.rect(campX + 40, campY - 38, 3, 48).fill(0x3a3a3a);
+    this.pathGraphics.rect(campX + 59, campY - 38, 3, 48).fill(0x3a3a3a);
+
+    // Platform with metal grating
+    this.pathGraphics.rect(campX + 33, campY - 43, 34, 8).fill(0x3a3a3a);
+    this.pathGraphics.stroke({ width: 2, color: 0x2a2a2a });
+    // Grating lines
+    for (let x = 35; x < 65; x += 4) {
+      this.pathGraphics
+        .moveTo(campX + x, campY - 43)
+        .lineTo(campX + x, campY - 35)
+        .stroke({ width: 1, color: 0x5a5a5a });
+    }
+
+    // Guard with weapon
+    this.pathGraphics.circle(campX + 50, campY - 40, 4).fill(0xffdbac); // Head
+    this.pathGraphics.rect(campX + 47, campY - 36, 6, 8).fill(0x4a4a4a); // Body (armored)
+    this.pathGraphics.rect(campX + 50, campY - 45, 1, 8).fill(0x2a2a2a); // Rifle
+
+    // Communication antenna
     this.pathGraphics
-      .moveTo(campX + 55, campY - 60)
-      .lineTo(campX + 70, campY - 55)
-      .lineTo(campX + 55, campY - 50)
-      .fill(0xff0000); // Red flag
+      .moveTo(campX + 62, campY - 43)
+      .lineTo(campX + 62, campY - 60)
+      .stroke({ width: 2, color: 0x5a5a5a });
+    // Antenna segments
+    this.pathGraphics.circle(campX + 62, campY - 60, 3).fill(0xff0000); // Red light
+    this.pathGraphics.circle(campX + 62, campY - 60, 2).fill(0xff3333);
+    this.pathGraphics
+      .moveTo(campX + 58, campY - 55)
+      .lineTo(campX + 66, campY - 55)
+      .stroke({ width: 1, color: 0x5a5a5a });
 
-    // Survivors (little people)
-    // Survivor 1
-    this.pathGraphics.circle(campX - 15, campY + 25, 4).fill(0xffdbac); // Head
-    this.pathGraphics.rect(campX - 18, campY + 29, 6, 8).fill(0x4169e1); // Body
+    // Barrel fire (oil drum)
+    this.pathGraphics.rect(campX - 8, campY + 28, 16, 12).fill(0x3a3a3a); // Drum
+    this.pathGraphics.stroke({ width: 2, color: 0x2a2a2a });
+    // Horizontal bands
+    this.pathGraphics.rect(campX - 8, campY + 30, 16, 2).fill(0x5a5a5a);
+    this.pathGraphics.rect(campX - 8, campY + 36, 16, 2).fill(0x5a5a5a);
+    // Fire
+    this.pathGraphics.circle(campX, campY + 26, 6).fill(0xff4500);
+    this.pathGraphics.circle(campX, campY + 24, 4).fill(0xffa500);
+    this.pathGraphics.circle(campX, campY + 22, 2).fill(0xffff00);
 
-    // Survivor 2
-    this.pathGraphics.circle(campX + 15, campY + 25, 4).fill(0xffdbac); // Head
-    this.pathGraphics.rect(campX + 12, campY + 29, 6, 8).fill(0x228b22); // Body
+    // Survivors with gear
+    // Survivor 1 - armed
+    this.pathGraphics.circle(campX - 15, campY + 30, 4).fill(0xffdbac); // Head
+    this.pathGraphics.rect(campX - 18, campY + 34, 6, 8).fill(0x654321); // Body
+    this.pathGraphics.rect(campX - 15, campY + 28, 1, 6).fill(0x2a2a2a); // Weapon
 
-    // "SAFE ZONE" text indicator
-    this.pathGraphics.rect(campX - 35, campY - 55, 70, 15).fill({ color: 0x228b22, alpha: 0.8 });
-    this.pathGraphics.stroke({ width: 2, color: 0x006400 });
+    // Survivor 2 - working
+    this.pathGraphics.circle(campX + 15, campY + 30, 4).fill(0xffdbac); // Head
+    this.pathGraphics.rect(campX + 12, campY + 34, 6, 8).fill(0x4a4a4a); // Body
+    this.pathGraphics.rect(campX + 18, campY + 36, 4, 1).fill(0x8b7355); // Tool
+
+    // Warning sign - "SAFE ZONE"
+    this.pathGraphics.rect(campX - 40, campY - 60, 80, 18).fill(0x3a3a3a);
+    this.pathGraphics.stroke({ width: 3, color: 0x2a2a2a });
+    // Caution stripes on edges
+    this.pathGraphics.rect(campX - 40, campY - 60, 6, 18).fill(0xffcc00);
+    this.pathGraphics.rect(campX + 34, campY - 60, 6, 18).fill(0xffcc00);
+    // Inner border
+    this.pathGraphics.rect(campX - 37, campY - 57, 74, 12).fill({ color: 0x00aa00, alpha: 0.8 });
+    this.pathGraphics.stroke({ width: 2, color: 0x008800 });
+    // Corner rivets
+    this.pathGraphics.circle(campX - 37, campY - 57, 2).fill(0x5a5a5a);
+    this.pathGraphics.circle(campX + 37, campY - 57, 2).fill(0x5a5a5a);
+    this.pathGraphics.circle(campX - 37, campY - 45, 2).fill(0x5a5a5a);
+    this.pathGraphics.circle(campX + 37, campY - 45, 2).fill(0x5a5a5a);
   }
 
   public clear(): void {
