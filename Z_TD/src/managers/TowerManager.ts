@@ -1,13 +1,5 @@
 import { GameConfig } from '../config/gameConfig';
-
-export interface TowerStats {
-  cost: number;
-  damage: number;
-  range: number;
-  fireRate: number; // shots per second
-  specialAbility?: string;
-  upgradeCostMultiplier?: number; // New property for upgrade cost scaling
-}
+import { TowerConstants, getTowerStats, type TowerStats } from '../config/towerConstants';
 
 export class TowerManager {
   private towerData: Map<string, TowerStats>;
@@ -17,57 +9,14 @@ export class TowerManager {
     this.initializeTowerData();
   }
 
-  // Initialize tower data based on design document
+  // Initialize tower data from constants
   private initializeTowerData(): void {
-    // Machine Gun Tower
-    this.towerData.set(GameConfig.TOWER_TYPES.MACHINE_GUN, {
-      cost: 100,
-      damage: 20,
-      range: 150,
-      fireRate: 10, // 10 shots per second
-      specialAbility: 'High fire rate, good against swarms',
-      upgradeCostMultiplier: 0.75, // Upgrade cost multiplier
-    });
-
-    // Sniper Tower
-    this.towerData.set(GameConfig.TOWER_TYPES.SNIPER, {
-      cost: 250,
-      damage: 150,
-      range: 400,
-      fireRate: 1, // 1 shot per second
-      specialAbility: 'High single-target damage, armor-piercing',
-      upgradeCostMultiplier: 0.75,
-    });
-
-    // Shotgun Tower
-    this.towerData.set(GameConfig.TOWER_TYPES.SHOTGUN, {
-      cost: 180,
-      damage: 40,
-      range: 100,
-      fireRate: 3, // 3 shots per second
-      specialAbility: 'Multiple target hits, good crowd control',
-      upgradeCostMultiplier: 0.75,
-    });
-
-    // Flame Tower
-    this.towerData.set(GameConfig.TOWER_TYPES.FLAME, {
-      cost: 200,
-      damage: 30,
-      range: 120,
-      fireRate: 0.75, // 0.75 shots per second (one shot every ~1.3 seconds)
-      specialAbility: 'Area damage over time, burning effect',
-      upgradeCostMultiplier: 0.75,
-    });
-
-    // Tesla Tower
-    this.towerData.set(GameConfig.TOWER_TYPES.TESLA, {
-      cost: 300,
-      damage: 80,
-      range: 200,
-      fireRate: 2, // 2 shots per second
-      specialAbility: 'Chain lightning, affects multiple targets',
-      upgradeCostMultiplier: 0.75,
-    });
+    // Load tower stats from centralized constants
+    this.towerData.set(GameConfig.TOWER_TYPES.MACHINE_GUN, TowerConstants.MACHINE_GUN);
+    this.towerData.set(GameConfig.TOWER_TYPES.SNIPER, TowerConstants.SNIPER);
+    this.towerData.set(GameConfig.TOWER_TYPES.SHOTGUN, TowerConstants.SHOTGUN);
+    this.towerData.set(GameConfig.TOWER_TYPES.FLAME, TowerConstants.FLAME);
+    this.towerData.set(GameConfig.TOWER_TYPES.TESLA, TowerConstants.TESLA);
   }
 
   // Get tower stats by type

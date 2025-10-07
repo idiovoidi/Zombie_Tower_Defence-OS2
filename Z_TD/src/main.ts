@@ -20,7 +20,7 @@ import { DebugConstants } from './config/debugConstants';
 (async () => {
   // Initialize debug utilities
   DebugUtils.setEnabled(DevConfig.DEBUG.ENABLED);
-  DebugUtils.setLogLevel(DevConfig.DEBUG.LOG_LEVEL as any);
+  DebugUtils.setLogLevel(DevConfig.DEBUG.LOG_LEVEL as unknown);
   DebugUtils.info('Initializing game...');
 
   // Create a new application
@@ -77,9 +77,9 @@ import { DebugConstants } from './config/debugConstants';
   towerInfoPanel.position.set(screenWidth - shopWidth, 550);
   uiManager.registerComponent('towerInfoPanel', towerInfoPanel);
 
-  // Create wave info panel (left side, top position)
+  // Create wave info panel (right side, top position)
   const waveInfoPanel = new WaveInfoPanel();
-  waveInfoPanel.position.set(20, screenHeight - 94);
+  waveInfoPanel.position.set(screenWidth - 20, screenHeight - 94);
   uiManager.registerComponent('waveInfoPanel', waveInfoPanel);
   // Add the content panel separately to the stage so it appears on top
   app.stage.addChild(waveInfoPanel.getContentContainer());

@@ -10,7 +10,7 @@ export const DebugConstants = {
   ENABLED: true,
 
   // Starting Resources
-  STARTING_MONEY: 10000, // Default: 500
+  STARTING_MONEY: 1000, // Default: 500
   STARTING_LIVES: 100, // Default: 100 (survivors)
   STARTING_WOOD: 1000, // Default: 0
   STARTING_METAL: 1000, // Default: 0
