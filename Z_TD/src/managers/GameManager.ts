@@ -39,11 +39,12 @@ export class GameManager {
   private towerCombatManager: TowerCombatManager;
   private projectileManager: ProjectileManager;
   private gameContainer: Container;
+  private onMoneyGainCallback: ((amount: number) => void) | null = null;
 
   constructor(app: Application) {
     this.app = app;
     this.currentState = GameConfig.GAME_STATES.MAIN_MENU;
-    
+
     // Apply debug constants if enabled
     this.money = DebugConstants.ENABLED ? DebugConstants.STARTING_MONEY : GameConfig.STARTING_MONEY;
     this.lives = DebugConstants.ENABLED ? DebugConstants.STARTING_LIVES : GameConfig.STARTING_LIVES;
@@ -54,7 +55,7 @@ export class GameManager {
       metal: DebugConstants.ENABLED ? DebugConstants.STARTING_METAL : 0,
       energy: DebugConstants.ENABLED ? DebugConstants.STARTING_ENERGY : 100,
     };
-    
+
     if (DebugConstants.ENABLED) {
       console.log('🔧 Debug Mode Enabled');
       console.log(`💰 Starting Money: ${this.money}`);
@@ -147,18 +148,18 @@ export class GameManager {
         console.log('Map rendered');
 
         this.currentState = GameConfig.GAME_STATES.PLAYING;
-        
+
         // Spawn starter tower to showcase mechanics
         this.spawnStarterTower();
-        
+
         // Spawn test towers for debugging (if enabled)
         if ((DevConfig as any).TESTING?.SPAWN_TEST_TOWERS) {
           this.spawnTestTowers();
         }
-        
+
         // Start spawning zombies
         this.zombieManager.startWave();
-        
+
         console.log(`Game started with level: ${level.name}`);
       }
     } else {
@@ -182,7 +183,7 @@ export class GameManager {
     } else {
       console.warn(`✗ Failed to place starter gunner`);
     }
-    
+
     const placedTowers = this.towerPlacementManager.getPlacedTowers();
     console.log(`Total towers placed: ${placedTowers.length}`);
   }
@@ -196,7 +197,9 @@ export class GameManager {
     ];
 
     testTowers.forEach((config, index) => {
-      console.log(`Attempting to place test tower ${index + 1}: ${config.type} at (${config.x}, ${config.y})`);
+      console.log(
+        `Attempting to place test tower ${index + 1}: ${config.type} at (${config.x}, ${config.y})`
+      );
       this.towerPlacementManager.startPlacement(config.type);
       const tower = this.towerPlacementManager.placeTower(config.x, config.y);
       if (tower) {
@@ -243,6 +246,16 @@ export class GameManager {
   // Manage resources
   public addMoney(amount: number): void {
     this.money += amount;
+
+    // Trigger money gain animation if callback is set
+    if (this.onMoneyGainCallback) {
+      this.onMoneyGainCallback(amount);
+    }
+  }
+
+  // Set callback for money gain animations
+  public setMoneyGainCallback(callback: (amount: number) => void): void {
+    this.onMoneyGainCallback = callback;
   }
 
   public spendMoney(amount: number): boolean {
@@ -378,19 +391,29 @@ export class GameManager {
         this.onWaveComplete();
       }
 
-      // Check for zombies that reached the end
-      for (const zombie of zombies) {
+      // Check for dead zombies and zombies that reached the end
+      for (let i = zombies.length - 1; i >= 0; i--) {
+        const zombie = zombies[i];
+
+        // Check if zombie is dead
+        const healthComponent = zombie.getComponent('Health');
+        if (healthComponent && !(healthComponent as unknown).isAlive()) {
+          // Award money for killing zombie
+          const reward = zombie.getReward();
+          this.addMoney(reward);
+          console.log(`💰 Zombie killed! +$${reward}`);
+          continue; // ZombieManager will remove it
+        }
+
+        // Check if zombie reached the end
         if (zombie.hasReachedEnd()) {
           // Lose lives based on zombie damage
           const damage = zombie.getDamage();
           this.loseLife(damage);
           console.log(`💀 ${zombie.getType()} zombie reached camp! -${damage} survivors`);
-          
+
           // Remove zombie after it reaches the end
-          const index = zombies.indexOf(zombie);
-          if (index > -1) {
-            (this.zombieManager as any).removeZombie(index);
-          }
+          this.zombieManager.removeZombie(i);
         }
       }
     }
@@ -400,7 +423,7 @@ export class GameManager {
   private onWaveComplete(): void {
     console.log(`Wave ${this.wave} complete!`);
     this.currentState = GameConfig.GAME_STATES.WAVE_COMPLETE;
-    
+
     // Award bonus money for completing wave
     this.addMoney(50 + this.wave * 10);
   }

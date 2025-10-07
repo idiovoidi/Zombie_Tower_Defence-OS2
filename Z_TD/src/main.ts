@@ -12,6 +12,7 @@ import { DebugInfoPanel } from './ui/DebugInfoPanel';
 import { ZombieBestiary } from './ui/ZombieBestiary';
 import { WaveInfoPanel } from './ui/WaveInfoPanel';
 import { CampUpgradePanel } from './ui/CampUpgradePanel';
+import { MoneyAnimation } from './ui/MoneyAnimation';
 import { GameConfig } from './config/gameConfig';
 import { DebugUtils } from './utils/DebugUtils';
 import { DevConfig } from './config/devConfig';
@@ -20,7 +21,7 @@ import { DebugConstants } from './config/debugConstants';
 (async () => {
   // Initialize debug utilities
   DebugUtils.setEnabled(DevConfig.DEBUG.ENABLED);
-  DebugUtils.setLogLevel(DevConfig.DEBUG.LOG_LEVEL as unknown);
+  DebugUtils.setLogLevel(DevConfig.DEBUG.LOG_LEVEL as 'debug' | 'info' | 'warn' | 'error');
   DebugUtils.info('Initializing game...');
 
   // Create a new application
@@ -35,10 +36,18 @@ import { DebugConstants } from './config/debugConstants';
   });
 
   // Append the application canvas to the document body
-  document.getElementById('pixi-container')!.appendChild(app.canvas);
+  document.getElementById('pixi-container')?.appendChild(app.canvas);
 
   // Create game manager
   const gameManager = new GameManager(app);
+
+  // Create money animation system
+  const moneyAnimation = new MoneyAnimation(app.stage);
+  
+  // Set up money gain callback
+  gameManager.setMoneyGainCallback((amount: number) => {
+    moneyAnimation.showMoneyGain(amount);
+  });
 
   // Create UI manager
   const uiManager = new UIManager(app);
@@ -344,6 +353,9 @@ import { DebugConstants } from './config/debugConstants';
 
     // Update game manager (handles zombies, waves, etc.)
     gameManager.update(deltaTime);
+
+    // Update money animations
+    moneyAnimation.update(deltaTime);
 
     // Update game systems based on current state
     if (gameManager.getCurrentState() === GameConfig.GAME_STATES.PLAYING) {

@@ -3,6 +3,7 @@ export { CampUpgradePanel } from './CampUpgradePanel';
 export { HUD } from './HUD';
 export { LevelSelectMenu } from './LevelSelectMenu';
 export { MainMenu } from './MainMenu';
+export { MoneyAnimation } from './MoneyAnimation';
 export { TowerInfoPanel } from './TowerInfoPanel';
 export { UIComponent } from './UIComponent';
 export { UIManager } from './UIManager';

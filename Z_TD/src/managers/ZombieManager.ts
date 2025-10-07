@@ -168,10 +168,11 @@ export class ZombieManager {
   }
 
   // Remove zombie from game
-  private removeZombie(index: number): void {
+  public removeZombie(index: number): Zombie {
     const zombie = this.zombies[index];
     this.container.removeChild(zombie);
     this.zombies.splice(index, 1);
+    return zombie;
   }
 
   // Get all active zombies
