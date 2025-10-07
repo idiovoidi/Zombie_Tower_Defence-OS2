@@ -165,25 +165,20 @@ export class GameManager {
 
   // Spawn test towers for debugging
   private spawnTestTowers(): void {
-    console.log('Spawning test towers...');
-    const testTowers = [
-      { x: 300, y: 300, type: GameConfig.TOWER_TYPES.MACHINE_GUN },
-      { x: 500, y: 300, type: GameConfig.TOWER_TYPES.SNIPER },
-      { x: 700, y: 300, type: GameConfig.TOWER_TYPES.SHOTGUN },
-    ];
+    console.log('Spawning starter gunner near graveyard entrance...');
+    // Place one machine gun tower near the entrance to showcase mechanics
+    const starterTower = { x: 280, y: 440, type: GameConfig.TOWER_TYPES.MACHINE_GUN };
 
-    testTowers.forEach((config, index) => {
-      console.log(`Attempting to place test tower ${index + 1}: ${config.type} at (${config.x}, ${config.y})`);
-      // Start placement mode with the tower type
-      this.towerPlacementManager.startPlacement(config.type);
-      // Place the tower
-      const tower = this.towerPlacementManager.placeTower(config.x, config.y);
-      if (tower) {
-        console.log(`✓ Test tower ${index + 1} (${config.type}) placed successfully`);
-      } else {
-        console.warn(`✗ Failed to place test tower ${index + 1} (${config.type})`);
-      }
-    });
+    console.log(`Placing starter gunner at (${starterTower.x}, ${starterTower.y})`);
+    // Start placement mode with the tower type
+    this.towerPlacementManager.startPlacement(starterTower.type);
+    // Place the tower
+    const tower = this.towerPlacementManager.placeTower(starterTower.x, starterTower.y);
+    if (tower) {
+      console.log(`✓ Starter gunner placed successfully`);
+    } else {
+      console.warn(`✗ Failed to place starter gunner`);
+    }
     
     const placedTowers = this.towerPlacementManager.getPlacedTowers();
     console.log(`Total towers placed: ${placedTowers.length}`);
