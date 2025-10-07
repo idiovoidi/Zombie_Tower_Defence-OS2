@@ -340,8 +340,16 @@ import { DebugConstants } from './config/debugConstants';
 
   app.ticker.add(() => {
     const currentTime = performance.now();
-    const deltaTime = currentTime - lastTime; // Keep in milliseconds
+    let deltaTime = currentTime - lastTime; // Keep in milliseconds
     lastTime = currentTime;
+
+    // Cap delta time to prevent huge jumps when alt-tabbing or lag spikes
+    // Use configured max delta time (converted from seconds to milliseconds)
+    const maxDeltaTime = DevConfig.PERFORMANCE.MAX_DELTA_TIME * 1000;
+    if (deltaTime > maxDeltaTime) {
+      console.warn(`⚠️ Delta time capped from ${deltaTime.toFixed(1)}ms to ${maxDeltaTime}ms`);
+      deltaTime = maxDeltaTime;
+    }
 
     // Calculate FPS
     frameCount++;
