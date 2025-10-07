@@ -9,11 +9,13 @@ The survivor camp is now clickable, allowing players to interact with it to open
 ### Visual Feedback
 
 **Hover State:**
+
 - Yellow border (3px, #ffcc00) appears around camp
 - Cursor changes to pointer
 - Indicates the camp is interactive
 
 **Click Area:**
+
 - Covers entire camp perimeter (130px × 110px)
 - Invisible hitbox with minimal alpha (0.001)
 - Positioned over the camp graphics
@@ -21,6 +23,7 @@ The survivor camp is now clickable, allowing players to interact with it to open
 ### Technical Details
 
 **VisualMapRenderer Changes:**
+
 - Added `campClickArea` Container property
 - Added `onCampClickCallback` for click handling
 - Added `setCampClickCallback()` method
@@ -28,6 +31,7 @@ The survivor camp is now clickable, allowing players to interact with it to open
 - Cleanup in `clear()` method
 
 **Click Detection:**
+
 - Area: campX ± 65px, campY -60 to +50px
 - Event mode: 'static' for interaction
 - Stops propagation to prevent map clicks
@@ -35,6 +39,7 @@ The survivor camp is now clickable, allowing players to interact with it to open
 ### Integration Points
 
 **Setup (in main.ts or GameManager):**
+
 ```typescript
 // Get the visual map renderer
 const mapRenderer = gameManager.getMapRenderer();
@@ -46,6 +51,7 @@ mapRenderer.setCampClickCallback(() => {
 ```
 
 **Camp Upgrade Panel:**
+
 ```typescript
 // Create panel
 const campUpgradePanel = new CampUpgradePanel();
@@ -70,6 +76,7 @@ campUpgradePanel.setMoneyAvailable(gameManager.getMoney());
 ## User Experience
 
 ### Opening the Menu
+
 1. Player hovers over survivor camp
 2. Yellow border appears
 3. Cursor changes to pointer
@@ -77,6 +84,7 @@ campUpgradePanel.setMoneyAvailable(gameManager.getMoney());
 5. Camp Upgrade panel opens
 
 ### Visual Cues
+
 - **Hover**: Yellow highlight indicates interactivity
 - **Cursor**: Pointer cursor shows clickability
 - **Feedback**: Immediate panel opening on click
@@ -84,6 +92,7 @@ campUpgradePanel.setMoneyAvailable(gameManager.getMoney());
 ## Future Enhancements
 
 ### Additional Interactions
+
 1. **Keyboard Shortcut**: Press 'C' to open camp menu
 2. **UI Button**: Dedicated button in HUD
 3. **Tooltip**: "Click to upgrade camp" on hover
@@ -91,6 +100,7 @@ campUpgradePanel.setMoneyAvailable(gameManager.getMoney());
 5. **Sound**: Click sound effect
 
 ### Visual Improvements
+
 1. **Glow Effect**: Subtle glow when hoverable
 2. **Icon Indicator**: Small upgrade icon above camp
 3. **Badge**: Show available upgrades count
@@ -98,6 +108,7 @@ campUpgradePanel.setMoneyAvailable(gameManager.getMoney());
 5. **Particle Effect**: Sparkles when hoverable
 
 ### Accessibility
+
 1. **Keyboard Navigation**: Tab to select, Enter to open
 2. **Screen Reader**: Announce "Survivor Camp - Click to upgrade"
 3. **High Contrast**: More visible hover state
@@ -106,6 +117,7 @@ campUpgradePanel.setMoneyAvailable(gameManager.getMoney());
 ## Testing
 
 ### Manual Testing
+
 1. Start game
 2. Hover over survivor camp
 3. Verify yellow border appears
@@ -115,6 +127,7 @@ campUpgradePanel.setMoneyAvailable(gameManager.getMoney());
 7. Verify hover still works
 
 ### Edge Cases
+
 - Click during wave: Should still work
 - Click while placing tower: Should cancel placement
 - Multiple rapid clicks: Should not open multiple panels
@@ -125,7 +138,6 @@ campUpgradePanel.setMoneyAvailable(gameManager.getMoney());
 - **Clickable Area**: `src/renderers/VisualMapRenderer.ts`
   - `createCampClickArea()` method
   - `setCampClickCallback()` method
-  
 - **Camp Upgrade Panel**: `src/ui/CampUpgradePanel.ts`
   - `show()` / `hide()` methods
   - Upgrade button handling
@@ -141,7 +153,7 @@ campUpgradePanel.setMoneyAvailable(gameManager.getMoney());
 ✅ **Discoverable**: Hover effect guides players  
 ✅ **Responsive**: Immediate visual feedback  
 ✅ **Clean**: No extra UI clutter  
-✅ **Thematic**: Fits the game's aesthetic  
+✅ **Thematic**: Fits the game's aesthetic
 
 ---
 
