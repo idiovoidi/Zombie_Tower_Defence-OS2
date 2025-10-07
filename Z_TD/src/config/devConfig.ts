@@ -34,6 +34,6 @@ export const DevConfig = {
     UNLOCK_ALL_LEVELS: true,
     INFINITE_RESOURCES: false,
     NO_COOLDOWN: false,
-    SPAWN_TEST_TOWERS: true,
+    SPAWN_TEST_TOWERS: false,
   },
 };

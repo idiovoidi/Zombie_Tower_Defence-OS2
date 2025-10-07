@@ -77,7 +77,21 @@ import { DebugConstants } from './config/debugConstants';
   towerInfoPanel.position.set(screenWidth - shopWidth, 550);
   uiManager.registerComponent('towerInfoPanel', towerInfoPanel);
 
-  // Create debug info panel (right side, below tower info panel)
+  // Create wave info panel (left side, top position)
+  const waveInfoPanel = new WaveInfoPanel();
+  waveInfoPanel.position.set(20, screenHeight - 94);
+  uiManager.registerComponent('waveInfoPanel', waveInfoPanel);
+  // Add the content panel separately to the stage so it appears on top
+  app.stage.addChild(waveInfoPanel.getContentContainer());
+  // Set wave manager reference
+  waveInfoPanel.setWaveManager(gameManager.getWaveManager());
+  if (DebugConstants.ENABLED) {
+    waveInfoPanel.show();
+  } else {
+    waveInfoPanel.hide();
+  }
+
+  // Create debug info panel (right side, below wave info panel)
   const debugInfoPanel = new DebugInfoPanel();
   debugInfoPanel.position.set(screenWidth - 20, screenHeight - 48);
   uiManager.registerComponent('debugInfoPanel', debugInfoPanel);
@@ -101,20 +115,6 @@ import { DebugConstants } from './config/debugConstants';
     console.log(`🧟 Spawning test zombie: ${type}`);
     gameManager.getZombieManager().spawnZombieType(type);
   });
-
-  // Create wave info panel (left side, below debug panel)
-  const waveInfoPanel = new WaveInfoPanel();
-  waveInfoPanel.position.set(20, screenHeight - 48);
-  uiManager.registerComponent('waveInfoPanel', waveInfoPanel);
-  // Add the content panel separately to the stage so it appears on top
-  app.stage.addChild(waveInfoPanel.getContentContainer());
-  // Set wave manager reference
-  waveInfoPanel.setWaveManager(gameManager.getWaveManager());
-  if (DebugConstants.ENABLED) {
-    waveInfoPanel.show();
-  } else {
-    waveInfoPanel.hide();
-  }
 
   // Create camp upgrade system
   const campUpgradeManager = new CampUpgradeManager();
