@@ -106,7 +106,12 @@ export class BottomBar extends UIComponent {
     return rivet;
   }
 
-  private createInfoPanel(label: string, prefix: string, valueColor: number, width: number): Container {
+  private createInfoPanel(
+    label: string,
+    prefix: string,
+    valueColor: number,
+    width: number
+  ): Container {
     const panel = new Container();
 
     // Panel background - concrete
@@ -352,7 +357,7 @@ export class BottomBar extends UIComponent {
       text.style.fill = 0x00ff00;
     });
 
-    button.on('pointerdown', (event) => {
+    button.on('pointerdown', event => {
       event.stopPropagation();
       if (this.nextWaveCallback) {
         this.nextWaveCallback();

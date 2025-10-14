@@ -12,6 +12,7 @@ import { DebugInfoPanel } from './ui/DebugInfoPanel';
 import { ZombieBestiary } from './ui/ZombieBestiary';
 import { WaveInfoPanel } from './ui/WaveInfoPanel';
 import { CampUpgradePanel } from './ui/CampUpgradePanel';
+import { AIControlPanel } from './ui/AIControlPanel';
 import { MoneyAnimation } from './ui/MoneyAnimation';
 import { GameConfig } from './config/gameConfig';
 import { DebugUtils } from './utils/DebugUtils';
@@ -123,6 +124,18 @@ import { DebugConstants } from './config/debugConstants';
   zombieBestiary.setSpawnCallback((type: string) => {
     console.log(`🧟 Spawning test zombie: ${type}`);
     gameManager.getZombieManager().spawnZombieType(type);
+  });
+
+  // Create AI control panel (left side, below wave info)
+  const aiControlPanel = new AIControlPanel();
+  aiControlPanel.position.set(20, screenHeight - 94);
+  uiManager.registerComponent('aiControlPanel', aiControlPanel);
+  app.stage.addChild(aiControlPanel);
+
+  // Set up AI toggle callback
+  aiControlPanel.setToggleCallback((enabled: boolean) => {
+    DebugUtils.debug(`AI Player ${enabled ? 'enabled' : 'disabled'}`);
+    gameManager.getAIPlayerManager().setEnabled(enabled);
   });
 
   // Create camp upgrade system
@@ -421,4 +434,19 @@ import { DebugConstants } from './config/debugConstants';
   });
 
   DebugUtils.info('Game initialized successfully');
+
+  // Expose wave balancing tools to console for testing
+  if (DevConfig.DEBUG.ENABLED) {
+    (window as any).waveBalance = async () => {
+      const { WaveBalancing, printWaveBalance } = await import('./config/waveBalancing');
+      (window as any).WaveBalancing = WaveBalancing;
+      (window as any).printWaveBalance = printWaveBalance;
+      console.log('Wave balancing tools loaded!');
+      console.log('Usage:');
+      console.log('  printWaveBalance(1, 10) - Print balance report for waves 1-10');
+      console.log('  WaveBalancing.updateConfig({ difficultyMultiplier: 1.5 }) - Adjust difficulty');
+      console.log('  WaveBalancing.calculateZombieHealth(5) - Get zombie health for wave 5');
+    };
+    console.log('💡 Type waveBalance() in console to load wave balancing tools');
+  }
 })();

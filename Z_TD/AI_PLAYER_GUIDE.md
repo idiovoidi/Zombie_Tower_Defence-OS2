@@ -7,14 +7,17 @@ The AI Player is a basic automated system that plays the game for you, useful fo
 ## How to Use
 
 1. **Start the game** - Load any level
-2. **Click the "AI: OFF" button** in the bottom bar (left side)
-3. The button will turn green and show "AI: ON"
-4. The AI will automatically place and upgrade towers
-5. Click the button again to disable the AI
+2. **Click the robot icon button** on the left side of the screen (floating panel)
+3. The button will turn green and show "ON"
+4. The AI will automatically:
+   - Place and upgrade towers
+   - Progress to the next wave (2 second delay after wave complete)
+   - Log performance metrics every 10 seconds
+5. Click the button again to disable the AI and see the final report
 
 ## AI Strategy
 
-The AI follows a simple but effective strategy:
+The AI follows a simple but effective strategy focused on building diverse tower compositions:
 
 ### Tower Placement
 
@@ -23,23 +26,23 @@ The AI follows a simple but effective strategy:
 - Maintains minimum distance from other towers
 - Avoids placing towers on the path
 
-### Tower Selection by Wave
+### Tower Selection Strategy
 
-**Early Game (Waves 1-5):**
-- Focuses on Machine Gun towers
-- Builds economy with consistent kills
+**Target Composition (All Waves):**
+- 40% Machine Gun (DPS backbone)
+- 25% Sniper (high damage, long range)
+- 15% Shotgun (area damage)
+- 10% Tesla (chain lightning)
+- 10% Flame (damage over time)
 
-**Mid Game (Waves 6-10):**
-- Primarily Machine Gun towers
-- Adds 1-2 Sniper towers once 3+ Machine Guns are placed
+**Wave-Based Unlocks:**
+- Wave 1+: Machine Gun (minimum 2 for early defense)
+- Wave 3+: Sniper towers
+- Wave 5+: Shotgun towers
+- Wave 7+: Tesla towers
+- Wave 9+: Flame towers
 
-**Late Game (Wave 11+):**
-- Diverse tower mix with priority order:
-  1. Sniper (max 3)
-  2. Shotgun (max 2)
-  3. Tesla (max 2)
-  4. Machine Gun (unlimited)
-  5. Flame (max 1)
+The AI builds towers to maintain these target ratios, ensuring a balanced and diverse defense from the start
 
 ### Upgrade Strategy
 
@@ -50,6 +53,12 @@ The AI follows a simple but effective strategy:
   3. Shotgun towers
   4. Lower-level towers (spreads upgrades evenly)
 - Never upgrades beyond max level
+
+### Wave Progression
+
+- Automatically starts the next wave after completion
+- 2 second delay between waves (allows for brief analysis)
+- Continues until game over or AI is disabled
 
 ### Decision Timing
 
@@ -82,14 +91,45 @@ This is a **basic AI** designed for testing, not competitive play:
 - Doesn't react to specific zombie types
 - Doesn't optimize tower positioning dynamically
 
+## Performance Logging
+
+The AI automatically logs detailed performance metrics:
+
+### Periodic Reports (Every 10 seconds)
+- Current wave and highest wave reached
+- Lives remaining and lives lost
+- Money available and total spent
+- Towers built and upgraded
+- Tower composition breakdown with percentages
+
+### Final Report (When AI is disabled)
+- Session duration
+- Highest wave reached
+- Survival rate percentage
+- Total money spent
+- Average build rate (towers/minute)
+- Complete tower composition
+- Performance rating (⭐ to ⭐⭐⭐⭐⭐)
+- Defense rating (🛡️ Perfect to ❌ Weak)
+
+All logs are prefixed with 🤖 for easy filtering in the console.
+
 ## Use Cases
 
 Perfect for:
-- **Balance Testing** - See how far the AI can progress
-- **Tower Effectiveness** - Compare different tower combinations
-- **Wave Difficulty** - Test if waves are too easy/hard
-- **Performance Testing** - Run the game at high speed
-- **AFK Farming** - Let the AI play while you do other things
+- **Balance Testing** - See how far the AI can progress with detailed metrics
+- **Tower Effectiveness** - Compare different tower combinations via composition logs
+- **Wave Difficulty** - Test if waves are too easy/hard based on survival rates
+- **Alpha Testing** - Automated playtesting with comprehensive performance data
+- **Regression Testing** - Verify game balance after changes
+
+## UI Location
+
+The AI control panel is a floating button on the **left side** of the screen:
+- Position: Bottom left, similar to Wave Info panel
+- Icon: Robot face with antenna
+- Status: Shows "ON" (green) or "OFF" (gray)
+- Always visible during gameplay
 
 ## Console Commands
 
@@ -107,6 +147,9 @@ gameManager.getAIPlayerManager().isEnabled();
 
 // Reset AI state
 gameManager.getAIPlayerManager().reset();
+
+// Get current stats
+gameManager.getAIPlayerManager().getStats();
 ```
 
 ## Future Improvements

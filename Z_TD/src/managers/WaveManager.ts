@@ -1,3 +1,11 @@
+/**
+ * Wave Manager
+ * 
+ * For wave balancing, use the WaveBalancing system in config/waveBalancing.ts
+ * In browser console, type: waveBalance() to load balancing tools
+ * Then use: printWaveBalance(1, 10) to see balance report
+ */
+
 import { GameConfig } from '../config/gameConfig';
 import { ZombieFactory } from '../objects/ZombieFactory';
 

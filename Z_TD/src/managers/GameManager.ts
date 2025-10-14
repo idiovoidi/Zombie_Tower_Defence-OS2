@@ -11,6 +11,7 @@ import { ResourceManager } from './ResourceManager';
 import { UpgradeSystem } from './UpgradeSystem';
 import { TowerCombatManager } from './TowerCombatManager';
 import { ProjectileManager } from './ProjectileManager';
+import { AIPlayerManager } from './AIPlayerManager';
 import { Tower } from '../objects/Tower';
 import { DevConfig } from '../config/devConfig';
 import { DebugConstants, applyDebugConstants } from '../config/debugConstants';
@@ -38,6 +39,7 @@ export class GameManager {
   private upgradeSystem: UpgradeSystem;
   private towerCombatManager: TowerCombatManager;
   private projectileManager: ProjectileManager;
+  private aiPlayerManager: AIPlayerManager;
   private gameContainer: Container;
   private onMoneyGainCallback: ((amount: number) => void) | null = null;
 
@@ -85,6 +87,7 @@ export class GameManager {
     this.projectileManager = new ProjectileManager(this.gameContainer);
     this.towerCombatManager = new TowerCombatManager();
     this.towerCombatManager.setProjectileManager(this.projectileManager);
+    this.aiPlayerManager = new AIPlayerManager(this);
 
     // Set up tower placement callbacks
     this.setupTowerPlacementCallbacks();
@@ -373,9 +376,16 @@ export class GameManager {
     return this.visualMapRenderer;
   }
 
+  public getAIPlayerManager(): AIPlayerManager {
+    return this.aiPlayerManager;
+  }
+
   // Update game state
   public update(deltaTime: number): void {
     if (this.currentState === GameConfig.GAME_STATES.PLAYING) {
+      // Update AI player
+      this.aiPlayerManager.update(deltaTime);
+
       // Update zombie manager
       this.zombieManager.update(deltaTime);
 
@@ -396,8 +406,10 @@ export class GameManager {
         const zombie = zombies[i];
 
         // Check if zombie is dead
-        const healthComponent = zombie.getComponent('Health');
-        if (healthComponent && !(healthComponent as unknown).isAlive()) {
+        const healthComponent = zombie.getComponent('Health') as unknown as {
+          isAlive: () => boolean;
+        };
+        if (healthComponent && !healthComponent.isAlive()) {
           // Award money for killing zombie
           const reward = zombie.getReward();
           this.addMoney(reward);
