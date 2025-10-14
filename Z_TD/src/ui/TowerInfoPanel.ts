@@ -71,7 +71,7 @@ export class TowerInfoPanel extends UIComponent {
 
     // Upgrade button
     this.upgradeButton = this.createButton('Upgrade', 10, 200, 0x00aa00);
-    this.upgradeButton.on('pointerdown', (event) => {
+    this.upgradeButton.on('pointerdown', event => {
       event.stopPropagation();
       if (this.onUpgradeCallback) {
         this.onUpgradeCallback();
@@ -81,7 +81,7 @@ export class TowerInfoPanel extends UIComponent {
 
     // Sell button
     this.sellButton = this.createButton('Sell', 10, 250, 0xaa0000);
-    this.sellButton.on('pointerdown', (event) => {
+    this.sellButton.on('pointerdown', event => {
       event.stopPropagation();
       if (this.onSellCallback) {
         this.onSellCallback();

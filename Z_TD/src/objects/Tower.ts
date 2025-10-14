@@ -111,7 +111,7 @@ export class Tower extends GameObject implements ITower {
   public showShootingEffect(): void {
     // Create temporary muzzle flash on the barrel
     const flash = new Graphics();
-    
+
     switch (this.type) {
       case GameConfig.TOWER_TYPES.MACHINE_GUN:
         // Gun starts at -10, extends down by gunLength (8 + upgradeLevel)
@@ -154,7 +154,9 @@ export class Tower extends GameObject implements ITower {
           const particleY = flameTip + Math.sin(angle) * dist;
           const particleSize = 2 + Math.random() * 3;
           const particleColor = Math.random() > 0.5 ? 0xff6347 : 0xff8c00;
-          flash.circle(particleX, particleY, particleSize).fill({ color: particleColor, alpha: 0.8 });
+          flash
+            .circle(particleX, particleY, particleSize)
+            .fill({ color: particleColor, alpha: 0.8 });
         }
         // Smoke puff
         flash.circle(0, flameTip + 8, 6).fill({ color: 0x4a4a4a, alpha: 0.4 });
@@ -174,7 +176,10 @@ export class Tower extends GameObject implements ITower {
           const sparkLength = 6 + Math.random() * 4;
           const endX = Math.cos(angle) * sparkLength;
           const endY = teslaTip + Math.sin(angle) * sparkLength;
-          flash.moveTo(0, teslaTip).lineTo(endX, endY).stroke({ width: 2, color: 0xffffff, alpha: 0.8 });
+          flash
+            .moveTo(0, teslaTip)
+            .lineTo(endX, endY)
+            .stroke({ width: 2, color: 0xffffff, alpha: 0.8 });
         }
         break;
       default:
@@ -311,8 +316,14 @@ export class Tower extends GameObject implements ITower {
       this.visual.rect(-12, -10, 24, towerHeight).fill(0x5a5a5a); // Metal frame
       this.visual.stroke({ width: 2, color: 0x3a3a3a });
       // Cross braces
-      this.visual.moveTo(-10, 0).lineTo(10, towerHeight - 15).stroke({ width: 2, color: 0x4a4a4a });
-      this.visual.moveTo(10, 0).lineTo(-10, towerHeight - 15).stroke({ width: 2, color: 0x4a4a4a });
+      this.visual
+        .moveTo(-10, 0)
+        .lineTo(10, towerHeight - 15)
+        .stroke({ width: 2, color: 0x4a4a4a });
+      this.visual
+        .moveTo(10, 0)
+        .lineTo(-10, towerHeight - 15)
+        .stroke({ width: 2, color: 0x4a4a4a });
       // Metal roof
       this.visual.moveTo(-12, -10).lineTo(0, -18).lineTo(12, -10).fill(0x4a4a4a);
       // Firing slit
@@ -395,7 +406,7 @@ export class Tower extends GameObject implements ITower {
       this.visual.rect(8, -5, bunkerWidth / 2 - 12, 10).fill(0x4a4a4a);
       // Sandbags on top
       for (let i = 0; i < 4; i++) {
-        const x = -bunkerWidth / 2 + 10 + (i * (bunkerWidth - 20) / 3);
+        const x = -bunkerWidth / 2 + 10 + (i * (bunkerWidth - 20)) / 3;
         this.visual.roundRect(x, -10, 8, 6, 2).fill(0x8b7355);
       }
       // Firing slit
@@ -559,8 +570,14 @@ export class Tower extends GameObject implements ITower {
       this.visual.rect(-towerWidth / 2, -5, towerWidth, 25).fill(0x5a5a5a); // Metal base
       this.visual.stroke({ width: 2, color: 0x3a3a3a });
       // Exposed wiring
-      this.visual.moveTo(-towerWidth / 2 + 5, 0).lineTo(towerWidth / 2 - 5, 0).stroke({ width: 2, color: 0x00ced1 });
-      this.visual.moveTo(-towerWidth / 2 + 5, 10).lineTo(towerWidth / 2 - 5, 10).stroke({ width: 2, color: 0x00ced1 });
+      this.visual
+        .moveTo(-towerWidth / 2 + 5, 0)
+        .lineTo(towerWidth / 2 - 5, 0)
+        .stroke({ width: 2, color: 0x00ced1 });
+      this.visual
+        .moveTo(-towerWidth / 2 + 5, 10)
+        .lineTo(towerWidth / 2 - 5, 10)
+        .stroke({ width: 2, color: 0x00ced1 });
       // Makeshift panels
       this.visual.rect(-12, 2, 8, 6).fill(0x4a4a4a);
       this.visual.rect(4, 2, 8, 6).fill(0x4a4a4a);
@@ -580,7 +597,7 @@ export class Tower extends GameObject implements ITower {
       }
       // Multiple indicators
       for (let i = 0; i < 4; i++) {
-        const x = -towerWidth / 2 + 10 + (i * (towerWidth - 20) / 3);
+        const x = -towerWidth / 2 + 10 + (i * (towerWidth - 20)) / 3;
         this.visual.circle(x, 3, 2).fill(0x00ffff);
       }
     } else {
@@ -597,7 +614,7 @@ export class Tower extends GameObject implements ITower {
       // Advanced indicators
       const indicatorCount = 6;
       for (let i = 0; i < indicatorCount; i++) {
-        const x = -towerWidth / 2 + 8 + (i * (towerWidth - 16) / (indicatorCount - 1));
+        const x = -towerWidth / 2 + 8 + (i * (towerWidth - 16)) / (indicatorCount - 1);
         this.visual.circle(x, 3, 2.5).fill(0x00ffff);
         this.visual.circle(x, 3, 1.5).fill(0xffffff);
       }
@@ -626,7 +643,10 @@ export class Tower extends GameObject implements ITower {
     // Electric arcs
     for (let i = 0; i < Math.min(this.upgradeLevel, 3); i++) {
       const offset = i * 2;
-      this.barrel.moveTo(-2, -8 + offset).lineTo(2, -6 + offset).stroke({ width: 1, color: 0xffffff });
+      this.barrel
+        .moveTo(-2, -8 + offset)
+        .lineTo(2, -6 + offset)
+        .stroke({ width: 1, color: 0xffffff });
     }
     // Head
     this.barrel.circle(0, -18, 5).fill(0xffdbac);
@@ -776,14 +796,15 @@ export class Tower extends GameObject implements ITower {
     const starCount = Math.min(this.upgradeLevel - 1, 5);
     const starSize = 3;
     const spacing = 8;
-    const startX = -(starCount - 1) * spacing / 2;
+    const startX = (-(starCount - 1) * spacing) / 2;
 
     for (let i = 0; i < starCount; i++) {
       const x = startX + i * spacing;
       const y = -30;
-      
+
       // Draw a simple star
-      this.visual.moveTo(x, y - starSize)
+      this.visual
+        .moveTo(x, y - starSize)
         .lineTo(x + starSize * 0.3, y - starSize * 0.3)
         .lineTo(x + starSize, y)
         .lineTo(x + starSize * 0.3, y + starSize * 0.3)

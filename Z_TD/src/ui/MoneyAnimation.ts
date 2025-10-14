@@ -25,13 +25,13 @@ export class MoneyAnimation {
     });
 
     text.anchor.set(0, 1); // Anchor bottom-left
-    
+
     // Position in bottom left corner (with some padding)
     // Stack animations vertically, offset by existing animations
     const baseX = 20;
     const baseY = window.innerHeight - 100; // Above bottom bar
     const verticalOffset = this.animations.length * 35; // Stack upward
-    
+
     text.position.set(baseX, baseY - verticalOffset);
     text.alpha = 1;
 
@@ -66,12 +66,12 @@ export class MoneyAnimation {
         // Update animation
         // Float upward slowly
         anim.text.y -= deltaTime * 0.03;
-        
+
         // Fade out in the last 40% of animation
         if (progress > 0.6) {
-          anim.text.alpha = 1 - ((progress - 0.6) / 0.4);
+          anim.text.alpha = 1 - (progress - 0.6) / 0.4;
         }
-        
+
         // Slight scale pulse at the start
         if (progress < 0.2) {
           const scale = 1 + (1 - progress / 0.2) * 0.2;

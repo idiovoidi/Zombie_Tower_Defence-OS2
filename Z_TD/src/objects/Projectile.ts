@@ -137,10 +137,10 @@ export class Projectile extends Container {
   private createFirePool(): void {
     // Create lingering fire pool on the ground
     const firePool = new Graphics();
-    
+
     // Draw fire pool with multiple layers
     const poolSize = 25;
-    
+
     // Outer smoke/heat distortion
     for (let i = 0; i < 8; i++) {
       const angle = (i / 8) * Math.PI * 2;
@@ -150,7 +150,7 @@ export class Projectile extends Container {
       const size = 6 + Math.random() * 4;
       firePool.circle(x, y, size).fill({ color: 0x4a4a4a, alpha: 0.3 });
     }
-    
+
     // Fire particles
     for (let i = 0; i < 15; i++) {
       const angle = Math.random() * Math.PI * 2;
@@ -158,7 +158,7 @@ export class Projectile extends Container {
       const x = Math.cos(angle) * dist;
       const y = Math.sin(angle) * dist;
       const size = 3 + Math.random() * 5;
-      
+
       // Color varies from yellow center to red edges
       const distRatio = dist / poolSize;
       let color: number;
@@ -169,27 +169,27 @@ export class Projectile extends Container {
       } else {
         color = Math.random() > 0.5 ? 0xff4500 : 0xff6347; // Red edges
       }
-      
+
       firePool.circle(x, y, size).fill({ color, alpha: 0.7 + Math.random() * 0.3 });
     }
-    
+
     // Hot core
     firePool.circle(0, 0, 8).fill({ color: 0xffffff, alpha: 0.9 });
     firePool.circle(0, 0, 12).fill({ color: 0xffff00, alpha: 0.7 });
     firePool.circle(0, 0, 16).fill({ color: 0xffa500, alpha: 0.5 });
-    
+
     // Add fire pool to parent at current position
     if (this.parent) {
       firePool.position.set(this.position.x, this.position.y);
       this.parent.addChild(firePool);
-      
+
       // Animate fire pool fading out
       let elapsed = 0;
       const duration = 2000; // Fire lasts 2 seconds
       const fadeInterval = setInterval(() => {
         elapsed += 50;
         const progress = elapsed / duration;
-        
+
         if (progress >= 1) {
           clearInterval(fadeInterval);
           if (firePool.parent) {
@@ -202,7 +202,7 @@ export class Projectile extends Container {
         }
       }, 50);
     }
-    
+
     // Destroy the projectile immediately
     this.destroy();
   }

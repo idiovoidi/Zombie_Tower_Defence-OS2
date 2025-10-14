@@ -3,13 +3,16 @@
 ## Changes Made
 
 ### 1. Tower Shop (TowerShop.ts)
+
 **Before:**
+
 - Fixed height of 500px
 - Positioned at (1040, 20)
 - Didn't extend to screen bottom
 - Hardcoded dimensions
 
 **After:**
+
 - Full screen height (768px)
 - Positioned at right edge (1060, 0)
 - Uses `GameConfig.SCREEN_HEIGHT`
@@ -17,13 +20,16 @@
 - Better visual alignment
 
 ### 2. Bottom Bar (BottomBar.ts)
+
 **Before:**
+
 - Fixed width of 1280px (full screen)
 - Fixed panel widths (180px, 220px)
 - Overlapped with shop area
 - Hardcoded positions
 
 **After:**
+
 - Dynamic width (1060px = screen - shop)
 - Responsive panel widths
 - Calculated spacing
@@ -31,13 +37,16 @@
 - No overlap with shop
 
 ### 3. Main Layout (main.ts)
+
 **Before:**
+
 ```typescript
 bottomBar.position.set(0, 688);
 towerShop.position.set(1040, 20);
 ```
 
 **After:**
+
 ```typescript
 const shopWidth = GameConfig.UI_SHOP_WIDTH;
 const bottomBarHeight = GameConfig.UI_BOTTOM_BAR_HEIGHT;
@@ -48,7 +57,9 @@ towerShop.position.set(screenWidth - shopWidth, 0);
 ```
 
 ### 4. Game Config (gameConfig.ts)
+
 **Added:**
+
 ```typescript
 UI_SHOP_WIDTH: 220,
 UI_BOTTOM_BAR_HEIGHT: 80,
@@ -57,6 +68,7 @@ UI_BOTTOM_BAR_HEIGHT: 80,
 ## Visual Improvements
 
 ### Layout Structure
+
 ```
 ┌──────────────────────────────┬─────┐
 │                              │     │
@@ -69,23 +81,25 @@ UI_BOTTOM_BAR_HEIGHT: 80,
 ```
 
 ### Benefits
+
 ✅ **Perfect Alignment** - Shop and bottom bar align at edges  
 ✅ **No Overlap** - Bottom bar doesn't extend under shop  
 ✅ **Full Height Shop** - Shop uses entire screen height  
 ✅ **Responsive Panels** - Bottom bar panels resize dynamically  
 ✅ **Maintainable** - Uses config constants instead of magic numbers  
-✅ **Scalable** - Easy to adjust for different screen sizes  
+✅ **Scalable** - Easy to adjust for different screen sizes
 
 ## Screen Space Utilization
 
-| Component | Width | Height | Area |
-|-----------|-------|--------|------|
-| Game Area | 1060px | 688px | 729,280px² |
-| Tower Shop | 220px | 768px | 168,960px² |
-| Bottom Bar | 1060px | 80px | 84,800px² |
-| **Total** | 1280px | 768px | 982,400px² |
+| Component  | Width  | Height | Area       |
+| ---------- | ------ | ------ | ---------- |
+| Game Area  | 1060px | 688px  | 729,280px² |
+| Tower Shop | 220px  | 768px  | 168,960px² |
+| Bottom Bar | 1060px | 80px   | 84,800px²  |
+| **Total**  | 1280px | 768px  | 982,400px² |
 
 ### Efficiency
+
 - **Game Area:** 74.2% of screen
 - **UI Elements:** 25.8% of screen
 - **No Wasted Space:** 100% utilization
@@ -105,11 +119,13 @@ UI_BOTTOM_BAR_HEIGHT: 80,
 ## Next Steps
 
 To test the changes:
+
 ```bash
 npm run dev
 ```
 
 Then verify:
+
 1. Shop panel extends from top to bottom
 2. Bottom bar stops at shop edge
 3. No gaps between components
@@ -120,6 +136,7 @@ Then verify:
 ## Rollback Instructions
 
 If issues occur, revert these files:
+
 - `src/main.ts`
 - `src/ui/TowerShop.ts`
 - `src/ui/BottomBar.ts`

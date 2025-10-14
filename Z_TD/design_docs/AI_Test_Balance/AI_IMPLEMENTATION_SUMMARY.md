@@ -9,11 +9,13 @@ Enhanced the AI Player system to build diverse tower compositions and provide co
 ### 1. Diverse Tower Building Strategy
 
 **Previous Behavior:**
+
 - Wave 1-5: Only Machine Guns
 - Wave 6-10: Mostly Machine Guns + some Snipers
 - Wave 11+: Limited diversity with hard caps
 
 **New Behavior:**
+
 - Builds diverse mix from the start based on target ratios:
   - 40% Machine Gun
   - 25% Sniper
@@ -27,6 +29,7 @@ Enhanced the AI Player system to build diverse tower compositions and provide co
 ### 2. Comprehensive Performance Logging
 
 **Periodic Reports (Every 10 seconds):**
+
 ```
 🤖 ─────────────────────────────────────────────────────
 🤖 AI Performance Report (45s elapsed)
@@ -45,6 +48,7 @@ Enhanced the AI Player system to build diverse tower compositions and provide co
 ```
 
 **Final Report (When disabled):**
+
 ```
 🤖 ═══════════════════════════════════════════════════════
 🤖 FINAL AI PERFORMANCE REPORT
@@ -75,6 +79,7 @@ Enhanced the AI Player system to build diverse tower compositions and provide co
 ### 3. Tracked Metrics
 
 **AIPerformanceStats Interface:**
+
 - `startTime` - Session start timestamp
 - `startMoney` - Initial money amount
 - `startLives` - Initial lives count
@@ -88,6 +93,7 @@ Enhanced the AI Player system to build diverse tower compositions and provide co
 ### 4. Performance Ratings
 
 **Wave Progress:**
+
 - ⭐⭐⭐⭐⭐ EXCELLENT - Wave 20+
 - ⭐⭐⭐⭐ GREAT - Wave 15+
 - ⭐⭐⭐ GOOD - Wave 10+
@@ -95,6 +101,7 @@ Enhanced the AI Player system to build diverse tower compositions and provide co
 - ⭐ NEEDS IMPROVEMENT - Below wave 5
 
 **Defense Quality:**
+
 - 🛡️ PERFECT DEFENSE - 100% survival
 - 🛡️ STRONG DEFENSE - 80%+ survival
 - ⚠️ MODERATE DEFENSE - 50%+ survival

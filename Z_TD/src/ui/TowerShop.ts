@@ -274,7 +274,7 @@ export class TowerShop extends UIComponent {
       }
     });
 
-    button.on('pointerdown', (event) => {
+    button.on('pointerdown', event => {
       event.stopPropagation();
       this.selectTower(type);
     });
@@ -290,7 +290,9 @@ export class TowerShop extends UIComponent {
       case GameConfig.TOWER_TYPES.MACHINE_GUN:
         // Level 1 Machine Gun - Wooden barricade
         const mgBaseSize = 15;
-        icon.rect(-mgBaseSize * scale, -5 * scale, mgBaseSize * 2 * scale, 25 * scale).fill(0x8b7355);
+        icon
+          .rect(-mgBaseSize * scale, -5 * scale, mgBaseSize * 2 * scale, 25 * scale)
+          .fill(0x8b7355);
         icon.stroke({ width: 1, color: 0x654321 });
         // Wood planks
         for (let i = -mgBaseSize; i < mgBaseSize; i += 6) {
@@ -343,12 +345,24 @@ export class TowerShop extends UIComponent {
       case GameConfig.TOWER_TYPES.SHOTGUN:
         // Level 1 Shotgun - Sandbag wall
         const shotgunWidth = 36;
-        icon.roundRect(-shotgunWidth / 2 * scale, -8 * scale, shotgunWidth * scale, 28 * scale, 8 * scale).fill(0x8b7355);
+        icon
+          .roundRect(
+            (-shotgunWidth / 2) * scale,
+            -8 * scale,
+            shotgunWidth * scale,
+            28 * scale,
+            8 * scale
+          )
+          .fill(0x8b7355);
         icon.stroke({ width: 1, color: 0x654321 });
         // Sandbag texture
         for (let x = -shotgunWidth / 2 + 5; x < shotgunWidth / 2; x += 8) {
-          icon.roundRect(x * scale, -5 * scale, 7 * scale, 10 * scale, 2 * scale).fill({ color: 0x654321, alpha: 0.3 });
-          icon.roundRect(x * scale, 5 * scale, 7 * scale, 10 * scale, 2 * scale).fill({ color: 0x654321, alpha: 0.3 });
+          icon
+            .roundRect(x * scale, -5 * scale, 7 * scale, 10 * scale, 2 * scale)
+            .fill({ color: 0x654321, alpha: 0.3 });
+          icon
+            .roundRect(x * scale, 5 * scale, 7 * scale, 10 * scale, 2 * scale)
+            .fill({ color: 0x654321, alpha: 0.3 });
         }
         // Firing gap
         icon.rect(-8 * scale, 0, 16 * scale, 6 * scale).fill(0x4a4a4a);
@@ -389,16 +403,18 @@ export class TowerShop extends UIComponent {
       case GameConfig.TOWER_TYPES.TESLA:
         // Level 1 Tesla - Scavenged tech
         const teslaWidth = 32;
-        icon.rect(-teslaWidth / 2 * scale, -5 * scale, teslaWidth * scale, 25 * scale).fill(0x5a5a5a);
+        icon
+          .rect((-teslaWidth / 2) * scale, -5 * scale, teslaWidth * scale, 25 * scale)
+          .fill(0x5a5a5a);
         icon.stroke({ width: 1, color: 0x3a3a3a });
         // Exposed wiring
         icon
-          .moveTo(-teslaWidth / 2 * scale + 5 * scale, 0)
-          .lineTo(teslaWidth / 2 * scale - 5 * scale, 0)
+          .moveTo((-teslaWidth / 2) * scale + 5 * scale, 0)
+          .lineTo((teslaWidth / 2) * scale - 5 * scale, 0)
           .stroke({ width: 1, color: 0x00ced1 });
         icon
-          .moveTo(-teslaWidth / 2 * scale + 5 * scale, 10 * scale)
-          .lineTo(teslaWidth / 2 * scale - 5 * scale, 10 * scale)
+          .moveTo((-teslaWidth / 2) * scale + 5 * scale, 10 * scale)
+          .lineTo((teslaWidth / 2) * scale - 5 * scale, 10 * scale)
           .stroke({ width: 1, color: 0x00ced1 });
         // Makeshift panels
         icon.rect(-12 * scale, 2 * scale, 8 * scale, 6 * scale).fill(0x4a4a4a);

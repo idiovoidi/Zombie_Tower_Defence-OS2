@@ -23,6 +23,7 @@ All 7 zombie types now have detailed appearances:
 A physics-based particle system that creates realistic blood splatter:
 
 **Features:**
+
 - 15+ particles per death (scales with zombie size)
 - Particles spray in all directions with random velocities
 - Gravity simulation for realistic falling motion
@@ -32,6 +33,7 @@ A physics-based particle system that creates realistic blood splatter:
 - Auto-cleanup when particles expire
 
 **Performance:**
+
 - Efficient Graphics objects
 - Automatic particle removal
 - No memory leaks
@@ -41,6 +43,7 @@ A physics-based particle system that creates realistic blood splatter:
 Leaves zombie corpses on the battlefield:
 
 **Features:**
+
 - Corpses persist for 5 seconds before fading
 - Blood pool underneath each corpse
 - Random rotation for visual variety
@@ -50,6 +53,7 @@ Leaves zombie corpses on the battlefield:
 - Oldest corpses removed first when limit reached
 
 **Corpse Details:**
+
 - Flattened/collapsed body shape
 - Limb details visible
 - Elliptical blood pool
@@ -86,12 +90,14 @@ The systems are seamlessly integrated:
 ## Testing
 
 All new code is fully tested:
+
 - ✅ 11 unit tests passing
 - ✅ 100% coverage for new systems
 - ✅ TypeScript compilation successful
 - ✅ No linting errors
 
 Run tests:
+
 ```bash
 npm test -- BloodParticleSystem.test.ts CorpseManager.test.ts
 ```
@@ -99,12 +105,14 @@ npm test -- BloodParticleSystem.test.ts CorpseManager.test.ts
 ## Performance Impact
 
 **Minimal impact:**
+
 - Blood particles: ~15 Graphics objects per death, auto-cleanup
 - Corpses: Max 50 Graphics objects, gradual removal
 - Update cost: O(n) where n = active particles + corpses
 - Memory: Auto-managed, no leaks
 
 **Optimization tips:**
+
 - Reduce max corpses for lower-end devices
 - Adjust blood intensity based on device capability
 - Systems auto-cleanup, no manual management needed
@@ -112,12 +120,14 @@ npm test -- BloodParticleSystem.test.ts CorpseManager.test.ts
 ## Visual Comparison
 
 **Before:**
+
 - Simple colored circles
 - No death effects
 - Instant disappearance
 - Minimal visual feedback
 
 **After:**
+
 - Detailed zombie characters with eyes, mouths, and unique features
 - Dramatic blood splatter with physics
 - Corpses remain on battlefield
@@ -126,21 +136,25 @@ npm test -- BloodParticleSystem.test.ts CorpseManager.test.ts
 ## Configuration Options
 
 ### Blood Intensity
+
 ```typescript
 bloodSystem.createBloodSplatter(x, y, 2.0); // Double particles
 ```
 
 ### Corpse Limit
+
 ```typescript
 corpseManager.setMaxCorpses(100); // Increase limit
 ```
 
 ### Fade Times
+
 Edit `maxFadeTime` in `CorpseManager.createCorpse()`
 
 ## Future Enhancements
 
 Potential additions:
+
 - Blood decals that persist longer
 - Gibs/body parts for explosive deaths
 - Different blood colors for mechanical zombies (oil)

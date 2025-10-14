@@ -183,10 +183,10 @@ export class TowerPlacementManager {
   private setupTowerInteraction(tower: Tower): void {
     tower.eventMode = 'static';
     tower.cursor = 'pointer';
-    
+
     // Remove any existing listeners to prevent duplicates
     tower.removeAllListeners('pointerdown');
-    
+
     tower.on('pointerdown', (event: FederatedPointerEvent) => {
       event.stopPropagation();
       this.selectTower(tower);
@@ -207,7 +207,7 @@ export class TowerPlacementManager {
     if (this.selectedTower) {
       this.selectedTower.showSelectionEffect();
       this.selectedTower.showRange(this.container);
-      
+
       // Ensure tower interaction is set up (in case it was lost)
       this.setupTowerInteraction(this.selectedTower);
     }
@@ -245,16 +245,16 @@ export class TowerPlacementManager {
 
     if (this.selectedTower.canUpgrade()) {
       this.selectedTower.upgrade();
-      
+
       // Re-setup interaction after upgrade (visual update might affect hit areas)
       this.setupTowerInteraction(this.selectedTower);
-      
+
       // Refresh selection visuals
       this.selectedTower.hideSelectionEffect();
       this.selectedTower.showSelectionEffect();
       this.selectedTower.hideRange();
       this.selectedTower.showRange(this.container);
-      
+
       return true;
     }
 

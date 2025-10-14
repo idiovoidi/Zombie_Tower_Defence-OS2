@@ -25,6 +25,7 @@ The game UI has been optimized for standard aspect ratio screens (16:10 and 16:9
 ## Component Dimensions
 
 ### Tower Shop (Right Side)
+
 - **Width:** 220px (fixed)
 - **Height:** 768px (full screen height)
 - **Position:** Right edge (x: 1060, y: 0)
@@ -35,6 +36,7 @@ The game UI has been optimized for standard aspect ratio screens (16:10 and 16:9
   - Scrollable if more towers are added
 
 ### Bottom Bar
+
 - **Width:** 1060px (screen width - shop width)
 - **Height:** 80px (fixed)
 - **Position:** Bottom left (x: 0, y: 688)
@@ -45,6 +47,7 @@ The game UI has been optimized for standard aspect ratio screens (16:10 and 16:9
   - Panels automatically resize to fit content
 
 ### Game Area
+
 - **Width:** 1060px (screen width - shop width)
 - **Height:** 688px (screen height - bottom bar height)
 - **Position:** Top left (x: 0, y: 0)
@@ -59,8 +62,8 @@ The game UI has been optimized for standard aspect ratio screens (16:10 and 16:9
 The layout uses calculated positions based on screen dimensions:
 
 ```typescript
-const screenWidth = GameConfig.SCREEN_WIDTH;    // 1280
-const screenHeight = GameConfig.SCREEN_HEIGHT;  // 768
+const screenWidth = GameConfig.SCREEN_WIDTH; // 1280
+const screenHeight = GameConfig.SCREEN_HEIGHT; // 768
 const shopWidth = 220;
 const bottomBarHeight = 80;
 
@@ -77,6 +80,7 @@ bottomBar.position.set(0, screenHeight - bottomBarHeight);
 ## Panel Spacing
 
 ### Bottom Bar Panels
+
 - **Panel Spacing:** 10px between panels
 - **Panel Width:** Calculated dynamically
   ```typescript
@@ -87,6 +91,7 @@ bottomBar.position.set(0, screenHeight - bottomBarHeight);
   ```
 
 ### Tower Shop Buttons
+
 - **Button Height:** 82px
 - **Button Spacing:** 6px vertical gap
 - **Total per button:** 88px
@@ -95,12 +100,14 @@ bottomBar.position.set(0, screenHeight - bottomBarHeight);
 ## Alignment Benefits
 
 ### Before Optimization
+
 - Hardcoded positions (1040, 688, etc.)
 - Shop didn't extend to full height
 - Bottom bar had fixed panel widths
 - Wasted space and misalignment
 
 ### After Optimization
+
 - ✅ Shop extends full screen height
 - ✅ Bottom bar width adjusts to remaining space
 - ✅ Panels resize responsively
@@ -118,6 +125,7 @@ bottomBar.position.set(0, screenHeight - bottomBarHeight);
 ## Theme Consistency
 
 All UI panels use the apocalyptic metal theme:
+
 - Corrugated metal backgrounds
 - Rusty metal textures
 - Riveted borders
@@ -146,6 +154,7 @@ Potential improvements for different screen sizes:
 ## Testing Recommendations
 
 Test the layout on:
+
 - ✅ 1280x768 (16:10) - Primary target
 - ✅ 1920x1080 (16:9) - Common widescreen
 - ✅ 1366x768 (16:9) - Common laptop

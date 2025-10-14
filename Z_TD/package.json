@@ -6,6 +6,8 @@
   "scripts": {
     "start": "npm run dev",
     "dev": "vite",
+    "dev:full": "concurrently \"npm run dev\" \"npm run server\"",
+    "server": "node server.js",
     "build": "npm run lint && tsc && vite build",
     "preview": "vite preview",
     "lint": "eslint .",
@@ -20,11 +22,14 @@
     "clean": "rimraf dist node_modules/.vite"
   },
   "dependencies": {
-    "pixi.js": "^8.8.1"
+    "pixi.js": "^8.8.1",
+    "express": "^4.18.2",
+    "cors": "^2.8.5"
   },
   "devDependencies": {
     "@eslint/js": "^9.21.0",
     "@types/jest": "^30.0.0",
+    "concurrently": "^8.2.2",
     "eslint": "^9.21.0",
     "eslint-config-prettier": "^10.1.2",
     "eslint-plugin-prettier": "^5.2.6",

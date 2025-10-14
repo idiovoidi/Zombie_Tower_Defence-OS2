@@ -20,3 +20,11 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Test coverage
+coverage/
+*.lcov
+.nyc_output/
+
+# Player reports (keep folder structure but ignore report files)
+player_reports/*.json

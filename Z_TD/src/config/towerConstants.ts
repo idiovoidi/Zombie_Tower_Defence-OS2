@@ -1,6 +1,6 @@
 /**
  * Tower Constants - Centralized tower stats for easy balancing
- * 
+ *
  * Adjust these values to quickly balance tower performance
  */
 
@@ -91,7 +91,7 @@ export function getTowerStats(type: string): TowerStats | undefined {
 export function calculateTowerDamage(type: string, upgradeLevel: number): number {
   const stats = getTowerStats(type);
   if (!stats) return 0;
-  
+
   // Simple damage scaling: +50% per upgrade level
   return Math.floor(stats.damage * (1 + upgradeLevel * 0.5));
 }
@@ -102,7 +102,7 @@ export function calculateTowerDamage(type: string, upgradeLevel: number): number
 export function calculateTowerRange(type: string, upgradeLevel: number): number {
   const stats = getTowerStats(type);
   if (!stats) return 0;
-  
+
   // Simple range scaling: +20% per upgrade level
   return Math.floor(stats.range * (1 + upgradeLevel * 0.2));
 }
@@ -113,7 +113,7 @@ export function calculateTowerRange(type: string, upgradeLevel: number): number 
 export function calculateUpgradeCost(type: string, upgradeLevel: number): number {
   const stats = getTowerStats(type);
   if (!stats) return 0;
-  
+
   const multiplier = stats.upgradeCostMultiplier || 0.75;
   // Formula: upgradeCost = baseCost × (upgradeLevel + 1) × upgradeCostMultiplier
   return Math.floor(stats.cost * (upgradeLevel + 1) * multiplier);

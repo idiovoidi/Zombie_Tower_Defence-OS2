@@ -37,7 +37,7 @@ export class LevelSelectMenu extends UIComponent {
     this.backButton.position.set(50, 650);
     this.backButton.eventMode = 'static';
     this.backButton.cursor = 'pointer';
-    this.backButton.on('pointerdown', (event) => {
+    this.backButton.on('pointerdown', event => {
       event.stopPropagation();
       this.onBackClicked();
     });
@@ -77,7 +77,7 @@ export class LevelSelectMenu extends UIComponent {
       button.position.set(x, y);
       button.eventMode = 'static';
       button.cursor = 'pointer';
-      button.on('pointerdown', (event) => {
+      button.on('pointerdown', event => {
         event.stopPropagation();
         this.onLevelSelected(level.id);
       });

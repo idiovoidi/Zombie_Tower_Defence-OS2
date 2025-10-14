@@ -101,7 +101,7 @@ export class Zombie extends GameObject {
         this.reward = 10;
         this.damage = 1;
     }
-    
+
     // Apply random speed variation (±15%) for more organic movement
     this.speedVariation = 0.85 + Math.random() * 0.3;
     this.speed = this.baseSpeed * this.speedVariation;
@@ -285,14 +285,8 @@ export class Zombie extends GameObject {
     this.visual.circle(7, 6, 1).fill({ color: 0x8b4513, alpha: 0.7 });
 
     // Damaged armor (cracks and dents)
-    this.visual
-      .moveTo(-8, -5)
-      .lineTo(-4, -3)
-      .stroke({ width: 1.5, color: 0x2a2a2a });
-    this.visual
-      .moveTo(5, 5)
-      .lineTo(8, 7)
-      .stroke({ width: 1.5, color: 0x2a2a2a });
+    this.visual.moveTo(-8, -5).lineTo(-4, -3).stroke({ width: 1.5, color: 0x2a2a2a });
+    this.visual.moveTo(5, 5).lineTo(8, 7).stroke({ width: 1.5, color: 0x2a2a2a });
 
     // Battle-worn helmet
     this.visual.rect(-9, -13, 18, 7).fill(0x6a6a6a);
@@ -368,10 +362,7 @@ export class Zombie extends GameObject {
       const angle = (i / 6) * Math.PI * 2;
       const x = Math.cos(angle) * 10;
       const y = Math.sin(angle) * 10;
-      this.visual
-        .moveTo(0, 0)
-        .lineTo(x, y)
-        .stroke({ width: 1.5, color: 0x3a4a5a, alpha: 0.4 });
+      this.visual.moveTo(0, 0).lineTo(x, y).stroke({ width: 1.5, color: 0x3a4a5a, alpha: 0.4 });
     }
 
     // Eerie glowing eyes (green/purple)
@@ -510,16 +501,17 @@ export class Zombie extends GameObject {
     this.swayTime += deltaTime / 1000;
     const swayFrequency = 1.5 + Math.random() * 0.5; // Varied sway speed (1.5-2.0 cycles/sec)
     const swayAmplitude = this.getSwayAmplitude(); // How far they sway (pixels)
-    
+
     // Multiple sine waves for more organic, unpredictable movement
     const primarySway = Math.sin(this.swayTime * swayFrequency * Math.PI * 2 + this.swayOffset);
-    const secondarySway = Math.sin(this.swayTime * swayFrequency * 1.7 * Math.PI * 2 + this.swayOffset * 0.7) * 0.3;
+    const secondarySway =
+      Math.sin(this.swayTime * swayFrequency * 1.7 * Math.PI * 2 + this.swayOffset * 0.7) * 0.3;
     const swayValue = primarySway + secondarySway;
-    
+
     // Calculate perpendicular direction for sway (rotate 90 degrees)
     const perpX = -normalizedDy;
     const perpY = normalizedDx;
-    
+
     // Apply sway offset perpendicular to movement direction
     const swayX = perpX * swayValue * swayAmplitude;
     const swayY = perpY * swayValue * swayAmplitude;

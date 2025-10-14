@@ -48,7 +48,7 @@ export class CampUpgradePanel extends UIComponent {
   private createPanelContent(): void {
     const panelWidth = 400;
     const panelHeight = 550;
-    
+
     // Position centered
     this.contentContainer.position.set(640 - panelWidth / 2, 384 - panelHeight / 2);
 
@@ -196,7 +196,7 @@ export class CampUpgradePanel extends UIComponent {
     const canUpgrade = this.campUpgradeManager!.canUpgrade(upgrade.id);
     const cost = this.campUpgradeManager!.getUpgradeCost(upgrade.id);
     const canAfford = this.moneyAvailable >= cost;
-    
+
     const frameColor = !canUpgrade ? 0x4a4a4a : canAfford ? 0x00aa00 : 0x8b0000;
     const frame = new Graphics();
     frame.rect(0, 0, width, height).stroke({ width: 2, color: frameColor });
@@ -288,7 +288,7 @@ export class CampUpgradePanel extends UIComponent {
         upgradeBtn.position.set(width - 90, 45);
         button.addChild(upgradeBtn);
 
-        upgradeBtn.on('pointerdown', (event) => {
+        upgradeBtn.on('pointerdown', event => {
           event.stopPropagation();
           this.purchaseUpgrade(upgrade.id);
         });
@@ -339,7 +339,10 @@ export class CampUpgradePanel extends UIComponent {
     this.visible = true;
     this.isExpanded = true;
     this.contentContainer.visible = true;
-    console.log('🏕️ Panel visibility set, contentContainer visible:', this.contentContainer.visible);
+    console.log(
+      '🏕️ Panel visibility set, contentContainer visible:',
+      this.contentContainer.visible
+    );
     this.updateUpgradeDisplay();
     console.log('🏕️ Panel should now be visible');
   }

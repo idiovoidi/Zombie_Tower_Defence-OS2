@@ -19,24 +19,28 @@ The Bottom Bar is a horizontal information panel that displays key game stats in
 The bottom bar contains 4 main information panels:
 
 #### 1. Funds Panel (180px wide)
+
 - **Label**: "FUNDS" in gray military-style text
 - **Value**: Green monospace font with $ prefix
 - **LED**: Green status indicator
 - **Background**: Concrete texture with metal frame
 
 #### 2. Survivors Panel (180px wide)
+
 - **Label**: "SURVIVORS" in gray military-style text
 - **Value**: Red monospace font (no prefix)
 - **LED**: Red status indicator
 - **Background**: Concrete texture with metal frame
 
 #### 3. Wave Panel (180px wide)
+
 - **Label**: "WAVE" in gray military-style text
 - **Value**: Yellow monospace font (no prefix)
 - **LED**: Yellow status indicator
 - **Background**: Concrete texture with metal frame
 
 #### 4. Resources Panel (220px wide)
+
 - **Label**: "RESOURCES" in gray military-style text
 - **Icons**: Circular badges with letters (W, M, E)
   - Wood (W): Brown (#8b4513)
@@ -74,11 +78,13 @@ Each info panel features:
 ## Color Palette
 
 ### Panel Colors
+
 - **Metal Gray**: #4a4a4a, #5a5a5a, #6a6a6a
 - **Dark Metal**: #2a2a2a, #3a3a3a
 - **Concrete**: #5a5a5a with dirt spots
 
 ### Value Colors
+
 - **Money**: Green (#00ff00)
 - **Lives**: Red (#ff6666)
 - **Wave**: Yellow (#ffcc00)
@@ -87,6 +93,7 @@ Each info panel features:
 - **Energy**: Cyan (#00ced1)
 
 ### Accent Colors
+
 - **Warning Yellow**: #ffcc00
 - **Warning Black**: #1a1a1a
 - **Button Green**: #00aa00, #00ff00
@@ -125,11 +132,13 @@ Each info panel features:
 ### UIManager States
 
 The bottom bar is visible during:
+
 - `PLAYING` - Active gameplay
 - `WAVE_COMPLETE` - Between waves (with Next Wave button)
 - `PAUSED` - Game paused
 
 Hidden during:
+
 - `MAIN_MENU` - Main menu screen
 - `LEVEL_SELECT` - Level selection
 - `GAME_OVER` - Game over screen
@@ -138,6 +147,7 @@ Hidden during:
 ### Update Cycle
 
 The bottom bar updates every frame with:
+
 - Current money amount
 - Current lives/survivors
 - Current wave number

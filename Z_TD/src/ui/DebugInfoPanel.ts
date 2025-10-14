@@ -52,7 +52,7 @@ export class DebugInfoPanel extends UIComponent {
 
     this.createPanelContent();
   }
-  
+
   // Get the content container to add it to the stage separately
   public getContentContainer(): Container {
     return this.contentContainer;
@@ -63,7 +63,7 @@ export class DebugInfoPanel extends UIComponent {
     const panelWidth = 280;
     const panelHeight = 580;
     this.contentContainer.position.set(640 - panelWidth / 2, 384 - panelHeight / 2);
-    
+
     // Background - simple positioning from (0,0)
     const panelLeft = 0;
     const panelTop = 0;

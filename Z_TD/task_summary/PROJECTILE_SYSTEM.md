@@ -1,11 +1,13 @@
 # Projectile System & Tower Rotation
 
 ## Overview
+
 Towers now rotate to face their targets and shoot visible projectiles that travel to zombies.
 
 ## New Components
 
 ### 1. Projectile Class (src/objects/Projectile.ts)
+
 - Visual projectiles that travel from towers to zombies
 - Different appearances based on tower type:
   - **Bullet** (Machine Gun): Small yellow circle
@@ -18,6 +20,7 @@ Towers now rotate to face their targets and shoot visible projectiles that trave
 - Creates hit effects on impact
 
 ### 2. ProjectileManager (src/managers/ProjectileManager.ts)
+
 - Manages all active projectiles
 - Creates new projectiles when towers shoot
 - Updates projectile positions each frame
@@ -25,7 +28,9 @@ Towers now rotate to face their targets and shoot visible projectiles that trave
 - Handles cleanup
 
 ### 3. Tower Rotation System
+
 Updated Tower class with:
+
 - **Separate barrel graphics** - Base stays fixed, barrel rotates
 - **rotateTowards()** - Smoothly rotates barrel to face target
 - **getProjectileSpawnPosition()** - Calculates spawn point at barrel tip
@@ -34,12 +39,16 @@ Updated Tower class with:
 ## Visual Changes
 
 ### Tower Structure
+
 Each tower now has two visual components:
+
 1. **Base** (this.visual) - Doesn't rotate, shows tower body
 2. **Barrel** (this.barrel) - Rotates to face targets
 
 ### Tower Types
+
 All tower types updated with rotating barrels:
+
 - **Machine Gun**: Blue base with rotating barrel
 - **Sniper**: Ellipse base with long rotating barrel
 - **Shotgun**: Square base with double rotating barrels
@@ -59,6 +68,7 @@ All tower types updated with rotating barrels:
 ## Projectile Speeds
 
 Different tower types have different projectile speeds:
+
 - **Sniper**: 1000 px/s (fastest)
 - **Tesla**: 800 px/s (fast)
 - **Machine Gun**: 500 px/s (medium)
@@ -68,11 +78,13 @@ Different tower types have different projectile speeds:
 ## Special Mechanics
 
 ### Shotgun Spread
+
 - Fires 3 projectiles simultaneously
 - Spread at -0.2, 0, +0.2 radians
 - Damage split evenly among pellets
 
 ### Homing Projectiles
+
 - Projectiles track moving targets
 - Updates target position each frame
 - Ensures hits even if zombie moves
@@ -80,11 +92,13 @@ Different tower types have different projectile speeds:
 ## Integration
 
 ### GameManager
+
 - Creates ProjectileManager with game container
 - Passes ProjectileManager to TowerCombatManager
 - Projectiles render in correct layer (above path, below UI)
 
 ### TowerCombatManager
+
 - Updates projectiles each frame
 - Creates projectiles when towers shoot
 - No longer applies instant damage (projectiles handle it)
@@ -98,11 +112,13 @@ Different tower types have different projectile speeds:
 ## Visual Effects
 
 ### Shooting Effects
+
 - Muzzle flash at barrel tip
 - Brief recoil animation
 - Type-specific colors
 
 ### Hit Effects
+
 - Explosion/impact visual on hit
 - Brief fade-out animation
 - Type-specific effects (flame burst, electric spark, etc.)
@@ -110,6 +126,7 @@ Different tower types have different projectile speeds:
 ## Testing
 
 Run `npm run dev` to see:
+
 - Towers rotating to track zombies
 - Projectiles flying from barrel tips
 - Different projectile types and speeds

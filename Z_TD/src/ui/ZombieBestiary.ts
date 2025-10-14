@@ -359,7 +359,7 @@ export class ZombieBestiary extends UIComponent {
 
     return card;
   }
-  
+
   // Set callback for spawning zombies
   public setSpawnCallback(callback: (type: string) => void): void {
     this.onSpawnZombie = callback;
@@ -431,7 +431,10 @@ export class ZombieBestiary extends UIComponent {
     visual.circle(4, 3, 2).fill({ color: 0x7a1a1a, alpha: 0.7 });
     visual.circle(-2, 5, 1.5).fill({ color: 0x6a1a1a, alpha: 0.6 });
     for (let i = 0; i < 3; i++) {
-      visual.moveTo(-4, -2 + i * 3).lineTo(4, -2 + i * 3).stroke({ width: 1, color: 0xe5e5cc, alpha: 0.6 });
+      visual
+        .moveTo(-4, -2 + i * 3)
+        .lineTo(4, -2 + i * 3)
+        .stroke({ width: 1, color: 0xe5e5cc, alpha: 0.6 });
     }
     visual.circle(-2, -6, 2.5).fill(0xff0000);
     visual.circle(-2, -6, 1.5).fill(0xff6666);
@@ -459,7 +462,10 @@ export class ZombieBestiary extends UIComponent {
     visual.circle(7, -10, 2.5).fill(0x4a0000);
     visual.circle(7, -10, 1.5).fill(0xff0000);
     for (let i = 0; i < 4; i++) {
-      visual.moveTo(-12, -8 + i * 6).lineTo(12, -8 + i * 6).stroke({ width: 2, color: 0x1a1a1a });
+      visual
+        .moveTo(-12, -8 + i * 6)
+        .lineTo(12, -8 + i * 6)
+        .stroke({ width: 2, color: 0x1a1a1a });
       for (let j = 0; j < 5; j++) {
         visual.circle(-10 + j * 5, -8 + i * 6, 1).fill(0x1a1a1a);
       }
@@ -575,12 +581,22 @@ export class ZombieBestiary extends UIComponent {
     visual.circle(7, 0, 1).fill(0x5a5a5a);
     visual.circle(0, 8, 2).fill(0x3a3a3a);
     visual.circle(0, 8, 1).fill(0x5a5a5a);
-    visual.moveTo(-8, -8).lineTo(-6, -4).lineTo(-7, 0).stroke({ width: 1.5, color: 0xff6600, alpha: 0.8 });
-    visual.moveTo(8, -6).lineTo(6, -2).lineTo(7, 2).stroke({ width: 1.5, color: 0xff6600, alpha: 0.8 });
+    visual
+      .moveTo(-8, -8)
+      .lineTo(-6, -4)
+      .lineTo(-7, 0)
+      .stroke({ width: 1.5, color: 0xff6600, alpha: 0.8 });
+    visual
+      .moveTo(8, -6)
+      .lineTo(6, -2)
+      .lineTo(7, 2)
+      .stroke({ width: 1.5, color: 0xff6600, alpha: 0.8 });
     for (let i = 0; i < 3; i++) {
       const angle = Math.random() * Math.PI * 2;
       const dist = 10 + Math.random() * 3;
-      visual.circle(Math.cos(angle) * dist, Math.sin(angle) * dist, 0.8).fill({ color: 0xffff00, alpha: 0.9 });
+      visual
+        .circle(Math.cos(angle) * dist, Math.sin(angle) * dist, 0.8)
+        .fill({ color: 0xffff00, alpha: 0.9 });
     }
     visual.circle(-5, 5, 2).fill({ color: 0x1a1a1a, alpha: 0.7 });
     visual.circle(6, -3, 1.5).fill({ color: 0x1a1a1a, alpha: 0.6 });

@@ -1,6 +1,7 @@
 import { GameManager } from './GameManager';
 import { GameConfig } from '../config/gameConfig';
 import { Tower } from '../objects/Tower';
+import { type GameLogEntry, LogExporter } from '../utils/LogExporter';
 
 interface PlacementZone {
   x: number;
@@ -18,6 +19,14 @@ interface AIPerformanceStats {
   highestWave: number;
   zombiesKilled: number;
   towerComposition: Map<string, number>;
+  upgradeDistribution: Map<string, number[]>; // Track upgrade levels per tower type
+  moneyEarned: number;
+  waveCompletionTimes: number[]; // Time taken to complete each wave
+  livesLostPerWave: number[]; // Lives lost in each wave
+  towersBuiltPerWave: number[]; // Towers built in each wave
+  decisionsPerWave: number[]; // AI decisions made per wave
+  peakMoney: number; // Highest money reached
+  lowestLives: number; // Lowest lives reached (before game over)
 }
 
 export class AIPlayerManager {
@@ -29,9 +38,13 @@ export class AIPlayerManager {
   private stats: AIPerformanceStats;
   private lastLogTime: number = 0;
   private logInterval: number = 10000; // Log every 10 seconds
-  private waveCompleteTimer: number = 0;
-  private waveCompleteDelay: number = 2000; // Wait 2 seconds before starting next wave
   private lastState: string = '';
+  private hasHandledWaveComplete: boolean = false;
+  private currentWaveStartTime: number = 0;
+  private currentWaveLivesStart: number = 0;
+  private currentWaveTowersBuilt: number = 0;
+  private currentWaveDecisions: number = 0;
+  private lastTrackedWave: number = 0;
 
   constructor(gameManager: GameManager) {
     this.gameManager = gameManager;
@@ -84,6 +97,14 @@ export class AIPlayerManager {
       highestWave: 0,
       zombiesKilled: 0,
       towerComposition: new Map<string, number>(),
+      upgradeDistribution: new Map<string, number[]>(),
+      moneyEarned: 0,
+      waveCompletionTimes: [],
+      livesLostPerWave: [],
+      towersBuiltPerWave: [],
+      decisionsPerWave: [],
+      peakMoney: 0,
+      lowestLives: 100,
     };
   }
 
@@ -95,8 +116,15 @@ export class AIPlayerManager {
       this.stats.startTime = Date.now();
       this.stats.startMoney = this.gameManager.getMoney();
       this.stats.startLives = this.gameManager.getLives();
+      this.stats.peakMoney = this.stats.startMoney;
+      this.stats.lowestLives = this.stats.startLives;
       this.lastLogTime = Date.now();
       this.lastState = this.gameManager.getCurrentState();
+      this.currentWaveStartTime = Date.now();
+      this.currentWaveLivesStart = this.stats.startLives;
+      this.currentWaveTowersBuilt = 0;
+      this.currentWaveDecisions = 0;
+      this.lastTrackedWave = this.gameManager.getWave();
       console.log('🤖 ═══════════════════════════════════════════════════════');
       console.log('🤖 AI Player ENABLED - Alpha Testing Mode');
       console.log('🤖 Starting Stats:');
@@ -109,6 +137,7 @@ export class AIPlayerManager {
       console.log('🤖 ═══════════════════════════════════════════════════════');
       console.log('🤖 AI Player DISABLED');
       this.logFinalStats();
+      this.exportStats();
       console.log('🤖 ═══════════════════════════════════════════════════════');
     }
   }
@@ -131,25 +160,56 @@ export class AIPlayerManager {
       this.lastState = currentState;
     }
 
-    // Handle wave complete state - auto-progress to next wave
+    // Handle wave complete state - immediately start next wave
     if (currentState === GameConfig.GAME_STATES.WAVE_COMPLETE) {
-      this.waveCompleteTimer += deltaTime;
+      // Only start once per wave complete (prevent multiple calls in same frame)
+      if (!this.hasHandledWaveComplete) {
+        const currentWave = this.gameManager.getWave();
+        const nextWave = currentWave + 1;
 
-      console.log(
-        `🤖 Wave complete - waiting ${(this.waveCompleteTimer / 1000).toFixed(1)}s / ${(this.waveCompleteDelay / 1000).toFixed(1)}s`
-      );
+        // Track wave completion stats
+        if (this.currentWaveStartTime > 0) {
+          const waveTime = Date.now() - this.currentWaveStartTime;
+          this.stats.waveCompletionTimes.push(waveTime);
 
-      if (this.waveCompleteTimer >= this.waveCompleteDelay) {
-        console.log(`🤖 Auto-starting wave ${this.gameManager.getWave() + 1}...`);
-        this.gameManager.startNextWave();
-        this.waveCompleteTimer = 0;
+          const livesLost = this.currentWaveLivesStart - this.gameManager.getLives();
+          this.stats.livesLostPerWave.push(livesLost);
+
+          this.stats.towersBuiltPerWave.push(this.currentWaveTowersBuilt);
+          this.stats.decisionsPerWave.push(this.currentWaveDecisions);
+
+          console.log(`🤖 ═══════════════════════════════════════════════════════`);
+          console.log(`🤖 Wave ${currentWave} complete! Auto-starting wave ${nextWave}...`);
+          console.log(`🤖   Time: ${(waveTime / 1000).toFixed(1)}s`);
+          console.log(`🤖   Lives Lost: ${livesLost}`);
+          console.log(`🤖   Towers Built: ${this.currentWaveTowersBuilt}`);
+          console.log(`🤖   Decisions Made: ${this.currentWaveDecisions}`);
+          console.log(`🤖 ═══════════════════════════════════════════════════════`);
+        }
+
+        this.hasHandledWaveComplete = true;
+
+        // Use setTimeout to ensure state has fully transitioned
+        setTimeout(() => {
+          this.gameManager.startNextWave();
+        }, 100); // Small delay to ensure clean state transition
       }
       return;
     }
 
-    // Reset wave complete timer when not in wave complete state
-    if (this.waveCompleteTimer > 0) {
-      this.waveCompleteTimer = 0;
+    // Reset flag when back in playing state
+    if (currentState === GameConfig.GAME_STATES.PLAYING && this.hasHandledWaveComplete) {
+      this.hasHandledWaveComplete = false;
+
+      // Start tracking new wave
+      const currentWave = this.gameManager.getWave();
+      if (currentWave !== this.lastTrackedWave) {
+        this.currentWaveStartTime = Date.now();
+        this.currentWaveLivesStart = this.gameManager.getLives();
+        this.currentWaveTowersBuilt = 0;
+        this.currentWaveDecisions = 0;
+        this.lastTrackedWave = currentWave;
+      }
     }
 
     // Only make decisions during active gameplay
@@ -183,6 +243,19 @@ export class AIPlayerManager {
     const money = this.gameManager.getMoney();
     const placementManager = this.gameManager.getTowerPlacementManager();
     const placedTowers = placementManager.getPlacedTowers();
+
+    this.currentWaveDecisions++;
+
+    // Track peak money
+    if (money > this.stats.peakMoney) {
+      this.stats.peakMoney = money;
+    }
+
+    // Track lowest lives
+    const currentLives = this.gameManager.getLives();
+    if (currentLives < this.stats.lowestLives) {
+      this.stats.lowestLives = currentLives;
+    }
 
     // Strategy 1: Try to upgrade existing towers if we have enough money
     if (money > 200 && placedTowers.length > 0) {
@@ -227,6 +300,7 @@ export class AIPlayerManager {
 
     if (tower) {
       this.stats.towersBuilt++;
+      this.currentWaveTowersBuilt++;
       this.stats.moneySpent += cost;
       const count = this.stats.towerComposition.get(towerType) || 0;
       this.stats.towerComposition.set(towerType, count + 1);
@@ -406,9 +480,15 @@ export class AIPlayerManager {
         this.gameManager.spendMoney(upgradeCost);
         this.stats.towersUpgraded++;
         this.stats.moneySpent += upgradeCost;
-        console.log(
-          `🤖 AI upgraded ${bestTower.getType()} to level ${bestTower.getUpgradeLevel()} for $${upgradeCost}`
-        );
+
+        // Track upgrade distribution
+        const towerType = bestTower.getType();
+        const upgradeLevel = bestTower.getUpgradeLevel();
+        const upgrades = this.stats.upgradeDistribution.get(towerType) || [];
+        upgrades.push(upgradeLevel);
+        this.stats.upgradeDistribution.set(towerType, upgrades);
+
+        console.log(`🤖 AI upgraded ${towerType} to level ${upgradeLevel} for $${upgradeCost}`);
 
         // Deselect after upgrade
         placementManager.selectTower(null);
@@ -518,7 +598,7 @@ export class AIPlayerManager {
   // Reset AI state
   public reset(): void {
     this.updateTimer = 0;
-    this.waveCompleteTimer = 0;
+    this.hasHandledWaveComplete = false;
     this.stats = this.createEmptyStats();
     this.lastLogTime = 0;
   }
@@ -526,5 +606,80 @@ export class AIPlayerManager {
   // Get current stats (for external access)
   public getStats(): AIPerformanceStats {
     return { ...this.stats };
+  }
+
+  // Export stats to JSON file
+  private exportStats(): void {
+    const endTime = Date.now();
+    const duration = endTime - this.stats.startTime;
+    const currentMoney = this.gameManager.getMoney();
+    const currentLives = this.gameManager.getLives();
+    const livesLost = this.stats.startLives - currentLives;
+    const survivalRate = (currentLives / this.stats.startLives) * 100;
+
+    // Convert tower composition Map to plain object
+    const towerComposition: Record<string, number> = {};
+    this.stats.towerComposition.forEach((count, type) => {
+      towerComposition[type] = count;
+    });
+
+    // Convert upgrade distribution Map to plain object
+    const upgradeDistribution: Record<string, number[]> = {};
+    this.stats.upgradeDistribution.forEach((levels, type) => {
+      upgradeDistribution[type] = levels;
+    });
+
+    // Calculate averages
+    const avgWaveTime =
+      this.stats.waveCompletionTimes.length > 0
+        ? this.stats.waveCompletionTimes.reduce((a, b) => a + b, 0) /
+          this.stats.waveCompletionTimes.length
+        : 0;
+
+    const avgLivesLostPerWave =
+      this.stats.livesLostPerWave.length > 0
+        ? this.stats.livesLostPerWave.reduce((a, b) => a + b, 0) /
+          this.stats.livesLostPerWave.length
+        : 0;
+
+    const logEntry: GameLogEntry = {
+      timestamp: new Date(this.stats.startTime).toISOString(),
+      sessionId: LogExporter.getSessionId(),
+      isAIRun: true,
+      duration: duration,
+      startTime: new Date(this.stats.startTime).toISOString(),
+      endTime: new Date(endTime).toISOString(),
+      gameData: {
+        highestWave: this.stats.highestWave,
+        finalMoney: currentMoney,
+        finalLives: currentLives,
+        startLives: this.stats.startLives,
+        survivalRate: parseFloat(survivalRate.toFixed(1)),
+        livesLost: livesLost,
+      },
+      aiData: {
+        towersBuilt: this.stats.towersBuilt,
+        towersUpgraded: this.stats.towersUpgraded,
+        moneySpent: this.stats.moneySpent,
+        moneyEarned: this.stats.moneyEarned,
+        peakMoney: this.stats.peakMoney,
+        lowestLives: this.stats.lowestLives,
+        averageBuildRate: parseFloat((this.stats.towersBuilt / (duration / 60000)).toFixed(2)),
+        towerComposition: towerComposition,
+        upgradeDistribution: upgradeDistribution,
+        waveStats: {
+          completionTimes: this.stats.waveCompletionTimes,
+          averageCompletionTime: parseFloat((avgWaveTime / 1000).toFixed(1)),
+          livesLostPerWave: this.stats.livesLostPerWave,
+          averageLivesLostPerWave: parseFloat(avgLivesLostPerWave.toFixed(2)),
+          towersBuiltPerWave: this.stats.towersBuiltPerWave,
+          decisionsPerWave: this.stats.decisionsPerWave,
+        },
+        performanceRating: LogExporter.getPerformanceRating(this.stats.highestWave),
+        defenseRating: LogExporter.getDefenseRating(survivalRate),
+      },
+    };
+
+    LogExporter.exportLog(logEntry);
   }
 }

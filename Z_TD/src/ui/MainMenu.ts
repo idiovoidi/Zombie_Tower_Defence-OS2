@@ -31,7 +31,7 @@ export class MainMenu extends UIComponent {
     this.startButton.position.set(412, 300); // Centered horizontally
     this.startButton.eventMode = 'static';
     this.startButton.cursor = 'pointer';
-    this.startButton.on('pointerdown', (event) => {
+    this.startButton.on('pointerdown', event => {
       event.stopPropagation();
       this.onStartClicked();
     });

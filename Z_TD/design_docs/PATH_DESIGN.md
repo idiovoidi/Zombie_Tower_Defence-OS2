@@ -7,18 +7,21 @@ The zombie path features a worn dirt road texture that shows heavy use and traff
 ## Visual Layers
 
 ### 1. Dark Border (Outer Edge)
+
 - **Width**: Path width + 8px
 - **Color**: Dark brown (#4a3a2a)
 - **Purpose**: Creates shadow/depth at path edges
 - **Effect**: Makes path appear sunken into ground
 
 ### 2. Main Path (Base Layer)
+
 - **Width**: 50px (base path width)
 - **Color**: Worn dirt brown (#6a5a4a)
 - **Purpose**: Primary path surface
 - **Effect**: Establishes the road color
 
 ### 3. Center Worn Track
+
 - **Width**: 60% of path width
 - **Color**: Darker brown (#5a4a3a)
 - **Opacity**: 70%
@@ -26,6 +29,7 @@ The zombie path features a worn dirt road texture that shows heavy use and traff
 - **Effect**: Creates depth and wear pattern
 
 ### 4. Tire/Cart Tracks
+
 - **Width**: 3px each
 - **Offset**: 25% of path width from center
 - **Color**: Dark brown (#4a3a2a)
@@ -35,6 +39,7 @@ The zombie path features a worn dirt road texture that shows heavy use and traff
 - **Effect**: Adds realism and history
 
 ### 5. Dirt Texture (Random Patches)
+
 - **Size**: 3-8px circles
 - **Color**: Dark brown (#4a3a2a)
 - **Opacity**: 30-60%
@@ -44,6 +49,7 @@ The zombie path features a worn dirt road texture that shows heavy use and traff
 - **Effect**: Breaks up uniform appearance
 
 ### 6. Small Rocks
+
 - **Size**: 2-5px circles
 - **Color**: Gray (#5a5a5a)
 - **Opacity**: 50-80%
@@ -53,6 +59,7 @@ The zombie path features a worn dirt road texture that shows heavy use and traff
 - **Effect**: Adds detail and realism
 
 ### 7. Footprints
+
 - **Shape**: Small ellipses (3x5px)
 - **Color**: Very dark brown (#3a2a1a)
 - **Opacity**: 20-40%
@@ -62,6 +69,7 @@ The zombie path features a worn dirt road texture that shows heavy use and traff
 - **Effect**: Suggests constant zombie movement
 
 ### 8. Edge Wear (Highlight)
+
 - **Width**: Path width + 4px
 - **Color**: Light brown (#7a6a5a)
 - **Opacity**: 30%
@@ -71,6 +79,7 @@ The zombie path features a worn dirt road texture that shows heavy use and traff
 ## Color Palette
 
 ### Path Colors
+
 - **Dark Border**: #4a3a2a (darkest)
 - **Main Path**: #6a5a4a (medium)
 - **Center Track**: #5a4a3a (dark)
@@ -83,6 +92,7 @@ The zombie path features a worn dirt road texture that shows heavy use and traff
 ## Technical Implementation
 
 ### Rendering Order
+
 1. Dark border (bottom layer)
 2. Main path
 3. Center worn track
@@ -91,12 +101,14 @@ The zombie path features a worn dirt road texture that shows heavy use and traff
 6. Edge wear (top layer)
 
 ### Path Generation
+
 - Uses waypoint system with smooth curves
 - Corner radius: 30px
 - Rounded caps and joins for smooth appearance
 - Perpendicular offset calculation for parallel tracks
 
 ### Texture Distribution
+
 - Segments calculated every 15px along path
 - Random placement within path bounds
 - Controlled density for performance
@@ -105,18 +117,21 @@ The zombie path features a worn dirt road texture that shows heavy use and traff
 ## Design Features
 
 ### Worn Appearance
+
 - Multiple layers create depth
 - Center darker from heavy use
 - Edges lighter from less traffic
 - Tire tracks show vehicle passage
 
 ### Organic Texture
+
 - Random dirt patches
 - Scattered rocks
 - Footprint impressions
 - Varied opacity for depth
 
 ### Performance
+
 - Static geometry (rendered once)
 - Efficient draw calls
 - Controlled element count
@@ -125,12 +140,14 @@ The zombie path features a worn dirt road texture that shows heavy use and traff
 ## Gameplay Integration
 
 ### Visual Clarity
+
 - Clear path for zombie movement
 - Distinct from grass background
 - Easy to identify at a glance
 - Doesn't interfere with tower placement
 
 ### Thematic Consistency
+
 - Matches apocalyptic setting
 - Shows wear and use
 - Suggests constant zombie traffic

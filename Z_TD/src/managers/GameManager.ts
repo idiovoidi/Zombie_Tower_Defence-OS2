@@ -15,6 +15,7 @@ import { AIPlayerManager } from './AIPlayerManager';
 import { Tower } from '../objects/Tower';
 import { DevConfig } from '../config/devConfig';
 import { DebugConstants, applyDebugConstants } from '../config/debugConstants';
+import { LogExporter, type GameLogEntry } from '../utils/LogExporter';
 
 export class GameManager {
   private app: Application;
@@ -133,6 +134,9 @@ export class GameManager {
     if (this.levelManager.loadLevel(levelId)) {
       const level = this.levelManager.getCurrentLevel();
       if (level) {
+        // Generate new session ID for this game
+        LogExporter.newSession();
+
         // Set level-specific game parameters (unless debug mode overrides)
         if (DebugConstants.ENABLED) {
           // Keep debug values
@@ -233,6 +237,46 @@ export class GameManager {
   public gameOver(): void {
     this.currentState = GameConfig.GAME_STATES.GAME_OVER;
     console.log('Game over');
+
+    // Export log if not AI run (AI exports its own logs)
+    if (!this.aiPlayerManager.isEnabled()) {
+      this.exportManualGameLog();
+    }
+  }
+
+  // Export game log for manual play
+  private exportManualGameLog(): void {
+    const logEntry: GameLogEntry = {
+      timestamp: new Date().toISOString(),
+      sessionId: LogExporter.getSessionId(),
+      isAIRun: false,
+      duration: 0, // Could track this if needed
+      startTime: new Date().toISOString(),
+      endTime: new Date().toISOString(),
+      gameData: {
+        highestWave: this.wave,
+        finalMoney: this.money,
+        finalLives: this.lives,
+        startLives: DebugConstants.ENABLED
+          ? DebugConstants.STARTING_LIVES
+          : GameConfig.STARTING_LIVES,
+        survivalRate: parseFloat(
+          (
+            (this.lives /
+              (DebugConstants.ENABLED
+                ? DebugConstants.STARTING_LIVES
+                : GameConfig.STARTING_LIVES)) *
+            100
+          ).toFixed(1)
+        ),
+        livesLost:
+          (DebugConstants.ENABLED ? DebugConstants.STARTING_LIVES : GameConfig.STARTING_LIVES) -
+          this.lives,
+      },
+    };
+
+    LogExporter.exportLog(logEntry);
+    console.log('📊 Manual game log exported');
   }
 
   // Victory
@@ -382,10 +426,10 @@ export class GameManager {
 
   // Update game state
   public update(deltaTime: number): void {
-    if (this.currentState === GameConfig.GAME_STATES.PLAYING) {
-      // Update AI player
-      this.aiPlayerManager.update(deltaTime);
+    // Update AI player (needs to run in all states to detect wave complete)
+    this.aiPlayerManager.update(deltaTime);
 
+    if (this.currentState === GameConfig.GAME_STATES.PLAYING) {
       // Update zombie manager
       this.zombieManager.update(deltaTime);
 

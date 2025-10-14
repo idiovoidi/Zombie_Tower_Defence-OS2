@@ -7,6 +7,7 @@ The Wave Info Panel is a debug tool that displays detailed information about the
 ## Features
 
 ### Toggle Button
+
 - **Position**: Bottom-left corner (20px from left, 48px from bottom)
 - **Size**: 120px × 30px
 - **Color**: Yellow border (#ffcc00)
@@ -14,6 +15,7 @@ The Wave Info Panel is a debug tool that displays detailed information about the
 - **Function**: Click to expand/collapse panel
 
 ### Main Panel
+
 - **Size**: 320px × 600px
 - **Position**: Centered on screen when expanded
 - **Background**: Dark semi-transparent (#1a1a1a, 95% opacity)
@@ -23,7 +25,9 @@ The Wave Info Panel is a debug tool that displays detailed information about the
 ## Information Displayed
 
 ### Current Wave (Highlighted in Green)
+
 Shows detailed breakdown of the active wave:
+
 - **Wave Number**: "⚡ Wave X (Current)"
 - **Total Zombies**: Total count after scaling
 - **Zombie Composition**: Each type with:
@@ -35,14 +39,18 @@ Shows detailed breakdown of the active wave:
 - **Difficulty Modifier**: If different from 100%
 
 ### Next 3 Waves
+
 Shows preview of upcoming waves:
+
 - **Wave Number**: "Wave X"
 - **Total Zombies**: Projected count
 - **Zombie Composition**: Same details as current wave
 - **Color**: Yellow text
 
 ### Color-Coded Zombies
+
 Each zombie type displays in its signature color:
+
 - 🧟 **Basic**: Green (#00ff00)
 - 🏃 **Fast**: Orange (#ff6600)
 - 💪 **Tank**: Red (#ff0000)
@@ -52,6 +60,7 @@ Each zombie type displays in its signature color:
 - 🤖 **Mechanical**: Cyan (#00ffff)
 
 ### Legend
+
 Bottom section shows color reference for all zombie types.
 
 ## Example Display
@@ -95,6 +104,7 @@ Total: 29 zombies
 ## Technical Details
 
 ### Data Source
+
 - Reads from `WaveManager` instance
 - Accesses wave composition data
 - Calculates adjusted counts based on:
@@ -103,11 +113,13 @@ Total: 29 zombies
   - 20% spikes every 5 waves
 
 ### Update Frequency
+
 - Updates when wave changes
 - Only updates when panel is visible
 - Efficient - no per-frame updates
 
 ### Calculations Shown
+
 1. **Adjusted Count**: `baseCount × (1.08^wave) × difficultyMod`
 2. **Percentage**: `(zombieCount / totalZombies) × 100`
 3. **Spawn Rate**: `baseInterval × (0.95^wave) × difficultyMod`
@@ -115,17 +127,20 @@ Total: 29 zombies
 ## Usage
 
 ### Opening the Panel
+
 1. Enable debug mode (DebugConstants.ENABLED = true)
 2. Click "📊 Wave Info" button in bottom-left
 3. Panel expands to show wave information
 
 ### Reading the Data
+
 - **Current Wave**: Green highlight, shows active spawns
 - **Upcoming Waves**: Yellow text, shows what's coming
 - **Percentages**: Quick understanding of wave composition
 - **Spawn Rates**: Timing information for spawn patterns
 
 ### Strategic Use
+
 - **Plan Tower Placement**: See what's coming
 - **Upgrade Decisions**: Prepare for specific threats
 - **Resource Management**: Know when to save/spend
@@ -134,18 +149,21 @@ Total: 29 zombies
 ## Integration
 
 ### With Debug System
+
 - Part of debug tools suite
 - Positioned opposite Debug Info Panel
 - Same toggle button style
 - Consistent visual design
 
 ### With Game Manager
+
 - Receives WaveManager reference
 - Updates on wave changes
 - Reads current wave number
 - Accesses difficulty modifier
 
 ### With UI System
+
 - Registered as UI component
 - Content container added to stage
 - Visibility controlled by debug constants
@@ -154,6 +172,7 @@ Total: 29 zombies
 ## Design Consistency
 
 ### Visual Style
+
 - Matches Debug Info Panel aesthetic
 - Yellow accent color (#ffcc00)
 - Dark background with transparency
@@ -161,12 +180,14 @@ Total: 29 zombies
 - Bold headers with Impact font
 
 ### Typography
+
 - **Headers**: Impact/Arial Black, 14-18px
 - **Body**: Courier New (monospace), 11px
 - **Details**: Arial, 9-11px
 - **Icons**: Emoji for visual clarity
 
 ### Color Scheme
+
 - **Primary**: Yellow (#ffcc00)
 - **Background**: Dark gray (#1a1a1a)
 - **Text**: White/gray (#ffffff, #cccccc)
@@ -176,12 +197,14 @@ Total: 29 zombies
 ## Performance
 
 ### Optimization
+
 - Static text rendering
 - Updates only on wave change
 - Lazy loading of wave data
 - Efficient text recycling
 
 ### Memory Management
+
 - Destroys old text objects
 - Clears arrays on update
 - No memory leaks
@@ -219,6 +242,7 @@ Potential additions:
 ## Keyboard Shortcuts
 
 Suggested shortcuts (not yet implemented):
+
 - **W**: Toggle Wave Info Panel
 - **Shift+W**: Pin panel open
 - **Ctrl+W**: Export wave data

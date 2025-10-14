@@ -10,6 +10,7 @@ Complete reference for all zombie types in Z-TD, including stats, characteristic
 **Color:** Green (`0x00ff00`)
 
 ### Stats
+
 - **Base Health:** 100 HP (scales with wave)
 - **Speed:** 50 pixels/second (Medium)
 - **Reward:** $10
@@ -17,12 +18,14 @@ Complete reference for all zombie types in Z-TD, including stats, characteristic
 - **Size:** 10 pixels
 
 ### Characteristics
+
 - Standard zombie type
 - Balanced stats
 - Most common in early waves
 - Good for testing tower effectiveness
 
 ### Visual Description
+
 - **Body:** Green humanoid shape
 - **Head:** Round green circle
 - **Arms:** Extended forward (classic zombie pose)
@@ -30,6 +33,7 @@ Complete reference for all zombie types in Z-TD, including stats, characteristic
 - **Details:** Basic shambling appearance
 
 ### Wave Appearance
+
 - Waves 1-5: 80% of zombies
 - Waves 6-10: 60% of zombies
 - Waves 11+: 50% of zombies
@@ -42,6 +46,7 @@ Complete reference for all zombie types in Z-TD, including stats, characteristic
 **Color:** Orange (`0xff6600`)
 
 ### Stats
+
 - **Base Health:** 80 HP (scales with wave)
 - **Speed:** 100 pixels/second (Fast)
 - **Reward:** $15
@@ -49,12 +54,14 @@ Complete reference for all zombie types in Z-TD, including stats, characteristic
 - **Size:** 10 pixels
 
 ### Characteristics
+
 - Quick runner
 - Lower health than basic
 - Harder to hit with slow-firing towers
 - Dangerous in groups
 
 ### Visual Description
+
 - **Body:** Orange/red humanoid shape
 - **Head:** Smaller, streamlined
 - **Posture:** Leaning forward (running pose)
@@ -62,6 +69,7 @@ Complete reference for all zombie types in Z-TD, including stats, characteristic
 - **Details:** Athletic, aggressive appearance
 
 ### Wave Appearance
+
 - Waves 1-5: 20% of zombies
 - Waves 6-10: 30% of zombies
 - Waves 11+: 30% of zombies
@@ -74,6 +82,7 @@ Complete reference for all zombie types in Z-TD, including stats, characteristic
 **Color:** Red (`0xff0000`)
 
 ### Stats
+
 - **Base Health:** 300 HP (scales with wave)
 - **Speed:** 25 pixels/second (Slow)
 - **Reward:** $50
@@ -81,12 +90,14 @@ Complete reference for all zombie types in Z-TD, including stats, characteristic
 - **Size:** 15 pixels (Large)
 
 ### Characteristics
+
 - Extremely high health
 - Very slow movement
 - Requires sustained fire to eliminate
 - High reward for killing
 
 ### Visual Description
+
 - **Body:** Large, bulky red shape
 - **Head:** Big, muscular
 - **Build:** Wide shoulders, thick limbs
@@ -94,6 +105,7 @@ Complete reference for all zombie types in Z-TD, including stats, characteristic
 - **Details:** Intimidating, powerful appearance
 
 ### Wave Appearance
+
 - Waves 6-10: 10% of zombies
 - Waves 11+: 15% of zombies
 
@@ -105,6 +117,7 @@ Complete reference for all zombie types in Z-TD, including stats, characteristic
 **Color:** Gray (`0x888888`)
 
 ### Stats
+
 - **Base Health:** 150 HP (scales with wave)
 - **Speed:** 40 pixels/second (Medium-Slow)
 - **Reward:** $30
@@ -112,12 +125,14 @@ Complete reference for all zombie types in Z-TD, including stats, characteristic
 - **Size:** 11 pixels
 
 ### Characteristics
+
 - Moderate health with armor
 - Damage resistance (future feature)
 - Slower than basic zombies
 - Requires armor-piercing damage
 
 ### Visual Description
+
 - **Body:** Gray metallic appearance
 - **Head:** Helmet or armored head
 - **Armor:** Plated chest and limbs
@@ -125,6 +140,7 @@ Complete reference for all zombie types in Z-TD, including stats, characteristic
 - **Details:** Military/tactical look
 
 ### Wave Appearance
+
 - Waves 11+: 5% of zombies
 
 ---
@@ -135,6 +151,7 @@ Complete reference for all zombie types in Z-TD, including stats, characteristic
 **Color:** Yellow (`0xffff00`)
 
 ### Stats
+
 - **Base Health:** 30 HP (scales with wave)
 - **Speed:** 60 pixels/second (Fast)
 - **Reward:** $5
@@ -142,12 +159,14 @@ Complete reference for all zombie types in Z-TD, including stats, characteristic
 - **Size:** 6 pixels (Small)
 
 ### Characteristics
+
 - Very low health
 - Fast movement
 - Appears in large numbers
 - Overwhelming through quantity
 
 ### Visual Description
+
 - **Body:** Small yellow shape
 - **Head:** Tiny, quick-moving
 - **Build:** Thin, agile
@@ -155,6 +174,7 @@ Complete reference for all zombie types in Z-TD, including stats, characteristic
 - **Details:** Swarm-like, numerous
 
 ### Wave Appearance
+
 - Waves 11+: Multiple spawns per wave
 - Often 10-20 at once
 
@@ -166,6 +186,7 @@ Complete reference for all zombie types in Z-TD, including stats, characteristic
 **Color:** Purple (`0x6600ff`)
 
 ### Stats
+
 - **Base Health:** 70 HP (scales with wave)
 - **Speed:** 70 pixels/second (Fast)
 - **Reward:** $25
@@ -173,12 +194,14 @@ Complete reference for all zombie types in Z-TD, including stats, characteristic
 - **Size:** 10 pixels
 
 ### Characteristics
+
 - Semi-transparent appearance
 - Fast movement
 - Harder to target (future feature)
 - Sneaky and evasive
 
 ### Visual Description
+
 - **Body:** Purple, semi-transparent
 - **Head:** Ghostly appearance
 - **Opacity:** 50-70% visible
@@ -186,6 +209,7 @@ Complete reference for all zombie types in Z-TD, including stats, characteristic
 - **Details:** Shadowy, ethereal look
 
 ### Wave Appearance
+
 - Waves 11+: 10% of zombies
 - Often mixed with other types
 
@@ -197,6 +221,7 @@ Complete reference for all zombie types in Z-TD, including stats, characteristic
 **Color:** Cyan (`0x00ffff`)
 
 ### Stats
+
 - **Base Health:** 120 HP (scales with wave)
 - **Speed:** 55 pixels/second (Medium)
 - **Reward:** $40
@@ -204,12 +229,14 @@ Complete reference for all zombie types in Z-TD, including stats, characteristic
 - **Size:** 12 pixels
 
 ### Characteristics
+
 - Robot/cyborg zombie
 - Consistent movement pattern
 - Immune to certain effects (future)
 - High-tech threat
 
 ### Visual Description
+
 - **Body:** Cyan metallic/robotic
 - **Head:** Mechanical, angular
 - **Build:** Geometric, artificial
@@ -217,6 +244,7 @@ Complete reference for all zombie types in Z-TD, including stats, characteristic
 - **Details:** Glowing parts, tech aesthetic
 
 ### Wave Appearance
+
 - Waves 11+: 5-10% of zombies
 - Late-game threat
 
@@ -227,10 +255,11 @@ Complete reference for all zombie types in Z-TD, including stats, characteristic
 Zombie health scales with wave number:
 
 ```typescript
-baseHealth * (1 + (wave - 1) * 0.15)
+baseHealth * (1 + (wave - 1) * 0.15);
 ```
 
 **Examples:**
+
 - Wave 1: 100% base health
 - Wave 5: 160% base health
 - Wave 10: 235% base health
@@ -297,6 +326,7 @@ Lowest:  Swarm Zombie (1 survivor) 💀
 ```
 
 **Note:** With 100 survivors in the camp:
+
 - 1 Tank zombie reaching the camp = 5% of your survivors lost
 - 20 Basic zombies = Game Over
 - 100 Swarm zombies = Game Over
@@ -306,16 +336,19 @@ Lowest:  Swarm Zombie (1 survivor) 💀
 ## Strategy Tips
 
 ### Early Waves (1-5)
+
 - Focus on Basic and Fast zombies
 - Machine Gun towers are effective
 - Build economy with consistent kills
 
 ### Mid Waves (6-10)
+
 - Tank zombies appear - need sustained damage
 - Mix of all basic types
 - Upgrade towers for better DPS
 
 ### Late Waves (11+)
+
 - All zombie types active
 - Swarm zombies can overwhelm
 - Stealth and Mechanical add complexity
@@ -363,6 +396,7 @@ ZOMBIE_SPEED_MULTIPLIER: 0.5,   // Make zombies slow
 ```
 
 Or spawn specific types in wave configuration:
+
 ```typescript
 // In src/managers/WaveManager.ts
 // Modify waveData to test specific zombie types
@@ -384,5 +418,5 @@ Planned features for zombie types:
 
 ---
 
-*Last Updated: Current Build*  
-*For gameplay balance changes, see: `src/config/gameConfig.ts`*
+_Last Updated: Current Build_  
+_For gameplay balance changes, see: `src/config/gameConfig.ts`_

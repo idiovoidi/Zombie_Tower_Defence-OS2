@@ -287,7 +287,7 @@ export class WaveInfoPanel extends UIComponent {
 
   private getWaveZombies(wave: number): ZombieGroup[] {
     if (!this.waveManager) return [];
-    
+
     // Access the wave data through a temporary instance
     const tempManager = new WaveManager();
     // Get the current wave zombies by setting the wave

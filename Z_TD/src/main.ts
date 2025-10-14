@@ -14,6 +14,7 @@ import { WaveInfoPanel } from './ui/WaveInfoPanel';
 import { CampUpgradePanel } from './ui/CampUpgradePanel';
 import { AIControlPanel } from './ui/AIControlPanel';
 import { MoneyAnimation } from './ui/MoneyAnimation';
+import { LogExporter } from './utils/LogExporter';
 import { GameConfig } from './config/gameConfig';
 import { DebugUtils } from './utils/DebugUtils';
 import { DevConfig } from './config/devConfig';
@@ -44,7 +45,7 @@ import { DebugConstants } from './config/debugConstants';
 
   // Create money animation system
   const moneyAnimation = new MoneyAnimation(app.stage);
-  
+
   // Set up money gain callback
   gameManager.setMoneyGainCallback((amount: number) => {
     moneyAnimation.showMoneyGain(amount);
@@ -119,7 +120,7 @@ import { DebugConstants } from './config/debugConstants';
   uiManager.registerComponent('zombieBestiary', zombieBestiary);
   // Add the content panel separately to the stage so it appears on top
   app.stage.addChild(zombieBestiary.getContentContainer());
-  
+
   // Set up spawn callback for testing zombie types
   zombieBestiary.setSpawnCallback((type: string) => {
     console.log(`🧟 Spawning test zombie: ${type}`);
@@ -435,16 +436,28 @@ import { DebugConstants } from './config/debugConstants';
 
   DebugUtils.info('Game initialized successfully');
 
+  // Expose LogExporter to console for easy access
+  (window as any).LogExporter = LogExporter;
+  console.log('📊 LogExporter available in console');
+  console.log('💡 Commands:');
+  console.log('  LogExporter.viewStoredLogs() - View all stored logs');
+  console.log('  LogExporter.exportAllLogs() - Export all logs as files');
+  console.log('  LogExporter.exportAllLogsAsBundle() - Export as single bundle');
+  console.log('  LogExporter.getStoredLogCount() - Get number of stored logs');
+  console.log('  LogExporter.clearAllLogs() - Clear all stored logs');
+
   // Expose wave balancing tools to console for testing
   if (DevConfig.DEBUG.ENABLED) {
     (window as any).waveBalance = async () => {
       const { WaveBalancing, printWaveBalance } = await import('./config/waveBalancing');
       (window as any).WaveBalancing = WaveBalancing;
-      (window as any).printWaveBalance = printWaveBalance;
+      (window as unknown).printWaveBalance = printWaveBalance;
       console.log('Wave balancing tools loaded!');
       console.log('Usage:');
       console.log('  printWaveBalance(1, 10) - Print balance report for waves 1-10');
-      console.log('  WaveBalancing.updateConfig({ difficultyMultiplier: 1.5 }) - Adjust difficulty');
+      console.log(
+        '  WaveBalancing.updateConfig({ difficultyMultiplier: 1.5 }) - Adjust difficulty'
+      );
       console.log('  WaveBalancing.calculateZombieHealth(5) - Get zombie health for wave 5');
     };
     console.log('💡 Type waveBalance() in console to load wave balancing tools');

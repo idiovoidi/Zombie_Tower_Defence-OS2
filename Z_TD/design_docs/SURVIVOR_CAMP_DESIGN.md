@@ -34,6 +34,7 @@ The Survivor Camp represents a makeshift settlement where the last survivors hav
 ### Defensive Structures
 
 #### Sandbag Barriers
+
 - **Material**: Tan/brown sandbags (#8b7355)
 - **Placement**: Organic clusters at left and right entrances (4 bags each side)
 - **Style**: Rounded rectangles with texture lines
@@ -41,6 +42,7 @@ The Survivor Camp represents a makeshift settlement where the last survivors hav
 - **Purpose**: Improvised defensive positions
 
 #### Wooden Supply Crates (16px × 16px each)
+
 - **Base**: Weathered wood (#8b7355)
 - **Planks**: Visible wood grain lines
 - **Metal Bands**: Dark metal strapping (#4a4a4a)
@@ -91,11 +93,13 @@ The Survivor Camp represents a makeshift settlement where the last survivors hav
 ### Camp Details
 
 #### Laundry Line
+
 - **Line**: Rope strung between tent areas
 - **Clothes**: Blue and green garments hanging
 - **Purpose**: Shows lived-in, everyday camp life
 
 #### Tent Stakes and Ropes
+
 - **Stakes**: Wooden posts driven into ground
 - **Ropes**: Support lines from tent corners
 - **Purpose**: Realistic tent setup
@@ -113,16 +117,19 @@ The Survivor Camp represents a makeshift settlement where the last survivors hav
 ## Color Palette
 
 ### Structural Colors
+
 - **Metal Gray**: #4a4a4a, #5a5a5a, #6a6a6a
 - **Dark Metal**: #2a2a2a, #3a3a3a
 - **Concrete**: #5a5a5a
 
 ### Material Colors
+
 - **Rust**: #8b4513 (30% opacity)
 - **Sandbags**: #8b7355
 - **Wood**: #654321
 
 ### Accent Colors
+
 - **Warning Yellow**: #ffcc00
 - **Warning Black**: #1a1a1a
 - **Safe Zone Green**: #00aa00, #008800
@@ -130,6 +137,7 @@ The Survivor Camp represents a makeshift settlement where the last survivors hav
 - **Antenna Light**: #ff0000, #ff3333
 
 ### Character Colors
+
 - **Skin**: #ffdbac
 - **Clothing**: #654321, #4a4a4a
 
@@ -158,12 +166,14 @@ The Survivor Camp represents a makeshift settlement where the last survivors hav
 ## Key Features
 
 ### Makeshift Aesthetic
+
 - Scrap metal fence sections with gaps
 - Weathered military tents with patches
 - Wooden crates and structures
 - Improvised defenses
 
 ### Camp Life Elements
+
 - Central campfire with stone ring
 - Laundry hanging between tents
 - Multiple survivors doing different activities
@@ -171,6 +181,7 @@ The Survivor Camp represents a makeshift settlement where the last survivors hav
 - Supply organization area
 
 ### Defensive Measures
+
 - Sandbag barrier clusters
 - Makeshift wooden watchtower
 - Armed guards on patrol
@@ -178,6 +189,7 @@ The Survivor Camp represents a makeshift settlement where the last survivors hav
 - Perimeter fence (incomplete but functional)
 
 ### Lived-In Details
+
 - Tent patches and repairs
 - Rope lines and stakes
 - Scattered supplies
@@ -218,16 +230,19 @@ Matches Tower Shop and Bottom Bar through:
 ## Gameplay Integration
 
 ### Defensive Purpose
+
 - Final destination for zombies
 - Represents player's lives/survivors
 - Visual indicator of what's being defended
 
 ### Thematic Elements
+
 - Shows organized resistance
 - Military-style fortification
 - Last bastion of humanity
 
 ### Visual Feedback
+
 - Static structure (no animations currently)
 - Could pulse/flash when taking damage (future)
 - Could show damage accumulation (future)
@@ -269,18 +284,21 @@ Potential additions to enhance the camp:
 ## Technical Implementation
 
 ### Rendering Method
+
 - Drawn using PixiJS Graphics API
 - Part of VisualMapRenderer
 - Rendered once during map initialization
 - Static geometry (no per-frame updates)
 
 ### Performance
+
 - Minimal draw calls
 - No textures (procedural graphics)
 - Efficient rendering
 - No animation overhead
 
 ### Code Location
+
 - **File**: `src/renderers/VisualMapRenderer.ts`
 - **Method**: `renderSurvivorCamp(endpoint: Waypoint)`
 - **Called from**: `render()` method during map setup

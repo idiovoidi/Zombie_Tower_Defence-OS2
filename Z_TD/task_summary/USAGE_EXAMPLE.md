@@ -74,6 +74,7 @@ function gameLoop(deltaTime: number) {
 ### Adjust Blood Intensity
 
 The intensity parameter controls how many particles spawn:
+
 - `1.0` = Normal (15 particles)
 - `2.0` = Double (30 particles)
 - `0.5` = Half (7-8 particles)
@@ -138,13 +139,13 @@ npm test -- CorpseManager.test.ts
 
 ```typescript
 // Listen for zombie death events
-zombie.on('zombieDeath', (data) => {
+zombie.on('zombieDeath', data => {
   // Custom blood effect
   bloodSystem.createBloodSplatter(data.x, data.y, 2.0); // Extra intense
-  
+
   // Custom corpse
   corpseManager.createCorpse(data.x, data.y, data.type, data.size);
-  
+
   // Add custom effects
   playDeathSound();
   shakeScreen();

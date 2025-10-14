@@ -7,41 +7,48 @@ This document describes the enhanced zombie visual system including improved zom
 All zombie types now have more detailed, zombie-like appearances:
 
 ### Basic Zombie
+
 - Sickly green-gray rotting flesh
 - Dark patches representing decay
 - Glowing red eyes
 - Dark mouth/jaw
 
 ### Fast Zombie
+
 - Leaner, elongated body
 - Torn flesh patches
 - Aggressive bright red eyes
 - Snarling mouth
 
 ### Tank Zombie
+
 - Massive bloated body
 - Multiple bloated patches
 - Small beady red eyes
 - Stitches and scars across body
 
 ### Armored Zombie
+
 - Plated armor covering body
 - Metal helmet with eye slits
 - Red glowing eyes visible through slits
 - Gray armor plates
 
 ### Swarm Zombie
+
 - Small body with decay spots
 - Tiny red eyes
 - Light green coloring
 
 ### Stealth Zombie
+
 - Semi-transparent shadowy appearance
 - Darker core
 - Glowing green eyes
 - Translucent effect (60% opacity)
 
 ### Mechanical Zombie
+
 - Metallic gray body with gear teeth
 - Central mechanical core
 - Glowing yellow mechanical eyes
@@ -52,6 +59,7 @@ All zombie types now have more detailed, zombie-like appearances:
 The `BloodParticleSystem` creates realistic blood splatter effects when zombies die:
 
 ### Features
+
 - 15+ particles per death (scaled by zombie size)
 - Particles spray in all directions
 - Physics simulation with gravity
@@ -60,6 +68,7 @@ The `BloodParticleSystem` creates realistic blood splatter effects when zombies 
 - Multiple blood colors (dark red to bright red)
 
 ### Usage
+
 ```typescript
 const bloodSystem = new BloodParticleSystem(container);
 bloodSystem.createBloodSplatter(x, y, intensity);
@@ -71,6 +80,7 @@ bloodSystem.update(deltaTime);
 The `CorpseManager` leaves zombie corpses on the battlefield:
 
 ### Features
+
 - Corpses remain for 5 seconds before fading
 - Blood pool underneath each corpse
 - Random rotation for variety
@@ -79,12 +89,14 @@ The `CorpseManager` leaves zombie corpses on the battlefield:
 - Gradual fade out in final 2.5 seconds
 
 ### Corpse Appearance
+
 - Flattened/collapsed version of zombie
 - Includes limb details
 - Blood pool ellipse underneath
 - Type-specific coloring
 
 ### Usage
+
 ```typescript
 const corpseManager = new CorpseManager(container);
 corpseManager.createCorpse(x, y, zombieType, size);
@@ -102,6 +114,7 @@ The systems are automatically integrated into `ZombieManager`:
 5. Both systems update each frame
 
 ### Performance Considerations
+
 - Blood particles auto-cleanup after fading
 - Corpse limit prevents memory issues
 - Both systems use efficient Graphics objects
@@ -110,17 +123,21 @@ The systems are automatically integrated into `ZombieManager`:
 ## Configuration
 
 ### Adjusting Blood Intensity
+
 Modify the intensity parameter in `createBloodSplatter()`:
+
 - Default: 1.0
 - Higher values = more particles
 - Scaled automatically by zombie size
 
 ### Adjusting Corpse Limits
+
 ```typescript
 corpseManager.setMaxCorpses(100); // Increase limit
 ```
 
 ### Adjusting Fade Times
+
 Edit `maxFadeTime` in `CorpseManager.createCorpse()` method.
 
 ## Visual Improvements Summary

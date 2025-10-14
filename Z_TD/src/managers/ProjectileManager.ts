@@ -20,7 +20,16 @@ export class ProjectileManager {
     projectileType: string = 'bullet',
     target: Zombie | null = null
   ): Projectile {
-    const projectile = new Projectile(x, y, targetX, targetY, damage, speed, projectileType, target);
+    const projectile = new Projectile(
+      x,
+      y,
+      targetX,
+      targetY,
+      damage,
+      speed,
+      projectileType,
+      target
+    );
     this.projectiles.push(projectile);
     this.container.addChild(projectile);
     return projectile;

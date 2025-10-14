@@ -1,6 +1,6 @@
 /**
  * Wave Manager
- * 
+ *
  * For wave balancing, use the WaveBalancing system in config/waveBalancing.ts
  * In browser console, type: waveBalance() to load balancing tools
  * Then use: printWaveBalance(1, 10) to see balance report
@@ -447,7 +447,7 @@ export class WaveManager {
         },
         {
           type: GameConfig.ZOMBIE_TYPES.ARMORED,
-          count: Math.floor(totalZombies * 0.20),
+          count: Math.floor(totalZombies * 0.2),
           spawnInterval: 1.6,
         },
         {
@@ -499,7 +499,7 @@ export class WaveManager {
         },
         {
           type: GameConfig.ZOMBIE_TYPES.STEALTH,
-          count: Math.floor(totalZombies * 0.10),
+          count: Math.floor(totalZombies * 0.1),
           spawnInterval: 1.0,
         },
         {
@@ -516,7 +516,7 @@ export class WaveManager {
       this.waveData.set(i, [
         {
           type: GameConfig.ZOMBIE_TYPES.BASIC,
-          count: Math.floor(totalZombies * 0.10),
+          count: Math.floor(totalZombies * 0.1),
           spawnInterval: 0.5,
         },
         {
@@ -536,12 +536,12 @@ export class WaveManager {
         },
         {
           type: GameConfig.ZOMBIE_TYPES.SWARM,
-          count: Math.floor(totalZombies * 0.20),
+          count: Math.floor(totalZombies * 0.2),
           spawnInterval: 0.3,
         },
         {
           type: GameConfig.ZOMBIE_TYPES.STEALTH,
-          count: Math.floor(totalZombies * 0.10),
+          count: Math.floor(totalZombies * 0.1),
           spawnInterval: 0.9,
         },
         {
