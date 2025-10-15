@@ -8,6 +8,9 @@ export class TowerCombatManager {
   private towers: Tower[] = [];
   private zombies: Zombie[] = [];
   private projectileManager: ProjectileManager | null = null;
+  private onDamageCallback:
+    | ((damage: number, towerType: string, killed: boolean, overkill: number) => void)
+    | null = null;
 
   public setProjectileManager(projectileManager: ProjectileManager): void {
     this.projectileManager = projectileManager;
@@ -19,6 +22,12 @@ export class TowerCombatManager {
 
   public setZombies(zombies: Zombie[]): void {
     this.zombies = zombies;
+  }
+
+  public setOnDamageCallback(
+    callback: (damage: number, towerType: string, killed: boolean, overkill: number) => void
+  ): void {
+    this.onDamageCallback = callback;
   }
 
   public update(deltaTime: number): void {
@@ -98,7 +107,7 @@ export class TowerCombatManager {
     // Flame tower shoots fireball projectile
     if (projectileType === 'flame') {
       const speed = 400;
-      this.projectileManager.createProjectile(
+      const projectile = this.projectileManager.createProjectile(
         spawnPos.x,
         spawnPos.y,
         target.position.x,
@@ -108,6 +117,10 @@ export class TowerCombatManager {
         projectileType,
         target
       );
+      projectile.setTowerType(tower.getType());
+      if (this.onDamageCallback) {
+        projectile.setOnDamageCallback(this.onDamageCallback);
+      }
       return;
     }
 
@@ -131,7 +144,7 @@ export class TowerCombatManager {
         const targetX = spawnPos.x + Math.cos(adjustedAngle) * 1000;
         const targetY = spawnPos.y + Math.sin(adjustedAngle) * 1000;
 
-        this.projectileManager.createProjectile(
+        const projectile = this.projectileManager.createProjectile(
           spawnPos.x,
           spawnPos.y,
           targetX,
@@ -141,10 +154,14 @@ export class TowerCombatManager {
           projectileType,
           target
         );
+        projectile.setTowerType(tower.getType());
+        if (this.onDamageCallback) {
+          projectile.setOnDamageCallback(this.onDamageCallback);
+        }
       }
     } else {
       // Single projectile
-      this.projectileManager.createProjectile(
+      const projectile = this.projectileManager.createProjectile(
         spawnPos.x,
         spawnPos.y,
         target.position.x,
@@ -154,6 +171,10 @@ export class TowerCombatManager {
         projectileType,
         target
       );
+      projectile.setTowerType(tower.getType());
+      if (this.onDamageCallback) {
+        projectile.setOnDamageCallback(this.onDamageCallback);
+      }
     }
   }
 
@@ -164,7 +185,17 @@ export class TowerCombatManager {
     damage: number
   ): void {
     // Apply damage instantly
+    const healthBefore = target.getHealth();
     target.takeDamage(damage);
+    const healthAfter = target.getHealth();
+    const actualDamage = healthBefore - healthAfter;
+    const killed = healthAfter <= 0;
+    const overkill = killed ? Math.abs(healthAfter) : 0;
+
+    // Track damage
+    if (this.onDamageCallback) {
+      this.onDamageCallback(actualDamage, tower.getType(), killed, overkill);
+    }
 
     // Create visual lightning arc effect
     const lightningGraphics = new Graphics();
@@ -258,7 +289,17 @@ export class TowerCombatManager {
     damage: number
   ): void {
     // Apply damage instantly
+    const healthBefore = target.getHealth();
     target.takeDamage(damage);
+    const healthAfter = target.getHealth();
+    const actualDamage = healthBefore - healthAfter;
+    const killed = healthAfter <= 0;
+    const overkill = killed ? Math.abs(healthAfter) : 0;
+
+    // Track damage
+    if (this.onDamageCallback) {
+      this.onDamageCallback(actualDamage, tower.getType(), killed, overkill);
+    }
 
     // Create visual flame stream effect
     const flameGraphics = new Graphics();

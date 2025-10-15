@@ -13,6 +13,7 @@ import { ZombieBestiary } from './ui/ZombieBestiary';
 import { WaveInfoPanel } from './ui/WaveInfoPanel';
 import { CampUpgradePanel } from './ui/CampUpgradePanel';
 import { AIControlPanel } from './ui/AIControlPanel';
+import { StatsPanel } from './ui/StatsPanel';
 import { MoneyAnimation } from './ui/MoneyAnimation';
 import { LogExporter } from './utils/LogExporter';
 import { GameConfig } from './config/gameConfig';
@@ -137,7 +138,14 @@ import { DebugConstants } from './config/debugConstants';
   aiControlPanel.setToggleCallback((enabled: boolean) => {
     DebugUtils.debug(`AI Player ${enabled ? 'enabled' : 'disabled'}`);
     gameManager.getAIPlayerManager().setEnabled(enabled);
+    gameManager.getStatTracker().setAIModeEnabled(enabled);
   });
+
+  // Create stats panel (left side, below AI control)
+  const statsPanel = new StatsPanel(gameManager);
+  statsPanel.position.set(10, 100);
+  uiManager.registerComponent('statsPanel', statsPanel);
+  app.stage.addChild(statsPanel);
 
   // Create camp upgrade system
   const campUpgradeManager = new CampUpgradeManager();
@@ -241,6 +249,9 @@ import { DebugConstants } from './config/debugConstants';
         .calculateUpgradeCost(tower.getType(), tower.getUpgradeLevel());
       if (gameManager.spendMoney(upgradeCost)) {
         placementManager.upgradeSelectedTower();
+        gameManager
+          .getStatTracker()
+          .trackTowerUpgraded(tower.getType(), upgradeCost, tower.getUpgradeLevel());
         DebugUtils.debug(`Tower upgraded for $${upgradeCost}`);
       } else {
         DebugUtils.debug('Not enough money to upgrade');
@@ -259,8 +270,10 @@ import { DebugConstants } from './config/debugConstants';
       }
       const sellValue = Math.floor(totalCost * 0.75);
 
+      const towerType = tower.getType();
       placementManager.removeSelectedTower();
       gameManager.addMoney(sellValue);
+      gameManager.getStatTracker().trackTowerSold(towerType, sellValue);
       towerInfoPanel.hide();
       DebugUtils.debug(`Tower sold for $${sellValue}`);
     }
@@ -288,6 +301,7 @@ import { DebugConstants } from './config/debugConstants';
           if (gameManager.getMoney() >= cost) {
             const tower = placementManager.placeTower(pos.x, pos.y);
             if (tower) {
+              gameManager.getStatTracker().trackTowerBuilt(selectedType, cost);
               towerShop.clearSelection();
             }
           } else {
@@ -448,9 +462,9 @@ import { DebugConstants } from './config/debugConstants';
 
   // Expose wave balancing tools to console for testing
   if (DevConfig.DEBUG.ENABLED) {
-    (window as any).waveBalance = async () => {
+    (window as unknown).waveBalance = async () => {
       const { WaveBalancing, printWaveBalance } = await import('./config/waveBalancing');
-      (window as any).WaveBalancing = WaveBalancing;
+      (window as unknown).WaveBalancing = WaveBalancing;
       (window as unknown).printWaveBalance = printWaveBalance;
       console.log('Wave balancing tools loaded!');
       console.log('Usage:');

@@ -16,12 +16,14 @@ Complete documentation for Z-TD's AI player and game balancing system.
 ### User Guides
 
 **[AI_PLAYER_GUIDE.md](../../AI_PLAYER_GUIDE.md)**
+
 - How to use the AI player
 - AI strategy and behavior
 - UI controls and console commands
 - Performance logging details
 
 **[GAME_LOGS_README.md](../../GAME_LOGS_README.md)**
+
 - Log file format and structure
 - Analysis examples (Python, JavaScript)
 - Best practices for organizing logs
@@ -30,6 +32,7 @@ Complete documentation for Z-TD's AI player and game balancing system.
 ### Developer Guides
 
 **[BALANCING_STATS_GUIDE.md](./BALANCING_STATS_GUIDE.md)**
+
 - Complete explanation of all metrics
 - Balancing use cases for each stat
 - Analysis workflows
@@ -37,6 +40,7 @@ Complete documentation for Z-TD's AI player and game balancing system.
 - Target values for each game phase
 
 **[STATS_QUICK_REFERENCE.md](./STATS_QUICK_REFERENCE.md)**
+
 - Quick lookup table of all metrics
 - Target values at a glance
 - Quick diagnosis guide
@@ -44,6 +48,7 @@ Complete documentation for Z-TD's AI player and game balancing system.
 - Analysis checklist
 
 **[AI_IMPLEMENTATION_SUMMARY.md](./AI_IMPLEMENTATION_SUMMARY.md)**
+
 - Technical implementation details
 - Code structure and architecture
 - Integration points
@@ -51,6 +56,7 @@ Complete documentation for Z-TD's AI player and game balancing system.
 ## Key Features
 
 ### AI Player
+
 - ✅ Automatic tower placement (15 strategic zones)
 - ✅ Smart tower selection (diverse composition)
 - ✅ Intelligent upgrades (prioritizes high-value towers)
@@ -58,6 +64,7 @@ Complete documentation for Z-TD's AI player and game balancing system.
 - ✅ Floating UI control (robot icon)
 
 ### Statistics Collection
+
 - ✅ 20+ tracked metrics
 - ✅ Wave-by-wave analysis
 - ✅ Economy tracking
@@ -66,6 +73,7 @@ Complete documentation for Z-TD's AI player and game balancing system.
 - ✅ Performance ratings
 
 ### Log Export
+
 - ✅ Automatic export on AI disable
 - ✅ Browser localStorage storage (100 logs)
 - ✅ Batch export functionality
@@ -76,18 +84,21 @@ Complete documentation for Z-TD's AI player and game balancing system.
 ## Tracked Statistics
 
 ### Core Metrics
+
 - Session duration and timing
 - Wave progression (highest reached)
 - Economy (money earned, spent, peak)
 - Survival (lives lost, survival rate, lowest point)
 
 ### Tower Metrics
+
 - Towers built and upgraded
 - Build rate (towers/minute)
 - Tower composition (type distribution)
 - Upgrade distribution (levels reached)
 
 ### Wave Analysis
+
 - Completion times per wave
 - Lives lost per wave
 - Towers built per wave
@@ -97,6 +108,7 @@ Complete documentation for Z-TD's AI player and game balancing system.
 ## Balancing Workflow
 
 ### 1. Baseline Testing
+
 ```bash
 # Run 20 AI sessions
 # Let AI play until game over
@@ -104,24 +116,28 @@ Complete documentation for Z-TD's AI player and game balancing system.
 ```
 
 ### 2. Data Collection
+
 ```javascript
 // Export all logs
-LogExporter.exportAllLogs()
+LogExporter.exportAllLogs();
 // Save to player_logs/baseline/
 ```
 
 ### 3. Analysis
+
 - Load logs into spreadsheet
 - Calculate averages
 - Identify issues
 - Prioritize changes
 
 ### 4. Make Changes
+
 - Adjust one variable
 - Document in git commit
 - Keep changes small
 
 ### 5. Validation
+
 ```bash
 # Run 20 more AI sessions
 # Compare with baseline
@@ -129,6 +145,7 @@ LogExporter.exportAllLogs()
 ```
 
 ### 6. Iterate
+
 - Repeat for next issue
 - Track changes over time
 - Build historical data
@@ -136,19 +153,21 @@ LogExporter.exportAllLogs()
 ## Console Commands
 
 ### AI Control
+
 ```javascript
-gameManager.getAIPlayerManager().setEnabled(true)
-gameManager.getAIPlayerManager().setEnabled(false)
-gameManager.getAIPlayerManager().getStats()
+gameManager.getAIPlayerManager().setEnabled(true);
+gameManager.getAIPlayerManager().setEnabled(false);
+gameManager.getAIPlayerManager().getStats();
 ```
 
 ### Log Management
+
 ```javascript
-LogExporter.viewStoredLogs()
-LogExporter.exportAllLogs()
-LogExporter.exportAllLogsAsBundle()
-LogExporter.getStoredLogCount()
-LogExporter.clearAllLogs()
+LogExporter.viewStoredLogs();
+LogExporter.exportAllLogs();
+LogExporter.exportAllLogsAsBundle();
+LogExporter.getStoredLogCount();
+LogExporter.clearAllLogs();
 ```
 
 ## File Structure
@@ -178,18 +197,21 @@ Z-TD/
 ## Target Performance
 
 ### Balanced Game
+
 - AI reaches wave 10-15 consistently
 - 70-85% survival rate
 - Diverse tower composition (no single tower >50%)
 - Smooth difficulty curve (no spikes)
 
 ### Too Easy
+
 - AI reaches wave 20+ easily
 - 95%+ survival rate
 - Peak money >$2000
 - Wave times <20s
 
 ### Too Hard
+
 - AI fails before wave 5
 - <50% survival rate
 - Can't afford towers
@@ -198,34 +220,43 @@ Z-TD/
 ## Common Issues & Solutions
 
 ### Issue: AI Fails Early
+
 **Check:**
+
 - Starting money too low?
 - Early zombies too strong?
 - Tower costs too high?
 
 **Fix:**
+
 - Increase starting money 20%
 - Reduce early zombie health 15%
 - Reduce tower costs 10%
 
 ### Issue: AI Dominates Late Game
+
 **Check:**
+
 - Money rewards too high?
 - Zombie scaling too slow?
 - Tower upgrades too powerful?
 
 **Fix:**
+
 - Reduce money rewards 15%
 - Increase zombie health scaling 20%
 - Reduce upgrade effectiveness 10%
 
 ### Issue: One Tower Dominates
+
 **Check:**
+
 - Tower composition in logs
 - Cost vs effectiveness ratio
 - Upgrade scaling
 
 **Fix:**
+
 - Buff underused towers 20%
 - Nerf overused tower 10%
 - Adjust costs
@@ -254,6 +285,7 @@ Z-TD/
 ## Support
 
 For questions or issues:
+
 1. Check the relevant guide above
 2. Review example logs in `player_logs/`
 3. Run `LogExporter.viewStoredLogs()` in console

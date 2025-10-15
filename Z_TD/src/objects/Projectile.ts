@@ -10,6 +10,8 @@ export class Projectile extends Container {
   private targetY: number;
   private isActive: boolean = true;
   private projectileType: string;
+  private towerType: string = 'unknown';
+  private onDamageCallback: ((damage: number, towerType: string, killed: boolean, overkill: number) => void) | null = null;
 
   constructor(
     x: number,
@@ -107,11 +109,29 @@ export class Projectile extends Container {
 
     // Apply damage to target if it still exists
     if (this.target && this.target.parent) {
+      const healthBefore = this.target.getHealth();
       this.target.takeDamage(this.damage);
+      const healthAfter = this.target.getHealth();
+      const actualDamage = healthBefore - healthAfter;
+      const killed = healthAfter <= 0;
+      const overkill = killed ? Math.abs(healthAfter) : 0;
+
+      // Notify callback
+      if (this.onDamageCallback) {
+        this.onDamageCallback(actualDamage, this.towerType, killed, overkill);
+      }
     }
 
     // Create hit effect based on projectile type
     this.createHitEffect();
+  }
+
+  public setTowerType(type: string): void {
+    this.towerType = type;
+  }
+
+  public setOnDamageCallback(callback: (damage: number, towerType: string, killed: boolean, overkill: number) => void): void {
+    this.onDamageCallback = callback;
   }
 
   private createHitEffect(): void {

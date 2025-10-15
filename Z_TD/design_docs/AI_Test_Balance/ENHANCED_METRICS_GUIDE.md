@@ -7,6 +7,7 @@ Complete guide to all metrics tracked in player reports for Z-TD.
 ## Overview
 
 Player reports now track comprehensive metrics across 5 major categories:
+
 1. **Game Data** - Basic game outcome
 2. **AI Data** - AI decision-making and strategy
 3. **Combat Stats** - Damage, kills, and combat efficiency
@@ -30,6 +31,7 @@ Basic information about the game session.
 - **livesLost**: Total lives lost during game
 
 ### Example
+
 ```json
 "gameData": {
   "highestWave": 15,
@@ -72,6 +74,7 @@ AI-specific metrics for automated gameplay.
 - **decisionsPerWave**: AI decisions made per wave
 
 ### Example
+
 ```json
 "aiData": {
   "towersBuilt": 12,
@@ -122,6 +125,7 @@ NEW! Detailed combat performance metrics.
 - **Improve accuracy**: Track hit rate for projectile towers
 
 ### Example
+
 ```json
 "combatStats": {
   "totalDamageDealt": 45000.50,
@@ -178,6 +182,7 @@ NEW! Comprehensive financial tracking.
 - **Prevent bankruptcy**: Avoid running out of money
 
 ### Example
+
 ```json
 "economyStats": {
   "moneyTimeline": [
@@ -224,6 +229,7 @@ NEW! Cost-effectiveness and resource utilization.
 - **Resource management**: Are you spending or saving too much?
 
 ### Example
+
 ```json
 "efficiencyStats": {
   "damagePerDollar": 18.75,
@@ -267,6 +273,7 @@ NEW! Snapshots of game state over time.
 - **Analyze trends**: Is DPS increasing appropriately?
 
 ### Example
+
 ```json
 "timelineStats": {
   "snapshots": [

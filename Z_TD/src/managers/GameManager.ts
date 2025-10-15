@@ -16,6 +16,7 @@ import { Tower } from '../objects/Tower';
 import { DevConfig } from '../config/devConfig';
 import { DebugConstants, applyDebugConstants } from '../config/debugConstants';
 import { type GameLogEntry, LogExporter } from '../utils/LogExporter';
+import { StatTracker } from '../utils/StatTracker';
 
 export class GameManager {
   private app: Application;
@@ -41,6 +42,7 @@ export class GameManager {
   private towerCombatManager: TowerCombatManager;
   private projectileManager: ProjectileManager;
   private aiPlayerManager: AIPlayerManager;
+  private statTracker: StatTracker;
   private gameContainer: Container;
   private onMoneyGainCallback: ((amount: number) => void) | null = null;
 
@@ -88,7 +90,13 @@ export class GameManager {
     this.projectileManager = new ProjectileManager(this.gameContainer);
     this.towerCombatManager = new TowerCombatManager();
     this.towerCombatManager.setProjectileManager(this.projectileManager);
+    this.statTracker = new StatTracker(this);
     this.aiPlayerManager = new AIPlayerManager(this);
+
+    // Set up combat damage tracking
+    this.towerCombatManager.setOnDamageCallback((damage, towerType, killed, overkill) => {
+      this.statTracker.trackDamage(damage, towerType, killed, overkill);
+    });
 
     // Set up tower placement callbacks
     this.setupTowerPlacementCallbacks();
@@ -156,16 +164,23 @@ export class GameManager {
 
         this.currentState = GameConfig.GAME_STATES.PLAYING;
 
+        // Start stat tracking
+        const aiEnabled = this.aiPlayerManager.isEnabled();
+        this.statTracker.startTracking(aiEnabled);
+
         // Spawn starter tower to showcase mechanics
         this.spawnStarterTower();
 
         // Spawn test towers for debugging (if enabled)
-        if ((DevConfig as any).TESTING?.SPAWN_TEST_TOWERS) {
+        if ((DevConfig as unknown).TESTING?.SPAWN_TEST_TOWERS) {
           this.spawnTestTowers();
         }
 
         // Start spawning zombies
         this.zombieManager.startWave();
+        
+        // Track first wave start
+        this.statTracker.trackWaveStart();
 
         console.log(`Game started with level: ${level.name}`);
       }
@@ -424,10 +439,17 @@ export class GameManager {
     return this.aiPlayerManager;
   }
 
+  public getStatTracker(): StatTracker {
+    return this.statTracker;
+  }
+
   // Update game state
   public update(deltaTime: number): void {
     // Update AI player (needs to run in all states to detect wave complete)
     this.aiPlayerManager.update(deltaTime);
+
+    // Update stat tracker
+    this.statTracker.update(deltaTime);
 
     if (this.currentState === GameConfig.GAME_STATES.PLAYING) {
       // Update zombie manager
@@ -480,8 +502,13 @@ export class GameManager {
     console.log(`Wave ${this.wave} complete!`);
     this.currentState = GameConfig.GAME_STATES.WAVE_COMPLETE;
 
+    // Track wave completion
+    this.statTracker.trackWaveComplete();
+
     // Award bonus money for completing wave
-    this.addMoney(50 + this.wave * 10);
+    const bonus = 50 + this.wave * 10;
+    this.addMoney(bonus);
+    this.statTracker.trackMoneyEarned(bonus);
   }
 
   // Start next wave
@@ -490,6 +517,10 @@ export class GameManager {
     this.waveManager.nextWave();
     this.zombieManager.startWave();
     this.currentState = GameConfig.GAME_STATES.PLAYING;
+    
+    // Track wave start
+    this.statTracker.trackWaveStart();
+    
     console.log(`Starting wave ${this.wave}`);
   }
 }

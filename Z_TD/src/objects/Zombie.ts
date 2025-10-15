@@ -549,6 +549,10 @@ export class Zombie extends GameObject {
   }
 
   // Show damage indicator when taking damage
+  public getHealth(): number {
+    return this.healthComponent.getHealth();
+  }
+
   public takeDamage(damage: number): number {
     // Apply damage to health component
     const actualDamage = this.healthComponent.takeDamage(damage);

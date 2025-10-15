@@ -6,6 +6,7 @@ import { MainMenu } from './MainMenu';
 import { LevelSelectMenu } from './LevelSelectMenu';
 import { TowerShop } from './TowerShop';
 import { TowerInfoPanel } from './TowerInfoPanel';
+import { StatsPanel } from './StatsPanel';
 
 export class UIManager {
   private app: Application;
@@ -64,6 +65,7 @@ export class UIManager {
         this.setComponentVisibility('bottomBar', false);
         this.setComponentVisibility('towerShop', false);
         this.setComponentVisibility('towerInfoPanel', false);
+        this.setComponentVisibility('statsPanel', false);
         break;
       case GameConfig.GAME_STATES.LEVEL_SELECT:
         // Show level select menu, hide other components
@@ -73,6 +75,7 @@ export class UIManager {
         this.setComponentVisibility('bottomBar', false);
         this.setComponentVisibility('towerShop', false);
         this.setComponentVisibility('towerInfoPanel', false);
+        this.setComponentVisibility('statsPanel', false);
         break;
       case GameConfig.GAME_STATES.PLAYING:
       case GameConfig.GAME_STATES.WAVE_COMPLETE:
@@ -83,6 +86,7 @@ export class UIManager {
         this.setComponentVisibility('bottomBar', true);
         this.setComponentVisibility('towerShop', true);
         this.setComponentVisibility('towerInfoPanel', false);
+        this.setComponentVisibility('statsPanel', true);
         break;
       case GameConfig.GAME_STATES.PAUSED:
         // Show pause menu

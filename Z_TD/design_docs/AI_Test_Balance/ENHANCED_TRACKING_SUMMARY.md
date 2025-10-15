@@ -9,6 +9,7 @@ Comprehensive tracking system for player reports with 5 major metric categories.
 ## New Metrics Categories
 
 ### 1. Combat Stats ⚔️
+
 - Total damage dealt and DPS (average & peak)
 - Zombie kills and accuracy rate
 - Damage/kills breakdown by tower type
@@ -16,6 +17,7 @@ Comprehensive tracking system for player reports with 5 major metric categories.
 - Overkill damage tracking
 
 ### 2. Economy Stats 💰
+
 - Money timeline (snapshots every 5 seconds)
 - Income vs expenses per wave
 - Net profit/loss tracking
@@ -24,6 +26,7 @@ Comprehensive tracking system for player reports with 5 major metric categories.
 - Economy efficiency rating
 
 ### 3. Efficiency Stats 📊
+
 - Damage per dollar spent
 - Kills per dollar spent
 - Damage/kills per tower
@@ -32,11 +35,13 @@ Comprehensive tracking system for player reports with 5 major metric categories.
 - Cost efficiency rating (EXCELLENT/GOOD/FAIR/POOR)
 
 ### 4. Timeline Stats 📈
+
 - Game state snapshots every 10 seconds
 - Tracks: money, lives, towers, zombies, DPS
 - Enables visualization and trend analysis
 
 ### 5. Enhanced AI Data
+
 - All previous AI metrics retained
 - Now includes money earned tracking
 - Per-wave spending breakdown
@@ -46,6 +51,7 @@ Comprehensive tracking system for player reports with 5 major metric categories.
 ## Files Modified
 
 ### `src/utils/LogExporter.ts`
+
 - **Added**: `combatStats` interface
 - **Added**: `economyStats` interface
 - **Added**: `efficiencyStats` interface
@@ -53,6 +59,7 @@ Comprehensive tracking system for player reports with 5 major metric categories.
 - **Updated**: `GameLogEntry` interface with new fields
 
 ### `src/managers/AIPlayerManager.ts`
+
 - **Added**: Combat tracking fields to `AIPerformanceStats`
 - **Added**: Economy tracking fields
 - **Added**: Timeline snapshot system
@@ -155,6 +162,7 @@ npm run dev:full
 To fully utilize combat tracking, integrate these calls:
 
 1. **In TowerCombatManager** (when damage is dealt):
+
 ```typescript
 const aiManager = this.gameManager.getAIPlayerManager();
 if (aiManager.isEnabled()) {
@@ -163,6 +171,7 @@ if (aiManager.isEnabled()) {
 ```
 
 2. **In Tower classes** (when shooting):
+
 ```typescript
 const aiManager = this.gameManager.getAIPlayerManager();
 if (aiManager.isEnabled()) {
@@ -195,7 +204,7 @@ if (aiManager.isEnabled()) {
 ✅ **Strategy Optimization**: Data-driven decision making  
 ✅ **Trend Visualization**: See how metrics change over time  
 ✅ **Cost Analysis**: Understand ROI for every dollar spent  
-✅ **Combat Insights**: Know which towers perform best  
+✅ **Combat Insights**: Know which towers perform best
 
 ---
 
