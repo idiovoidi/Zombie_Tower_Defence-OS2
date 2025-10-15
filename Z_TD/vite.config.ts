@@ -5,7 +5,7 @@ import { resolve } from 'path';
 export default defineConfig({
   server: {
     port: 8080,
-    open: true,
+    open: false, // Disabled to prevent duplicate instances when debugging
   },
   build: {
     outDir: 'dist',
