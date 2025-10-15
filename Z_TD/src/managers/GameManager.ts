@@ -178,7 +178,7 @@ export class GameManager {
 
         // Start spawning zombies
         this.zombieManager.startWave();
-        
+
         // Track first wave start
         this.statTracker.trackWaveStart();
 
@@ -517,10 +517,10 @@ export class GameManager {
     this.waveManager.nextWave();
     this.zombieManager.startWave();
     this.currentState = GameConfig.GAME_STATES.PLAYING;
-    
+
     // Track wave start
     this.statTracker.trackWaveStart();
-    
+
     console.log(`Starting wave ${this.wave}`);
   }
 }

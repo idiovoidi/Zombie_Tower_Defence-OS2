@@ -11,7 +11,9 @@ export class Projectile extends Container {
   private isActive: boolean = true;
   private projectileType: string;
   private towerType: string = 'unknown';
-  private onDamageCallback: ((damage: number, towerType: string, killed: boolean, overkill: number) => void) | null = null;
+  private onDamageCallback:
+    | ((damage: number, towerType: string, killed: boolean, overkill: number) => void)
+    | null = null;
 
   constructor(
     x: number,
@@ -130,7 +132,9 @@ export class Projectile extends Container {
     this.towerType = type;
   }
 
-  public setOnDamageCallback(callback: (damage: number, towerType: string, killed: boolean, overkill: number) => void): void {
+  public setOnDamageCallback(
+    callback: (damage: number, towerType: string, killed: boolean, overkill: number) => void
+  ): void {
     this.onDamageCallback = callback;
   }
 

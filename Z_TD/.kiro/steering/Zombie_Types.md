@@ -1,7 +1,8 @@
 # Zombie Types Reference Guide
+
 ---
-Complete reference for all zombie types in Z-TD, including stats, characteristics, and visual descriptions.
----
+
+## Complete reference for all zombie types in Z-TD, including stats, characteristics, and visual descriptions.
 
 ## 1. Basic Zombie 🧟
 
