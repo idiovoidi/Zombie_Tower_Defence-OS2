@@ -20,7 +20,7 @@ export interface GameLogEntry {
     survivalRate: number;
     livesLost: number;
   };
-  aiData?: {
+  aiData: {
     towersBuilt: number;
     towersUpgraded: number;
     moneySpent: number;
@@ -41,7 +41,7 @@ export interface GameLogEntry {
     performanceRating: string;
     defenseRating: string;
   };
-  combatStats?: {
+  combatStats: {
     totalDamageDealt: number;
     totalZombiesKilled: number;
     averageDPS: number;
@@ -55,7 +55,7 @@ export interface GameLogEntry {
     shotsHit: number;
     shotsMissed: number;
   };
-  economyStats?: {
+  economyStats: {
     moneyTimeline: Array<{ time: number; money: number; wave: number }>;
     moneyPerWave: number[];
     moneySpentPerWave: number[];
@@ -69,7 +69,7 @@ export interface GameLogEntry {
     bankruptcyEvents: number;
     cashFlowTrend: string;
   };
-  efficiencyStats?: {
+  efficiencyStats: {
     damagePerDollar: number;
     killsPerDollar: number;
     damagePerTower: number;
@@ -80,7 +80,7 @@ export interface GameLogEntry {
     averageUpgradeLevel: number;
     costEfficiencyRating: string;
   };
-  timelineStats?: {
+  timelineStats: {
     snapshots: Array<{
       time: number;
       wave: number;
