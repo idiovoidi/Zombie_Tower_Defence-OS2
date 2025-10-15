@@ -545,6 +545,13 @@ export class AIPlayerManager {
 
         console.log(`🤖 AI upgraded ${towerType} to level ${upgradeLevel} for $${upgradeCost}`);
 
+        // Track tower upgrade for balance analysis
+        if (this.gameManager.isBalanceTrackingEnabled()) {
+          this.gameManager
+            .getBalanceTrackingManager()
+            .trackTowerUpgraded(towerType, upgradeCost, upgradeLevel);
+        }
+
         // Deselect after upgrade
         placementManager.selectTower(null);
         return true;
@@ -971,6 +978,14 @@ export class AIPlayerManager {
       },
     };
 
-    LogExporter.exportLog(logEntry);
+    // Get balance data from BalanceTrackingManager if enabled
+    let balanceData: Record<string, unknown> | undefined;
+    const balanceTrackingManager = this.gameManager.getBalanceTrackingManager();
+    if (balanceTrackingManager && balanceTrackingManager.isEnabled()) {
+      balanceData = balanceTrackingManager.generateReportData() as Record<string, unknown>;
+      console.log('📊 Including balance analysis in AI report');
+    }
+
+    LogExporter.exportLog(logEntry, balanceData);
   }
 }

@@ -12,9 +12,10 @@ import { UpgradeSystem } from './UpgradeSystem';
 import { TowerCombatManager } from './TowerCombatManager';
 import { ProjectileManager } from './ProjectileManager';
 import { AIPlayerManager } from './AIPlayerManager';
+import { BalanceTrackingManager } from './BalanceTrackingManager';
 import { Tower } from '../objects/Tower';
 import { DevConfig } from '../config/devConfig';
-import { DebugConstants, applyDebugConstants } from '../config/debugConstants';
+import { DebugConstants } from '../config/debugConstants';
 import { type GameLogEntry, LogExporter } from '../utils/LogExporter';
 import { StatTracker } from '../utils/StatTracker';
 
@@ -42,9 +43,11 @@ export class GameManager {
   private towerCombatManager: TowerCombatManager;
   private projectileManager: ProjectileManager;
   private aiPlayerManager: AIPlayerManager;
+  private balanceTrackingManager: BalanceTrackingManager;
   private statTracker: StatTracker;
   private gameContainer: Container;
   private onMoneyGainCallback: ((amount: number) => void) | null = null;
+  private waveStartLives: number = 0;
 
   constructor(app: Application) {
     this.app = app;
@@ -92,10 +95,16 @@ export class GameManager {
     this.towerCombatManager.setProjectileManager(this.projectileManager);
     this.statTracker = new StatTracker(this);
     this.aiPlayerManager = new AIPlayerManager(this);
+    this.balanceTrackingManager = new BalanceTrackingManager(this);
 
     // Set up combat damage tracking
     this.towerCombatManager.setOnDamageCallback((damage, towerType, killed, overkill) => {
       this.statTracker.trackDamage(damage, towerType, killed, overkill);
+
+      // Track damage for balance analysis if enabled
+      if (this.balanceTrackingManager.isEnabled()) {
+        this.balanceTrackingManager.trackDamage(towerType, damage, killed, overkill);
+      }
     });
 
     // Set up tower placement callbacks
@@ -124,6 +133,11 @@ export class GameManager {
       const cost = this.towerManager.getTowerCost(tower.getType());
       if (this.spendMoney(cost)) {
         console.log(`Tower placed: ${tower.getType()} for $${cost}`);
+
+        // Track tower placement for balance analysis
+        if (this.balanceTrackingManager.isEnabled()) {
+          this.balanceTrackingManager.trackTowerPlaced(tower.getType(), cost);
+        }
       } else {
         console.warn(`Failed to deduct money for tower: ${tower.getType()}`);
       }
@@ -144,6 +158,10 @@ export class GameManager {
       if (level) {
         // Generate new session ID for this game
         LogExporter.newSession();
+
+        // Reset and enable balance tracking for new game
+        this.balanceTrackingManager.reset();
+        this.balanceTrackingManager.enable();
 
         // Set level-specific game parameters (unless debug mode overrides)
         if (DebugConstants.ENABLED) {
@@ -176,11 +194,19 @@ export class GameManager {
           this.spawnTestTowers();
         }
 
+        // Track lives at wave start for balance analysis
+        this.waveStartLives = this.lives;
+
         // Start spawning zombies
         this.zombieManager.startWave();
 
         // Track first wave start
         this.statTracker.trackWaveStart();
+
+        // Track first wave start for balance analysis
+        if (this.balanceTrackingManager.isEnabled()) {
+          this.balanceTrackingManager.trackWaveStart();
+        }
 
         console.log(`Game started with level: ${level.name}`);
       }
@@ -253,6 +279,11 @@ export class GameManager {
     this.currentState = GameConfig.GAME_STATES.GAME_OVER;
     console.log('Game over');
 
+    // Perform end-game balance analysis
+    if (this.balanceTrackingManager.isEnabled()) {
+      this.balanceTrackingManager.performEndGameAnalysis();
+    }
+
     // Export log if not AI run (AI exports its own logs)
     if (!this.aiPlayerManager.isEnabled()) {
       this.exportManualGameLog();
@@ -261,7 +292,7 @@ export class GameManager {
 
   // Export game log for manual play
   private exportManualGameLog(): void {
-    const logEntry: GameLogEntry = {
+    const logEntry = {
       timestamp: new Date().toISOString(),
       sessionId: LogExporter.getSessionId(),
       isAIRun: false,
@@ -288,9 +319,16 @@ export class GameManager {
           (DebugConstants.ENABLED ? DebugConstants.STARTING_LIVES : GameConfig.STARTING_LIVES) -
           this.lives,
       },
-    };
+    } as GameLogEntry;
 
-    LogExporter.exportLog(logEntry);
+    // Get balance data from BalanceTrackingManager if enabled
+    let balanceData: Record<string, unknown> | undefined;
+    if (this.balanceTrackingManager.isEnabled()) {
+      balanceData = this.balanceTrackingManager.generateReportData() as Record<string, unknown>;
+      console.log('📊 Including balance analysis in report');
+    }
+
+    LogExporter.exportLog(logEntry, balanceData);
     console.log('📊 Manual game log exported');
   }
 
@@ -298,6 +336,11 @@ export class GameManager {
   public victory(): void {
     this.currentState = GameConfig.GAME_STATES.VICTORY;
     console.log('Victory!');
+
+    // Perform end-game balance analysis
+    if (this.balanceTrackingManager.isEnabled()) {
+      this.balanceTrackingManager.performEndGameAnalysis();
+    }
   }
 
   // Get current state
@@ -443,6 +486,23 @@ export class GameManager {
     return this.statTracker;
   }
 
+  public getBalanceTrackingManager(): BalanceTrackingManager {
+    return this.balanceTrackingManager;
+  }
+
+  // Enable/disable balance tracking
+  public enableBalanceTracking(): void {
+    this.balanceTrackingManager.enable();
+  }
+
+  public disableBalanceTracking(): void {
+    this.balanceTrackingManager.disable();
+  }
+
+  public isBalanceTrackingEnabled(): boolean {
+    return this.balanceTrackingManager.isEnabled();
+  }
+
   // Update game state
   public update(deltaTime: number): void {
     // Update AI player (needs to run in all states to detect wave complete)
@@ -450,6 +510,9 @@ export class GameManager {
 
     // Update stat tracker
     this.statTracker.update(deltaTime);
+
+    // Update balance tracking manager
+    this.balanceTrackingManager.update(deltaTime);
 
     if (this.currentState === GameConfig.GAME_STATES.PLAYING) {
       // Update zombie manager
@@ -479,6 +542,12 @@ export class GameManager {
           // Award money for killing zombie
           const reward = zombie.getReward();
           this.addMoney(reward);
+
+          // Track money earned from zombie kill
+          if (this.balanceTrackingManager.isEnabled()) {
+            this.balanceTrackingManager.trackEconomy('EARN', reward);
+          }
+
           console.log(`💰 Zombie killed! +$${reward}`);
           continue; // ZombieManager will remove it
         }
@@ -505,10 +574,34 @@ export class GameManager {
     // Track wave completion
     this.statTracker.trackWaveComplete();
 
+    // Track wave completion for balance analysis
+    if (this.balanceTrackingManager.isEnabled()) {
+      // Calculate zombies killed (all zombies from the wave)
+      const zombieGroups = this.waveManager.getCurrentWaveZombies();
+      let totalZombiesSpawned = 0;
+      for (const group of zombieGroups) {
+        const adjustedCount = this.waveManager.calculateZombieCount(
+          group.count,
+          this.waveManager.getCurrentWave()
+        );
+        totalZombiesSpawned += adjustedCount;
+      }
+
+      // Calculate lives lost this wave
+      const livesLostThisWave = this.waveStartLives - this.lives;
+
+      this.balanceTrackingManager.trackWaveComplete(totalZombiesSpawned, livesLostThisWave);
+    }
+
     // Award bonus money for completing wave
     const bonus = 50 + this.wave * 10;
     this.addMoney(bonus);
     this.statTracker.trackMoneyEarned(bonus);
+
+    // Track wave completion bonus for balance analysis
+    if (this.balanceTrackingManager.isEnabled()) {
+      this.balanceTrackingManager.trackEconomy('EARN', bonus);
+    }
   }
 
   // Start next wave
@@ -518,8 +611,16 @@ export class GameManager {
     this.zombieManager.startWave();
     this.currentState = GameConfig.GAME_STATES.PLAYING;
 
+    // Track lives at wave start for balance analysis
+    this.waveStartLives = this.lives;
+
     // Track wave start
     this.statTracker.trackWaveStart();
+
+    // Track wave start for balance analysis
+    if (this.balanceTrackingManager.isEnabled()) {
+      this.balanceTrackingManager.trackWaveStart();
+    }
 
     console.log(`Starting wave ${this.wave}`);
   }

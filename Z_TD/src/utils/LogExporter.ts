@@ -5,6 +5,86 @@
  * In development, logs can be saved directly to player_logs/ folder.
  */
 
+export interface BalanceAnalysisData {
+  issues: Array<{
+    type: string;
+    severity: string;
+    message: string;
+    value: number;
+    threshold: number;
+    recommendation: string;
+  }>;
+  waveDefenseAnalysis: Array<{
+    wave: number;
+    canDefend: boolean;
+    totalZombieHP: number;
+    totalTowerDPS: number;
+    timeToReachEnd: number;
+    damageDealt: number;
+    damageRequired: number;
+    safetyMargin: number;
+    recommendation: string;
+  }>;
+  towerEfficiencies: Record<
+    string,
+    {
+      type: string;
+      cost: number;
+      dps: number;
+      range: number;
+      accuracy: number;
+      efficiencyScore: number;
+      effectiveDPS: number;
+      breakEvenTime: number;
+    }
+  >;
+  damageByType: Record<string, number>;
+  optimalTowerMix?: Record<string, number>;
+  actualTowerMix?: Record<string, number>;
+  mixDeviation?: number;
+  overallBalanceRating: string;
+}
+
+export interface StatisticalAnalysisData {
+  outliers: {
+    mean: number;
+    standardDeviation: number;
+    outliers: Array<{ value: number; index: number; deviation: number }>;
+    hasOutliers: boolean;
+  } | null;
+  trends: {
+    trend: string;
+    slope: number;
+    intercept: number;
+    rSquared: number;
+    confidence: string;
+  } | null;
+  predictions: Array<{
+    wave: number;
+    predictedDifficulty: number;
+    recommendedDPS: number;
+    confidenceInterval: { lower: number; upper: number };
+  }>;
+  summary?: {
+    avgDamagePerWave: number;
+    avgDPSPerWave: number;
+    avgEconomyEfficiency: number;
+    performanceConsistency: number;
+  };
+}
+
+export interface DashboardData {
+  labels: string[];
+  datasets: {
+    playerDPS: number[];
+    requiredDPS: number[];
+    damagePerDollar: number[];
+    economyEfficiency: number[];
+    survivalRate: number[];
+    threatLevel: number[];
+  };
+}
+
 export interface GameLogEntry {
   timestamp: string;
   sessionId: string;
@@ -92,6 +172,10 @@ export interface GameLogEntry {
     }>;
     snapshotInterval: number;
   };
+  // NEW: Optional balance analysis fields (backward compatible)
+  balanceAnalysis?: BalanceAnalysisData;
+  statisticalAnalysis?: StatisticalAnalysisData;
+  dashboardData?: DashboardData;
 }
 
 export class LogExporter {
@@ -105,21 +189,36 @@ export class LogExporter {
 
   /**
    * Save log to localStorage and save to server (server required)
+   * @param logEntry - The game log entry to export
+   * @param balanceData - Optional balance analysis data from BalanceTrackingManager
    */
-  public static async exportLog(logEntry: GameLogEntry): Promise<void> {
+  public static async exportLog(
+    logEntry: GameLogEntry,
+    balanceData?: Record<string, unknown>
+  ): Promise<void> {
     try {
+      // Merge balance data into log entry if provided
+      let finalLogEntry = logEntry;
+      if (balanceData) {
+        const formattedBalanceData = this.formatBalanceData(balanceData);
+        finalLogEntry = {
+          ...logEntry,
+          ...formattedBalanceData,
+        };
+      }
+
       // Format filename with date and AI indicator
-      const date = new Date(logEntry.timestamp);
+      const date = new Date(finalLogEntry.timestamp);
       const dateStr = date.toISOString().split('T')[0]; // YYYY-MM-DD
       const timeStr = date.toTimeString().split(' ')[0].replace(/:/g, '-'); // HH-MM-SS
-      const aiIndicator = logEntry.isAIRun ? 'AI' : 'MANUAL';
-      const filename = `${dateStr}_${timeStr}_${aiIndicator}_wave${logEntry.gameData.highestWave}.json`;
+      const aiIndicator = finalLogEntry.isAIRun ? 'AI' : 'MANUAL';
+      const filename = `${dateStr}_${timeStr}_${aiIndicator}_wave${finalLogEntry.gameData.highestWave}.json`;
 
       // Store in localStorage as backup
-      this.storeLog(filename, logEntry);
+      this.storeLog(filename, finalLogEntry);
 
       // Save to server (REQUIRED - no browser download fallback)
-      const savedToServer = await this.saveToServer(filename, logEntry);
+      const savedToServer = await this.saveToServer(filename, finalLogEntry);
 
       if (!savedToServer) {
         // Server not running - show clear error
@@ -321,6 +420,173 @@ export class LogExporter {
   public static newSession(): string {
     this.sessionId = this.generateSessionId();
     return this.sessionId;
+  }
+
+  /**
+   * Format balance data from BalanceTrackingManager for report
+   * Converts Maps to plain objects and calculates overall balance rating
+   */
+  private static formatBalanceData(balanceData: Record<string, unknown>): {
+    balanceAnalysis?: BalanceAnalysisData;
+    statisticalAnalysis?: StatisticalAnalysisData;
+    dashboardData?: DashboardData;
+  } {
+    const result: {
+      balanceAnalysis?: BalanceAnalysisData;
+      statisticalAnalysis?: StatisticalAnalysisData;
+      dashboardData?: DashboardData;
+    } = {};
+
+    // Extract balance issues and other analysis data
+    const issues =
+      (balanceData.balanceIssues as Array<{
+        type: string;
+        severity: string;
+        message: string;
+        value: number;
+        threshold: number;
+        recommendation: string;
+      }>) || [];
+
+    const waveDefenseAnalysis =
+      (balanceData.waveDefenseAnalysis as Array<{
+        wave: number;
+        canDefend: boolean;
+        totalZombieHP: number;
+        totalTowerDPS: number;
+        timeToReachEnd: number;
+        damageDealt: number;
+        damageRequired: number;
+        safetyMargin: number;
+        recommendation: string;
+      }>) || [];
+
+    const towerEfficiencies = (balanceData.towerEfficiencies as Record<string, unknown>) || {};
+    const damageByType = (balanceData.damageByType as Record<string, number>) || {};
+
+    // Calculate overall balance rating
+    const overallBalanceRating = this.calculateBalanceRating(issues);
+
+    // Format balance analysis section
+    if (
+      issues.length > 0 ||
+      waveDefenseAnalysis.length > 0 ||
+      Object.keys(towerEfficiencies).length > 0
+    ) {
+      result.balanceAnalysis = {
+        issues,
+        waveDefenseAnalysis,
+        towerEfficiencies: towerEfficiencies as Record<
+          string,
+          {
+            type: string;
+            cost: number;
+            dps: number;
+            range: number;
+            accuracy: number;
+            efficiencyScore: number;
+            effectiveDPS: number;
+            breakEvenTime: number;
+          }
+        >,
+        damageByType,
+        overallBalanceRating,
+      };
+    }
+
+    // Format statistical analysis section
+    const statisticalAnalysis = balanceData.statisticalAnalysis as {
+      outliers: {
+        mean: number;
+        standardDeviation: number;
+        outliers: Array<{ value: number; index: number; deviation: number }>;
+        hasOutliers: boolean;
+      } | null;
+      trends: {
+        trend: string;
+        slope: number;
+        intercept: number;
+        rSquared: number;
+        confidence: string;
+      } | null;
+      predictions: Array<{
+        wave: number;
+        predictedDifficulty: number;
+        recommendedDPS: number;
+        confidenceInterval: { lower: number; upper: number };
+      }>;
+    };
+
+    if (statisticalAnalysis) {
+      result.statisticalAnalysis = {
+        outliers: statisticalAnalysis.outliers,
+        trends: statisticalAnalysis.trends,
+        predictions: statisticalAnalysis.predictions || [],
+      };
+    }
+
+    // Format dashboard data for Chart.js visualization
+    const summary = balanceData.summary as {
+      totalDamage: number;
+      totalMoneySpent: number;
+      totalMoneyEarned: number;
+      damagePerDollar: number;
+      currentDPS: number;
+      survivalRate: number;
+      overkillPercent: number;
+      economyEfficiency: number;
+    };
+
+    if (summary && waveDefenseAnalysis.length > 0) {
+      // Generate labels and datasets for visualization
+      const labels = waveDefenseAnalysis.map(w => `Wave ${w.wave}`);
+      const playerDPS = waveDefenseAnalysis.map(w => w.totalTowerDPS);
+      const requiredDPS = waveDefenseAnalysis.map(w => w.damageRequired / w.timeToReachEnd);
+
+      result.dashboardData = {
+        labels,
+        datasets: {
+          playerDPS,
+          requiredDPS,
+          damagePerDollar: [summary.damagePerDollar],
+          economyEfficiency: [summary.economyEfficiency],
+          survivalRate: [summary.survivalRate],
+          threatLevel: waveDefenseAnalysis.map(w => (w.canDefend ? 50 : 100)),
+        },
+      };
+    }
+
+    return result;
+  }
+
+  /**
+   * Calculate overall balance rating based on detected issues
+   */
+  private static calculateBalanceRating(issues: Array<{ severity: string }>): string {
+    if (issues.length === 0) {
+      return 'EXCELLENT';
+    }
+
+    // Count issues by severity
+    const criticalCount = issues.filter(i => i.severity === 'CRITICAL').length;
+    const highCount = issues.filter(i => i.severity === 'HIGH').length;
+    const mediumCount = issues.filter(i => i.severity === 'MEDIUM').length;
+
+    // Determine rating based on severity distribution
+    if (criticalCount > 0) {
+      return 'CRITICAL';
+    }
+    if (highCount >= 2) {
+      return 'POOR';
+    }
+    if (highCount === 1 || mediumCount >= 3) {
+      return 'FAIR';
+    }
+    if (mediumCount > 0) {
+      return 'GOOD';
+    }
+
+    return 'EXCELLENT';
   }
 
   /**

@@ -174,10 +174,14 @@ export class StatsPanel extends UIComponent {
   }
 
   public update(): void {
-    if (this.isCollapsed) return;
+    if (this.isCollapsed) {
+      return;
+    }
 
     const statTracker = this.gameManager.getStatTracker();
-    if (!statTracker || !statTracker.isActive()) return;
+    if (!statTracker || !statTracker.isActive()) {
+      return;
+    }
 
     const stats = statTracker.getCurrentStats();
 

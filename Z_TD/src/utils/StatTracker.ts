@@ -586,7 +586,15 @@ export class StatTracker {
       },
     };
 
-    LogExporter.exportLog(logEntry);
+    // Get balance data from BalanceTrackingManager if enabled
+    let balanceData: Record<string, unknown> | undefined;
+    const balanceTrackingManager = this.gameManager.getBalanceTrackingManager();
+    if (balanceTrackingManager && balanceTrackingManager.isEnabled()) {
+      balanceData = balanceTrackingManager.generateReportData() as Record<string, unknown>;
+      console.log('📊 Including balance analysis in stat tracker report');
+    }
+
+    LogExporter.exportLog(logEntry, balanceData);
   }
 
   public exportCurrentStats(): void {

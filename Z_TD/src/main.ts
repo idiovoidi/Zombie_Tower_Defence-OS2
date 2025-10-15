@@ -249,9 +249,17 @@ import { DebugConstants } from './config/debugConstants';
         .calculateUpgradeCost(tower.getType(), tower.getUpgradeLevel());
       if (gameManager.spendMoney(upgradeCost)) {
         placementManager.upgradeSelectedTower();
-        gameManager
-          .getStatTracker()
-          .trackTowerUpgraded(tower.getType(), upgradeCost, tower.getUpgradeLevel());
+        const newLevel = tower.getUpgradeLevel();
+
+        gameManager.getStatTracker().trackTowerUpgraded(tower.getType(), upgradeCost, newLevel);
+
+        // Track tower upgrade for balance analysis
+        if (gameManager.isBalanceTrackingEnabled()) {
+          gameManager
+            .getBalanceTrackingManager()
+            .trackTowerUpgraded(tower.getType(), upgradeCost, newLevel);
+        }
+
         DebugUtils.debug(`Tower upgraded for $${upgradeCost}`);
       } else {
         DebugUtils.debug('Not enough money to upgrade');
@@ -274,6 +282,12 @@ import { DebugConstants } from './config/debugConstants';
       placementManager.removeSelectedTower();
       gameManager.addMoney(sellValue);
       gameManager.getStatTracker().trackTowerSold(towerType, sellValue);
+
+      // Track tower sold for balance analysis
+      if (gameManager.isBalanceTrackingEnabled()) {
+        gameManager.getBalanceTrackingManager().trackTowerSold(towerType, sellValue);
+      }
+
       towerInfoPanel.hide();
       DebugUtils.debug(`Tower sold for $${sellValue}`);
     }
@@ -459,6 +473,22 @@ import { DebugConstants } from './config/debugConstants';
   console.log('  LogExporter.exportAllLogsAsBundle() - Export as single bundle');
   console.log('  LogExporter.getStoredLogCount() - Get number of stored logs');
   console.log('  LogExporter.clearAllLogs() - Clear all stored logs');
+
+  // Expose balance tracking controls to console
+  (window as unknown).balanceTracking = {
+    enable: () => gameManager.enableBalanceTracking(),
+    disable: () => gameManager.disableBalanceTracking(),
+    isEnabled: () => gameManager.isBalanceTrackingEnabled(),
+    getReport: () => gameManager.getBalanceTrackingManager().generateReportData(),
+    reset: () => gameManager.getBalanceTrackingManager().reset(),
+  };
+  console.log('📊 Balance Tracking available in console');
+  console.log('💡 Balance Tracking Commands:');
+  console.log('  balanceTracking.enable() - Enable balance tracking');
+  console.log('  balanceTracking.disable() - Disable balance tracking');
+  console.log('  balanceTracking.isEnabled() - Check if tracking is enabled');
+  console.log('  balanceTracking.getReport() - Get current balance report');
+  console.log('  balanceTracking.reset() - Reset tracking data');
 
   // Expose wave balancing tools to console for testing
   if (DevConfig.DEBUG.ENABLED) {
