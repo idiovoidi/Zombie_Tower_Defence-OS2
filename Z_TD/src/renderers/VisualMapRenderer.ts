@@ -1,5 +1,5 @@
-import { Application, Graphics, Container } from 'pixi.js';
-import { MapManager, MapData } from '../managers/MapManager';
+import { Application, Container, Graphics } from 'pixi.js';
+import { MapData, MapManager } from '../managers/MapManager';
 import { Waypoint } from '../managers/PathfindingManager';
 
 export class VisualMapRenderer {
@@ -34,7 +34,9 @@ export class VisualMapRenderer {
 
     // Get map data
     const mapData = this.mapManager.getCurrentMap();
-    if (!mapData) return;
+    if (!mapData) {
+      return;
+    }
 
     // Render map background first
     this.renderMapBackground(mapData);
@@ -353,7 +355,9 @@ export class VisualMapRenderer {
   }
 
   private renderPath(mapData: MapData): void {
-    if (mapData.waypoints.length < 2) return;
+    if (mapData.waypoints.length < 2) {
+      return;
+    }
 
     const pathWidth = 50;
     const cornerRadius = 30;
@@ -1303,7 +1307,9 @@ export class VisualMapRenderer {
 
       // Calculate distance from point to line segment
       const distance = this.distanceToLineSegment(x, y, p1.x, p1.y, p2.x, p2.y);
-      if (distance < 50) return false; // Too close to path
+      if (distance < 50) {
+        return false;
+      } // Too close to path
     }
     return true;
   }
@@ -1326,7 +1332,9 @@ export class VisualMapRenderer {
     const lenSq = C * C + D * D;
     let param = -1;
 
-    if (lenSq !== 0) param = dot / lenSq;
+    if (lenSq !== 0) {
+      param = dot / lenSq;
+    }
 
     let xx, yy;
 

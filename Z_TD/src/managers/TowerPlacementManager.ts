@@ -1,4 +1,4 @@
-import { Container, Graphics, FederatedPointerEvent } from 'pixi.js';
+import { Container, FederatedPointerEvent, Graphics } from 'pixi.js';
 import { Tower } from '../objects/Tower';
 import { TowerFactory } from '../objects/TowerFactory';
 import { TowerManager } from './TowerManager';
@@ -64,7 +64,9 @@ export class TowerPlacementManager {
 
   private drawGhostTower(graphics: Graphics, towerType: string): void {
     const stats = this.towerManager.getTowerStats(towerType);
-    if (!stats) return;
+    if (!stats) {
+      return;
+    }
 
     // Draw based on tower type (simplified versions)
     switch (towerType) {
@@ -110,7 +112,9 @@ export class TowerPlacementManager {
 
       // Check distance to path segment
       const dist = this.distanceToSegment(x, y, wp1.x, wp1.y, wp2.x, wp2.y);
-      if (dist < 50) return false; // Too close to path
+      if (dist < 50) {
+        return false;
+      } // Too close to path
     }
 
     // Check if too close to other towers
@@ -119,12 +123,16 @@ export class TowerPlacementManager {
       if (transform) {
         const pos = (transform as any).position;
         const distance = Math.sqrt(Math.pow(x - pos.x, 2) + Math.pow(y - pos.y, 2));
-        if (distance < 60) return false; // Too close to another tower
+        if (distance < 60) {
+          return false;
+        } // Too close to another tower
       }
     }
 
     // Check if within map bounds
-    if (x < 50 || x > 974 || y < 50 || y > 718) return false;
+    if (x < 50 || x > 974 || y < 50 || y > 718) {
+      return false;
+    }
 
     return true;
   }
@@ -157,8 +165,12 @@ export class TowerPlacementManager {
 
   // Place tower at position
   public placeTower(x: number, y: number): Tower | null {
-    if (!this.isPlacementMode || !this.selectedTowerType) return null;
-    if (!this.isValidPlacement(x, y)) return null;
+    if (!this.isPlacementMode || !this.selectedTowerType) {
+      return null;
+    }
+    if (!this.isValidPlacement(x, y)) {
+      return null;
+    }
 
     const tower = TowerFactory.createTower(this.selectedTowerType, x, y);
     if (tower) {
@@ -219,7 +231,9 @@ export class TowerPlacementManager {
 
   // Remove selected tower
   public removeSelectedTower(): boolean {
-    if (!this.selectedTower) return false;
+    if (!this.selectedTower) {
+      return false;
+    }
 
     const index = this.placedTowers.indexOf(this.selectedTower);
     if (index > -1) {
@@ -241,7 +255,9 @@ export class TowerPlacementManager {
 
   // Upgrade selected tower
   public upgradeSelectedTower(): boolean {
-    if (!this.selectedTower) return false;
+    if (!this.selectedTower) {
+      return false;
+    }
 
     if (this.selectedTower.canUpgrade()) {
       this.selectedTower.upgrade();

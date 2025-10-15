@@ -1,4 +1,4 @@
-import { Graphics, Container } from 'pixi.js';
+import { Container, Graphics } from 'pixi.js';
 
 export class TowerRangeVisualizer {
   private static instance: TowerRangeVisualizer;

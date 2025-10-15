@@ -1,5 +1,5 @@
 import { UIComponent } from './UIComponent';
-import { Graphics, Text, Container } from 'pixi.js';
+import { Container, Graphics, Text } from 'pixi.js';
 import { GameConfig } from '../config/gameConfig';
 
 interface ZombieInfo {

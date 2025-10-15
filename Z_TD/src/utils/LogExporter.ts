@@ -41,6 +41,57 @@ export interface GameLogEntry {
     performanceRating: string;
     defenseRating: string;
   };
+  combatStats?: {
+    totalDamageDealt: number;
+    totalZombiesKilled: number;
+    averageDPS: number;
+    peakDPS: number;
+    damageByTowerType: Record<string, number>;
+    killsByTowerType: Record<string, number>;
+    damagePerWave: number[];
+    killsPerWave: number[];
+    overkillDamage: number;
+    accuracyRate: number;
+    shotsHit: number;
+    shotsMissed: number;
+  };
+  economyStats?: {
+    moneyTimeline: Array<{ time: number; money: number; wave: number }>;
+    moneyPerWave: number[];
+    moneySpentPerWave: number[];
+    netIncomePerWave: number[];
+    averageMoneyPerSecond: number;
+    peakMoneyPerSecond: number;
+    totalIncome: number;
+    totalExpenses: number;
+    netProfit: number;
+    economyEfficiency: number;
+    bankruptcyEvents: number;
+    cashFlowTrend: string;
+  };
+  efficiencyStats?: {
+    damagePerDollar: number;
+    killsPerDollar: number;
+    damagePerTower: number;
+    killsPerTower: number;
+    upgradeEfficiency: number;
+    resourceUtilization: number;
+    towerDensity: number;
+    averageUpgradeLevel: number;
+    costEfficiencyRating: string;
+  };
+  timelineStats?: {
+    snapshots: Array<{
+      time: number;
+      wave: number;
+      money: number;
+      lives: number;
+      towersActive: number;
+      zombiesAlive: number;
+      currentDPS: number;
+    }>;
+    snapshotInterval: number;
+  };
 }
 
 export class LogExporter {
@@ -53,7 +104,7 @@ export class LogExporter {
   }
 
   /**
-   * Save log to localStorage and optionally download
+   * Save log to localStorage and save to server (server required)
    */
   public static async exportLog(logEntry: GameLogEntry): Promise<void> {
     try {
@@ -64,28 +115,33 @@ export class LogExporter {
       const aiIndicator = logEntry.isAIRun ? 'AI' : 'MANUAL';
       const filename = `${dateStr}_${timeStr}_${aiIndicator}_wave${logEntry.gameData.highestWave}.json`;
 
-      // Store in localStorage
+      // Store in localStorage as backup
       this.storeLog(filename, logEntry);
 
-      // Try to save to server first (if running)
+      // Save to server (REQUIRED - no browser download fallback)
       const savedToServer = await this.saveToServer(filename, logEntry);
 
       if (!savedToServer) {
-        // Fallback to browser download
-        const jsonData = JSON.stringify(logEntry, null, 2);
-        const blob = new Blob([jsonData], { type: 'application/json' });
-        const url = URL.createObjectURL(blob);
-        const link = document.createElement('a');
-        link.href = url;
-        link.download = filename;
-        link.click();
-        URL.revokeObjectURL(url);
-        console.log(`📊 Log downloaded: ${filename}`);
-        console.log(`💡 Move to player_reports/ folder or start server with: node server.js`);
+        // Server not running - show clear error
+        console.error('═══════════════════════════════════════════════════════');
+        console.error('❌ REPORT NOT SAVED - Server not running!');
+        console.error('═══════════════════════════════════════════════════════');
+        console.error('');
+        console.error('🚨 To save reports to player_reports/ folder:');
+        console.error('');
+        console.error('   1. Stop the game (Ctrl+C in terminal)');
+        console.error('   2. Run: npm run dev:full');
+        console.error('   3. Wait for: "🚀 Report server running on http://localhost:3001"');
+        console.error('   4. Play again');
+        console.error('');
+        console.error('📊 Report data is stored in localStorage as backup.');
+        console.error('💡 To recover: Open console and run LogExporter.exportAllLogs()');
+        console.error('');
+        console.error('═══════════════════════════════════════════════════════');
+        return;
       }
 
-      console.log(`📁 Total logs stored: ${this.getStoredLogCount()}`);
-      console.log(`💡 Use LogExporter.exportAllLogs() to download all stored logs`);
+      console.log(`📁 Total logs stored in localStorage: ${this.getStoredLogCount()}`);
     } catch (error) {
       console.error('Failed to export log:', error);
     }
@@ -110,7 +166,7 @@ export class LogExporter {
         return true;
       }
       return false;
-    } catch (error) {
+    } catch {
       // Server not running, silently fail
       return false;
     }
@@ -161,18 +217,30 @@ export class LogExporter {
   }
 
   /**
-   * Export all stored logs as individual files
+   * Export all stored logs as individual files (RECOVERY ONLY)
+   * Use this if the server was not running and you need to recover logs
    */
   public static exportAllLogs(): void {
     const logs = this.getStoredLogs();
     const logCount = Object.keys(logs).length;
 
     if (logCount === 0) {
-      console.log('📊 No logs to export');
+      console.log('📊 No logs to export from localStorage');
+      console.log('💡 If server is running, logs save automatically to player_reports/');
       return;
     }
 
-    console.log(`📊 Exporting ${logCount} logs...`);
+    console.log('═══════════════════════════════════════════════════════');
+    console.log(`📊 RECOVERY MODE: Exporting ${logCount} logs from localStorage...`);
+    console.log('═══════════════════════════════════════════════════════');
+    console.log('');
+    console.log('⚠️  These logs were NOT saved because the server was not running.');
+    console.log('⚠️  They will download to your browser Downloads folder.');
+    console.log('');
+    console.log('To prevent this in the future:');
+    console.log('  1. Always use: npm run dev:full');
+    console.log('  2. Make sure you see: "🚀 Report server running on http://localhost:3001"');
+    console.log('');
 
     Object.entries(logs).forEach(([filename, logEntry]) => {
       const jsonData = JSON.stringify(logEntry, null, 2);
@@ -185,8 +253,11 @@ export class LogExporter {
       URL.revokeObjectURL(url);
     });
 
-    console.log(`✅ Exported ${logCount} logs`);
-    console.log(`💡 Save these files to the player_logs/ folder in your repo`);
+    console.log('');
+    console.log(`✅ Downloaded ${logCount} logs to your Downloads folder`);
+    console.log(`💡 Move these files to the player_reports/ folder manually`);
+    console.log('');
+    console.log('═══════════════════════════════════════════════════════');
   }
 
   /**

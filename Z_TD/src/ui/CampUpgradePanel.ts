@@ -1,6 +1,6 @@
 import { UIComponent } from './UIComponent';
-import { Graphics, Text, Container } from 'pixi.js';
-import { CampUpgradeManager, CampUpgrade } from '../managers/CampUpgradeManager';
+import { Container, Graphics, Text } from 'pixi.js';
+import { CampUpgrade, CampUpgradeManager } from '../managers/CampUpgradeManager';
 import { TextureGenerator } from '../utils/textureGenerator';
 
 export class CampUpgradePanel extends UIComponent {
@@ -161,7 +161,9 @@ export class CampUpgradePanel extends UIComponent {
   }
 
   private updateUpgradeDisplay(): void {
-    if (!this.campUpgradeManager) return;
+    if (!this.campUpgradeManager) {
+      return;
+    }
 
     // Clear existing buttons
     this.upgradeButtons.forEach(button => {
@@ -323,7 +325,9 @@ export class CampUpgradePanel extends UIComponent {
   }
 
   private purchaseUpgrade(upgradeId: string): void {
-    if (!this.campUpgradeManager || !this.onUpgradeCallback) return;
+    if (!this.campUpgradeManager || !this.onUpgradeCallback) {
+      return;
+    }
 
     const cost = this.campUpgradeManager.getUpgradeCost(upgradeId);
     const success = this.onUpgradeCallback(upgradeId, cost);

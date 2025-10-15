@@ -142,7 +142,9 @@ export class TowerInfoPanel extends UIComponent {
   }
 
   private updateInfo(): void {
-    if (!this.selectedTower) return;
+    if (!this.selectedTower) {
+      return;
+    }
 
     const type = this.selectedTower.getType();
     const level = this.selectedTower.getUpgradeLevel();

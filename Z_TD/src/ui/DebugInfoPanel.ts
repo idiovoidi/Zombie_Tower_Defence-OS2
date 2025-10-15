@@ -1,5 +1,5 @@
 import { UIComponent } from './UIComponent';
-import { Graphics, Text, Container } from 'pixi.js';
+import { Container, Graphics, Text } from 'pixi.js';
 
 export class DebugInfoPanel extends UIComponent {
   private background!: Graphics;
@@ -247,32 +247,44 @@ export class DebugInfoPanel extends UIComponent {
   }): void {
     if (stats.activeZombies !== undefined) {
       const text = this.gameStatsTexts.get('Active Zombies');
-      if (text) text.text = `Active Zombies: ${stats.activeZombies}`;
+      if (text) {
+        text.text = `Active Zombies: ${stats.activeZombies}`;
+      }
     }
 
     if (stats.zombiesKilled !== undefined) {
       const text = this.gameStatsTexts.get('Zombies Killed');
-      if (text) text.text = `Zombies Killed: ${stats.zombiesKilled}`;
+      if (text) {
+        text.text = `Zombies Killed: ${stats.zombiesKilled}`;
+      }
     }
 
     if (stats.activeTowers !== undefined) {
       const text = this.gameStatsTexts.get('Active Towers');
-      if (text) text.text = `Active Towers: ${stats.activeTowers}`;
+      if (text) {
+        text.text = `Active Towers: ${stats.activeTowers}`;
+      }
     }
 
     if (stats.totalDamage !== undefined) {
       const text = this.gameStatsTexts.get('Total Damage Dealt');
-      if (text) text.text = `Total Damage Dealt: ${Math.floor(stats.totalDamage)}`;
+      if (text) {
+        text.text = `Total Damage Dealt: ${Math.floor(stats.totalDamage)}`;
+      }
     }
 
     if (stats.waveProgress !== undefined) {
       const text = this.gameStatsTexts.get('Wave Progress');
-      if (text) text.text = `Wave Progress: ${stats.waveProgress}`;
+      if (text) {
+        text.text = `Wave Progress: ${stats.waveProgress}`;
+      }
     }
 
     if (stats.fps !== undefined) {
       const text = this.gameStatsTexts.get('FPS');
-      if (text) text.text = `FPS: ${Math.round(stats.fps)}`;
+      if (text) {
+        text.text = `FPS: ${Math.round(stats.fps)}`;
+      }
     }
   }
 

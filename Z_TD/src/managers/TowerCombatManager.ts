@@ -56,7 +56,9 @@ export class TowerCombatManager {
     let closestDistance = Infinity;
 
     for (const zombie of this.zombies) {
-      if (!zombie.parent) continue; // Skip destroyed zombies
+      if (!zombie.parent) {
+        continue;
+      } // Skip destroyed zombies
 
       const zombiePos = zombie.position;
       const distance = Math.sqrt(
@@ -76,7 +78,9 @@ export class TowerCombatManager {
     tower.shoot();
     tower.showShootingEffect();
 
-    if (!this.projectileManager) return;
+    if (!this.projectileManager) {
+      return;
+    }
 
     // Get projectile spawn position
     const spawnPos = tower.getProjectileSpawnPosition();

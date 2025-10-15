@@ -1,5 +1,5 @@
 import { GameConfig } from '../config/gameConfig';
-import { TowerConstants, getTowerStats, type TowerStats } from '../config/towerConstants';
+import { TowerConstants, type TowerStats, getTowerStats } from '../config/towerConstants';
 
 export class TowerManager {
   private towerData: Map<string, TowerStats>;
@@ -32,7 +32,9 @@ export class TowerManager {
   // Calculate tower damage with upgrades
   public calculateTowerDamage(type: string, upgradeLevel: number): number {
     const baseStats = this.towerData.get(type);
-    if (!baseStats) return 0;
+    if (!baseStats) {
+      return 0;
+    }
 
     // Simple damage scaling with upgrades
     return Math.floor(baseStats.damage * (1 + upgradeLevel * 0.5));
@@ -41,7 +43,9 @@ export class TowerManager {
   // Calculate tower range with upgrades
   public calculateTowerRange(type: string, upgradeLevel: number): number {
     const baseStats = this.towerData.get(type);
-    if (!baseStats) return 0;
+    if (!baseStats) {
+      return 0;
+    }
 
     // Simple range scaling with upgrades
     return Math.floor(baseStats.range * (1 + upgradeLevel * 0.2));
@@ -50,7 +54,9 @@ export class TowerManager {
   // Calculate upgrade cost based on design formula
   public calculateUpgradeCost(type: string, upgradeLevel: number): number {
     const baseStats = this.towerData.get(type);
-    if (!baseStats) return 0;
+    if (!baseStats) {
+      return 0;
+    }
 
     // Use the upgrade cost multiplier if available, otherwise default to 0.75
     const multiplier = baseStats.upgradeCostMultiplier || 0.75;

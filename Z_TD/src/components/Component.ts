@@ -11,7 +11,7 @@ export abstract class Component {
     // Initialize component
   }
 
-  public update(deltaTime: number): void {
+  public update(_deltaTime: number): void {
     // Update component logic
   }
 

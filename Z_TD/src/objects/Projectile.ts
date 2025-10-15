@@ -1,4 +1,4 @@
-import { Graphics, Container } from 'pixi.js';
+import { Container, Graphics } from 'pixi.js';
 import { Zombie } from './Zombie';
 
 export class Projectile extends Container {
@@ -69,7 +69,9 @@ export class Projectile extends Container {
   }
 
   public update(deltaTime: number): void {
-    if (!this.isActive) return;
+    if (!this.isActive) {
+      return;
+    }
 
     // Update target position if tracking a zombie
     if (this.target && this.target.parent) {

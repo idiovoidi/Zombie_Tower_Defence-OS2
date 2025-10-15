@@ -142,7 +142,9 @@ export class CampUpgradeManager {
 
   public getUpgrade(id: string): CampUpgrade | undefined {
     const upgrade = this.availableUpgrades.get(id);
-    if (!upgrade) return undefined;
+    if (!upgrade) {
+      return undefined;
+    }
 
     const currentLevel = this.upgradeStates.get(id) || 0;
     return {
@@ -153,7 +155,9 @@ export class CampUpgradeManager {
 
   public canUpgrade(id: string): boolean {
     const upgrade = this.availableUpgrades.get(id);
-    if (!upgrade) return false;
+    if (!upgrade) {
+      return false;
+    }
 
     const currentLevel = this.upgradeStates.get(id) || 0;
     return currentLevel < upgrade.maxLevel;
@@ -161,7 +165,9 @@ export class CampUpgradeManager {
 
   public getUpgradeCost(id: string): number {
     const upgrade = this.availableUpgrades.get(id);
-    if (!upgrade) return 0;
+    if (!upgrade) {
+      return 0;
+    }
 
     const currentLevel = this.upgradeStates.get(id) || 0;
     // Cost increases by 50% per level
@@ -169,7 +175,9 @@ export class CampUpgradeManager {
   }
 
   public purchaseUpgrade(id: string): boolean {
-    if (!this.canUpgrade(id)) return false;
+    if (!this.canUpgrade(id)) {
+      return false;
+    }
 
     const currentLevel = this.upgradeStates.get(id) || 0;
     const cost = this.getUpgradeCost(id);

@@ -474,7 +474,9 @@ export class Zombie extends GameObject {
   }
 
   private moveTowardsWaypoint(deltaTime: number): void {
-    if (this.currentWaypointIndex >= this.waypoints.length) return;
+    if (this.currentWaypointIndex >= this.waypoints.length) {
+      return;
+    }
 
     const target = this.waypoints[this.currentWaypointIndex];
 

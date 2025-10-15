@@ -15,7 +15,7 @@ import { AIPlayerManager } from './AIPlayerManager';
 import { Tower } from '../objects/Tower';
 import { DevConfig } from '../config/devConfig';
 import { DebugConstants, applyDebugConstants } from '../config/debugConstants';
-import { LogExporter, type GameLogEntry } from '../utils/LogExporter';
+import { type GameLogEntry, LogExporter } from '../utils/LogExporter';
 
 export class GameManager {
   private app: Application;

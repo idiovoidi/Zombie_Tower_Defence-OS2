@@ -1,5 +1,5 @@
 import { UIComponent } from './UIComponent';
-import { Graphics, Text, Container } from 'pixi.js';
+import { Container, Graphics, Text } from 'pixi.js';
 import { WaveManager, ZombieGroup } from '../managers/WaveManager';
 
 export class WaveInfoPanel extends UIComponent {
@@ -126,7 +126,9 @@ export class WaveInfoPanel extends UIComponent {
   }
 
   private updateWaveInfo(): void {
-    if (!this.waveManager) return;
+    if (!this.waveManager) {
+      return;
+    }
 
     // Clear previous wave info texts
     this.waveInfoTexts.forEach(text => {
@@ -144,7 +146,9 @@ export class WaveInfoPanel extends UIComponent {
       const waveNum = this.currentWave + i;
       const zombieGroups = this.getWaveZombies(waveNum);
 
-      if (zombieGroups.length === 0) continue;
+      if (zombieGroups.length === 0) {
+        continue;
+      }
 
       // Wave header
       const waveHeader = new Text({
@@ -286,7 +290,9 @@ export class WaveInfoPanel extends UIComponent {
   }
 
   private getWaveZombies(wave: number): ZombieGroup[] {
-    if (!this.waveManager) return [];
+    if (!this.waveManager) {
+      return [];
+    }
 
     // Access the wave data through a temporary instance
     const tempManager = new WaveManager();

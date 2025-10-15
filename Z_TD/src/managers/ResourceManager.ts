@@ -24,21 +24,37 @@ export class ResourceManager {
 
   // Check if player can afford a cost
   public canAfford(cost: ResourceCost): boolean {
-    if (this.money < cost.money) return false;
-    if (cost.wood !== undefined && this.resources.wood < cost.wood) return false;
-    if (cost.metal !== undefined && this.resources.metal < cost.metal) return false;
-    if (cost.energy !== undefined && this.resources.energy < cost.energy) return false;
+    if (this.money < cost.money) {
+      return false;
+    }
+    if (cost.wood !== undefined && this.resources.wood < cost.wood) {
+      return false;
+    }
+    if (cost.metal !== undefined && this.resources.metal < cost.metal) {
+      return false;
+    }
+    if (cost.energy !== undefined && this.resources.energy < cost.energy) {
+      return false;
+    }
     return true;
   }
 
   // Spend resources
   public spend(cost: ResourceCost): boolean {
-    if (!this.canAfford(cost)) return false;
+    if (!this.canAfford(cost)) {
+      return false;
+    }
 
     this.money -= cost.money;
-    if (cost.wood !== undefined) this.resources.wood -= cost.wood;
-    if (cost.metal !== undefined) this.resources.metal -= cost.metal;
-    if (cost.energy !== undefined) this.resources.energy -= cost.energy;
+    if (cost.wood !== undefined) {
+      this.resources.wood -= cost.wood;
+    }
+    if (cost.metal !== undefined) {
+      this.resources.metal -= cost.metal;
+    }
+    if (cost.energy !== undefined) {
+      this.resources.energy -= cost.energy;
+    }
 
     return true;
   }

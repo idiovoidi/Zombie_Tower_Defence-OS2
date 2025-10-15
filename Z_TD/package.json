@@ -8,6 +8,8 @@
     "dev": "vite",
     "dev:full": "concurrently \"npm run dev\" \"npm run server\"",
     "server": "node server.js",
+    "test:server": "node test-server.js",
+    "test:write": "node test-write-direct.js",
     "build": "npm run lint && tsc && vite build",
     "preview": "vite preview",
     "lint": "eslint .",

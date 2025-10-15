@@ -19,14 +19,44 @@ interface AIPerformanceStats {
   highestWave: number;
   zombiesKilled: number;
   towerComposition: Map<string, number>;
-  upgradeDistribution: Map<string, number[]>; // Track upgrade levels per tower type
+  upgradeDistribution: Map<string, number[]>;
   moneyEarned: number;
-  waveCompletionTimes: number[]; // Time taken to complete each wave
-  livesLostPerWave: number[]; // Lives lost in each wave
-  towersBuiltPerWave: number[]; // Towers built in each wave
-  decisionsPerWave: number[]; // AI decisions made per wave
-  peakMoney: number; // Highest money reached
-  lowestLives: number; // Lowest lives reached (before game over)
+  waveCompletionTimes: number[];
+  livesLostPerWave: number[];
+  towersBuiltPerWave: number[];
+  decisionsPerWave: number[];
+  peakMoney: number;
+  lowestLives: number;
+  // Combat tracking
+  totalDamageDealt: number;
+  damageByTowerType: Map<string, number>;
+  killsByTowerType: Map<string, number>;
+  damagePerWave: number[];
+  killsPerWave: number[];
+  shotsHit: number;
+  shotsMissed: number;
+  overkillDamage: number;
+  peakDPS: number;
+  lastDPSCheck: number;
+  damageInLastSecond: number;
+  // Economy tracking
+  moneyTimeline: Array<{ time: number; money: number; wave: number }>;
+  moneyPerWave: number[];
+  moneySpentPerWave: number[];
+  lastMoneySnapshot: number;
+  lastMoneyAmount: number;
+  bankruptcyEvents: number;
+  // Timeline snapshots
+  snapshots: Array<{
+    time: number;
+    wave: number;
+    money: number;
+    lives: number;
+    towersActive: number;
+    zombiesAlive: number;
+    currentDPS: number;
+  }>;
+  lastSnapshotTime: number;
 }
 
 export class AIPlayerManager {
@@ -105,6 +135,28 @@ export class AIPlayerManager {
       decisionsPerWave: [],
       peakMoney: 0,
       lowestLives: 100,
+      // Combat tracking
+      totalDamageDealt: 0,
+      damageByTowerType: new Map<string, number>(),
+      killsByTowerType: new Map<string, number>(),
+      damagePerWave: [],
+      killsPerWave: [],
+      shotsHit: 0,
+      shotsMissed: 0,
+      overkillDamage: 0,
+      peakDPS: 0,
+      lastDPSCheck: 0,
+      damageInLastSecond: 0,
+      // Economy tracking
+      moneyTimeline: [],
+      moneyPerWave: [],
+      moneySpentPerWave: [],
+      lastMoneySnapshot: 0,
+      lastMoneyAmount: 0,
+      bankruptcyEvents: 0,
+      // Timeline snapshots
+      snapshots: [],
+      lastSnapshotTime: 0,
     };
   }
 
@@ -151,6 +203,9 @@ export class AIPlayerManager {
     if (!this.enabled) {
       return;
     }
+
+    // Track metrics continuously
+    this.trackMetrics(deltaTime);
 
     const currentState = this.gameManager.getCurrentState();
 
@@ -608,6 +663,128 @@ export class AIPlayerManager {
     return { ...this.stats };
   }
 
+  // Track metrics every frame
+  private trackMetrics(_deltaTime: number): void {
+    const now = Date.now();
+    const currentMoney = this.gameManager.getMoney();
+    const currentWave = this.gameManager.getWave();
+
+    // Track money timeline (every 5 seconds)
+    if (now - this.stats.lastMoneySnapshot >= 5000) {
+      this.stats.moneyTimeline.push({
+        time: now - this.stats.startTime,
+        money: currentMoney,
+        wave: currentWave,
+      });
+
+      // Check for bankruptcy (money dropped to 0)
+      if (currentMoney === 0 && this.stats.lastMoneyAmount > 0) {
+        this.stats.bankruptcyEvents++;
+      }
+
+      this.stats.lastMoneyAmount = currentMoney;
+      this.stats.lastMoneySnapshot = now;
+    }
+
+    // Take timeline snapshots (every 10 seconds)
+    if (now - this.stats.lastSnapshotTime >= 10000) {
+      const zombieManager = this.gameManager.getZombieManager();
+      const placementManager = this.gameManager.getTowerPlacementManager();
+
+      this.stats.snapshots.push({
+        time: now - this.stats.startTime,
+        wave: currentWave,
+        money: currentMoney,
+        lives: this.gameManager.getLives(),
+        towersActive: placementManager.getPlacedTowers().length,
+        zombiesAlive: zombieManager.getZombies().length,
+        currentDPS: this.calculateCurrentDPS(),
+      });
+
+      this.stats.lastSnapshotTime = now;
+    }
+
+    // Track DPS (every second)
+    if (now - this.stats.lastDPSCheck >= 1000) {
+      const currentDPS = this.stats.damageInLastSecond;
+      if (currentDPS > this.stats.peakDPS) {
+        this.stats.peakDPS = currentDPS;
+      }
+      this.stats.damageInLastSecond = 0;
+      this.stats.lastDPSCheck = now;
+    }
+  }
+
+  // Calculate current DPS from active towers
+  private calculateCurrentDPS(): number {
+    const placementManager = this.gameManager.getTowerPlacementManager();
+    const towers = placementManager.getPlacedTowers();
+    let totalDPS = 0;
+
+    for (const tower of towers) {
+      const damage = tower.getDamage();
+      const fireRate = tower.getFireRate();
+      totalDPS += damage * fireRate;
+    }
+
+    return parseFloat(totalDPS.toFixed(2));
+  }
+
+  // Track damage dealt (call this from combat manager)
+  public trackDamage(damage: number, towerType: string, killed: boolean, overkill: number): void {
+    if (!this.enabled) {
+      return;
+    }
+
+    this.stats.totalDamageDealt += damage;
+    this.stats.damageInLastSecond += damage;
+
+    const currentDamage = this.stats.damageByTowerType.get(towerType) || 0;
+    this.stats.damageByTowerType.set(towerType, currentDamage + damage);
+
+    if (killed) {
+      this.stats.zombiesKilled++;
+      const currentKills = this.stats.killsByTowerType.get(towerType) || 0;
+      this.stats.killsByTowerType.set(towerType, currentKills + 1);
+      this.stats.overkillDamage += overkill;
+    }
+  }
+
+  // Track shots (call this from towers)
+  public trackShot(hit: boolean): void {
+    if (!this.enabled) {
+      return;
+    }
+
+    if (hit) {
+      this.stats.shotsHit++;
+    } else {
+      this.stats.shotsMissed++;
+    }
+  }
+
+  // Track wave completion with economy data
+  private trackWaveCompletion(): void {
+    const currentMoney = this.gameManager.getMoney();
+
+    // Track money earned this wave
+    const moneyEarned = currentMoney - (this.stats.lastMoneyAmount || this.stats.startMoney);
+    this.stats.moneyPerWave.push(Math.max(0, moneyEarned));
+
+    // Track money spent this wave (tracked separately in tryPlaceTower/tryUpgradeTower)
+    const waveIndex = this.stats.moneySpentPerWave.length;
+    if (waveIndex >= this.stats.moneySpentPerWave.length) {
+      this.stats.moneySpentPerWave.push(0);
+    }
+
+    // Track damage and kills this wave
+    const waveIndex2 = this.stats.damagePerWave.length;
+    if (waveIndex2 >= this.stats.damagePerWave.length) {
+      this.stats.damagePerWave.push(0);
+      this.stats.killsPerWave.push(0);
+    }
+  }
+
   // Export stats to JSON file
   private exportStats(): void {
     const endTime = Date.now();
@@ -617,16 +794,25 @@ export class AIPlayerManager {
     const livesLost = this.stats.startLives - currentLives;
     const survivalRate = (currentLives / this.stats.startLives) * 100;
 
-    // Convert tower composition Map to plain object
+    // Convert Maps to plain objects
     const towerComposition: Record<string, number> = {};
     this.stats.towerComposition.forEach((count, type) => {
       towerComposition[type] = count;
     });
 
-    // Convert upgrade distribution Map to plain object
     const upgradeDistribution: Record<string, number[]> = {};
     this.stats.upgradeDistribution.forEach((levels, type) => {
       upgradeDistribution[type] = levels;
+    });
+
+    const damageByTowerType: Record<string, number> = {};
+    this.stats.damageByTowerType.forEach((damage, type) => {
+      damageByTowerType[type] = damage;
+    });
+
+    const killsByTowerType: Record<string, number> = {};
+    this.stats.killsByTowerType.forEach((kills, type) => {
+      killsByTowerType[type] = kills;
     });
 
     // Calculate averages
@@ -641,6 +827,68 @@ export class AIPlayerManager {
         ? this.stats.livesLostPerWave.reduce((a, b) => a + b, 0) /
           this.stats.livesLostPerWave.length
         : 0;
+
+    // Combat stats
+    const totalShots = this.stats.shotsHit + this.stats.shotsMissed;
+    const accuracyRate = totalShots > 0 ? (this.stats.shotsHit / totalShots) * 100 : 0;
+    const avgDPS = duration > 0 ? this.stats.totalDamageDealt / (duration / 1000) : 0;
+
+    // Economy stats
+    const totalIncome = this.stats.moneyPerWave.reduce((a, b) => a + b, 0);
+    const totalExpenses = this.stats.moneySpent;
+    const netProfit = totalIncome - totalExpenses;
+    const avgMoneyPerSecond = duration > 0 ? totalIncome / (duration / 1000) : 0;
+    const economyEfficiency = totalExpenses > 0 ? (totalIncome / totalExpenses) * 100 : 0;
+
+    // Calculate net income per wave
+    const netIncomePerWave = this.stats.moneyPerWave.map((income, i) => {
+      const spent = this.stats.moneySpentPerWave[i] || 0;
+      return income - spent;
+    });
+
+    // Determine cash flow trend
+    let cashFlowTrend = 'STABLE';
+    if (netIncomePerWave.length >= 3) {
+      const recent = netIncomePerWave.slice(-3);
+      const increasing = recent.every((val, i) => i === 0 || val >= recent[i - 1]);
+      const decreasing = recent.every((val, i) => i === 0 || val <= recent[i - 1]);
+      if (increasing) {
+        cashFlowTrend = 'GROWING';
+      } else if (decreasing) {
+        cashFlowTrend = 'DECLINING';
+      }
+    }
+
+    // Efficiency stats
+    const damagePerDollar = totalExpenses > 0 ? this.stats.totalDamageDealt / totalExpenses : 0;
+    const killsPerDollar = totalExpenses > 0 ? this.stats.zombiesKilled / totalExpenses : 0;
+    const damagePerTower =
+      this.stats.towersBuilt > 0 ? this.stats.totalDamageDealt / this.stats.towersBuilt : 0;
+    const killsPerTower =
+      this.stats.towersBuilt > 0 ? this.stats.zombiesKilled / this.stats.towersBuilt : 0;
+
+    // Calculate average upgrade level
+    let totalUpgradeLevels = 0;
+    let upgradeCount = 0;
+    this.stats.upgradeDistribution.forEach(levels => {
+      totalUpgradeLevels += levels.reduce((a, b) => a + b, 0);
+      upgradeCount += levels.length;
+    });
+    const avgUpgradeLevel = upgradeCount > 0 ? totalUpgradeLevels / upgradeCount : 0;
+
+    const upgradeEfficiency =
+      this.stats.towersUpgraded > 0 ? this.stats.totalDamageDealt / this.stats.towersUpgraded : 0;
+    const resourceUtilization = (currentMoney / (this.stats.startMoney + totalIncome)) * 100;
+
+    // Cost efficiency rating
+    let costEfficiencyRating = 'POOR';
+    if (damagePerDollar > 100) {
+      costEfficiencyRating = 'EXCELLENT';
+    } else if (damagePerDollar > 50) {
+      costEfficiencyRating = 'GOOD';
+    } else if (damagePerDollar > 25) {
+      costEfficiencyRating = 'FAIR';
+    }
 
     const logEntry: GameLogEntry = {
       timestamp: new Date(this.stats.startTime).toISOString(),
@@ -661,7 +909,7 @@ export class AIPlayerManager {
         towersBuilt: this.stats.towersBuilt,
         towersUpgraded: this.stats.towersUpgraded,
         moneySpent: this.stats.moneySpent,
-        moneyEarned: this.stats.moneyEarned,
+        moneyEarned: totalIncome,
         peakMoney: this.stats.peakMoney,
         lowestLives: this.stats.lowestLives,
         averageBuildRate: parseFloat((this.stats.towersBuilt / (duration / 60000)).toFixed(2)),
@@ -677,6 +925,49 @@ export class AIPlayerManager {
         },
         performanceRating: LogExporter.getPerformanceRating(this.stats.highestWave),
         defenseRating: LogExporter.getDefenseRating(survivalRate),
+      },
+      combatStats: {
+        totalDamageDealt: parseFloat(this.stats.totalDamageDealt.toFixed(2)),
+        totalZombiesKilled: this.stats.zombiesKilled,
+        averageDPS: parseFloat(avgDPS.toFixed(2)),
+        peakDPS: parseFloat(this.stats.peakDPS.toFixed(2)),
+        damageByTowerType: damageByTowerType,
+        killsByTowerType: killsByTowerType,
+        damagePerWave: this.stats.damagePerWave,
+        killsPerWave: this.stats.killsPerWave,
+        overkillDamage: parseFloat(this.stats.overkillDamage.toFixed(2)),
+        accuracyRate: parseFloat(accuracyRate.toFixed(2)),
+        shotsHit: this.stats.shotsHit,
+        shotsMissed: this.stats.shotsMissed,
+      },
+      economyStats: {
+        moneyTimeline: this.stats.moneyTimeline,
+        moneyPerWave: this.stats.moneyPerWave,
+        moneySpentPerWave: this.stats.moneySpentPerWave,
+        netIncomePerWave: netIncomePerWave,
+        averageMoneyPerSecond: parseFloat(avgMoneyPerSecond.toFixed(2)),
+        peakMoneyPerSecond: 0, // TODO: Track this separately
+        totalIncome: totalIncome,
+        totalExpenses: totalExpenses,
+        netProfit: netProfit,
+        economyEfficiency: parseFloat(economyEfficiency.toFixed(2)),
+        bankruptcyEvents: this.stats.bankruptcyEvents,
+        cashFlowTrend: cashFlowTrend,
+      },
+      efficiencyStats: {
+        damagePerDollar: parseFloat(damagePerDollar.toFixed(2)),
+        killsPerDollar: parseFloat(killsPerDollar.toFixed(4)),
+        damagePerTower: parseFloat(damagePerTower.toFixed(2)),
+        killsPerTower: parseFloat(killsPerTower.toFixed(2)),
+        upgradeEfficiency: parseFloat(upgradeEfficiency.toFixed(2)),
+        resourceUtilization: parseFloat(resourceUtilization.toFixed(2)),
+        towerDensity: this.stats.towersBuilt,
+        averageUpgradeLevel: parseFloat(avgUpgradeLevel.toFixed(2)),
+        costEfficiencyRating: costEfficiencyRating,
+      },
+      timelineStats: {
+        snapshots: this.stats.snapshots,
+        snapshotInterval: 10000,
       },
     };
 

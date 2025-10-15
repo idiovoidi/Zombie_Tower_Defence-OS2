@@ -137,7 +137,9 @@ export class TowerShop extends UIComponent {
     button.cursor = 'pointer';
 
     const stats = this.towerManager.getTowerStats(type);
-    if (!stats) return button;
+    if (!stats) {
+      return button;
+    }
 
     // Button background - concrete texture
     const concreteBg = TextureGenerator.createConcrete(184, 82);

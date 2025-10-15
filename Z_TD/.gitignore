@@ -28,3 +28,5 @@ coverage/
 
 # Player reports (keep folder structure but ignore report files)
 player_reports/*.json
+# But keep the example
+!player_reports/EXAMPLE_REPORT.json

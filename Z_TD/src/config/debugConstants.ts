@@ -67,7 +67,9 @@ export const DebugConstants = {
  * Call this at game initialization if debug mode is enabled
  */
 export function applyDebugConstants(gameManager: any): void {
-  if (!DebugConstants.ENABLED) return;
+  if (!DebugConstants.ENABLED) {
+    return;
+  }
 
   console.log('🔧 Debug Constants Applied');
 
@@ -90,7 +92,9 @@ export function applyDebugConstants(gameManager: any): void {
  * Get modified tower cost based on debug multiplier
  */
 export function getDebugTowerCost(baseCost: number): number {
-  if (!DebugConstants.ENABLED) return baseCost;
+  if (!DebugConstants.ENABLED) {
+    return baseCost;
+  }
   return Math.floor(baseCost * DebugConstants.TOWER_COST_MULTIPLIER);
 }
 
@@ -98,7 +102,9 @@ export function getDebugTowerCost(baseCost: number): number {
  * Get modified tower damage based on debug multiplier
  */
 export function getDebugTowerDamage(baseDamage: number): number {
-  if (!DebugConstants.ENABLED) return baseDamage;
+  if (!DebugConstants.ENABLED) {
+    return baseDamage;
+  }
   return baseDamage * DebugConstants.TOWER_DAMAGE_MULTIPLIER;
 }
 
@@ -106,7 +112,9 @@ export function getDebugTowerDamage(baseDamage: number): number {
  * Get modified tower range based on debug multiplier
  */
 export function getDebugTowerRange(baseRange: number): number {
-  if (!DebugConstants.ENABLED) return baseRange;
+  if (!DebugConstants.ENABLED) {
+    return baseRange;
+  }
   return baseRange * DebugConstants.TOWER_RANGE_MULTIPLIER;
 }
 
@@ -114,7 +122,9 @@ export function getDebugTowerRange(baseRange: number): number {
  * Get modified zombie health based on debug multiplier
  */
 export function getDebugZombieHealth(baseHealth: number): number {
-  if (!DebugConstants.ENABLED) return baseHealth;
+  if (!DebugConstants.ENABLED) {
+    return baseHealth;
+  }
   return Math.floor(baseHealth * DebugConstants.ZOMBIE_HEALTH_MULTIPLIER);
 }
 
@@ -122,6 +132,8 @@ export function getDebugZombieHealth(baseHealth: number): number {
  * Get modified zombie speed based on debug multiplier
  */
 export function getDebugZombieSpeed(baseSpeed: number): number {
-  if (!DebugConstants.ENABLED) return baseSpeed;
+  if (!DebugConstants.ENABLED) {
+    return baseSpeed;
+  }
   return baseSpeed * DebugConstants.ZOMBIE_SPEED_MULTIPLIER;
 }

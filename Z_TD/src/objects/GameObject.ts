@@ -38,7 +38,9 @@ export class GameObject extends Container {
 
   // Update all components
   public update(deltaTime: number): void {
-    if (!this.active) return;
+    if (!this.active) {
+      return;
+    }
 
     for (const component of this.components.values()) {
       component.update(deltaTime);

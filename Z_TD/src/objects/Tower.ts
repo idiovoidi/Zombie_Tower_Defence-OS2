@@ -1,4 +1,4 @@
-import { Graphics, Container, ContainerChild } from 'pixi.js';
+import { Container, ContainerChild, Graphics } from 'pixi.js';
 import { GameObject } from './GameObject';
 import { TransformComponent } from '../components/TransformComponent';
 import { HealthComponent } from '../components/HealthComponent';
@@ -267,8 +267,12 @@ export class Tower extends GameObject implements ITower {
     this.barrel.clear();
     // Body - gear improves with upgrades
     let bodyColor = 0x654321; // Brown civilian
-    if (this.upgradeLevel >= 3) bodyColor = 0x4a4a4a; // Gray tactical
-    if (this.upgradeLevel >= 5) bodyColor = 0x2a2a2a; // Black military
+    if (this.upgradeLevel >= 3) {
+      bodyColor = 0x4a4a4a;
+    } // Gray tactical
+    if (this.upgradeLevel >= 5) {
+      bodyColor = 0x2a2a2a;
+    } // Black military
     this.barrel.rect(-3, -13, 6, 8).fill(bodyColor);
     // Arms
     this.barrel.rect(-4, -11, 2, 4).fill(0xffdbac);
@@ -353,8 +357,12 @@ export class Tower extends GameObject implements ITower {
     this.barrel.clear();
     // Body - camo improves
     let bodyColor = 0x654321; // Brown
-    if (this.upgradeLevel >= 3) bodyColor = 0x3a4a2a; // Camo green
-    if (this.upgradeLevel >= 5) bodyColor = 0x1a1a1a; // Black ops
+    if (this.upgradeLevel >= 3) {
+      bodyColor = 0x3a4a2a;
+    } // Camo green
+    if (this.upgradeLevel >= 5) {
+      bodyColor = 0x1a1a1a;
+    } // Black ops
     this.barrel.rect(-3, -15, 6, 8).fill(bodyColor);
     // Arms
     this.barrel.rect(-4, -13, 2, 4).fill(0xffdbac);
@@ -437,8 +445,12 @@ export class Tower extends GameObject implements ITower {
     this.barrel.clear();
     // Body - armor improves
     let bodyColor = 0x654321; // Brown
-    if (this.upgradeLevel >= 3) bodyColor = 0x4a4a4a; // Gray armor
-    if (this.upgradeLevel >= 5) bodyColor = 0x2a2a2a; // Heavy armor
+    if (this.upgradeLevel >= 3) {
+      bodyColor = 0x4a4a4a;
+    } // Gray armor
+    if (this.upgradeLevel >= 5) {
+      bodyColor = 0x2a2a2a;
+    } // Heavy armor
     this.barrel.rect(-3, -11, 6, 8).fill(bodyColor);
     // Arms
     this.barrel.rect(-4, -9, 2, 4).fill(0xffdbac);
@@ -530,8 +542,12 @@ export class Tower extends GameObject implements ITower {
     this.barrel.clear();
     // Body - protective gear improves
     let suitColor = 0x654321; // Brown clothes
-    if (this.upgradeLevel >= 3) suitColor = 0xff4500; // Fire suit
-    if (this.upgradeLevel >= 5) suitColor = 0xff6347; // Advanced suit
+    if (this.upgradeLevel >= 3) {
+      suitColor = 0xff4500;
+    } // Fire suit
+    if (this.upgradeLevel >= 5) {
+      suitColor = 0xff6347;
+    } // Advanced suit
     this.barrel.rect(-3, -13, 6, 8).fill(suitColor);
     // Arms
     const armColor = this.upgradeLevel >= 3 ? 0xff4500 : 0xffdbac;
@@ -629,8 +645,12 @@ export class Tower extends GameObject implements ITower {
     this.barrel.clear();
     // Body - tech suit improves
     let suitColor = 0x4a4a4a; // Gray
-    if (this.upgradeLevel >= 3) suitColor = 0x00ced1; // Cyan suit
-    if (this.upgradeLevel >= 5) suitColor = 0x00ffff; // Glowing suit
+    if (this.upgradeLevel >= 3) {
+      suitColor = 0x00ced1;
+    } // Cyan suit
+    if (this.upgradeLevel >= 5) {
+      suitColor = 0x00ffff;
+    } // Glowing suit
     this.barrel.rect(-3, -13, 6, 8).fill(suitColor);
     // Arms
     const armColor = this.upgradeLevel >= 3 ? 0x00ced1 : 0xffdbac;
@@ -791,7 +811,9 @@ export class Tower extends GameObject implements ITower {
 
   // Add upgrade stars to show upgrade level
   private addUpgradeStars(): void {
-    if (this.upgradeLevel <= 1) return;
+    if (this.upgradeLevel <= 1) {
+      return;
+    }
 
     const starCount = Math.min(this.upgradeLevel - 1, 5);
     const starSize = 3;
@@ -947,10 +969,14 @@ export class Tower extends GameObject implements ITower {
 
       if (growing) {
         scale += 0.05;
-        if (scale >= 1.2) growing = false;
+        if (scale >= 1.2) {
+          growing = false;
+        }
       } else {
         scale -= 0.05;
-        if (scale <= 1) growing = true;
+        if (scale <= 1) {
+          growing = true;
+        }
       }
       highlight.scale.set(scale);
     };

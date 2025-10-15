@@ -1,0 +1,16 @@
+{
+  "enabled": true,
+  "name": "Test File Watcher",
+  "description": "Watches the test-write-direct.js file for changes and triggers test execution to provide immediate feedback on test modifications",
+  "version": "1",
+  "when": {
+    "type": "userTriggered",
+    "patterns": [
+      "test-write-direct.js"
+    ]
+  },
+  "then": {
+    "type": "askAgent",
+    "prompt": "Create a test for the specified feature for direct and immediete testing. Analyze the changes and run the appropriate tests to verify the modifications. Provide feedback on test results and any issues found."
+  }
+}
