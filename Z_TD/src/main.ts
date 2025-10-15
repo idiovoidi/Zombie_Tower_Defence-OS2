@@ -11,6 +11,7 @@ import { TowerInfoPanel } from './ui/TowerInfoPanel';
 import { DebugInfoPanel } from './ui/DebugInfoPanel';
 import { ZombieBestiary } from './ui/ZombieBestiary';
 import { WaveInfoPanel } from './ui/WaveInfoPanel';
+import { ShaderTestPanel } from './ui/ShaderTestPanel';
 import { CampUpgradePanel } from './ui/CampUpgradePanel';
 import { AIControlPanel } from './ui/AIControlPanel';
 import { StatsPanel } from './ui/StatsPanel';
@@ -101,6 +102,21 @@ import { DebugConstants } from './config/debugConstants';
     waveInfoPanel.show();
   } else {
     waveInfoPanel.hide();
+  }
+
+  // Create shader test panel (left side, top position)
+  const shaderTestPanel = new ShaderTestPanel();
+  shaderTestPanel.position.set(20, screenHeight - 140);
+  uiManager.registerComponent('shaderTestPanel', shaderTestPanel);
+  // Add the content panel separately to the stage so it appears on top
+  app.stage.addChild(shaderTestPanel.getContentContainer());
+  // Set game manager and stage reference for applying filters
+  shaderTestPanel.setGameManager(gameManager);
+  shaderTestPanel.setGameStage(app.stage);
+  if (DebugConstants.ENABLED) {
+    shaderTestPanel.show();
+  } else {
+    shaderTestPanel.hide();
   }
 
   // Create debug info panel (right side, below wave info panel)
@@ -465,7 +481,7 @@ import { DebugConstants } from './config/debugConstants';
   DebugUtils.info('Game initialized successfully');
 
   // Expose LogExporter to console for easy access
-  (window as any).LogExporter = LogExporter;
+  (window as unknown).LogExporter = LogExporter;
   console.log('📊 LogExporter available in console');
   console.log('💡 Commands:');
   console.log('  LogExporter.viewStoredLogs() - View all stored logs');
@@ -506,4 +522,21 @@ import { DebugConstants } from './config/debugConstants';
     };
     console.log('💡 Type waveBalance() in console to load wave balancing tools');
   }
+
+  // Expose performance testing tools to console
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  (window as any).performanceTest = async () => {
+    const { runBalancePerformanceTests, runFrameRateTest } = await import(
+      './utils/BalanceAnalysisPerformanceTest'
+    );
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (window as any).runBalancePerformanceTests = runBalancePerformanceTests;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (window as any).runFrameRateTest = runFrameRateTest;
+    console.log('🔬 Performance testing tools loaded!');
+    console.log('Usage:');
+    console.log('  runBalancePerformanceTests() - Run all performance tests');
+    console.log('  runFrameRateTest() - Test frame rate impact');
+  };
+  console.log('💡 Type performanceTest() in console to load performance testing tools');
 })();

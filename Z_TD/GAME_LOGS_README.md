@@ -4,6 +4,8 @@
 
 Z-TD automatically exports game performance data to JSON files for analysis and testing. Logs are generated for both AI and manual play sessions.
 
+**NEW**: Logs now include comprehensive **Balance Analysis** with mathematical models, statistical predictions, and automated issue detection to help with data-driven game balance decisions!
+
 ## Log File Naming
 
 ### Format
@@ -80,6 +82,102 @@ Only present when `isAIRun: true`:
 }
 ```
 
+### Balance Analysis Section (NEW)
+
+Present in all logs when balance tracking is enabled:
+
+```json
+"balanceAnalysis": {
+  "issues": [                    // Detected balance problems
+    {
+      "type": "INEFFICIENT_TOWERS",
+      "severity": "MEDIUM",
+      "message": "Damage per dollar is 12.3, below threshold of 15",
+      "value": 12.3,
+      "threshold": 15.0,
+      "recommendation": "Build fewer towers and upgrade existing ones more"
+    }
+  ],
+  "waveDefenseAnalysis": [       // Lanchester's Law predictions
+    {
+      "wave": 10,
+      "canDefend": true,
+      "totalZombieHP": 8000,
+      "totalTowerDPS": 320,
+      "safetyMargin": 20.0,
+      "recommendation": "Defense is adequate with 20% safety margin"
+    }
+  ],
+  "towerEfficiencies": {         // Cost-effectiveness scores
+    "MachineGun": {
+      "efficiencyScore": 63.75,
+      "effectiveDPS": 47.0,
+      "breakEvenTime": 19.5
+    },
+    "Sniper": {
+      "efficiencyScore": 142.5,
+      "effectiveDPS": 92.0,
+      "breakEvenTime": 22.5
+    }
+  },
+  "threatScores": {              // Zombie difficulty vs reward
+    "TANK": {
+      "threatScore": 1.15,
+      "isBalanced": true
+    }
+  },
+  "optimalTowerMix": {           // Recommended composition
+    "Sniper": 4,
+    "MachineGun": 3
+  },
+  "actualTowerMix": {            // Player's composition
+    "MachineGun": 6,
+    "Sniper": 4
+  },
+  "mixDeviation": 35.0,          // % difference from optimal
+  "overallBalanceRating": "GOOD" // EXCELLENT, GOOD, FAIR, POOR, CRITICAL
+}
+```
+
+### Statistical Analysis Section (NEW)
+
+Present in all logs when balance tracking is enabled:
+
+```json
+"statisticalAnalysis": {
+  "damageOutliers": {            // Abnormal damage values
+    "mean": 850.5,
+    "standardDeviation": 125.3,
+    "outliers": [],
+    "hasOutliers": false
+  },
+  "difficultyTrend": {           // Progression analysis
+    "trend": "GETTING_HARDER",   // GETTING_HARDER, STABLE, GETTING_EASIER
+    "slope": 0.12,
+    "intercept": 100,
+    "rSquared": 0.89,
+    "confidence": "HIGH"         // HIGH, MEDIUM, LOW
+  },
+  "wavePredictions": [           // Future wave forecasts
+    {
+      "wave": 16,
+      "predictedDifficulty": 1920,
+      "recommendedDPS": 450,
+      "confidenceInterval": {
+        "lower": 1850,
+        "upper": 1990
+      }
+    }
+  ],
+  "summary": {
+    "avgDamagePerWave": 850.5,
+    "avgDPSPerWave": 125.3,
+    "avgEconomyEfficiency": 145.8,
+    "performanceConsistency": 92.5
+  }
+}
+```
+
 ## Performance Ratings
 
 ### Wave Progress Rating
@@ -97,6 +195,21 @@ Only present when `isAIRun: true`:
 - ⚠️ MODERATE DEFENSE - 50-79% survival
 - ❌ WEAK DEFENSE - Below 50% survival
 
+### Balance Rating (NEW)
+
+- EXCELLENT - No issues, optimal strategy
+- GOOD - Minor issues, effective strategy
+- FAIR - Some issues, room for improvement
+- POOR - Multiple issues, inefficient strategy
+- CRITICAL - Severe issues, major problems
+
+### Balance Issue Severity (NEW)
+
+- **LOW** - Minor inefficiency, optional fix
+- **MEDIUM** - Noticeable problem, should address
+- **HIGH** - Significant issue, needs attention
+- **CRITICAL** - Severe problem, immediate fix required
+
 ## Use Cases
 
 ### Balance Testing
@@ -107,6 +220,15 @@ Compare multiple AI runs to identify:
 - Survival rates across runs
 - Tower composition effectiveness
 - Money management patterns
+
+**NEW - Balance Analysis**:
+
+- Automatically detect balance issues
+- Compare actual vs optimal tower mix
+- Identify difficulty spikes with statistical analysis
+- Predict future wave difficulty
+- Calculate tower cost-effectiveness
+- Measure zombie threat vs reward balance
 
 ### A/B Testing
 
@@ -252,6 +374,51 @@ logs/
 - Use session IDs to identify unique runs
 - Delete duplicates manually if needed
 
+## Balance Analysis Features (NEW)
+
+### Mathematical Models
+
+- **Lanchester's Laws**: Predict if towers can defend against waves
+- **Efficiency Scores**: Calculate tower cost-effectiveness
+- **Diminishing Returns**: Model stacked tower effectiveness
+- **Threat Scores**: Evaluate zombie difficulty vs rewards
+- **Break-Even Analysis**: Calculate tower ROI time
+
+### Statistical Analysis
+
+- **Outlier Detection**: Identify abnormal data points (2+ std devs)
+- **Trend Analysis**: Linear regression for difficulty progression
+- **Predictive Modeling**: Polynomial regression for future waves
+- **Confidence Intervals**: Measure prediction reliability
+
+### Automated Issue Detection
+
+Balance issues are automatically flagged:
+
+1. **INEFFICIENT_TOWERS**: Damage per dollar < 15
+2. **WEAK_DEFENSE**: Survival rate < 50%
+3. **EXCESSIVE_OVERKILL**: Overkill damage > 15%
+4. **NEGATIVE_ECONOMY**: Economy efficiency < 100%
+5. **DIFFICULTY_SPIKE**: Wave outlier > 2 standard deviations
+
+### Configuration
+
+Balance thresholds in `src/config/balanceConfig.ts`:
+
+```typescript
+BalanceConfig.THRESHOLDS.DAMAGE_PER_DOLLAR_MIN = 15;
+BalanceConfig.THRESHOLDS.SURVIVAL_RATE_MIN = 50;
+BalanceConfig.THRESHOLDS.OVERKILL_PERCENT_MAX = 15;
+BalanceConfig.THRESHOLDS.SAFETY_MARGIN_MIN = 20;
+```
+
+### Documentation
+
+- **Quick Reference**: `design_docs/AI_Test_Balance/STATS_QUICK_REFERENCE.md`
+- **Complete Guide**: `design_docs/AI_Test_Balance/BALANCE_ANALYSIS_GUIDE.md`
+- **Examples**: `design_docs/AI_Test_Balance/BALANCE_ANALYSIS_EXAMPLES.md`
+- **Troubleshooting**: `design_docs/AI_Test_Balance/BALANCE_ANALYSIS_TROUBLESHOOTING.md`
+
 ## Future Enhancements
 
 Planned features:
@@ -262,7 +429,10 @@ Planned features:
 - Comparison tools in-game
 - Historical trend tracking
 - Machine learning integration
+- Visual balance heatmaps
+- Multi-run aggregation and comparison
 
 ---
 
-_For more information, see `AI_PLAYER_GUIDE.md`_
+_For more information, see `AI_PLAYER_GUIDE.md` and `README_REPORTS.md`_  
+_For balance analysis, see `design_docs/AI_Test_Balance/BALANCE_ANALYSIS_GUIDE.md`_

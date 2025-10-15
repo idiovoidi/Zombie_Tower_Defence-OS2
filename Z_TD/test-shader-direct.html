@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Direct Shader Test</title>
+    <style>
+        body { margin: 0; padding: 20px; background: #222; color: white; font-family: Arial; }
+        #container { width: 800px; height: 600px; border: 2px solid #666; margin: 20px 0; }
+        button { margin: 5px; padding: 10px; background: #444; color: white; border: 1px solid #666; cursor: pointer; }
+        button:hover { background: #555; }
+        #log { background: #111; padding: 10px; margin: 20px 0; height: 200px; overflow-y: scroll; font-family: monospace; font-size: 12px; }
+    </style>
+</head>
+<body>
+    <h1>Direct PixiJS 8.x Shader Test</h1>
+    <div>
+        <button onclick="testShader('none')">None</button>
+        <button onclick="testShader('simple')">Simple Red Tint</button>
+        <button onclick="testShader('uniform')">With Uniform</button>
+        <button onclick="testShader('pixelation')">Pixelation</button>
+        <button onclick="testShader('easypixel')">Easy Pixel</button>
+        <button onclick="testShader('debug')">Debug Shader</button>
+        <button onclick="testShader('builtin')">Built-in Filter</button>
+    </div>
+    <div id="container"></div>
+    <div id="log"></div>
+
+    <script type="module">
+        import { Application, Graphics, Filter, GlProgram, ColorMatrixFilter } from 'https://cdn.skypack.dev/pixi.js@8.8.1';
+
+        let app;
+        let graphics;
+
+        function log(message) {
+            const logDiv = document.getElementById('log');
+            logDiv.innerHTML += new Date().toLocaleTimeString() + ': ' + message + '<br>';
+            logDiv.scrollTop = logDiv.scrollHeight;
+            console.log(message);
+        }
+
+        async function initPixi() {
+            try {
+                log('Initializing PixiJS...');
+                app = new Application();
+                await app.init({ 
+                    width: 800, 
+                    height: 600, 
+                    backgroundColor: 0x1099bb 
+                });
+                
+                document.getElementById('container').appendChild(app.canvas);
+                log('PixiJS initialized successfully');
+
+                // Create test graphics
+                graphics = new Graphics();
+                graphics.rect(50, 50, 100, 100).fill({ color: 0xff0000 });
+                graphics.rect(200, 50, 100, 100).fill({ color: 0x00ff00 });
+                graphics.rect(350, 50, 100, 100).fill({ color: 0x0000ff });
+                graphics.rect(50, 200, 100, 100).fill({ color: 0xffff00 });
+                graphics.rect(200, 200, 100, 100).fill({ color: 0xff00ff });
+                graphics.rect(350, 200, 100, 100).fill({ color: 0x00ffff });
+                
+                app.stage.addChild(graphics);
+                log('Test graphics created');
+
+            } catch (error) {
+                log('Error initializing PixiJS: ' + error.message);
+                console.error(error);
+            }
+        }
+
+        window.testShader = function(type) {
+            try {
+                log('Testing shader: ' + type);
+                
+                // Clear existing filters
+                app.stage.filters = null;
+                
+                if (type === 'simple') {
+                    log('Creating simple red tint shader...');
+                    
+                    const vertexShader = `
+                        attribute vec2 aVertexPosition;
+                        attribute vec2 aTextureCoord;
+                        uniform mat3 projectionMatrix;
+                        varying vec2 vTextureCoord;
+                        void main(void) {
+                            gl_Position = vec4((projectionMatrix * vec3(aVertexPosition, 1.0)).xy, 0.0, 1.0);
+                            vTextureCoord = aTextureCoord;
+                        }
+                    `;
+                    
+                    const fragmentShader = `
+                        precision mediump float;
+                        varying vec2 vTextureCoord;
+                        uniform sampler2D uSampler;
+                        void main(void) {
+                            vec4 color = texture2D(uSampler, vTextureCoord);
+                            color.r = color.r + 0.3;
+                            color.r = clamp(color.r, 0.0, 1.0);
+                            gl_FragColor = color;
+                        }
+                    `;
+                    
+                    const glProgram = GlProgram.from({
+                        vertex: vertexShader,
+                        fragment: fragmentShader,
+                    });
+                    
+                    const filter = new Filter({
+                        glProgram,
+                        resources: {}
+                    });
+                    
+                    app.stage.filters = [filter];
+                    log('Simple shader applied successfully!');
+                    
+                } else if (type === 'uniform') {
+                    log('Creating shader with uniform...');
+                    
+                    const vertexShader = `
+                        attribute vec2 aVertexPosition;
+                        attribute vec2 aTextureCoord;
+                        uniform mat3 projectionMatrix;
+                        varying vec2 vTextureCoord;
+                        void main(void) {
+                            gl_Position = vec4((projectionMatrix * vec3(aVertexPosition, 1.0)).xy, 0.0, 1.0);
+                            vTextureCoord = aTextureCoord;
+                        }
+                    `;
+                    
+                    const fragmentShader = `
+                        precision mediump float;
+                        varying vec2 vTextureCoord;
+                        uniform sampler2D uSampler;
+                        uniform float redTint;
+                        void main(void) {
+                            vec4 color = texture2D(uSampler, vTextureCoord);
+                            color.r = color.r + redTint;
+                            color.r = clamp(color.r, 0.0, 1.0);
+                            gl_FragColor = color;
+                        }
+                    `;
+                    
+                    const glProgram = GlProgram.from({
+                        vertex: vertexShader,
+                        fragment: fragmentShader,
+                    });
+                    
+                    const filter = new Filter({
+                        glProgram,
+                        resources: {
+                            redTint: 0.4
+                        }
+                    });
+                    
+                    app.stage.filters = [filter];
+                    log('Uniform shader applied successfully!');
+                    
+                } else if (type === 'pixelation') {
+                    log('Creating pixelation shader...');
+                    
+                    const vertexShader = `
+                        attribute vec2 aVertexPosition;
+                        attribute vec2 aTextureCoord;
+                        uniform mat3 projectionMatrix;
+                        varying vec2 vTextureCoord;
+                        void main(void) {
+                            gl_Position = vec4((projectionMatrix * vec3(aVertexPosition, 1.0)).xy, 0.0, 1.0);
+                            vTextureCoord = aTextureCoord;
+                        }
+                    `;
+                    
+                    const fragmentShader = `
+                        precision mediump float;
+                        varying vec2 vTextureCoord;
+                        uniform sampler2D uSampler;
+                        uniform float pixelSize;
+                        
+                        void main(void) {
+                            vec2 resolution = vec2(800.0, 600.0);
+                            vec2 coord = vTextureCoord * resolution;
+                            coord = floor(coord / pixelSize) * pixelSize;
+                            coord = coord / resolution;
+                            gl_FragColor = texture2D(uSampler, coord);
+                        }
+                    `;
+                    
+                    const glProgram = GlProgram.from({
+                        vertex: vertexShader,
+                        fragment: fragmentShader,
+                    });
+                    
+                    const filter = new Filter({
+                        glProgram,
+                        resources: {
+                            pixelSize: 8.0
+                        }
+                    });
+                    
+                    app.stage.filters = [filter];
+                    log('Pixelation shader applied successfully!');
+                    
+                } else if (type === 'easypixel') {
+                    log('Creating easy pixelation shader...');
+                    
+                    const vertexShader = `
+                        attribute vec2 aVertexPosition;
+                        attribute vec2 aTextureCoord;
+                        uniform mat3 projectionMatrix;
+                        varying vec2 vTextureCoord;
+                        void main(void) {
+                            gl_Position = vec4((projectionMatrix * vec3(aVertexPosition, 1.0)).xy, 0.0, 1.0);
+                            vTextureCoord = aTextureCoord;
+                        }
+                    `;
+                    
+                    const fragmentShader = `
+                        precision mediump float;
+                        varying vec2 vTextureCoord;
+                        uniform sampler2D uSampler;
+                        
+                        void main(void) {
+                            vec2 coord = vTextureCoord;
+                            float pixelSize = 8.0;
+                            coord = floor(coord * 64.0 / pixelSize) * pixelSize / 64.0;
+                            gl_FragColor = texture2D(uSampler, coord);
+                        }
+                    `;
+                    
+                    const glProgram = GlProgram.from({
+                        vertex: vertexShader,
+                        fragment: fragmentShader,
+                    });
+                    
+                    const filter = new Filter({
+                        glProgram,
+                        resources: {}
+                    });
+                    
+                    app.stage.filters = [filter];
+                    log('Easy pixelation shader applied successfully!');
+                    
+                } else if (type === 'debug') {
+                    log('Creating debug shader...');
+                    
+                    const vertexShader = `
+                        attribute vec2 aVertexPosition;
+                        attribute vec2 aTextureCoord;
+                        uniform mat3 projectionMatrix;
+                        varying vec2 vTextureCoord;
+                        void main(void) {
+                            gl_Position = vec4((projectionMatrix * vec3(aVertexPosition, 1.0)).xy, 0.0, 1.0);
+                            vTextureCoord = aTextureCoord;
+                        }
+                    `;
+                    
+                    const fragmentShader = `
+                        precision mediump float;
+                        varying vec2 vTextureCoord;
+                        uniform sampler2D uSampler;
+                        
+                        void main(void) {
+                            vec2 coord = vTextureCoord;
+                            vec4 debugColor = vec4(coord.x, coord.y, 0.0, 1.0);
+                            vec4 originalColor = texture2D(uSampler, coord);
+                            gl_FragColor = mix(originalColor, debugColor, 0.3);
+                        }
+                    `;
+                    
+                    const glProgram = GlProgram.from({
+                        vertex: vertexShader,
+                        fragment: fragmentShader,
+                    });
+                    
+                    const filter = new Filter({
+                        glProgram,
+                        resources: {}
+                    });
+                    
+                    app.stage.filters = [filter];
+                    log('Debug shader applied successfully!');
+                    
+                } else if (type === 'builtin') {
+                    log('Testing built-in ColorMatrixFilter...');
+                    
+                    const filter = new ColorMatrixFilter();
+                    filter.tint(0xff0000); // Red tint
+                    
+                    app.stage.filters = [filter];
+                    log('Built-in filter applied successfully!');
+                    
+                } else {
+                    log('No filter applied');
+                }
+                
+            } catch (error) {
+                log('ERROR: ' + error.message);
+                console.error('Shader error:', error);
+            }
+        };
+
+        // Initialize when page loads
+        initPixi();
+    </script>
+</body>
+</html>

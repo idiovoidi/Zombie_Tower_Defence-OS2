@@ -357,6 +357,315 @@ NEW! Snapshots of game state over time.
 
 ---
 
+## 7. Balance Analysis (NEW) 🎯
+
+Automated mathematical balance analysis using proven formulas.
+
+### Fields
+
+- **issues**: Array of detected balance problems
+- **waveDefenseAnalysis**: Lanchester's Law predictions
+- **towerEfficiencies**: Cost-effectiveness scores
+- **threatScores**: Zombie difficulty vs reward balance
+- **optimalTowerMix**: Recommended tower composition
+- **actualTowerMix**: Player's tower composition
+- **mixDeviation**: Difference from optimal (%)
+- **overallBalanceRating**: EXCELLENT, GOOD, FAIR, POOR, or CRITICAL
+
+### Balance Issue Types
+
+1. **INEFFICIENT_TOWERS**
+   - Damage per dollar below threshold (< 15)
+   - Recommendation: Build fewer towers, upgrade more
+
+2. **WEAK_DEFENSE**
+   - Survival rate below threshold (< 50%)
+   - Recommendation: Add more towers or upgrade
+
+3. **EXCESSIVE_OVERKILL**
+   - Overkill percentage above threshold (> 15%)
+   - Recommendation: Spread towers out, diversify types
+
+4. **NEGATIVE_ECONOMY**
+   - Economy efficiency below 100%
+   - Recommendation: Reduce spending, focus on income
+
+5. **DIFFICULTY_SPIKE**
+   - Wave difficulty outlier (> 2 standard deviations)
+   - Recommendation: Adjust wave scaling
+
+### Wave Defense Analysis
+
+Uses Lanchester's Laws to predict if towers can defend:
+
+```typescript
+{
+  wave: 10,
+  canDefend: true,
+  totalZombieHP: 8000,
+  totalTowerDPS: 320,
+  timeToReachEnd: 30,
+  damageDealt: 9600,
+  damageRequired: 8000,
+  safetyMargin: 20.0,  // 20% buffer
+  recommendation: "Defense is adequate with 20% safety margin"
+}
+```
+
+**Interpretation**:
+
+- **canDefend = true**: Towers can handle wave
+- **safetyMargin > 20%**: Good buffer
+- **safetyMargin < 0%**: Will lose lives
+
+### Tower Efficiency
+
+Measures cost-effectiveness of each tower type:
+
+```typescript
+{
+  type: 'Sniper',
+  cost: 200,
+  dps: 100,
+  range: 300,
+  accuracy: 0.95,
+  efficiencyScore: 142.5,  // (DPS × Range × Accuracy) / Cost
+  effectiveDPS: 92.0,      // Accounting for overkill
+  breakEvenTime: 22.5      // Seconds to pay for itself
+}
+```
+
+**Use Cases**:
+
+- Compare tower types for best value
+- Identify overpriced/underpriced towers
+- Calculate optimal tower mix
+
+### Threat Scores
+
+Evaluates if zombie rewards match difficulty:
+
+```typescript
+{
+  zombieType: 'TANK',
+  health: 300,
+  speed: 25,
+  count: 5,
+  reward: 50,
+  threatScore: 75.0,       // (HP × Speed × Count) / (Reward × 10)
+  threatPerDollar: 1.5,
+  isBalanced: false        // Should be 0.8-1.2
+}
+```
+
+**Interpretation**:
+
+- **0.8-1.2**: Balanced
+- **< 0.8**: Over-rewarded (too easy)
+- **> 1.2**: Under-rewarded (too hard)
+
+### Example
+
+```json
+"balanceAnalysis": {
+  "issues": [
+    {
+      "type": "INEFFICIENT_TOWERS",
+      "severity": "MEDIUM",
+      "message": "Damage per dollar is 12.3, below threshold of 15",
+      "value": 12.3,
+      "threshold": 15.0,
+      "recommendation": "Build fewer towers and upgrade existing ones more"
+    }
+  ],
+  "waveDefenseAnalysis": [
+    {
+      "wave": 10,
+      "canDefend": true,
+      "safetyMargin": 20.0,
+      "recommendation": "Defense is adequate"
+    }
+  ],
+  "towerEfficiencies": {
+    "MachineGun": {
+      "efficiencyScore": 63.75,
+      "effectiveDPS": 47.0,
+      "breakEvenTime": 19.5
+    },
+    "Sniper": {
+      "efficiencyScore": 142.5,
+      "effectiveDPS": 92.0,
+      "breakEvenTime": 22.5
+    }
+  },
+  "optimalTowerMix": {
+    "Sniper": 4,
+    "MachineGun": 3
+  },
+  "actualTowerMix": {
+    "MachineGun": 12
+  },
+  "mixDeviation": 85.0,
+  "overallBalanceRating": "FAIR"
+}
+```
+
+---
+
+## 8. Statistical Analysis (NEW) 📈
+
+Advanced statistical analysis for trend detection and prediction.
+
+### Fields
+
+- **damageOutliers**: Abnormal damage values
+- **dpsOutliers**: Abnormal DPS values
+- **economyOutliers**: Abnormal economy events
+- **difficultyTrend**: Trend classification
+- **wavePredictions**: Future wave forecasts
+- **summary**: Aggregate statistics
+
+### Outlier Detection
+
+Identifies abnormal data points using standard deviation:
+
+```typescript
+{
+  mean: 1250.5,
+  standardDeviation: 180.3,
+  outliers: [
+    { value: 2100, index: 7, deviation: 4.7 }
+  ],
+  hasOutliers: true
+}
+```
+
+**Use Cases**:
+
+- Detect difficulty spikes
+- Find abnormally strong/weak towers
+- Identify economy anomalies
+
+### Trend Analysis
+
+Determines if difficulty is increasing, decreasing, or stable:
+
+```typescript
+{
+  trend: 'GETTING_HARDER',
+  slope: 0.15,
+  intercept: 100,
+  rSquared: 0.92,
+  confidence: 'HIGH'
+}
+```
+
+**Trend Types**:
+
+- **GETTING_HARDER**: slope > 0
+- **GETTING_EASIER**: slope < 0
+- **STABLE**: slope ≈ 0
+
+**Confidence Levels**:
+
+- **HIGH**: R² > 0.85
+- **MEDIUM**: R² 0.65-0.85
+- **LOW**: R² < 0.65
+
+### Wave Predictions
+
+Forecasts future wave difficulty using polynomial regression:
+
+```typescript
+{
+  wave: 11,
+  predictedDifficulty: 1850,
+  recommendedDPS: 185,
+  confidenceInterval: { lower: 1750, upper: 1950 }
+}
+```
+
+**Use Cases**:
+
+- Proactively balance upcoming waves
+- Warn about difficulty spikes
+- Adjust scaling factors before playtesting
+
+### Example
+
+```json
+"statisticalAnalysis": {
+  "damageOutliers": {
+    "mean": 850.5,
+    "standardDeviation": 125.3,
+    "outliers": [],
+    "hasOutliers": false
+  },
+  "difficultyTrend": {
+    "trend": "GETTING_HARDER",
+    "slope": 0.12,
+    "intercept": 100,
+    "rSquared": 0.89,
+    "confidence": "HIGH"
+  },
+  "wavePredictions": [
+    {
+      "wave": 16,
+      "predictedDifficulty": 1920,
+      "recommendedDPS": 450,
+      "confidenceInterval": { "lower": 1850, "upper": 1990 }
+    }
+  ],
+  "summary": {
+    "avgDamagePerWave": 850.5,
+    "avgDPSPerWave": 125.3,
+    "avgEconomyEfficiency": 145.8,
+    "performanceConsistency": 92.5
+  }
+}
+```
+
+---
+
+## Using Balance Analysis
+
+### Enable Tracking
+
+```typescript
+// In GameManager or console
+gameManager.getBalanceTrackingManager().enable();
+```
+
+### Check Balance Issues
+
+```typescript
+const issues = gameManager.getBalanceTrackingManager().getBalanceIssues();
+issues.forEach(issue => {
+  console.log(`${issue.severity}: ${issue.message}`);
+  console.log(`Recommendation: ${issue.recommendation}`);
+});
+```
+
+### View Wave Defense
+
+```typescript
+const analysis = gameManager.getBalanceTrackingManager().getWaveDefenseAnalysis();
+analysis.forEach(wave => {
+  console.log(`Wave ${wave.wave}: ${wave.canDefend ? 'CAN' : 'CANNOT'} defend`);
+  console.log(`Safety margin: ${wave.safetyMargin}%`);
+});
+```
+
+### Get Predictions
+
+```typescript
+const stats = gameManager.getBalanceTrackingManager().getStatisticalAnalysis();
+console.log('Difficulty trend:', stats.difficultyTrend.trend);
+console.log('Next wave prediction:', stats.wavePredictions[0]);
+```
+
+---
+
 ## Future Enhancements
 
 Planned metrics for future versions:
@@ -371,4 +680,6 @@ Planned metrics for future versions:
 ---
 
 _Last Updated: Current Build_  
-_For implementation details, see: `src/utils/LogExporter.ts` and `src/managers/AIPlayerManager.ts`_
+_For implementation details, see: `src/utils/LogExporter.ts` and `src/managers/AIPlayerManager.ts`_  
+_For balance analysis details, see: `design_docs/AI_Test_Balance/BALANCE_ANALYSIS_GUIDE.md`_  
+_For examples, see: `design_docs/AI_Test_Balance/BALANCE_ANALYSIS_EXAMPLES.md`_

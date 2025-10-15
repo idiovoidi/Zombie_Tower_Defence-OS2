@@ -1,0 +1,236 @@
+<!doctype html>
+<html>
+  <head>
+    <title>Direct Shader Debug Test</title>
+    <style>
+      body {
+        margin: 0;
+        padding: 20px;
+        background: #222;
+        color: white;
+        font-family: Arial;
+      }
+      #container {
+        width: 800px;
+        height: 600px;
+        border: 2px solid #666;
+        margin: 20px 0;
+      }
+      button {
+        margin: 5px;
+        padding: 10px;
+        background: #444;
+        color: white;
+        border: 1px solid #666;
+        cursor: pointer;
+      }
+      button:hover {
+        background: #555;
+      }
+      #log {
+        background: #111;
+        padding: 10px;
+        margin: 20px 0;
+        height: 300px;
+        overflow-y: scroll;
+        font-family: monospace;
+        font-size: 12px;
+      }
+      .error {
+        color: #ff6666;
+      }
+      .success {
+        color: #66ff66;
+      }
+      .info {
+        color: #6666ff;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Direct Shader Debug Test</h1>
+    <div>
+      <button onclick="testShader('passthrough')">1. Passthrough (Should Work)</button>
+      <button onclick="testShader('minimal')">2. Minimal Change</button>
+      <button onclick="testShader('debug')">3. Debug Colors</button>
+      <button onclick="testShader('simplepixel')">4. Simple Pixel</button>
+      <button onclick="clearLog()">Clear Log</button>
+    </div>
+    <div id="container"></div>
+    <div id="log"></div>
+
+    <script type="module">
+      import {
+        Application,
+        Graphics,
+        Filter,
+        GlProgram,
+      } from 'https://cdn.skypack.dev/pixi.js@8.8.1';
+
+      let app;
+      let graphics;
+
+      function log(message, type = 'info') {
+        const logDiv = document.getElementById('log');
+        const className = type === 'error' ? 'error' : type === 'success' ? 'success' : 'info';
+        logDiv.innerHTML += `<span class="${className}">${new Date().toLocaleTimeString()}: ${message}</span><br>`;
+        logDiv.scrollTop = logDiv.scrollHeight;
+        console.log(message);
+      }
+
+      window.clearLog = function () {
+        document.getElementById('log').innerHTML = '';
+      };
+
+      async function initPixi() {
+        try {
+          log('🚀 Initializing PixiJS...', 'info');
+          app = new Application();
+          await app.init({
+            width: 800,
+            height: 600,
+            backgroundColor: 0x1099bb,
+          });
+
+          document.getElementById('container').appendChild(app.canvas);
+          log('✅ PixiJS initialized successfully', 'success');
+
+          // Create test graphics
+          graphics = new Graphics();
+          graphics.rect(50, 50, 100, 100).fill({ color: 0xff0000 });
+          graphics.rect(200, 50, 100, 100).fill({ color: 0x00ff00 });
+          graphics.rect(350, 50, 100, 100).fill({ color: 0x0000ff });
+          graphics.rect(50, 200, 100, 100).fill({ color: 0xffff00 });
+          graphics.rect(200, 200, 100, 100).fill({ color: 0xff00ff });
+          graphics.rect(350, 200, 100, 100).fill({ color: 0x00ffff });
+
+          app.stage.addChild(graphics);
+          log('✅ Test graphics created', 'success');
+        } catch (error) {
+          log('❌ Error initializing PixiJS: ' + error.message, 'error');
+          console.error(error);
+        }
+      }
+
+      window.testShader = function (type) {
+        try {
+          log(`🧪 Testing shader: ${type}`, 'info');
+
+          // Clear existing filters
+          app.stage.filters = null;
+          log('🗑️ Cleared existing filters', 'info');
+
+          let vertexShader,
+            fragmentShader,
+            resources = {};
+
+          // Standard vertex shader (same for all tests)
+          vertexShader = `
+                    attribute vec2 aVertexPosition;
+                    attribute vec2 aTextureCoord;
+                    uniform mat3 projectionMatrix;
+                    varying vec2 vTextureCoord;
+                    void main(void) {
+                        gl_Position = vec4((projectionMatrix * vec3(aVertexPosition, 1.0)).xy, 0.0, 1.0);
+                        vTextureCoord = aTextureCoord;
+                    }
+                `;
+
+          if (type === 'passthrough') {
+            log('📋 Creating passthrough shader (should be identical to original)', 'info');
+            fragmentShader = `
+                        precision mediump float;
+                        varying vec2 vTextureCoord;
+                        uniform sampler2D uSampler;
+                        void main(void) {
+                            gl_FragColor = texture2D(uSampler, vTextureCoord);
+                        }
+                    `;
+          } else if (type === 'minimal') {
+            log('🔧 Creating minimal change shader (slight brightness)', 'info');
+            fragmentShader = `
+                        precision mediump float;
+                        varying vec2 vTextureCoord;
+                        uniform sampler2D uSampler;
+                        void main(void) {
+                            vec4 color = texture2D(uSampler, vTextureCoord);
+                            color.rgb = color.rgb * 1.1;
+                            gl_FragColor = color;
+                        }
+                    `;
+          } else if (type === 'debug') {
+            log('🎨 Creating debug color shader', 'info');
+            fragmentShader = `
+                        precision mediump float;
+                        varying vec2 vTextureCoord;
+                        uniform sampler2D uSampler;
+                        void main(void) {
+                            vec4 original = texture2D(uSampler, vTextureCoord);
+                            vec4 debug = vec4(vTextureCoord.x, vTextureCoord.y, 0.5, 1.0);
+                            gl_FragColor = mix(original, debug, 0.3);
+                        }
+                    `;
+          } else if (type === 'simplepixel') {
+            log('🔲 Creating simple pixelation shader', 'info');
+            fragmentShader = `
+                        precision mediump float;
+                        varying vec2 vTextureCoord;
+                        uniform sampler2D uSampler;
+                        void main(void) {
+                            vec2 coord = vTextureCoord;
+                            
+                            // Simple pixelation
+                            float pixels = 32.0;
+                            coord = floor(coord * pixels) / pixels;
+                            
+                            gl_FragColor = texture2D(uSampler, coord);
+                        }
+                    `;
+          }
+
+          log('📝 Vertex shader length: ' + vertexShader.length, 'info');
+          log('📝 Fragment shader length: ' + fragmentShader.length, 'info');
+
+          try {
+            log('🔨 Creating GL program...', 'info');
+            const glProgram = GlProgram.from({
+              vertex: vertexShader,
+              fragment: fragmentShader,
+            });
+            log('✅ GL program created successfully', 'success');
+
+            log('🎯 Creating filter...', 'info');
+            const filter = new Filter({
+              glProgram,
+              resources: resources,
+            });
+            log('✅ Filter created successfully', 'success');
+
+            log('🎮 Applying filter to stage...', 'info');
+            app.stage.filters = [filter];
+            log('✅ Filter applied successfully!', 'success');
+
+            // Test if we can still render
+            setTimeout(() => {
+              try {
+                app.render();
+                log('✅ Render test passed - shader is working!', 'success');
+              } catch (renderError) {
+                log('❌ Render test failed: ' + renderError.message, 'error');
+              }
+            }, 100);
+          } catch (shaderError) {
+            log('❌ Shader creation failed: ' + shaderError.message, 'error');
+            log('🔍 Shader error details: ' + JSON.stringify(shaderError), 'error');
+          }
+        } catch (error) {
+          log('❌ Test failed: ' + error.message, 'error');
+          log('🔍 Full error: ' + error.stack, 'error');
+        }
+      };
+
+      // Initialize when page loads
+      initPixi();
+    </script>
+  </body>
+</html>

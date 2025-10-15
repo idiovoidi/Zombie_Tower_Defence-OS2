@@ -181,6 +181,40 @@ LogExporter.clearAllLogs();
 - [ ] Make one balance change
 - [ ] Re-test and compare
 
+## Balance Analysis Metrics (NEW)
+
+### Mathematical Balance
+
+| Metric                | Type   | Description                    | Target Range |
+| --------------------- | ------ | ------------------------------ | ------------ |
+| `damagePerDollar`     | number | Damage dealt per $ spent       | 15-50        |
+| `efficiencyScore`     | number | Tower cost-effectiveness       | 50-150       |
+| `safetyMargin`        | %      | Defense buffer vs wave         | 20-40%       |
+| `breakEvenTime`       | sec    | Time for tower to pay for self | 15-30s       |
+| `overkillPercent`     | %      | Wasted damage on dead zombies  | <15%         |
+| `threatScore`         | number | Zombie difficulty vs reward    | 0.8-1.2      |
+| `economyEfficiency`   | %      | Income vs expenses ratio       | >100%        |
+
+### Statistical Analysis
+
+| Metric              | Type   | Description                | Use Case           |
+| ------------------- | ------ | -------------------------- | ------------------ |
+| `outliers`          | array  | Abnormal data points       | Detect spikes      |
+| `difficultyTrend`   | string | HARDER/EASIER/STABLE       | Progression check  |
+| `trendConfidence`   | string | HIGH/MEDIUM/LOW            | Prediction quality |
+| `wavePredictions`   | array  | Forecasted difficulty      | Proactive balance  |
+| `rSquared`          | number | Trend fit quality (0-1)    | Model accuracy     |
+
+### Balance Issues
+
+| Issue Type            | Severity | Threshold Violated         | Fix                    |
+| --------------------- | -------- | -------------------------- | ---------------------- |
+| `INEFFICIENT_TOWERS`  | MEDIUM   | Damage/dollar < 15         | Upgrade more, build less |
+| `WEAK_DEFENSE`        | HIGH     | Survival rate < 50%        | Add more towers        |
+| `EXCESSIVE_OVERKILL`  | MEDIUM   | Overkill > 15%             | Spread towers out      |
+| `NEGATIVE_ECONOMY`    | HIGH     | Economy efficiency < 100%  | Reduce spending        |
+| `DIFFICULTY_SPIKE`    | CRITICAL | Wave outlier > 2 std devs  | Adjust wave scaling    |
+
 ## Common Metrics Combinations
 
 ### Economy Health
@@ -189,6 +223,11 @@ LogExporter.clearAllLogs();
 Healthy: moneyEarned / moneySpent = 2-3x
 Too Tight: < 1.5x
 Too Loose: > 5x
+
+NEW - Economy Efficiency:
+Excellent: > 150%
+Good: 100-150%
+Poor: < 100%
 ```
 
 ### Difficulty Progression
@@ -196,6 +235,11 @@ Too Loose: > 5x
 ```
 Good: waveCompletionTimes increase linearly
 Bad: Sudden spikes or plateaus
+
+NEW - Statistical Trend:
+GETTING_HARDER: slope > 0, R² > 0.85
+STABLE: slope ≈ 0
+GETTING_EASIER: slope < 0
 ```
 
 ### Tower Diversity
@@ -203,6 +247,11 @@ Bad: Sudden spikes or plateaus
 ```
 Balanced: All towers 10-40% usage
 Imbalanced: Any tower <5% or >50%
+
+NEW - Optimal Mix:
+Compare actualTowerMix vs optimalTowerMix
+Deviation < 30%: Good strategy
+Deviation > 50%: Suboptimal
 ```
 
 ### Upgrade Effectiveness
@@ -211,8 +260,82 @@ Imbalanced: Any tower <5% or >50%
 Good: 50-70% of towers upgraded
 Too Expensive: <30% upgraded
 Too Cheap: >90% upgraded
+
+NEW - Break-Even Analysis:
+Fast ROI: < 15s (underpriced)
+Balanced: 15-30s
+Slow ROI: > 30s (overpriced)
+```
+
+### Defense Capability (NEW)
+
+```
+Lanchester's Law Analysis:
+Safety Margin > 20%: Good buffer
+Safety Margin 0-20%: Risky
+Safety Margin < 0%: Will fail
+
+Effective DPS:
+Overkill < 5%: Excellent
+Overkill 5-15%: Acceptable
+Overkill > 15%: Wasteful
+```
+
+## Balance Analysis Quick Reference
+
+### Enable Balance Tracking
+
+```javascript
+// In console or code
+gameManager.getBalanceTrackingManager().enable();
+```
+
+### Check Balance Issues
+
+```javascript
+// Get detected issues
+const issues = gameManager.getBalanceTrackingManager().getBalanceIssues();
+issues.forEach(issue => {
+  console.log(`${issue.severity}: ${issue.message}`);
+  console.log(`Recommendation: ${issue.recommendation}`);
+});
+```
+
+### View Wave Defense Analysis
+
+```javascript
+// Check if towers can defend
+const analysis = gameManager.getBalanceTrackingManager().getWaveDefenseAnalysis();
+analysis.forEach(wave => {
+  console.log(`Wave ${wave.wave}: ${wave.canDefend ? 'CAN' : 'CANNOT'} defend`);
+  console.log(`Safety margin: ${wave.safetyMargin}%`);
+});
+```
+
+### Get Tower Efficiencies
+
+```javascript
+// Compare tower cost-effectiveness
+const efficiencies = gameManager.getBalanceTrackingManager().getTowerEfficiencies();
+efficiencies.forEach((eff, type) => {
+  console.log(`${type}: ${eff.efficiencyScore.toFixed(2)} efficiency`);
+  console.log(`Break-even: ${eff.breakEvenTime.toFixed(1)}s`);
+});
+```
+
+## Configuration
+
+Balance thresholds can be adjusted in `src/config/balanceConfig.ts`:
+
+```typescript
+BalanceConfig.THRESHOLDS.DAMAGE_PER_DOLLAR_MIN = 15;
+BalanceConfig.THRESHOLDS.SURVIVAL_RATE_MIN = 50;
+BalanceConfig.THRESHOLDS.OVERKILL_PERCENT_MAX = 15;
+BalanceConfig.THRESHOLDS.SAFETY_MARGIN_MIN = 20;
 ```
 
 ---
 
-_For detailed analysis, see `BALANCING_STATS_GUIDE.md`_
+_For detailed analysis, see `BALANCING_STATS_GUIDE.md`_  
+_For balance analysis guide, see `BALANCE_ANALYSIS_GUIDE.md`_  
+_For examples, see `BALANCE_ANALYSIS_EXAMPLES.md`_
