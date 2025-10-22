@@ -30,6 +30,10 @@ export class TowerCombatManager {
     this.onDamageCallback = callback;
   }
 
+  public getTowers(): Tower[] {
+    return this.towers;
+  }
+
   public update(deltaTime: number): void {
     const currentTime = performance.now();
 
@@ -184,33 +188,143 @@ export class TowerCombatManager {
     target: Zombie,
     damage: number
   ): void {
-    // Apply damage modifier based on zombie type
-    const towerType = tower.getType() as TowerType;
-    const modifier = target.getDamageModifier(towerType);
-    const modifiedDamage = damage * modifier;
+    // Calculate number of chain jumps based on upgrade level
+    // Level 1: 1 target, Level 2: 2 targets, Level 3: 3 targets, etc.
+    const maxJumps = tower.getUpgradeLevel();
+    const chainRange = 150; // Maximum distance for chain lightning to jump
+    const damageReduction = 0.7; // Each jump does 70% of previous damage
 
-    // Apply damage instantly
-    const healthBefore = target.getHealth();
-    target.takeDamage(modifiedDamage);
-    const healthAfter = target.getHealth();
-    const actualDamage = healthBefore - healthAfter;
-    const killed = healthAfter <= 0;
-    const overkill = killed ? Math.abs(healthAfter) : 0;
+    // Track hit zombies to avoid hitting the same zombie twice
+    const hitZombies = new Set<Zombie>();
+    const chainTargets: Array<{ from: { x: number; y: number }; to: Zombie; damage: number }> = [];
 
-    // Track damage
-    if (this.onDamageCallback) {
-      this.onDamageCallback(actualDamage, tower.getType(), killed, overkill);
-    }
+    // First target
+    let currentDamage = damage;
+    let currentSource = spawnPos;
+    let currentTarget: Zombie | null = target;
 
-    // Create visual lightning arc effect
+    // Create visual lightning graphics
     const lightningGraphics = new Graphics();
 
-    // Draw arcing lightning bolt
-    const startX = spawnPos.x;
-    const startY = spawnPos.y;
-    const endX = target.position.x;
-    const endY = target.position.y;
+    // Chain through multiple targets
+    for (let jump = 0; jump < maxJumps && currentTarget; jump++) {
+      // Apply damage modifier based on zombie type
+      const towerType = tower.getType() as TowerType;
+      const modifier = currentTarget.getDamageModifier(towerType);
+      const modifiedDamage = currentDamage * modifier;
 
+      // Apply damage instantly
+      const healthBefore = currentTarget.getHealth();
+      currentTarget.takeDamage(modifiedDamage);
+      const healthAfter = currentTarget.getHealth();
+      const actualDamage = healthBefore - healthAfter;
+      const killed = healthAfter <= 0;
+      const overkill = killed ? Math.abs(healthAfter) : 0;
+
+      // Track damage
+      if (this.onDamageCallback) {
+        this.onDamageCallback(actualDamage, tower.getType(), killed, overkill);
+      }
+
+      // Mark this zombie as hit
+      hitZombies.add(currentTarget);
+
+      // Store chain info for visual
+      chainTargets.push({
+        from: { x: currentSource.x, y: currentSource.y },
+        to: currentTarget,
+        damage: modifiedDamage,
+      });
+
+      // Find next target for chain
+      if (jump < maxJumps - 1) {
+        const nextTarget = this.findNearestZombie(
+          currentTarget.position.x,
+          currentTarget.position.y,
+          chainRange,
+          hitZombies
+        );
+
+        if (nextTarget) {
+          currentSource = { x: currentTarget.position.x, y: currentTarget.position.y };
+          currentTarget = nextTarget;
+          currentDamage *= damageReduction; // Reduce damage for next jump
+        } else {
+          break; // No more targets in range
+        }
+      }
+    }
+
+    // Draw all lightning arcs
+    for (let i = 0; i < chainTargets.length; i++) {
+      const chain = chainTargets[i];
+      const isFirstArc = i === 0;
+      this.drawLightningBolt(
+        lightningGraphics,
+        chain.from.x,
+        chain.from.y,
+        chain.to.position.x,
+        chain.to.position.y,
+        isFirstArc
+      );
+    }
+
+    // Add to tower's parent container
+    if (tower.parent) {
+      tower.parent.addChild(lightningGraphics);
+    }
+
+    // Remove lightning after short duration
+    setTimeout(() => {
+      if (lightningGraphics.parent) {
+        lightningGraphics.parent.removeChild(lightningGraphics);
+      }
+      lightningGraphics.destroy();
+    }, 150); // Lightning lasts 150ms for chain effect
+  }
+
+  /**
+   * Find the nearest zombie within range that hasn't been hit yet
+   */
+  private findNearestZombie(
+    x: number,
+    y: number,
+    maxRange: number,
+    excludeZombies: Set<Zombie>
+  ): Zombie | null {
+    let nearestZombie: Zombie | null = null;
+    let nearestDistance = Infinity;
+
+    for (const zombie of this.zombies) {
+      // Skip if zombie is destroyed, already hit, or out of range
+      if (!zombie.parent || excludeZombies.has(zombie)) {
+        continue;
+      }
+
+      const distance = Math.sqrt(
+        Math.pow(x - zombie.position.x, 2) + Math.pow(y - zombie.position.y, 2)
+      );
+
+      if (distance <= maxRange && distance < nearestDistance) {
+        nearestDistance = distance;
+        nearestZombie = zombie;
+      }
+    }
+
+    return nearestZombie;
+  }
+
+  /**
+   * Draw a lightning bolt between two points
+   */
+  private drawLightningBolt(
+    graphics: Graphics,
+    startX: number,
+    startY: number,
+    endX: number,
+    endY: number,
+    isPrimary: boolean
+  ): void {
     // Calculate segments for the arc
     const segments = 8;
     const points: { x: number; y: number }[] = [];
@@ -228,7 +342,7 @@ export class TowerCombatManager {
         const normalizedPerpX = perpX / length;
         const normalizedPerpY = perpY / length;
 
-        const offset = (Math.random() - 0.5) * 20; // Random offset
+        const offset = (Math.random() - 0.5) * (isPrimary ? 20 : 15); // Smaller offset for chain arcs
         points.push({
           x: x + normalizedPerpX * offset,
           y: y + normalizedPerpY * offset,
@@ -238,53 +352,44 @@ export class TowerCombatManager {
       }
     }
 
-    // Draw main lightning bolt (bright cyan)
-    lightningGraphics.moveTo(points[0].x, points[0].y);
+    // Draw main lightning bolt (bright cyan for primary, dimmer for chains)
+    const mainColor = isPrimary ? 0x00ffff : 0x00ccff;
+    const mainWidth = isPrimary ? 3 : 2;
+    graphics.moveTo(points[0].x, points[0].y);
     for (let i = 1; i < points.length; i++) {
-      lightningGraphics.lineTo(points[i].x, points[i].y);
+      graphics.lineTo(points[i].x, points[i].y);
     }
-    lightningGraphics.stroke({ width: 3, color: 0x00ffff });
+    graphics.stroke({ width: mainWidth, color: mainColor });
 
     // Draw glow effect (wider, semi-transparent)
-    lightningGraphics.moveTo(points[0].x, points[0].y);
+    graphics.moveTo(points[0].x, points[0].y);
     for (let i = 1; i < points.length; i++) {
-      lightningGraphics.lineTo(points[i].x, points[i].y);
+      graphics.lineTo(points[i].x, points[i].y);
     }
-    lightningGraphics.stroke({ width: 6, color: 0x00ffff, alpha: 0.5 });
+    graphics.stroke({ width: mainWidth * 2, color: mainColor, alpha: 0.5 });
 
     // Draw outer glow (even wider, more transparent)
-    lightningGraphics.moveTo(points[0].x, points[0].y);
+    graphics.moveTo(points[0].x, points[0].y);
     for (let i = 1; i < points.length; i++) {
-      lightningGraphics.lineTo(points[i].x, points[i].y);
+      graphics.lineTo(points[i].x, points[i].y);
     }
-    lightningGraphics.stroke({ width: 10, color: 0xffffff, alpha: 0.3 });
+    graphics.stroke({ width: mainWidth * 3, color: 0xffffff, alpha: 0.3 });
 
-    // Add branching arcs (smaller side bolts)
-    for (let i = 2; i < points.length - 2; i += 2) {
-      if (Math.random() > 0.5) {
-        const branchLength = 15 + Math.random() * 20;
-        const angle = Math.random() * Math.PI * 2;
-        const branchEndX = points[i].x + Math.cos(angle) * branchLength;
-        const branchEndY = points[i].y + Math.sin(angle) * branchLength;
+    // Add branching arcs (smaller side bolts) - only for primary arc
+    if (isPrimary) {
+      for (let i = 2; i < points.length - 2; i += 2) {
+        if (Math.random() > 0.5) {
+          const branchLength = 15 + Math.random() * 20;
+          const angle = Math.random() * Math.PI * 2;
+          const branchEndX = points[i].x + Math.cos(angle) * branchLength;
+          const branchEndY = points[i].y + Math.sin(angle) * branchLength;
 
-        lightningGraphics.moveTo(points[i].x, points[i].y);
-        lightningGraphics.lineTo(branchEndX, branchEndY);
-        lightningGraphics.stroke({ width: 2, color: 0x00ffff, alpha: 0.7 });
+          graphics.moveTo(points[i].x, points[i].y);
+          graphics.lineTo(branchEndX, branchEndY);
+          graphics.stroke({ width: 2, color: mainColor, alpha: 0.7 });
+        }
       }
     }
-
-    // Add to tower's parent container
-    if (tower.parent) {
-      tower.parent.addChild(lightningGraphics);
-    }
-
-    // Remove lightning after short duration
-    setTimeout(() => {
-      if (lightningGraphics.parent) {
-        lightningGraphics.parent.removeChild(lightningGraphics);
-      }
-      lightningGraphics.destroy();
-    }, 100); // Lightning lasts 100ms
   }
 
   private createFlameStream(

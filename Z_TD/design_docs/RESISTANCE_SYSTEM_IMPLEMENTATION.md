@@ -54,7 +54,7 @@ private onHitTarget(): void {
     const towerType = this.towerType as TowerType;
     const modifier = this.target.getDamageModifier(towerType);
     const modifiedDamage = this.damage * modifier;
-    
+
     this.target.takeDamage(modifiedDamage);
   }
 }
@@ -67,7 +67,7 @@ private createLightningArc(tower, spawnPos, target, damage): void {
   const towerType = tower.getType() as TowerType;
   const modifier = target.getDamageModifier(towerType);
   const modifiedDamage = damage * modifier;
-  
+
   target.takeDamage(modifiedDamage);
 }
 ```
@@ -79,7 +79,7 @@ private createFlameStream(tower, spawnPos, target, damage): void {
   const towerType = tower.getType() as TowerType;
   const modifier = target.getDamageModifier(towerType);
   const modifiedDamage = damage * modifier;
-  
+
   target.takeDamage(modifiedDamage);
 }
 ```
@@ -106,7 +106,7 @@ const towerType = tower.getType() as TowerType;
 Zombie types are converted in the getDamageModifier call:
 
 ```typescript
-this.type.toUpperCase() as ZombieType
+this.type.toUpperCase() as ZombieType;
 ```
 
 ---
@@ -135,6 +135,7 @@ getEffectivenessDescription(modifier: number): string
 ```
 
 Returns human-readable effectiveness:
+
 - "Very Effective" (≥1.5)
 - "Effective" (≥1.25)
 - "Slightly Effective" (>1.0)
@@ -150,6 +151,7 @@ getEffectivenessColor(modifier: number): number
 ```
 
 Returns color for visual feedback:
+
 - Green (0x00ff00) - Effective (≥1.25)
 - Light Green (0x88ff88) - Slightly Effective (>1.0)
 - White (0xffffff) - Normal (=1.0)
@@ -181,18 +183,22 @@ Returns color for visual feedback:
 ### Expected Behaviors
 
 **Tesla vs Mechanical Zombie:**
+
 - Should deal 200% damage (2x multiplier)
 - Mechanical zombies die very quickly to Tesla
 
 **Flame vs Mechanical Zombie:**
+
 - Should deal 50% damage (0.5x multiplier)
 - Mechanical zombies very resistant to Flame
 
 **Shotgun vs Swarm Zombie:**
+
 - Should deal 150% damage (1.5x multiplier)
 - Swarm zombies die quickly to Shotgun spread
 
 **Sniper vs Swarm Zombie:**
+
 - Should deal 60% damage (0.6x multiplier)
 - Sniper overkills small swarm zombies (inefficient)
 
@@ -259,6 +265,7 @@ for (const towerType of TOWER_TYPES) {
 ### Balance Testing
 
 Monitor these metrics:
+
 - Average time to kill each zombie type
 - Tower effectiveness distribution
 - Player tower composition choices
@@ -271,6 +278,7 @@ Monitor these metrics:
 ### Modifiers Not Applied
 
 **Check:**
+
 1. Tower type string matches TowerType enum
 2. Zombie type string matches ZombieType enum
 3. Type conversion is correct (uppercase)
@@ -279,6 +287,7 @@ Monitor these metrics:
 ### Incorrect Damage Values
 
 **Check:**
+
 1. Base damage is correct
 2. Modifier calculation: `damage * modifier`
 3. No other damage modifiers interfering
@@ -287,6 +296,7 @@ Monitor these metrics:
 ### Type Errors
 
 **Check:**
+
 1. Import TowerType from zombieResistances
 2. Cast tower.getType() to TowerType
 3. Zombie type is uppercase in config
@@ -306,6 +316,7 @@ Monitor these metrics:
 ## Status
 
 ✅ **Implementation Complete**
+
 - Configuration file created
 - Zombie method implemented
 - Combat integration complete
@@ -313,6 +324,7 @@ Monitor these metrics:
 - Helper functions available
 
 🔄 **Next Steps**
+
 - Add visual feedback for effectiveness
 - Integrate with UI panels
 - Add to zombie bestiary

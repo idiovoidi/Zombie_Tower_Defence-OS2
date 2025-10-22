@@ -395,6 +395,19 @@ export class GameManager {
     return false;
   }
 
+  // Lives management
+  public addLives(amount: number): void {
+    this.lives += amount;
+  }
+
+  public removeLives(amount: number): void {
+    this.lives -= amount;
+    if (this.lives <= 0) {
+      this.lives = 0;
+      this.gameOver();
+    }
+  }
+
   // Get resource amounts
   public getResources(): { wood: number; metal: number; energy: number } {
     return { ...this.resources };
@@ -488,6 +501,10 @@ export class GameManager {
 
   public getBalanceTrackingManager(): BalanceTrackingManager {
     return this.balanceTrackingManager;
+  }
+
+  public getTowerCombatManager(): TowerCombatManager {
+    return this.towerCombatManager;
   }
 
   // Enable/disable balance tracking

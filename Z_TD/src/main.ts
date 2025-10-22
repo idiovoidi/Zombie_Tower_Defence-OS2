@@ -1,6 +1,7 @@
 import { Application, FederatedPointerEvent, Texture } from 'pixi.js';
 import { GameManager } from './managers/GameManager';
 import { CampUpgradeManager } from './managers/CampUpgradeManager';
+import { Tower } from './objects/Tower';
 import { UIManager } from './ui/UIManager';
 import { HUD } from './ui/HUD';
 import { BottomBar } from './ui/BottomBar';
@@ -418,6 +419,99 @@ import { ScaleManager } from './utils/ScaleManager';
         towerShop.clearSelection();
       }
     }
+
+    // Debug hotkeys (only work when debug mode is enabled)
+    if (DebugConstants.ENABLED) {
+      const key = event.key.toLowerCase();
+
+      // M - Add money
+      if (key === 'm') {
+        const amount = event.shiftKey ? 10000 : 1000;
+        gameManager.addMoney(amount);
+        console.log(`💰 Added $${amount} (Total: $${gameManager.getMoney()})`);
+      }
+
+      // L - Add lives
+      if (key === 'l') {
+        const amount = event.shiftKey ? 100 : 10;
+        gameManager.addLives(amount);
+        console.log(`❤️ Added ${amount} lives (Total: ${gameManager.getLives()})`);
+      }
+
+      // W - Add wood
+      if (key === 'w') {
+        const amount = event.shiftKey ? 1000 : 100;
+        gameManager.addResources(amount, 0, 0);
+        console.log(`🪵 Added ${amount} wood`);
+      }
+
+      // E - Add metal
+      if (key === 'e') {
+        const amount = event.shiftKey ? 1000 : 100;
+        gameManager.addResources(0, amount, 0);
+        console.log(`⚙️ Added ${amount} metal`);
+      }
+
+      // R - Add energy
+      if (key === 'r') {
+        const amount = event.shiftKey ? 1000 : 100;
+        gameManager.addResources(0, 0, amount);
+        console.log(`⚡ Added ${amount} energy`);
+      }
+
+      // N - Skip to next wave
+      if (key === 'n') {
+        const waveManager = gameManager.getWaveManager();
+        if (gameManager.getState() === GameConfig.GAME_STATES.WAVE_COMPLETE) {
+          gameManager.startNextWave();
+          console.log('🌊 Started next wave');
+        } else {
+          console.log('⚠️ Can only skip to next wave during wave complete state');
+        }
+      }
+
+      // K - Kill all zombies
+      if (key === 'k') {
+        const zombieManager = gameManager.getZombieManager();
+        const zombies = zombieManager.getZombies();
+        let killed = 0;
+        zombies.forEach(zombie => {
+          if (zombie.parent) {
+            zombie.takeDamage(999999);
+            killed++;
+          }
+        });
+        console.log(`💀 Killed ${killed} zombies`);
+      }
+
+      // U - Upgrade all towers to max
+      if (key === 'u') {
+        const combatManager = gameManager.getTowerCombatManager();
+        const towers = combatManager.getTowers();
+        let upgraded = 0;
+        towers.forEach((tower: Tower) => {
+          while (tower.canUpgrade()) {
+            tower.upgrade();
+            upgraded++;
+          }
+        });
+        console.log(`⬆️ Upgraded ${upgraded} tower levels`);
+      }
+
+      // H - Show debug help
+      if (key === 'h') {
+        console.log('🔧 Debug Hotkeys:');
+        console.log('  M - Add $1000 (Shift+M for $10000)');
+        console.log('  L - Add 10 lives (Shift+L for 100)');
+        console.log('  W - Add 100 wood (Shift+W for 1000)');
+        console.log('  E - Add 100 metal (Shift+E for 1000)');
+        console.log('  R - Add 100 energy (Shift+R for 1000)');
+        console.log('  N - Skip to next wave');
+        console.log('  K - Kill all zombies');
+        console.log('  U - Upgrade all towers to max');
+        console.log('  H - Show this help');
+      }
+    }
   });
 
   // Initialize the game
@@ -579,7 +673,7 @@ import { ScaleManager } from './utils/ScaleManager';
   if (DevConfig.DEBUG.ENABLED) {
     (window as any).waveBalance = async () => {
       const { WaveBalancing, printWaveBalance } = await import('./config/waveBalancing');
-      (window as any).WaveBalancing = WaveBalancing;
+      (window as unknown).WaveBalancing = WaveBalancing;
       (window as unknown).printWaveBalance = printWaveBalance;
       console.log('Wave balancing tools loaded!');
       console.log('Usage:');
