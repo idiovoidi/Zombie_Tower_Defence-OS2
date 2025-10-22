@@ -33,6 +33,10 @@ export class Tower extends GameObject implements ITower {
   private barrelHeatGlow: BarrelHeatGlow | null = null;
   private effectManager: Container | null = null; // Reference to effect manager container
 
+  // Sniper effects
+  private laserSight: any | null = null; // LaserSight instance
+  private currentTarget: { x: number; y: number } | null = null;
+
   constructor(type: string, x: number, y: number) {
     super();
     this.type = type;
@@ -114,6 +118,11 @@ export class Tower extends GameObject implements ITower {
     // Update barrel heat glow for machine gun
     if (this.barrelHeatGlow) {
       this.barrelHeatGlow.update(deltaTime);
+    }
+
+    // Update laser sight for sniper (level 3+)
+    if (this.laserSight && this.currentTarget) {
+      this.laserSight.update(deltaTime);
     }
   }
 
@@ -279,8 +288,21 @@ export class Tower extends GameObject implements ITower {
         // Rifle tip is at -12 + rifleLength = 0 to +10 depending on upgrade
         const sniperRifleLength = 12 + this.upgradeLevel * 2;
         const sniperRifleTip = -12 + sniperRifleLength;
-        flash.circle(0, sniperRifleTip, 5).fill(0xffff00);
-        flash.circle(0, sniperRifleTip, 8).fill({ color: 0xffff00, alpha: 0.3 });
+
+        // Enhanced sniper muzzle flash - larger and more dramatic
+        flash.circle(0, sniperRifleTip, 5).fill({ color: 0xffffff, alpha: 1.0 });
+        flash.circle(0, sniperRifleTip, 8).fill({ color: 0xffff00, alpha: 0.7 });
+        flash.circle(0, sniperRifleTip, 12).fill({ color: 0xff9900, alpha: 0.4 });
+        flash.circle(0, sniperRifleTip, 16).fill({ color: 0xff6600, alpha: 0.2 });
+
+        // Spawn shell casing effect
+        this.spawnShellCasing();
+
+        // Spawn scope glint before shot
+        this.spawnScopeGlint();
+
+        // Note: Bullet trail and impact flash are spawned when we know the target
+        // This should be called from the combat manager with target info
         break;
       }
       case GameConfig.TOWER_TYPES.SHOTGUN: {
@@ -1242,6 +1264,128 @@ export class Tower extends GameObject implements ITower {
   }
 
   /**
+   * Spawn a scope glint effect (Sniper)
+   */
+  private spawnScopeGlint(): void {
+    if (!this.effectManager) {
+      return;
+    }
+
+    const scopeX = this.x;
+    const scopeY = this.y - 15;
+
+    import('../effects/ScopeGlint')
+      .then(({ ScopeGlint }) => {
+        if (!this.effectManager) {
+          return;
+        }
+        const glint = new ScopeGlint(scopeX, scopeY);
+        this.effectManager.addChild(glint);
+      })
+      .catch(() => {
+        // Silently fail
+      });
+  }
+
+  /**
+   * Spawn bullet trail and impact flash (Sniper)
+   */
+  public spawnSniperHitEffects(
+    targetX: number,
+    targetY: number,
+    isHeadshot: boolean = false
+  ): void {
+    if (!this.effectManager) {
+      return;
+    }
+
+    const rifleLength = 12 + this.upgradeLevel * 2;
+    const rifleTip = -12 + rifleLength;
+    const startX = this.x + Math.cos(this.barrel.rotation) * rifleTip;
+    const startY = this.y + Math.sin(this.barrel.rotation) * rifleTip;
+
+    import('../effects/BulletTrail')
+      .then(({ BulletTrail }) => {
+        if (!this.effectManager) {
+          return;
+        }
+        const trail = new BulletTrail(startX, startY, targetX, targetY);
+        this.effectManager.addChild(trail);
+      })
+      .catch(() => {
+        // Silently fail
+      });
+
+    import('../effects/ImpactFlash')
+      .then(({ ImpactFlash }) => {
+        if (!this.effectManager) {
+          return;
+        }
+        const flash = new ImpactFlash(targetX, targetY, isHeadshot);
+        this.effectManager.addChild(flash);
+      })
+      .catch(() => {
+        // Silently fail
+      });
+  }
+
+  /**
+   * Enable/disable laser sight (Sniper, level 3+)
+   */
+  public setLaserSightEnabled(enabled: boolean): void {
+    if (this.type !== GameConfig.TOWER_TYPES.SNIPER || this.upgradeLevel < 3) {
+      return;
+    }
+
+    if (enabled && !this.laserSight && this.currentTarget) {
+      import('../effects/LaserSight')
+        .then(({ LaserSight }) => {
+          if (!this.effectManager || !this.currentTarget) {
+            return;
+          }
+
+          const rifleLength = 12 + this.upgradeLevel * 2;
+          const rifleTip = -12 + rifleLength;
+          const startX = this.x + Math.cos(this.barrel.rotation) * rifleTip;
+          const startY = this.y + Math.sin(this.barrel.rotation) * rifleTip;
+
+          this.laserSight = new LaserSight(
+            startX,
+            startY,
+            this.currentTarget.x,
+            this.currentTarget.y
+          );
+          this.effectManager.addChild(this.laserSight);
+        })
+        .catch(() => {
+          // Silently fail
+        });
+    } else if (!enabled && this.laserSight) {
+      if (this.effectManager && this.laserSight.parent) {
+        this.effectManager.removeChild(this.laserSight);
+      }
+      this.laserSight.destroy();
+      this.laserSight = null;
+    }
+  }
+
+  /**
+   * Update target for laser sight
+   */
+  public setTarget(targetX: number, targetY: number): void {
+    this.currentTarget = { x: targetX, y: targetY };
+
+    if (this.laserSight && this.type === GameConfig.TOWER_TYPES.SNIPER) {
+      const rifleLength = 12 + this.upgradeLevel * 2;
+      const rifleTip = -12 + rifleLength;
+      const startX = this.x + Math.cos(this.barrel.rotation) * rifleTip;
+      const startY = this.y + Math.sin(this.barrel.rotation) * rifleTip;
+
+      this.laserSight.updatePosition(startX, startY, targetX, targetY);
+    }
+  }
+
+  /**
    * Clean up effects when tower is destroyed
    */
   public override destroy(): void {
@@ -1249,6 +1393,15 @@ export class Tower extends GameObject implements ITower {
     if (this.barrelHeatGlow) {
       this.barrelHeatGlow.destroy();
       this.barrelHeatGlow = null;
+    }
+
+    // Clean up laser sight
+    if (this.laserSight) {
+      if (this.laserSight.parent) {
+        this.laserSight.parent.removeChild(this.laserSight);
+      }
+      this.laserSight.destroy();
+      this.laserSight = null;
     }
 
     // Clean up shell casings
