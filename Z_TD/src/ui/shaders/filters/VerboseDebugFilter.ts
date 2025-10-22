@@ -59,9 +59,9 @@ export class VerboseDebugFilter extends Filter {
       console.log('🔍 VerboseDebugFilter: Constructor completed successfully!');
     } catch (error) {
       console.error('🔍 VerboseDebugFilter: Error in constructor:', error);
-      console.error('🔍 VerboseDebugFilter: Error stack:', error.stack);
-      console.error('🔍 VerboseDebugFilter: Error name:', error.name);
-      console.error('🔍 VerboseDebugFilter: Error message:', error.message);
+      console.error('🔍 VerboseDebugFilter: Error stack:', (error as any).stack);
+      console.error('🔍 VerboseDebugFilter: Error name:', (error as any).name);
+      console.error('🔍 VerboseDebugFilter: Error message:', (error as any).message);
       throw error;
     }
   }

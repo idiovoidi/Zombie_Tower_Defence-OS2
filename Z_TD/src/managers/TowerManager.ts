@@ -1,5 +1,5 @@
 import { GameConfig } from '../config/gameConfig';
-import { TowerConstants, type TowerStats, getTowerStats } from '../config/towerConstants';
+import { TowerConstants, type TowerStats } from '../config/towerConstants';
 
 export class TowerManager {
   private towerData: Map<string, TowerStats>;

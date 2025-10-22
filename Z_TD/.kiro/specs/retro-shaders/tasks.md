@@ -8,7 +8,6 @@
 
 - [x] 2. Implement pixelation shader system
   - [x] 2.1 Create GLSL shaders for pixelation effect
-
     - Write `pixelation.vert` vertex shader with standard vertex transformation
     - Write `pixelation.frag` fragment shader implementing nearest-neighbor pixel sampling
     - _Requirements: 1.1, 1.3_
@@ -25,21 +24,13 @@
     - _Requirements: 1.1, 1.2_
 
 - [x] 3. Implement CRT shader system
-
-
-
   - [x] 3.1 Create GLSL shaders for CRT effects
-
-
     - Write `crt.vert` vertex shader with screen curvature calculations
     - Write `crt.frag` fragment shader with scanlines, phosphor glow, and screen distortion
     - Implement time-based flicker and noise generation in fragment shader
     - _Requirements: 2.1, 2.2, 2.3, 2.4, 2.5_
--
 
-
-
-  - [ ] 3.2 Implement CRTFilter class
+- - [ ] 3.2 Implement CRTFilter class
     - Extend BaseRetroFilter with comprehensive CRT effect controls
     - Add uniform controls for curvature, scanline intensity, phosphor glow, flicker, and noise
     - Implement parameter validation and smooth transitions between settings

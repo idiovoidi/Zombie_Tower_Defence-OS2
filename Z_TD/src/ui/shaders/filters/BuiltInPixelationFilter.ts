@@ -9,7 +9,7 @@ export class BuiltInPixelationFilter extends Filter {
 
   constructor(pixelSize = 4) {
     // Use PixiJS's built-in pixelation filter if available, or create a simple one
-    super();
+    super({} as any);
     this._pixelSize = pixelSize;
     this.updatePixelSize();
   }

@@ -46,6 +46,7 @@ Balance analysis uses mathematical models to evaluate whether game mechanics are
 **Purpose**: Determine if towers can defend against a wave
 
 **Formula**:
+
 ```
 timeToReachEnd = pathLength / zombieSpeed
 damageDealt = totalTowerDPS × timeToReachEnd
@@ -54,11 +55,13 @@ safetyMargin = ((damageDealt - totalZombieHP) / totalZombieHP) × 100
 ```
 
 **Interpretation**:
+
 - **Safety Margin > 20%**: Good defense with buffer
 - **Safety Margin 0-20%**: Tight defense, risky
 - **Safety Margin < 0%**: Cannot defend, will lose lives
 
 **Example**:
+
 ```typescript
 // Wave 5: 10 zombies × 500 HP = 5000 total HP
 // Path: 800 pixels, Speed: 50 px/s → 16 seconds to reach end
@@ -74,16 +77,19 @@ safetyMargin = ((damageDealt - totalZombieHP) / totalZombieHP) × 100
 **Purpose**: Measure tower cost-effectiveness
 
 **Formula**:
+
 ```
 efficiencyScore = (DPS × Range × Accuracy) / (BuildCost + UpgradeCost)
 ```
 
 **Interpretation**:
+
 - **Higher score** = More efficient tower
 - Compare scores to find best value towers
 - Use for optimal tower mix calculations
 
 **Example**:
+
 ```typescript
 // Machine Gun: (50 DPS × 150 range × 0.85 accuracy) / 100 cost = 63.75
 // Sniper: (100 DPS × 300 range × 0.95 accuracy) / 200 cost = 142.5
@@ -97,11 +103,13 @@ efficiencyScore = (DPS × Range × Accuracy) / (BuildCost + UpgradeCost)
 **Purpose**: Model reduced effectiveness of stacking same tower type
 
 **Formula**:
+
 ```
 effectiveValue = baseStat × (1 - (0.1 × (duplicateCount - 1)))
 ```
 
 **Interpretation**:
+
 - Each duplicate tower loses 10% effectiveness
 - 1st tower: 100% effective
 - 2nd tower: 90% effective
@@ -109,6 +117,7 @@ effectiveValue = baseStat × (1 - (0.1 × (duplicateCount - 1)))
 - Encourages tower diversity
 
 **Example**:
+
 ```typescript
 // 5 Machine Guns at 50 DPS each
 // Effective DPS: 50 + 45 + 40 + 35 + 30 = 200 DPS
@@ -123,16 +132,19 @@ effectiveValue = baseStat × (1 - (0.1 × (duplicateCount - 1)))
 **Purpose**: Evaluate if zombie rewards match their difficulty
 
 **Formula**:
+
 ```
 threatScore = (Health × Speed × Count) / (Reward × 10)
 ```
 
 **Interpretation**:
+
 - **0.8 - 1.2**: Balanced
 - **< 0.8**: Under-rewarded (too hard for reward)
 - **> 1.2**: Over-rewarded (too easy for reward)
 
 **Example**:
+
 ```typescript
 // Tank Zombie: 300 HP × 25 speed × 5 count / (50 reward × 10)
 // = 37500 / 500 = 75
@@ -146,6 +158,7 @@ threatScore = (Health × Speed × Count) / (Reward × 10)
 **Purpose**: Calculate true DPS accounting for wasted damage
 
 **Formula**:
+
 ```
 shotsToKill = ceil(zombieHP / damagePerShot)
 wastedDamage = (shotsToKill × damagePerShot) - zombieHP
@@ -154,11 +167,13 @@ effectiveDPS = nominalDPS × (1 - wastePercent)
 ```
 
 **Interpretation**:
+
 - **Waste < 5%**: Excellent damage efficiency
 - **Waste 5-15%**: Acceptable
 - **Waste > 15%**: Significant overkill problem
 
 **Example**:
+
 ```typescript
 // Sniper: 100 damage per shot, zombie has 180 HP
 // Shots to kill: 2 (200 damage total)
@@ -173,6 +188,7 @@ effectiveDPS = nominalDPS × (1 - wastePercent)
 **Purpose**: Calculate how long towers take to pay for themselves
 
 **Formula**:
+
 ```
 killTime = zombieHP / towerDPS
 revenuePerSecond = zombieReward / killTime
@@ -180,11 +196,13 @@ breakEvenTime = towerCost / revenuePerSecond
 ```
 
 **Interpretation**:
+
 - **< 15 seconds**: Tower pays for itself too quickly (underpriced)
 - **15-30 seconds**: Balanced
 - **> 30 seconds**: Tower takes too long to pay off (overpriced)
 
 **Example**:
+
 ```typescript
 // Machine Gun: 100 cost, 50 DPS
 // Zombie: 100 HP, 10 reward
@@ -200,12 +218,14 @@ breakEvenTime = towerCost / revenuePerSecond
 **Purpose**: Calculate best tower composition for a budget
 
 **Algorithm**:
+
 1. Calculate efficiency score for each tower type
 2. Sort by efficiency (highest first)
 3. Greedily select towers until budget exhausted
 4. Apply 10% diminishing returns per duplicate
 
 **Example**:
+
 ```typescript
 // Budget: 500 gold
 // Sniper: 200 cost, 142.5 efficiency
@@ -222,6 +242,7 @@ breakEvenTime = towerCost / revenuePerSecond
 **Purpose**: Find abnormal data points that indicate balance issues
 
 **Method**: Standard deviation analysis
+
 ```
 mean = average(values)
 stdDev = standardDeviation(values)
@@ -231,6 +252,7 @@ outlier = |value - mean| > (threshold × stdDev)
 **Default Threshold**: 2 standard deviations (95% confidence)
 
 **Use Cases**:
+
 - Detect waves with abnormal difficulty spikes
 - Find towers dealing unusually high/low damage
 - Identify economy anomalies
@@ -242,6 +264,7 @@ outlier = |value - mean| > (threshold × stdDev)
 **Purpose**: Determine if difficulty is increasing, decreasing, or stable
 
 **Method**: Linear regression
+
 ```
 y = mx + b
 m = slope (positive = getting harder)
@@ -249,11 +272,13 @@ R² = goodness of fit (higher = more confident)
 ```
 
 **Trend Classification**:
+
 - **GETTING_HARDER**: slope > 0
 - **GETTING_EASIER**: slope < 0
 - **STABLE**: slope ≈ 0
 
 **Confidence Levels**:
+
 - **HIGH**: R² > 0.85
 - **MEDIUM**: R² 0.65-0.85
 - **LOW**: R² < 0.65
@@ -265,16 +290,19 @@ R² = goodness of fit (higher = more confident)
 **Purpose**: Forecast future wave difficulty
 
 **Method**: Polynomial regression (order 2)
+
 ```
 y = ax² + bx + c
 ```
 
 **Output**:
+
 - Predicted difficulty for next 5 waves
 - Recommended DPS for each wave
 - Confidence intervals
 
 **Use Cases**:
+
 - Proactively balance upcoming waves
 - Warn about difficulty spikes
 - Adjust scaling factors
@@ -337,32 +365,32 @@ Located in `src/config/balanceConfig.ts`:
 ```typescript
 export const BalanceConfig = {
   THRESHOLDS: {
-    DAMAGE_PER_DOLLAR_MIN: 15,        // Minimum acceptable damage/dollar
-    SURVIVAL_RATE_MIN: 50,            // Minimum survival rate (%)
-    OVERKILL_PERCENT_MAX: 15,         // Maximum acceptable overkill (%)
-    ECONOMY_EFFICIENCY_MIN: 100,      // Minimum economy efficiency (%)
-    BREAK_EVEN_TIME_MIN: 15,          // Minimum break-even time (seconds)
-    BREAK_EVEN_TIME_MAX: 30,          // Maximum break-even time (seconds)
-    THREAT_SCORE_MIN: 0.8,            // Minimum balanced threat score
-    THREAT_SCORE_MAX: 1.2,            // Maximum balanced threat score
-    SAFETY_MARGIN_MIN: 20,            // Minimum safety margin (%)
+    DAMAGE_PER_DOLLAR_MIN: 15, // Minimum acceptable damage/dollar
+    SURVIVAL_RATE_MIN: 50, // Minimum survival rate (%)
+    OVERKILL_PERCENT_MAX: 15, // Maximum acceptable overkill (%)
+    ECONOMY_EFFICIENCY_MIN: 100, // Minimum economy efficiency (%)
+    BREAK_EVEN_TIME_MIN: 15, // Minimum break-even time (seconds)
+    BREAK_EVEN_TIME_MAX: 30, // Maximum break-even time (seconds)
+    THREAT_SCORE_MIN: 0.8, // Minimum balanced threat score
+    THREAT_SCORE_MAX: 1.2, // Maximum balanced threat score
+    SAFETY_MARGIN_MIN: 20, // Minimum safety margin (%)
   },
-  
+
   DIMINISHING_RETURNS: {
-    TOWER_STACKING_FACTOR: 100,       // Diminishing returns curve steepness
-    EFFICIENCY_REDUCTION_PER_DUPLICATE: 0.9,  // 90% efficiency per duplicate
+    TOWER_STACKING_FACTOR: 100, // Diminishing returns curve steepness
+    EFFICIENCY_REDUCTION_PER_DUPLICATE: 0.9, // 90% efficiency per duplicate
   },
-  
+
   STATISTICAL: {
-    OUTLIER_THRESHOLD: 2,             // Standard deviations for outliers
-    CONFIDENCE_HIGH_R_SQUARED: 0.85,  // R² threshold for high confidence
+    OUTLIER_THRESHOLD: 2, // Standard deviations for outliers
+    CONFIDENCE_HIGH_R_SQUARED: 0.85, // R² threshold for high confidence
     CONFIDENCE_MEDIUM_R_SQUARED: 0.65, // R² threshold for medium confidence
   },
-  
+
   PERFORMANCE: {
-    ANALYSIS_INTERVAL_MS: 10000,      // Analysis frequency (10 seconds)
-    MAX_ANALYSIS_TIME_MS: 5,          // Performance budget (5ms)
-  }
+    ANALYSIS_INTERVAL_MS: 10000, // Analysis frequency (10 seconds)
+    MAX_ANALYSIS_TIME_MS: 5, // Performance budget (5ms)
+  },
 };
 ```
 
@@ -371,7 +399,7 @@ export const BalanceConfig = {
 ```typescript
 // Adjust thresholds for different game modes
 BalanceConfig.THRESHOLDS.DAMAGE_PER_DOLLAR_MIN = 20; // Harder mode
-BalanceConfig.THRESHOLDS.SAFETY_MARGIN_MIN = 30;     // More buffer required
+BalanceConfig.THRESHOLDS.SAFETY_MARGIN_MIN = 30; // More buffer required
 ```
 
 ---
@@ -424,6 +452,7 @@ Issues are categorized by type and severity:
 ```
 
 **Interpretation**:
+
 - **canDefend = true**: Towers can handle the wave
 - **safetyMargin = 50%**: 50% more damage than needed (good buffer)
 - **recommendation**: Specific advice for this wave
@@ -444,6 +473,7 @@ Issues are categorized by type and severity:
 ```
 
 **Interpretation**:
+
 - **efficiencyScore**: Higher = better value
 - **effectiveDPS**: True DPS after overkill
 - **breakEvenTime**: 18.2s to pay for itself (balanced)
@@ -477,6 +507,7 @@ Issues are categorized by type and severity:
 ```
 
 **Interpretation**:
+
 - **Outliers**: Wave 7 had abnormally high damage (4.7 std devs)
 - **Trend**: Difficulty increasing with high confidence (R² = 0.92)
 - **Predictions**: Wave 11 will need ~185 DPS
@@ -490,6 +521,7 @@ Issues are categorized by type and severity:
 **Symptoms**: No console output, no balance issues detected
 
 **Solutions**:
+
 1. Check if tracking is enabled: `gameManager.getBalanceTrackingManager().isEnabled()`
 2. Verify analysis interval hasn't been set too high
 3. Check console for errors during initialization
@@ -500,6 +532,7 @@ Issues are categorized by type and severity:
 **Symptoms**: Predictions don't match actual difficulty
 
 **Solutions**:
+
 1. Check if enough data collected (need 3+ waves for regression)
 2. Verify zombie HP and speed values are correct
 3. Check if path length is accurate
@@ -510,6 +543,7 @@ Issues are categorized by type and severity:
 **Symptoms**: Frame rate drops, analysis takes > 5ms
 
 **Solutions**:
+
 1. Increase analysis interval: `BalanceConfig.PERFORMANCE.ANALYSIS_INTERVAL_MS = 15000`
 2. Reduce data collection frequency
 3. Check for memory leaks in tracking arrays
@@ -520,6 +554,7 @@ Issues are categorized by type and severity:
 **Symptoms**: Reports don't include balance analysis section
 
 **Solutions**:
+
 1. Ensure tracking was enabled during gameplay
 2. Check if `generateReportData()` was called before export
 3. Verify LogExporter integration is complete
@@ -530,6 +565,7 @@ Issues are categorized by type and severity:
 **Symptoms**: Issues flagged incorrectly
 
 **Solutions**:
+
 1. Adjust thresholds in `balanceConfig.ts`
 2. Check if game mode requires different thresholds
 3. Verify tracking data is accurate
@@ -540,6 +576,7 @@ Issues are categorized by type and severity:
 **Symptoms**: "Library not available" warnings in console
 
 **Solutions**:
+
 1. Run `npm install` to ensure dependencies installed
 2. Check `package.json` for correct library versions
 3. Verify import statements in analyzer files
@@ -552,6 +589,7 @@ Issues are categorized by type and severity:
 ### 1. Enable Tracking Early
 
 Enable tracking at game start for complete data:
+
 ```typescript
 // In GameManager.startGame()
 this.balanceTrackingManager.enable();
@@ -560,6 +598,7 @@ this.balanceTrackingManager.enable();
 ### 2. Review Console Output
 
 Balance issues log to console in real-time:
+
 ```
 ⚠️ Balance Issue Detected: INEFFICIENT_TOWERS
    Damage per dollar: 12.5 (threshold: 15)
@@ -569,6 +608,7 @@ Balance issues log to console in real-time:
 ### 3. Analyze Reports After Each Session
 
 Check generated reports for:
+
 - Balance issues summary
 - Wave defense analysis
 - Tower efficiency comparisons
@@ -577,6 +617,7 @@ Check generated reports for:
 ### 4. Iterate on Thresholds
 
 Adjust thresholds based on game mode and difficulty:
+
 - Easy mode: Lower thresholds
 - Hard mode: Higher thresholds
 - Endless mode: Different scaling
@@ -584,6 +625,7 @@ Adjust thresholds based on game mode and difficulty:
 ### 5. Use Predictions Proactively
 
 Don't wait for waves to become impossible:
+
 - Check predictions after each wave
 - Adjust tower strategy based on forecasts
 - Balance upcoming waves before playtesting
@@ -591,6 +633,7 @@ Don't wait for waves to become impossible:
 ### 6. Monitor Performance
 
 Keep analysis under 5ms budget:
+
 ```typescript
 // Check performance stats
 const perfStats = balanceTrackingManager.getPerformanceStats();
@@ -645,7 +688,7 @@ const balanceData = gameManager.getBalanceTrackingManager().generateReportData()
 // Send to external API
 fetch('/api/balance-analysis', {
   method: 'POST',
-  body: JSON.stringify(balanceData)
+  body: JSON.stringify(balanceData),
 });
 ```
 

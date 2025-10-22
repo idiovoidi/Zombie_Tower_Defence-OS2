@@ -18,7 +18,7 @@ export class PathfindingManager {
   }
 
   // Initialize waypoints for a specific map
-  public initializeWaypoints(mapName: string): void {
+  public initializeWaypoints(_mapName: string): void {
     // In a real implementation, this would load waypoints from a file or data structure
     // For now, we'll create a simple path
     this.waypoints = this.generateSimplePath();

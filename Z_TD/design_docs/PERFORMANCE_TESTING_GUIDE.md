@@ -16,6 +16,7 @@ This guide explains how to test and verify the performance of the balance analys
 ### Quick Start
 
 1. Start the game in development mode:
+
 ```bash
 npm run dev
 ```
@@ -23,18 +24,21 @@ npm run dev
 2. Open browser console (F12)
 
 3. Load performance testing tools:
+
 ```javascript
-performanceTest()
+performanceTest();
 ```
 
 4. Run all tests:
+
 ```javascript
-runBalancePerformanceTests()
+runBalancePerformanceTests();
 ```
 
 5. Test frame rate impact:
+
 ```javascript
-await runFrameRateTest()
+await runFrameRateTest();
 ```
 
 ## Test Suites
@@ -74,7 +78,8 @@ Tests realistic analysis scenarios:
 - **Wave-End Analysis** - Trend analysis + predictions
 - **End-Game Analysis** - Outlier detection + summary + final balance check
 
-**Expected Results**: 
+**Expected Results**:
+
 - Real-Time Analysis: < 5ms
 - Wave-End Analysis: < 5ms
 - End-Game Analysis: < 5ms
@@ -103,6 +108,7 @@ Tests impact on game frame rate:
 ### Console Output
 
 Each test displays:
+
 ```
 ✅ operationName: 2.345ms [PASS] (threshold: 5ms)
 ❌ operationName: 7.890ms [FAIL] (threshold: 5ms)
@@ -220,9 +226,7 @@ If FPS drops > 5%:
 const allDamage = damageEvents.map(e => e.damage);
 
 // ✅ Good: Process recent events only
-const recentDamage = damageEvents
-  .filter(e => Date.now() - e.time < 60000)
-  .map(e => e.damage);
+const recentDamage = damageEvents.filter(e => Date.now() - e.time < 60000).map(e => e.damage);
 ```
 
 ### 2. Caching
@@ -287,6 +291,7 @@ function analyze(data) {
 6. Analyze flame graph
 
 Look for:
+
 - Long-running functions
 - Repeated calculations
 - Memory allocations
@@ -322,13 +327,13 @@ if (report.summary.passRate < 100) {
 
 ### Target Performance
 
-| Operation | Target | Good | Acceptable |
-|-----------|--------|------|------------|
-| Single Analysis | < 5ms | < 3ms | < 5ms |
-| Real-Time Analysis | < 5ms | < 3ms | < 5ms |
-| Wave-End Analysis | < 5ms | < 4ms | < 5ms |
-| End-Game Analysis | < 5ms | < 4ms | < 5ms |
-| FPS Impact | < 5% | < 2% | < 5% |
+| Operation          | Target | Good  | Acceptable |
+| ------------------ | ------ | ----- | ---------- |
+| Single Analysis    | < 5ms  | < 3ms | < 5ms      |
+| Real-Time Analysis | < 5ms  | < 3ms | < 5ms      |
+| Wave-End Analysis  | < 5ms  | < 4ms | < 5ms      |
+| End-Game Analysis  | < 5ms  | < 4ms | < 5ms      |
+| FPS Impact         | < 5%   | < 2%  | < 5%       |
 
 ### Hardware Considerations
 

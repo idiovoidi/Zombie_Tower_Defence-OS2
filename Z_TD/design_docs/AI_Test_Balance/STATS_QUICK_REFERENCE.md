@@ -185,35 +185,35 @@ LogExporter.clearAllLogs();
 
 ### Mathematical Balance
 
-| Metric                | Type   | Description                    | Target Range |
-| --------------------- | ------ | ------------------------------ | ------------ |
-| `damagePerDollar`     | number | Damage dealt per $ spent       | 15-50        |
-| `efficiencyScore`     | number | Tower cost-effectiveness       | 50-150       |
-| `safetyMargin`        | %      | Defense buffer vs wave         | 20-40%       |
-| `breakEvenTime`       | sec    | Time for tower to pay for self | 15-30s       |
-| `overkillPercent`     | %      | Wasted damage on dead zombies  | <15%         |
-| `threatScore`         | number | Zombie difficulty vs reward    | 0.8-1.2      |
-| `economyEfficiency`   | %      | Income vs expenses ratio       | >100%        |
+| Metric              | Type   | Description                    | Target Range |
+| ------------------- | ------ | ------------------------------ | ------------ |
+| `damagePerDollar`   | number | Damage dealt per $ spent       | 15-50        |
+| `efficiencyScore`   | number | Tower cost-effectiveness       | 50-150       |
+| `safetyMargin`      | %      | Defense buffer vs wave         | 20-40%       |
+| `breakEvenTime`     | sec    | Time for tower to pay for self | 15-30s       |
+| `overkillPercent`   | %      | Wasted damage on dead zombies  | <15%         |
+| `threatScore`       | number | Zombie difficulty vs reward    | 0.8-1.2      |
+| `economyEfficiency` | %      | Income vs expenses ratio       | >100%        |
 
 ### Statistical Analysis
 
-| Metric              | Type   | Description                | Use Case           |
-| ------------------- | ------ | -------------------------- | ------------------ |
-| `outliers`          | array  | Abnormal data points       | Detect spikes      |
-| `difficultyTrend`   | string | HARDER/EASIER/STABLE       | Progression check  |
-| `trendConfidence`   | string | HIGH/MEDIUM/LOW            | Prediction quality |
-| `wavePredictions`   | array  | Forecasted difficulty      | Proactive balance  |
-| `rSquared`          | number | Trend fit quality (0-1)    | Model accuracy     |
+| Metric            | Type   | Description             | Use Case           |
+| ----------------- | ------ | ----------------------- | ------------------ |
+| `outliers`        | array  | Abnormal data points    | Detect spikes      |
+| `difficultyTrend` | string | HARDER/EASIER/STABLE    | Progression check  |
+| `trendConfidence` | string | HIGH/MEDIUM/LOW         | Prediction quality |
+| `wavePredictions` | array  | Forecasted difficulty   | Proactive balance  |
+| `rSquared`        | number | Trend fit quality (0-1) | Model accuracy     |
 
 ### Balance Issues
 
-| Issue Type            | Severity | Threshold Violated         | Fix                    |
-| --------------------- | -------- | -------------------------- | ---------------------- |
-| `INEFFICIENT_TOWERS`  | MEDIUM   | Damage/dollar < 15         | Upgrade more, build less |
-| `WEAK_DEFENSE`        | HIGH     | Survival rate < 50%        | Add more towers        |
-| `EXCESSIVE_OVERKILL`  | MEDIUM   | Overkill > 15%             | Spread towers out      |
-| `NEGATIVE_ECONOMY`    | HIGH     | Economy efficiency < 100%  | Reduce spending        |
-| `DIFFICULTY_SPIKE`    | CRITICAL | Wave outlier > 2 std devs  | Adjust wave scaling    |
+| Issue Type           | Severity | Threshold Violated        | Fix                      |
+| -------------------- | -------- | ------------------------- | ------------------------ |
+| `INEFFICIENT_TOWERS` | MEDIUM   | Damage/dollar < 15        | Upgrade more, build less |
+| `WEAK_DEFENSE`       | HIGH     | Survival rate < 50%       | Add more towers          |
+| `EXCESSIVE_OVERKILL` | MEDIUM   | Overkill > 15%            | Spread towers out        |
+| `NEGATIVE_ECONOMY`   | HIGH     | Economy efficiency < 100% | Reduce spending          |
+| `DIFFICULTY_SPIKE`   | CRITICAL | Wave outlier > 2 std devs | Adjust wave scaling      |
 
 ## Common Metrics Combinations
 

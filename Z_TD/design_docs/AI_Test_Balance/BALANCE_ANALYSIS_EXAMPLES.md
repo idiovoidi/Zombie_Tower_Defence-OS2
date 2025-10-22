@@ -19,6 +19,7 @@ This document provides example balance analysis reports with interpretations and
 ## Example 1: Well-Balanced Game
 
 ### Scenario
+
 Player reaches wave 15 with good tower placement and economy management.
 
 ### Balance Analysis Report
@@ -133,6 +134,7 @@ Player reaches wave 15 with good tower placement and economy management.
 ### Interpretation
 
 ✅ **Strengths**:
+
 - No balance issues detected
 - 19% safety margin (close to 20% target)
 - Tower mix only 12.5% different from optimal
@@ -140,10 +142,12 @@ Player reaches wave 15 with good tower placement and economy management.
 - Predictable difficulty progression (R² = 0.89)
 
 ⚠️ **Areas for Improvement**:
+
 - Threat scores slightly high (zombies under-rewarded)
 - Could optimize tower mix slightly (add 1 more Machine Gun, remove Tesla)
 
 📊 **Recommendations**:
+
 1. Increase zombie rewards by ~40% to balance threat scores
 2. For wave 16, add 25 more DPS (one upgraded tower)
 3. Continue current strategy - it's working well
@@ -153,6 +157,7 @@ Player reaches wave 15 with good tower placement and economy management.
 ## Example 2: Inefficient Tower Placement
 
 ### Scenario
+
 Player builds too many low-level towers instead of upgrading.
 
 ### Balance Analysis Report
@@ -209,17 +214,20 @@ Player builds too many low-level towers instead of upgrading.
 ### Interpretation
 
 ❌ **Problems**:
+
 - Damage per dollar only 12.3 (target: 15+)
 - Tower mix 85% different from optimal
 - Only using Machine Guns (no diversity)
 - Missing out on more efficient Sniper towers
 
 📊 **Recommendations**:
+
 1. **Immediate**: Sell 4 Machine Guns, buy 2 Snipers
 2. **Strategy**: Focus on upgrading existing towers
 3. **Long-term**: Diversify tower types for better efficiency
 
 💡 **Expected Improvement**:
+
 - Damage per dollar: 12.3 → 18.5 (+50%)
 - Same defense capability with less money spent
 - Better positioned for future waves
@@ -229,6 +237,7 @@ Player builds too many low-level towers instead of upgrading.
 ## Example 3: Weak Defense
 
 ### Scenario
+
 Player doesn't have enough DPS to handle incoming waves.
 
 ### Balance Analysis Report
@@ -286,16 +295,19 @@ Player doesn't have enough DPS to handle incoming waves.
 ### Interpretation
 
 🚨 **Critical Issues**:
+
 - Cannot defend wave 8 (need 52 more DPS)
 - Survival rate below 50% (losing too many lives)
 - Insufficient tower count/upgrades
 
 📊 **Recommendations**:
+
 1. **Urgent**: Add 1 Sniper + 1 Machine Gun immediately (adds 150 DPS)
 2. **Next wave**: Upgrade existing towers
 3. **Strategy**: Build towers earlier in waves
 
 💡 **Recovery Plan**:
+
 - Current DPS: 180
 - Required DPS: 232
 - Add 2 towers: 180 + 150 = 330 DPS ✅
@@ -306,6 +318,7 @@ Player doesn't have enough DPS to handle incoming waves.
 ## Example 4: Excessive Overkill
 
 ### Scenario
+
 Player stacks too much damage in one area, wasting damage on already-dead zombies.
 
 ### Balance Analysis Report
@@ -363,17 +376,20 @@ Player stacks too much damage in one area, wasting damage on already-dead zombie
 ### Interpretation
 
 ⚠️ **Problems**:
+
 - 22% overkill (wasting 1 in 5 damage points)
 - 8 Snipers all targeting same zombies
 - Effective DPS only 78 (nominal 100) due to overkill
 - 60% safety margin (way more than needed)
 
 📊 **Recommendations**:
+
 1. **Immediate**: Sell 3 Snipers, buy diverse towers
 2. **Placement**: Spread towers along path, not clustered
 3. **Strategy**: Use fast-firing towers (Machine Gun) to reduce overkill
 
 💡 **Expected Improvement**:
+
 - Overkill: 22% → 8% (saves 14% damage)
 - Effective DPS: 78 → 92 (+18%)
 - Can use saved money for other upgrades
@@ -383,6 +399,7 @@ Player stacks too much damage in one area, wasting damage on already-dead zombie
 ## Example 5: Economy Problems
 
 ### Scenario
+
 Player spending more than earning, running out of money.
 
 ### Balance Analysis Report
@@ -429,17 +446,20 @@ Player spending more than earning, running out of money.
 ### Interpretation
 
 🚨 **Critical Issues**:
+
 - Spending more than earning (85% efficiency)
 - Net loss of 300 gold
 - 2 bankruptcy events (ran out of money twice)
 - Cash flow declining
 
 📊 **Recommendations**:
+
 1. **Immediate**: Stop building towers for 2-3 waves
 2. **Strategy**: Only upgrade when necessary
 3. **Focus**: Let money accumulate to 500+ before spending
 
 💡 **Recovery Plan**:
+
 - Current: Spending 2000, earning 1700
 - Target: Spend max 1500 per game
 - Save 200+ gold as emergency buffer
@@ -449,6 +469,7 @@ Player spending more than earning, running out of money.
 ## Example 6: Difficulty Spike
 
 ### Scenario
+
 Statistical analysis predicts a major difficulty spike in upcoming waves.
 
 ### Balance Analysis Report
@@ -486,9 +507,7 @@ Statistical analysis predicts a major difficulty spike in upcoming waves.
     "damageOutliers": {
       "mean": 1200,
       "standardDeviation": 150,
-      "outliers": [
-        { "value": 2438, "index": 13, "deviation": 8.25 }
-      ],
+      "outliers": [{ "value": 2438, "index": 13, "deviation": 8.25 }],
       "hasOutliers": true
     }
   },
@@ -510,16 +529,19 @@ Statistical analysis predicts a major difficulty spike in upcoming waves.
 ### Interpretation
 
 🚨 **Critical Warning**:
+
 - Wave 13 is 8.25 standard deviations above normal
 - Difficulty jumps 30% from wave 12 to 13
 - High confidence prediction (R² = 0.94)
 
 📊 **Recommendations for Developers**:
+
 1. **Balance Change**: Reduce wave 13 zombie HP by 25%
 2. **Alternative**: Add extra reward wave before wave 13
 3. **Scaling**: Adjust difficulty curve to be more gradual
 
 📊 **Recommendations for Players**:
+
 1. **Preparation**: Save 500+ gold before wave 13
 2. **DPS Target**: Reach 244 DPS by wave 12
 3. **Strategy**: Build 2-3 extra towers before wave 13

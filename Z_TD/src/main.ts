@@ -21,6 +21,7 @@ import { GameConfig } from './config/gameConfig';
 import { DebugUtils } from './utils/DebugUtils';
 import { DevConfig } from './config/devConfig';
 import { DebugConstants } from './config/debugConstants';
+import { ScaleManager } from './utils/ScaleManager';
 
 (async () => {
   // Initialize debug utilities
@@ -34,13 +35,15 @@ import { DebugConstants } from './config/debugConstants';
   // Initialize the application
   await app.init({
     background: '#101010',
-    resizeTo: window,
     width: 1280,
     height: 768,
   });
 
   // Append the application canvas to the document body
   document.getElementById('pixi-container')?.appendChild(app.canvas);
+
+  // Create scale manager for responsive scaling
+  const scaleManager = new ScaleManager(app);
 
   // Create game manager
   const gameManager = new GameManager(app);
@@ -322,7 +325,9 @@ import { DebugConstants } from './config/debugConstants';
       const placementManager = gameManager.getTowerPlacementManager();
 
       if (placementManager.isInPlacementMode()) {
-        const pos = event.global;
+        // Convert screen coordinates to game coordinates
+        const gamePos = scaleManager.screenToGame(event.global.x, event.global.y);
+        const pos = { x: gamePos.x, y: gamePos.y };
 
         // Check if player has enough money before placing
         const selectedType = towerShop.getSelectedTowerType();
@@ -352,8 +357,9 @@ import { DebugConstants } from './config/debugConstants';
     if (gameManager.getCurrentState() === GameConfig.GAME_STATES.PLAYING) {
       const placementManager = gameManager.getTowerPlacementManager();
       if (placementManager.isInPlacementMode()) {
-        const pos = event.global;
-        placementManager.updateGhostPosition(pos.x, pos.y);
+        // Convert screen coordinates to game coordinates
+        const gamePos = scaleManager.screenToGame(event.global.x, event.global.y);
+        placementManager.updateGhostPosition(gamePos.x, gamePos.y);
       }
     }
   });
@@ -481,7 +487,7 @@ import { DebugConstants } from './config/debugConstants';
   DebugUtils.info('Game initialized successfully');
 
   // Expose LogExporter to console for easy access
-  (window as unknown).LogExporter = LogExporter;
+  (window as any).LogExporter = LogExporter;
 
   // Check if we're in production (GitHub Pages) and warn about server features
   if (process.env.NODE_ENV === 'production') {
@@ -499,7 +505,7 @@ import { DebugConstants } from './config/debugConstants';
   console.log('  LogExporter.clearAllLogs() - Clear all stored logs');
 
   // Expose balance tracking controls to console
-  (window as unknown).balanceTracking = {
+  (window as any).balanceTracking = {
     enable: () => gameManager.enableBalanceTracking(),
     disable: () => gameManager.disableBalanceTracking(),
     isEnabled: () => gameManager.isBalanceTrackingEnabled(),
@@ -516,10 +522,10 @@ import { DebugConstants } from './config/debugConstants';
 
   // Expose wave balancing tools to console for testing
   if (DevConfig.DEBUG.ENABLED) {
-    (window as unknown).waveBalance = async () => {
+    (window as any).waveBalance = async () => {
       const { WaveBalancing, printWaveBalance } = await import('./config/waveBalancing');
-      (window as unknown).WaveBalancing = WaveBalancing;
-      (window as unknown).printWaveBalance = printWaveBalance;
+      (window as any).WaveBalancing = WaveBalancing;
+      (window as any).printWaveBalance = printWaveBalance;
       console.log('Wave balancing tools loaded!');
       console.log('Usage:');
       console.log('  printWaveBalance(1, 10) - Print balance report for waves 1-10');

@@ -1,12 +1,6 @@
 import { Application } from 'pixi.js';
 import { UIComponent } from './UIComponent';
 import { GameConfig } from '../config/gameConfig';
-import { HUD } from './HUD';
-import { MainMenu } from './MainMenu';
-import { LevelSelectMenu } from './LevelSelectMenu';
-import { TowerShop } from './TowerShop';
-import { TowerInfoPanel } from './TowerInfoPanel';
-import { StatsPanel } from './StatsPanel';
 
 export class UIManager {
   private app: Application;

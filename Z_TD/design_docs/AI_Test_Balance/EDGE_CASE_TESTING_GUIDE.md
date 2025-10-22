@@ -11,12 +11,14 @@ This guide covers comprehensive edge case testing for the balance analysis integ
 Tests scenarios where the player hasn't built any towers yet.
 
 **Tests:**
+
 - Wave defense analysis with 0 DPS
 - Efficiency metrics with no spending
 - Statistical analysis with empty datasets
 - Optimal tower mix with zero budget
 
 **Expected Behavior:**
+
 - ✅ Should correctly identify inability to defend
 - ✅ Should detect balance issues (inefficient towers, negative economy)
 - ✅ Should handle empty arrays gracefully
@@ -27,12 +29,14 @@ Tests scenarios where the player hasn't built any towers yet.
 Tests scenarios where the game ends very early with minimal data.
 
 **Tests:**
+
 - Single wave data point analysis
 - Predictions with minimal historical data
 - Outlier detection with single value
 - Break-even analysis with minimal playtime
 
 **Expected Behavior:**
+
 - ✅ Should handle single data points without errors
 - ✅ Should generate predictions even with minimal history
 - ✅ Should not identify single values as outliers
@@ -43,12 +47,14 @@ Tests scenarios where the game ends very early with minimal data.
 Tests performance and accuracy with large datasets from extended gameplay.
 
 **Tests:**
+
 - Large dataset performance (50 waves)
 - Memory efficiency with 10,000+ events
 - Prediction accuracy over long sessions
 - Large budget optimization
 
 **Expected Behavior:**
+
 - ✅ Analysis should complete in < 50ms for 50 waves
 - ✅ Outlier detection should handle 10,000 events in < 100ms
 - ✅ Predictions should remain accurate and finite
@@ -59,6 +65,7 @@ Tests performance and accuracy with large datasets from extended gameplay.
 Tests that analysis functions work independently without the tracking manager.
 
 **Tests:**
+
 - Independent analysis function calls
 - Graceful degradation without libraries
 - Zero value handling
@@ -66,6 +73,7 @@ Tests that analysis functions work independently without the tracking manager.
 - Extreme value handling
 
 **Expected Behavior:**
+
 - ✅ All analysis functions should work standalone
 - ✅ Should handle missing libraries gracefully
 - ✅ Should handle zero values without division errors
@@ -196,12 +204,12 @@ Total Tests: 18
 
 ## Performance Targets
 
-| Test Category | Target Time | Critical Threshold |
-|--------------|-------------|-------------------|
-| Single test | < 10ms | 50ms |
-| 50 wave analysis | < 50ms | 100ms |
-| 10,000 event processing | < 100ms | 200ms |
-| Full test suite | < 500ms | 1000ms |
+| Test Category           | Target Time | Critical Threshold |
+| ----------------------- | ----------- | ------------------ |
+| Single test             | < 10ms      | 50ms               |
+| 50 wave analysis        | < 50ms      | 100ms              |
+| 10,000 event processing | < 100ms     | 200ms              |
+| Full test suite         | < 500ms     | 1000ms             |
 
 ## Common Issues and Solutions
 
@@ -210,6 +218,7 @@ Total Tests: 18
 **Symptom:** Tests report library not available errors
 
 **Solution:**
+
 ```bash
 npm install simple-statistics regression mathjs
 ```
@@ -219,6 +228,7 @@ npm install simple-statistics regression mathjs
 **Symptom:** Tests exceed time thresholds
 
 **Solution:**
+
 - Check if running in debug mode (slower)
 - Verify no other heavy processes running
 - Consider adjusting thresholds for slower machines
@@ -228,6 +238,7 @@ npm install simple-statistics regression mathjs
 **Symptom:** Tests crash with division errors
 
 **Solution:**
+
 - Verify all analysis functions check for zero denominators
 - Add guards: `if (denominator === 0) return 0;`
 
@@ -236,6 +247,7 @@ npm install simple-statistics regression mathjs
 **Symptom:** Tests report non-finite values
 
 **Solution:**
+
 - Check for invalid inputs (negative values where not allowed)
 - Verify calculations handle edge cases
 - Use `isFinite()` checks in analysis functions

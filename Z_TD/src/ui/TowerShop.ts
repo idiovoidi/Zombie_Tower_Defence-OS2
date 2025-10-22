@@ -289,7 +289,7 @@ export class TowerShop extends UIComponent {
     const scale = 0.5; // Scale down to fit in icon plate
 
     switch (type) {
-      case GameConfig.TOWER_TYPES.MACHINE_GUN:
+      case GameConfig.TOWER_TYPES.MACHINE_GUN: {
         // Level 1 Machine Gun - Wooden barricade
         const mgBaseSize = 15;
         icon
@@ -314,8 +314,9 @@ export class TowerShop extends UIComponent {
         icon.circle(0, -18 * scale, 5 * scale).fill(0xffdbac);
         icon.rect(-5 * scale, -21 * scale, 10 * scale, 2 * scale).fill(0x8b0000); // Bandana
         break;
+      }
 
-      case GameConfig.TOWER_TYPES.SNIPER:
+      case GameConfig.TOWER_TYPES.SNIPER: {
         // Level 1 Sniper - Wooden platform
         const sniperHeight = 30;
         icon.rect(-12 * scale, -10 * scale, 24 * scale, sniperHeight * scale).fill(0x8b7355);
@@ -343,8 +344,9 @@ export class TowerShop extends UIComponent {
         icon.circle(0, -20 * scale, 5 * scale).fill(0xffdbac);
         icon.circle(0, -23 * scale, 6 * scale).fill(0x654321); // Boonie hat
         break;
+      }
 
-      case GameConfig.TOWER_TYPES.SHOTGUN:
+      case GameConfig.TOWER_TYPES.SHOTGUN: {
         // Level 1 Shotgun - Sandbag wall
         const shotgunWidth = 36;
         icon
@@ -377,8 +379,9 @@ export class TowerShop extends UIComponent {
         icon.circle(0, -16 * scale, 5 * scale).fill(0xffdbac);
         icon.rect(-5 * scale, -19 * scale, 10 * scale, 3 * scale).fill(0x654321); // Cap
         break;
+      }
 
-      case GameConfig.TOWER_TYPES.FLAME:
+      case GameConfig.TOWER_TYPES.FLAME: {
         // Level 1 Flame - Barrel platform
         const flameSize = 18;
         icon.circle(0, 5 * scale, flameSize * scale).fill(0x8b4513);
@@ -401,8 +404,9 @@ export class TowerShop extends UIComponent {
         icon.circle(0, -18 * scale, 5 * scale).fill(0xffdbac);
         icon.rect(-4 * scale, -19 * scale, 8 * scale, 2 * scale).fill(0x1a1a1a); // Goggles
         break;
+      }
 
-      case GameConfig.TOWER_TYPES.TESLA:
+      case GameConfig.TOWER_TYPES.TESLA: {
         // Level 1 Tesla - Scavenged tech
         const teslaWidth = 32;
         icon
@@ -433,6 +437,7 @@ export class TowerShop extends UIComponent {
         icon.circle(0, -18 * scale, 5 * scale).fill(0xffdbac);
         icon.rect(-4 * scale, -19 * scale, 8 * scale, 2 * scale).fill(0x4a4a4a); // Goggles
         break;
+      }
     }
 
     return icon;

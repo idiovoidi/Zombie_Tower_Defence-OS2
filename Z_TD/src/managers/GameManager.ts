@@ -190,7 +190,7 @@ export class GameManager {
         this.spawnStarterTower();
 
         // Spawn test towers for debugging (if enabled)
-        if ((DevConfig as unknown).TESTING?.SPAWN_TEST_TOWERS) {
+        if ((DevConfig as any).TESTING?.SPAWN_TEST_TOWERS) {
           this.spawnTestTowers();
         }
 

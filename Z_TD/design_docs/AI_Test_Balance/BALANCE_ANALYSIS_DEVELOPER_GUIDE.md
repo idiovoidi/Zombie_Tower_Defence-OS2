@@ -644,11 +644,11 @@ public startNewGame(): void {
 describe('BalanceAnalyzer', () => {
   it('should calculate efficiency score correctly', () => {
     const score = BalanceAnalyzer.calculateEfficiencyScore(
-      50,  // dps
+      50, // dps
       150, // range
       0.85, // accuracy
       100, // build cost
-      0    // upgrade cost
+      0 // upgrade cost
     );
     expect(score).toBe(63.75);
   });
@@ -658,11 +658,9 @@ describe('BalanceAnalyzer', () => {
       damagePerDollar: 20,
       survivalRate: 40, // Below 50% threshold
       overkillPercent: 10,
-      economyEfficiency: 120
+      economyEfficiency: 120,
     });
-    expect(issues).toContainEqual(
-      expect.objectContaining({ type: 'WEAK_DEFENSE' })
-    );
+    expect(issues).toContainEqual(expect.objectContaining({ type: 'WEAK_DEFENSE' }));
   });
 });
 ```
@@ -732,6 +730,7 @@ console.log('Tower Efficiencies:', manager.getTowerEfficiencies());
 ### Optimization Strategies
 
 1. **Throttle Analysis**:
+
 ```typescript
 // Run analysis every 10 seconds, not every frame
 if (now - this.lastAnalysisTime < this.analysisInterval) {
@@ -740,12 +739,14 @@ if (now - this.lastAnalysisTime < this.analysisInterval) {
 ```
 
 2. **Cache Calculations**:
+
 ```typescript
 // Cache expensive calculations
 private cachedEfficiencies: Map<string, TowerEfficiency> = new Map();
 ```
 
 3. **Limit Data Retention**:
+
 ```typescript
 // Keep only recent events
 private readonly MAX_EVENTS = 1000;
@@ -755,6 +756,7 @@ if (this.data.damageEvents.length > this.MAX_EVENTS) {
 ```
 
 4. **Profile Performance**:
+
 ```typescript
 const start = performance.now();
 this.performAnalysis();

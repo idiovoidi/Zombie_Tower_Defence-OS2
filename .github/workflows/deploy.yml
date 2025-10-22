@@ -3,8 +3,8 @@ name: Deploy Z-TD to GitHub Pages
 on:
   push:
     branches: [main, Desktop_Dev]
-    paths: ['Z_TD/**']
-  workflow_dispatch:  # Allow manual triggering
+    paths: ["Z_TD/**"]
+  workflow_dispatch: # Allow manual triggering
 
 # Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
 permissions:
@@ -29,9 +29,9 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '18'
-          cache: 'npm'
-          cache-dependency-path: 'Z_TD/package-lock.json'
+          node-version: "18"
+          cache: "npm"
+          cache-dependency-path: "Z_TD/package-lock.json"
 
       - name: Setup Pages
         uses: actions/configure-pages@v4
@@ -41,7 +41,7 @@ jobs:
         working-directory: ./Z_TD
 
       - name: Build with Vite
-        run: npx vite build  # Skip linting for deployment
+        run: npx vite build # Skip linting for deployment
         working-directory: ./Z_TD
 
       - name: Upload artifact

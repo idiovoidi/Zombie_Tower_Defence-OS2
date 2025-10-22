@@ -20,13 +20,15 @@ Location: `src/config/balanceConfig.ts`
 **Issue Triggered**: `INEFFICIENT_TOWERS` if below threshold
 
 **Tuning Guide**:
+
 - **Easy Mode**: 10-12
 - **Normal Mode**: 15-20
 - **Hard Mode**: 20-25
 
 **Calculation**:
+
 ```typescript
-damagePerDollar = totalDamageDealt / totalMoneySpent
+damagePerDollar = totalDamageDealt / totalMoneySpent;
 ```
 
 ---
@@ -39,13 +41,15 @@ damagePerDollar = totalDamageDealt / totalMoneySpent
 **Issue Triggered**: `WEAK_DEFENSE` if below threshold
 
 **Tuning Guide**:
+
 - **Easy Mode**: 40-50%
 - **Normal Mode**: 50-60%
 - **Hard Mode**: 60-70%
 
 **Calculation**:
+
 ```typescript
-survivalRate = (finalLives / startLives) * 100
+survivalRate = (finalLives / startLives) * 100;
 ```
 
 ---
@@ -58,13 +62,15 @@ survivalRate = (finalLives / startLives) * 100
 **Issue Triggered**: `EXCESSIVE_OVERKILL` if above threshold
 
 **Tuning Guide**:
+
 - **Precision Towers** (Sniper): 10-15%
 - **Fast Towers** (Machine Gun): 5-10%
 - **Area Towers** (Shotgun): 15-20%
 
 **Calculation**:
+
 ```typescript
-overkillPercent = (totalOverkillDamage / totalDamageDealt) * 100
+overkillPercent = (totalOverkillDamage / totalDamageDealt) * 100;
 ```
 
 ---
@@ -77,13 +83,15 @@ overkillPercent = (totalOverkillDamage / totalDamageDealt) * 100
 **Issue Triggered**: `NEGATIVE_ECONOMY` if below threshold
 
 **Tuning Guide**:
+
 - **Tight Economy**: 100-120%
 - **Balanced Economy**: 120-150%
 - **Loose Economy**: 150-200%
 
 **Calculation**:
+
 ```typescript
-economyEfficiency = (totalIncome / totalExpenses) * 100
+economyEfficiency = (totalIncome / totalExpenses) * 100;
 ```
 
 ---
@@ -96,13 +104,15 @@ economyEfficiency = (totalIncome / totalExpenses) * 100
 **Issue Triggered**: Warning if below (tower underpriced)
 
 **Tuning Guide**:
+
 - **Cheap Towers**: 10-15s
 - **Medium Towers**: 15-25s
 - **Expensive Towers**: 25-35s
 
 **Calculation**:
+
 ```typescript
-breakEvenTime = towerCost / (zombieReward / killTime)
+breakEvenTime = towerCost / (zombieReward / killTime);
 ```
 
 ---
@@ -115,6 +125,7 @@ breakEvenTime = towerCost / (zombieReward / killTime)
 **Issue Triggered**: Warning if above (tower overpriced)
 
 **Tuning Guide**:
+
 - **Early Game**: 20-30s
 - **Mid Game**: 30-40s
 - **Late Game**: 40-50s
@@ -129,13 +140,15 @@ breakEvenTime = towerCost / (zombieReward / killTime)
 **Issue Triggered**: Warning if below (zombie over-rewarded)
 
 **Tuning Guide**:
+
 - **Easy Zombies**: 0.5-0.8
 - **Balanced Zombies**: 0.8-1.2
 - **Hard Zombies**: 1.2-2.0
 
 **Calculation**:
+
 ```typescript
-threatScore = (health * speed * count) / (reward * 10)
+threatScore = (health * speed * count) / (reward * 10);
 ```
 
 ---
@@ -157,13 +170,15 @@ threatScore = (health * speed * count) / (reward * 10)
 **Issue Triggered**: Warning if below (defense too tight)
 
 **Tuning Guide**:
+
 - **Tight Defense**: 10-20%
 - **Balanced Defense**: 20-30%
 - **Safe Defense**: 30-50%
 
 **Calculation**:
+
 ```typescript
-safetyMargin = ((damageDealt - damageRequired) / damageRequired) * 100
+safetyMargin = ((damageDealt - damageRequired) / damageRequired) * 100;
 ```
 
 ---
@@ -178,16 +193,19 @@ safetyMargin = ((damageDealt - damageRequired) / damageRequired) * 100
 **Effect**: Higher = less diminishing returns
 
 **Tuning Guide**:
+
 - **Harsh Diminishing**: 50-75
 - **Moderate Diminishing**: 75-125
 - **Mild Diminishing**: 125-200
 
 **Formula**:
+
 ```typescript
-effectiveValue = (stat / (stat + factor)) * cap
+effectiveValue = (stat / (stat + factor)) * cap;
 ```
 
 **Example**:
+
 ```
 Factor = 100, Cap = 0.5
 25 stat = 10% reduction
@@ -205,11 +223,13 @@ Factor = 100, Cap = 0.5
 **Effect**: Each duplicate tower is this % as effective
 
 **Tuning Guide**:
+
 - **Harsh Penalty**: 0.7-0.8 (30-20% loss)
 - **Moderate Penalty**: 0.85-0.95 (15-5% loss)
 - **Mild Penalty**: 0.95-1.0 (5-0% loss)
 
 **Example**:
+
 ```
 Factor = 0.9
 1st tower: 100% effective
@@ -230,11 +250,13 @@ Factor = 0.9
 **Effect**: Higher = fewer outliers detected
 
 **Tuning Guide**:
+
 - **Sensitive**: 1.5-2.0 (detect more outliers)
 - **Moderate**: 2.0-2.5 (balanced)
 - **Conservative**: 2.5-3.0 (detect fewer outliers)
 
 **Statistical Meaning**:
+
 ```
 1 std dev: 68% of data within range
 2 std dev: 95% of data within range
@@ -251,11 +273,13 @@ Factor = 0.9
 **Effect**: Higher = stricter confidence requirements
 
 **Tuning Guide**:
+
 - **Lenient**: 0.75-0.85
 - **Moderate**: 0.85-0.90
 - **Strict**: 0.90-0.95
 
 **R² Interpretation**:
+
 ```
 0.85 = 85% of variance explained by model
 0.90 = 90% of variance explained by model
@@ -272,6 +296,7 @@ Factor = 0.9
 **Effect**: Below this is low confidence
 
 **Tuning Guide**:
+
 - **Lenient**: 0.55-0.65
 - **Moderate**: 0.65-0.75
 - **Strict**: 0.75-0.85
@@ -288,11 +313,13 @@ Factor = 0.9
 **Effect**: Lower = more frequent analysis, higher overhead
 
 **Tuning Guide**:
+
 - **Frequent**: 5000-10000ms (5-10s)
 - **Moderate**: 10000-15000ms (10-15s)
 - **Infrequent**: 15000-30000ms (15-30s)
 
 **Performance Impact**:
+
 ```
 5s interval: ~12 analyses per minute
 10s interval: ~6 analyses per minute
@@ -309,11 +336,13 @@ Factor = 0.9
 **Effect**: Warning logged if exceeded
 
 **Tuning Guide**:
+
 - **Strict**: 3-5ms
 - **Moderate**: 5-10ms
 - **Lenient**: 10-20ms
 
 **Frame Rate Impact**:
+
 ```
 60 FPS = 16.67ms per frame
 5ms analysis = 30% of frame budget
@@ -345,8 +374,8 @@ export const EasyModeConfig = {
   },
   STATISTICAL: {
     OUTLIER_THRESHOLD: 2.5,
-    CONFIDENCE_HIGH_R_SQUARED: 0.80,
-    CONFIDENCE_MEDIUM_R_SQUARED: 0.60,
+    CONFIDENCE_HIGH_R_SQUARED: 0.8,
+    CONFIDENCE_MEDIUM_R_SQUARED: 0.6,
   },
   PERFORMANCE: {
     ANALYSIS_INTERVAL_MS: 15000,
@@ -376,8 +405,8 @@ export const HardModeConfig = {
   },
   STATISTICAL: {
     OUTLIER_THRESHOLD: 1.5,
-    CONFIDENCE_HIGH_R_SQUARED: 0.90,
-    CONFIDENCE_MEDIUM_R_SQUARED: 0.70,
+    CONFIDENCE_HIGH_R_SQUARED: 0.9,
+    CONFIDENCE_MEDIUM_R_SQUARED: 0.7,
   },
   PERFORMANCE: {
     ANALYSIS_INTERVAL_MS: 10000,
@@ -403,7 +432,7 @@ export const CompetitiveModeConfig = {
   },
   DIMINISHING_RETURNS: {
     TOWER_STACKING_FACTOR: 50,
-    EFFICIENCY_REDUCTION_PER_DUPLICATE: 0.80,
+    EFFICIENCY_REDUCTION_PER_DUPLICATE: 0.8,
   },
   STATISTICAL: {
     OUTLIER_THRESHOLD: 1.5,
@@ -456,7 +485,7 @@ public startGame(difficulty: 'easy' | 'normal' | 'hard'): void {
     default:
       Object.assign(BalanceConfig, originalConfig);
   }
-  
+
   this.balanceTrackingManager.enable();
 }
 ```

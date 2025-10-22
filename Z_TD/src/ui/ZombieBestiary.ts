@@ -365,7 +365,7 @@ export class ZombieBestiary extends UIComponent {
     this.onSpawnZombie = callback;
   }
 
-  private createZombieVisual(type: string, color: number): Graphics {
+  private createZombieVisual(type: string, _color: number): Graphics {
     const visual = new Graphics();
 
     // Use actual zombie visuals from the game

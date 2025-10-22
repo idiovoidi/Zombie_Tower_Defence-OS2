@@ -46,11 +46,11 @@ interface IShaderManager {
   initialize(app: Application): void;
   applyShader(shaderType: ShaderType): void;
   removeShader(): void;
-  
+
   // Configuration
   updateShaderSettings(settings: ShaderSettings): void;
   getAvailableShaders(): ShaderType[];
-  
+
   // State management
   getCurrentShader(): ShaderType | null;
   isShaderActive(): boolean;
@@ -59,7 +59,7 @@ interface IShaderManager {
 enum ShaderType {
   NONE = 'none',
   PIXELATION = 'pixelation',
-  CRT = 'crt'
+  CRT = 'crt',
 }
 
 interface ShaderSettings {
@@ -85,7 +85,7 @@ Abstract base class for all retro filters:
 ```typescript
 abstract class BaseRetroFilter extends Filter {
   protected settings: Record<string, number>;
-  
+
   constructor(vertexShader: string, fragmentShader: string);
   abstract updateSettings(settings: Record<string, number>): void;
   abstract getDefaultSettings(): Record<string, number>;
@@ -207,6 +207,7 @@ interface ShaderPerformanceMetrics {
 ### GLSL Shader Implementation
 
 #### Pixelation Fragment Shader
+
 ```glsl
 precision mediump float;
 varying vec2 vTextureCoord;
@@ -223,6 +224,7 @@ void main(void) {
 ```
 
 #### CRT Fragment Shader Features
+
 - Screen curvature using barrel distortion
 - Scanlines with configurable intensity
 - Phosphor glow using bloom effect
@@ -257,24 +259,26 @@ The shader settings panel will feature:
 ## Mermaid Diagrams
 
 ### Shader System Architecture
+
 ```mermaid
 graph TB
     A[Application Stage] --> B[ShaderManager]
     B --> C[PixelationFilter]
     B --> D[CRTFilter]
     B --> E[ShaderSettingsPanel]
-    
+
     C --> F[pixelation.frag]
     C --> G[pixelation.vert]
     D --> H[crt.frag]
     D --> I[crt.vert]
-    
+
     E --> J[UI Manager]
     B --> K[LocalStorage]
     B --> L[Performance Monitor]
 ```
 
 ### Shader Lifecycle
+
 ```mermaid
 sequenceDiagram
     participant U as User
@@ -282,14 +286,14 @@ sequenceDiagram
     participant SM as ShaderManager
     participant F as Filter
     participant A as Application
-    
+
     U->>SP: Select Shader
     SP->>SM: applyShader(type)
     SM->>F: Create Filter
     F->>F: Compile Shaders
     SM->>A: Apply Filter to Stage
     A->>U: Visual Effect Applied
-    
+
     U->>SP: Adjust Parameters
     SP->>SM: updateShaderSettings()
     SM->>F: Update Uniforms

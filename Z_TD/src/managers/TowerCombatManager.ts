@@ -1,8 +1,7 @@
 import { Tower } from '../objects/Tower';
 import { Zombie } from '../objects/Zombie';
-import { TransformComponent } from '../components/TransformComponent';
 import { ProjectileManager } from './ProjectileManager';
-import { Container, Graphics } from 'pixi.js';
+import { Graphics } from 'pixi.js';
 
 export class TowerCombatManager {
   private towers: Tower[] = [];
@@ -313,7 +312,7 @@ export class TowerCombatManager {
     const dx = endX - startX;
     const dy = endY - startY;
     const distance = Math.sqrt(dx * dx + dy * dy);
-    const angle = Math.atan2(dy, dx);
+    const _angle = Math.atan2(dy, dx);
 
     // Create smooth cone-shaped flame stream
     const segments = 12;

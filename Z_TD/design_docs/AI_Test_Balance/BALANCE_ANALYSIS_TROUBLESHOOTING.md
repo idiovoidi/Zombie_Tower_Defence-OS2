@@ -22,6 +22,7 @@ Quick solutions to common problems with the balance analysis system.
 ### Problem: No Balance Analysis Output
 
 **Symptoms**:
+
 - No console messages about balance issues
 - Reports don't include balance analysis section
 - `getBalanceIssues()` returns empty array
@@ -44,23 +45,27 @@ console.log('Last analysis:', manager.getLastAnalysisTime());
 **Solutions**:
 
 1. **Enable tracking manually**:
+
 ```typescript
 gameManager.getBalanceTrackingManager().enable();
 ```
 
 2. **Check initialization**:
+
 ```typescript
 // In GameManager constructor
 this.balanceTrackingManager = new BalanceTrackingManager(this);
 ```
 
 3. **Verify update loop**:
+
 ```typescript
 // In GameManager.update()
 this.balanceTrackingManager.update(deltaTime);
 ```
 
 4. **Check analysis interval**:
+
 ```typescript
 // May be set too high
 BalanceConfig.PERFORMANCE.ANALYSIS_INTERVAL_MS = 10000; // 10 seconds
@@ -71,6 +76,7 @@ BalanceConfig.PERFORMANCE.ANALYSIS_INTERVAL_MS = 10000; // 10 seconds
 ### Problem: Tracking Enabled But No Analysis
 
 **Symptoms**:
+
 - `isEnabled()` returns true
 - No analysis results
 - No console output
@@ -92,6 +98,7 @@ try {
 **Solutions**:
 
 1. **Check data collection**:
+
 ```typescript
 const data = gameManager.getBalanceTrackingManager().getData();
 console.log('Damage events:', data.damageEvents.length);
@@ -99,11 +106,13 @@ console.log('Tower events:', data.towerEvents.length);
 ```
 
 2. **Verify integration points**:
+
 - TowerCombatManager calling `trackDamage()`
 - TowerPlacementManager calling `trackTowerPlaced()`
 - WaveManager calling `trackWaveStart()`
 
 3. **Check for silent failures**:
+
 ```typescript
 // Add debug logging to BalanceTrackingManager
 console.log('Performing analysis...');
@@ -118,6 +127,7 @@ console.log('Issues found:', issues.length);
 ### Problem: Wrong DPS Calculations
 
 **Symptoms**:
+
 - DPS values don't match expected
 - Wave defense analysis incorrect
 - Efficiency scores seem wrong
@@ -140,18 +150,17 @@ console.log('Sample event:', damageEvents[0]);
 **Solutions**:
 
 1. **Verify damage tracking integration**:
+
 ```typescript
 // In TowerCombatManager
 const overkill = Math.max(0, damage - zombie.getHealth());
-gameManager.getBalanceTrackingManager().trackDamage(
-  tower.getType(),
-  damage,
-  zombie.getHealth() <= 0,
-  overkill
-);
+gameManager
+  .getBalanceTrackingManager()
+  .trackDamage(tower.getType(), damage, zombie.getHealth() <= 0, overkill);
 ```
 
 2. **Check DPS calculation**:
+
 ```typescript
 // In BalanceTrackingManager
 private calculateCurrentDPS(): number {
@@ -163,6 +172,7 @@ private calculateCurrentDPS(): number {
 ```
 
 3. **Verify tower stats**:
+
 ```typescript
 // Check if tower stats are correct
 const tower = towerFactory.createTower('MachineGun');
@@ -175,6 +185,7 @@ console.log('Actual DPS:', tower.getDPS());
 ### Problem: Incorrect Wave Defense Predictions
 
 **Symptoms**:
+
 - Says can defend but player loses
 - Says cannot defend but player wins
 - Safety margins way off
@@ -198,18 +209,20 @@ console.log('Time to reach end:', timeToEnd);
 **Solutions**:
 
 1. **Verify path length calculation**:
+
 ```typescript
 // Ensure path length is accurate
 const path = gameManager.getPathManager().getPath();
 let totalLength = 0;
 for (let i = 0; i < path.length - 1; i++) {
-  const dx = path[i+1].x - path[i].x;
-  const dy = path[i+1].y - path[i].y;
-  totalLength += Math.sqrt(dx*dx + dy*dy);
+  const dx = path[i + 1].x - path[i].x;
+  const dy = path[i + 1].y - path[i].y;
+  totalLength += Math.sqrt(dx * dx + dy * dy);
 }
 ```
 
 2. **Check zombie speed scaling**:
+
 ```typescript
 // Verify speed scales with wave
 const baseSpeed = 50;
@@ -218,9 +231,10 @@ const actualSpeed = baseSpeed * waveMultiplier;
 ```
 
 3. **Account for tower range**:
+
 ```typescript
 // Zombies may be in range longer than path length suggests
-const effectivePathLength = pathLength + (averageTowerRange * 0.5);
+const effectivePathLength = pathLength + averageTowerRange * 0.5;
 ```
 
 ---
@@ -228,6 +242,7 @@ const effectivePathLength = pathLength + (averageTowerRange * 0.5);
 ### Problem: False Positive Balance Issues
 
 **Symptoms**:
+
 - Issues flagged incorrectly
 - Thresholds seem wrong
 - Too many warnings
@@ -235,6 +250,7 @@ const effectivePathLength = pathLength + (averageTowerRange * 0.5);
 **Solutions**:
 
 1. **Adjust thresholds for game mode**:
+
 ```typescript
 // Easy mode
 BalanceConfig.THRESHOLDS.DAMAGE_PER_DOLLAR_MIN = 10;
@@ -246,6 +262,7 @@ BalanceConfig.THRESHOLDS.SURVIVAL_RATE_MIN = 60;
 ```
 
 2. **Check data quality**:
+
 ```typescript
 // Ensure enough data collected
 if (damageEvents.length < 10) {
@@ -255,6 +272,7 @@ if (damageEvents.length < 10) {
 ```
 
 3. **Review issue detection logic**:
+
 ```typescript
 // May need to adjust formulas
 const damagePerDollar = totalDamage / totalSpent;
@@ -271,6 +289,7 @@ if (damagePerDollar < threshold && totalSpent > 500) {
 ### Problem: Frame Rate Drops
 
 **Symptoms**:
+
 - Game stutters when analysis runs
 - FPS drops every 10 seconds
 - Analysis takes > 5ms
@@ -294,12 +313,14 @@ console.log('Wave events:', data.waveEvents.length);
 **Solutions**:
 
 1. **Increase analysis interval**:
+
 ```typescript
 // Run less frequently
 BalanceConfig.PERFORMANCE.ANALYSIS_INTERVAL_MS = 15000; // 15 seconds
 ```
 
 2. **Limit data retention**:
+
 ```typescript
 // Keep only recent events
 private pruneOldEvents(): void {
@@ -309,6 +330,7 @@ private pruneOldEvents(): void {
 ```
 
 3. **Optimize calculations**:
+
 ```typescript
 // Cache expensive calculations
 private cachedEfficiencies: Map<string, TowerEfficiency> = new Map();
@@ -324,6 +346,7 @@ private getTowerEfficiency(type: string): TowerEfficiency {
 ```
 
 4. **Disable expensive features**:
+
 ```typescript
 // Skip statistical analysis if too slow
 if (elapsed > 3) {
@@ -337,6 +360,7 @@ if (elapsed > 3) {
 ### Problem: Memory Leaks
 
 **Symptoms**:
+
 - Memory usage grows over time
 - Game slows down after many waves
 - Browser tab crashes
@@ -355,6 +379,7 @@ console.log('Timeline snapshots:', data.timelineSnapshots.length * 120, 'bytes')
 **Solutions**:
 
 1. **Implement data pruning**:
+
 ```typescript
 // Limit array sizes
 private readonly MAX_EVENTS = 1000;
@@ -368,6 +393,7 @@ private addDamageEvent(event: DamageEvent): void {
 ```
 
 2. **Clear data on reset**:
+
 ```typescript
 public reset(): void {
   this.data = this.createEmptyData();
@@ -377,6 +403,7 @@ public reset(): void {
 ```
 
 3. **Use object pooling**:
+
 ```typescript
 // Reuse event objects
 private eventPool: DamageEvent[] = [];
@@ -397,6 +424,7 @@ private recycleDamageEvent(event: DamageEvent): void {
 ### Problem: No Combat Stats
 
 **Symptoms**:
+
 - `totalDamageDealt` is 0
 - `damageByTowerType` is empty
 - Combat analysis missing
@@ -404,19 +432,18 @@ private recycleDamageEvent(event: DamageEvent): void {
 **Solutions**:
 
 1. **Integrate damage tracking**:
+
 ```typescript
 // In TowerCombatManager or Tower class
 if (gameManager.getBalanceTrackingManager().isEnabled()) {
-  gameManager.getBalanceTrackingManager().trackDamage(
-    this.type,
-    damage,
-    zombieKilled,
-    overkillAmount
-  );
+  gameManager
+    .getBalanceTrackingManager()
+    .trackDamage(this.type, damage, zombieKilled, overkillAmount);
 }
 ```
 
 2. **Verify tracking is called**:
+
 ```typescript
 // Add debug logging
 public trackDamage(towerType: string, damage: number, killed: boolean, overkill: number): void {
@@ -426,6 +453,7 @@ public trackDamage(towerType: string, damage: number, killed: boolean, overkill:
 ```
 
 3. **Check timing**:
+
 ```typescript
 // Ensure tracking happens before zombie is destroyed
 const zombieHP = zombie.getHealth();
@@ -445,6 +473,7 @@ zombie.takeDamage(damage);
 ### Problem: No Economy Stats
 
 **Symptoms**:
+
 - `moneyTimeline` is empty
 - `economyEfficiency` is 0
 - Economy analysis missing
@@ -452,6 +481,7 @@ zombie.takeDamage(damage);
 **Solutions**:
 
 1. **Integrate economy tracking**:
+
 ```typescript
 // When money is earned
 gameManager.getBalanceTrackingManager().trackEconomy('EARN', amount);
@@ -464,6 +494,7 @@ gameManager.getBalanceTrackingManager().trackEconomy('UPGRADE', cost);
 ```
 
 2. **Verify automatic tracking**:
+
 ```typescript
 // In BalanceTrackingManager.update()
 if (this.shouldSnapshotMoney()) {
@@ -471,7 +502,7 @@ if (this.shouldSnapshotMoney()) {
   this.data.moneyTimeline.push({
     time: Date.now(),
     money: money,
-    wave: this.gameManager.getCurrentWave()
+    wave: this.gameManager.getCurrentWave(),
   });
 }
 ```
@@ -481,6 +512,7 @@ if (this.shouldSnapshotMoney()) {
 ### Problem: No Wave Stats
 
 **Symptoms**:
+
 - `waveDefenseAnalysis` is empty
 - Wave predictions missing
 - No wave-specific data
@@ -488,25 +520,23 @@ if (this.shouldSnapshotMoney()) {
 **Solutions**:
 
 1. **Integrate wave tracking**:
+
 ```typescript
 // In WaveManager.startWave()
 gameManager.getBalanceTrackingManager().trackWaveStart(waveNumber);
 
 // In WaveManager.completeWave()
-gameManager.getBalanceTrackingManager().trackWaveComplete(
-  waveNumber,
-  zombiesKilled,
-  livesLost
-);
+gameManager.getBalanceTrackingManager().trackWaveComplete(waveNumber, zombiesKilled, livesLost);
 ```
 
 2. **Verify wave analysis triggers**:
+
 ```typescript
 // In BalanceTrackingManager
 public trackWaveComplete(wave: number, zombiesKilled: number, livesLost: number): void {
   // Store wave data
   this.data.waveEvents.push({ wave, zombiesKilled, livesLost });
-  
+
   // Trigger wave analysis
   this.performWaveAnalysis();
 }
@@ -519,6 +549,7 @@ public trackWaveComplete(wave: number, zombiesKilled: number, livesLost: number)
 ### Problem: "simple-statistics not available"
 
 **Symptoms**:
+
 - Warning in console about missing library
 - Statistical analysis disabled
 - Outlier detection not working
@@ -526,17 +557,20 @@ public trackWaveComplete(wave: number, zombiesKilled: number, livesLost: number)
 **Solutions**:
 
 1. **Install dependencies**:
+
 ```bash
 npm install simple-statistics
 npm install @types/simple-statistics --save-dev
 ```
 
 2. **Verify installation**:
+
 ```bash
 npm list simple-statistics
 ```
 
 3. **Check imports**:
+
 ```typescript
 // In StatisticalAnalyzer.ts
 import * as ss from 'simple-statistics';
@@ -546,6 +580,7 @@ console.log('simple-statistics loaded:', typeof ss.mean === 'function');
 ```
 
 4. **Graceful degradation**:
+
 ```typescript
 // System should continue without library
 let statisticsAvailable = false;
@@ -562,6 +597,7 @@ try {
 ### Problem: "regression not available"
 
 **Symptoms**:
+
 - Warning about missing regression library
 - Predictions not working
 - Trend analysis disabled
@@ -569,17 +605,22 @@ try {
 **Solutions**:
 
 1. **Install dependencies**:
+
 ```bash
 npm install regression
 npm install @types/regression --save-dev
 ```
 
 2. **Check import**:
+
 ```typescript
 import regression from 'regression';
 
 // Test
-const result = regression.linear([[0, 0], [1, 1]]);
+const result = regression.linear([
+  [0, 0],
+  [1, 1],
+]);
 console.log('Regression working:', result.equation);
 ```
 
@@ -588,6 +629,7 @@ console.log('Regression working:', result.equation);
 ### Problem: "mathjs not available"
 
 **Symptoms**:
+
 - Warning about missing mathjs
 - Matrix operations failing
 - Advanced calculations disabled
@@ -595,11 +637,13 @@ console.log('Regression working:', result.equation);
 **Solutions**:
 
 1. **Install dependencies**:
+
 ```bash
 npm install mathjs
 ```
 
 2. **Check import**:
+
 ```typescript
 import { create, all } from 'mathjs';
 const math = create(all);
@@ -615,6 +659,7 @@ console.log('mathjs working:', math.sqrt(4) === 2);
 ### Problem: TypeScript Errors
 
 **Symptoms**:
+
 - Compilation errors
 - Type mismatches
 - Missing properties
@@ -622,6 +667,7 @@ console.log('mathjs working:', math.sqrt(4) === 2);
 **Solutions**:
 
 1. **Check interface definitions**:
+
 ```typescript
 // Ensure interfaces match implementation
 interface BalanceIssue {
@@ -635,11 +681,13 @@ interface BalanceIssue {
 ```
 
 2. **Verify type imports**:
+
 ```typescript
 import type { BalanceIssue, TowerEfficiency } from '@utils/BalanceAnalyzer';
 ```
 
 3. **Check optional properties**:
+
 ```typescript
 // Use optional chaining
 const issues = gameManager.getBalanceTrackingManager()?.getBalanceIssues() ?? [];
@@ -650,6 +698,7 @@ const issues = gameManager.getBalanceTrackingManager()?.getBalanceIssues() ?? []
 ### Problem: Circular Dependencies
 
 **Symptoms**:
+
 - Import errors
 - Undefined at runtime
 - Module resolution issues
@@ -657,6 +706,7 @@ const issues = gameManager.getBalanceTrackingManager()?.getBalanceIssues() ?? []
 **Solutions**:
 
 1. **Use dependency injection**:
+
 ```typescript
 // Pass GameManager to BalanceTrackingManager
 constructor(private gameManager: GameManager) {
@@ -665,6 +715,7 @@ constructor(private gameManager: GameManager) {
 ```
 
 2. **Use interfaces instead of classes**:
+
 ```typescript
 // Define interface in separate file
 interface IGameManager {
@@ -683,6 +734,7 @@ constructor(private gameManager: IGameManager) {}
 ### Problem: Reports Don't Include Balance Data
 
 **Symptoms**:
+
 - `balanceAnalysis` section missing
 - Reports look like old format
 - No statistical analysis
@@ -690,6 +742,7 @@ constructor(private gameManager: IGameManager) {}
 **Solutions**:
 
 1. **Check report generation**:
+
 ```typescript
 // In GameManager when game ends
 const balanceData = this.balanceTrackingManager.generateReportData();
@@ -697,6 +750,7 @@ await LogExporter.exportLog(gameLogEntry, balanceData);
 ```
 
 2. **Verify LogExporter integration**:
+
 ```typescript
 // In LogExporter.exportLog()
 public static async exportLog(
@@ -711,11 +765,12 @@ public static async exportLog(
 ```
 
 3. **Check data format**:
+
 ```typescript
 // Ensure Maps are converted to objects
 const reportData = {
   towerEfficiencies: Object.fromEntries(this.towerEfficiencies),
-  threatScores: Object.fromEntries(this.threatScores)
+  threatScores: Object.fromEntries(this.threatScores),
 };
 ```
 
@@ -724,6 +779,7 @@ const reportData = {
 ### Problem: Report Server Not Saving Files
 
 **Symptoms**:
+
 - Reports not in `player_reports/` folder
 - Only saved to localStorage
 - Server errors in console
@@ -731,6 +787,7 @@ const reportData = {
 **Solutions**:
 
 1. **Start report server**:
+
 ```bash
 npm run dev:full
 # or
@@ -738,21 +795,24 @@ node server.js
 ```
 
 2. **Check server is running**:
+
 ```bash
 # Should see: Server running on http://localhost:3000
 ```
 
 3. **Verify server endpoint**:
+
 ```typescript
 // In LogExporter
 const response = await fetch('http://localhost:3000/save-log', {
   method: 'POST',
   headers: { 'Content-Type': 'application/json' },
-  body: JSON.stringify(logEntry)
+  body: JSON.stringify(logEntry),
 });
 ```
 
 4. **Check CORS settings**:
+
 ```javascript
 // In server.js
 app.use((req, res, next) => {
@@ -768,6 +828,7 @@ app.use((req, res, next) => {
 ### Problem: Thresholds Don't Match Game
 
 **Symptoms**:
+
 - Too many false positives
 - Issues not detected when they should be
 - Ratings seem wrong
@@ -775,6 +836,7 @@ app.use((req, res, next) => {
 **Solutions**:
 
 1. **Adjust for game mode**:
+
 ```typescript
 // Create mode-specific configs
 const EasyModeConfig = {
@@ -782,8 +844,8 @@ const EasyModeConfig = {
   THRESHOLDS: {
     ...BalanceConfig.THRESHOLDS,
     DAMAGE_PER_DOLLAR_MIN: 10,
-    SURVIVAL_RATE_MIN: 40
-  }
+    SURVIVAL_RATE_MIN: 40,
+  },
 };
 
 const HardModeConfig = {
@@ -791,12 +853,13 @@ const HardModeConfig = {
   THRESHOLDS: {
     ...BalanceConfig.THRESHOLDS,
     DAMAGE_PER_DOLLAR_MIN: 25,
-    SURVIVAL_RATE_MIN: 70
-  }
+    SURVIVAL_RATE_MIN: 70,
+  },
 };
 ```
 
 2. **Calibrate thresholds**:
+
 ```typescript
 // Play test games and adjust
 // Record actual values for good games
@@ -804,6 +867,7 @@ const HardModeConfig = {
 ```
 
 3. **Document threshold rationale**:
+
 ```typescript
 // Add comments explaining why
 DAMAGE_PER_DOLLAR_MIN: 15, // Based on 10 test games, avg was 18
@@ -832,24 +896,24 @@ Generate a diagnostic report:
 ```typescript
 function generateDiagnosticReport(): void {
   const manager = gameManager.getBalanceTrackingManager();
-  
+
   console.log('=== Balance Analysis Diagnostic Report ===');
   console.log('Enabled:', manager.isEnabled());
   console.log('Last analysis:', manager.getLastAnalysisTime());
-  
+
   const data = manager.getData();
   console.log('Damage events:', data.damageEvents.length);
   console.log('Tower events:', data.towerEvents.length);
   console.log('Wave events:', data.waveEvents.length);
   console.log('Economy events:', data.economyEvents.length);
-  
+
   const issues = manager.getBalanceIssues();
   console.log('Balance issues:', issues.length);
-  
+
   const perfStats = manager.getPerformanceStats();
   console.log('Avg analysis time:', perfStats.avgTime, 'ms');
   console.log('Max analysis time:', perfStats.maxTime, 'ms');
-  
+
   console.log('Libraries available:');
   console.log('- simple-statistics:', typeof ss !== 'undefined');
   console.log('- regression:', typeof regression !== 'undefined');
@@ -860,6 +924,7 @@ function generateDiagnosticReport(): void {
 ### Contact Information
 
 For additional support:
+
 - Check design docs in `design_docs/AI_Test_Balance/`
 - Review implementation in `src/utils/` and `src/managers/`
 - See examples in `BALANCE_ANALYSIS_EXAMPLES.md`

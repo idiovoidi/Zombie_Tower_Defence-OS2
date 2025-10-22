@@ -1,4 +1,4 @@
-import { WaveManager, ZombieGroup } from './WaveManager';
+import { WaveManager } from './WaveManager';
 import { GameConfig } from '../config/gameConfig';
 
 // Mock ZombieFactory to avoid Pixi.js dependencies

@@ -13,37 +13,37 @@ This document provides a complete technical reference for the structure of balan
 ```typescript
 interface GameLogEntry {
   // Session metadata
-  timestamp: string;              // ISO 8601 format: "2025-10-15T15:45:30.000Z"
-  sessionId: string;              // Unique session identifier
-  isAIRun: boolean;               // true = AI player, false = manual play
-  duration: number;               // Total game time in milliseconds
-  startTime: string;              // ISO 8601 format
-  endTime: string;                // ISO 8601 format
-  
+  timestamp: string; // ISO 8601 format: "2025-10-15T15:45:30.000Z"
+  sessionId: string; // Unique session identifier
+  isAIRun: boolean; // true = AI player, false = manual play
+  duration: number; // Total game time in milliseconds
+  startTime: string; // ISO 8601 format
+  endTime: string; // ISO 8601 format
+
   // Core game data
   gameData: GameData;
-  
+
   // AI-specific data (present even for manual play)
   aiData: AIData;
-  
+
   // Combat metrics
   combatStats: CombatStats;
-  
+
   // Economy metrics
   economyStats: EconomyStats;
-  
+
   // Efficiency metrics
   efficiencyStats: EfficiencyStats;
-  
+
   // Timeline snapshots
   timelineStats: TimelineStats;
-  
+
   // Balance analysis (NEW - optional for backward compatibility)
   balanceAnalysis?: BalanceAnalysis;
-  
+
   // Statistical analysis (NEW - optional)
   statisticalAnalysis?: StatisticalAnalysis;
-  
+
   // Dashboard visualization data (NEW - optional)
   dashboardData?: DashboardData;
 }
@@ -55,16 +55,17 @@ interface GameLogEntry {
 
 ```typescript
 interface GameData {
-  highestWave: number;           // Maximum wave reached (1-based)
-  finalMoney: number;            // Money remaining at game end
-  finalLives: number;            // Lives remaining at game end
-  startLives: number;            // Starting lives (typically 20)
-  survivalRate: number;          // Percentage: (finalLives / startLives) * 100
-  livesLost: number;             // Total lives lost: startLives - finalLives
+  highestWave: number; // Maximum wave reached (1-based)
+  finalMoney: number; // Money remaining at game end
+  finalLives: number; // Lives remaining at game end
+  startLives: number; // Starting lives (typically 20)
+  survivalRate: number; // Percentage: (finalLives / startLives) * 100
+  livesLost: number; // Total lives lost: startLives - finalLives
 }
 ```
 
 **Example:**
+
 ```json
 {
   "highestWave": 18,
@@ -82,22 +83,23 @@ interface GameData {
 
 ```typescript
 interface AIData {
-  towersBuilt: number;                          // Total towers placed
-  towersUpgraded: number;                       // Total upgrade actions
-  moneySpent: number;                           // Total money spent
-  moneyEarned: number;                          // Total money earned
-  peakMoney: number;                            // Maximum money held
-  lowestLives: number;                          // Minimum lives during game
-  averageBuildRate: number;                     // Towers per minute
-  towerComposition: Record<string, number>;     // Count by tower type
+  towersBuilt: number; // Total towers placed
+  towersUpgraded: number; // Total upgrade actions
+  moneySpent: number; // Total money spent
+  moneyEarned: number; // Total money earned
+  peakMoney: number; // Maximum money held
+  lowestLives: number; // Minimum lives during game
+  averageBuildRate: number; // Towers per minute
+  towerComposition: Record<string, number>; // Count by tower type
   upgradeDistribution: Record<string, number[]>; // Upgrade levels by type
-  waveStats: WaveStats;                         // Per-wave statistics
-  performanceRating: string;                    // Star rating (⭐⭐⭐⭐⭐)
-  defenseRating: string;                        // Shield rating (🛡️)
+  waveStats: WaveStats; // Per-wave statistics
+  performanceRating: string; // Star rating (⭐⭐⭐⭐⭐)
+  defenseRating: string; // Shield rating (🛡️)
 }
 ```
 
 **Example:**
+
 ```json
 {
   "towersBuilt": 15,
@@ -118,7 +120,9 @@ interface AIData {
     "MACHINE_GUN": [2, 2, 2, 3, 3, 3],
     "SNIPER": [2, 2, 3, 3]
   },
-  "waveStats": { /* ... */ },
+  "waveStats": {
+    /* ... */
+  },
   "performanceRating": "⭐⭐⭐⭐⭐ EXCELLENT",
   "defenseRating": "🛡️ PERFECT DEFENSE"
 }
@@ -130,12 +134,12 @@ interface AIData {
 
 ```typescript
 interface WaveStats {
-  completionTimes: number[];        // Time to complete each wave (ms)
-  averageCompletionTime: number;    // Mean completion time (seconds)
-  livesLostPerWave: number[];       // Lives lost in each wave
-  averageLivesLostPerWave: number;  // Mean lives lost per wave
-  towersBuiltPerWave: number[];     // Towers built during each wave
-  decisionsPerWave: number[];       // AI decisions made per wave
+  completionTimes: number[]; // Time to complete each wave (ms)
+  averageCompletionTime: number; // Mean completion time (seconds)
+  livesLostPerWave: number[]; // Lives lost in each wave
+  averageLivesLostPerWave: number; // Mean lives lost per wave
+  towersBuiltPerWave: number[]; // Towers built during each wave
+  decisionsPerWave: number[]; // AI decisions made per wave
 }
 ```
 
@@ -145,22 +149,23 @@ interface WaveStats {
 
 ```typescript
 interface CombatStats {
-  totalDamageDealt: number;                    // Total damage across all towers
-  totalZombiesKilled: number;                  // Total zombie kills
-  averageDPS: number;                          // Mean DPS throughout game
-  peakDPS: number;                             // Maximum DPS achieved
-  damageByTowerType: Record<string, number>;   // Damage per tower type
-  killsByTowerType: Record<string, number>;    // Kills per tower type
-  damagePerWave: number[];                     // Damage dealt each wave
-  killsPerWave: number[];                      // Kills each wave
-  overkillDamage: number;                      // Wasted damage on dead zombies
-  accuracyRate: number;                        // Percentage of shots hit
-  shotsHit: number;                            // Total successful hits
-  shotsMissed: number;                         // Total missed shots
+  totalDamageDealt: number; // Total damage across all towers
+  totalZombiesKilled: number; // Total zombie kills
+  averageDPS: number; // Mean DPS throughout game
+  peakDPS: number; // Maximum DPS achieved
+  damageByTowerType: Record<string, number>; // Damage per tower type
+  killsByTowerType: Record<string, number>; // Kills per tower type
+  damagePerWave: number[]; // Damage dealt each wave
+  killsPerWave: number[]; // Kills each wave
+  overkillDamage: number; // Wasted damage on dead zombies
+  accuracyRate: number; // Percentage of shots hit
+  shotsHit: number; // Total successful hits
+  shotsMissed: number; // Total missed shots
 }
 ```
 
 **Example:**
+
 ```json
 {
   "totalDamageDealt": 68500.75,
@@ -190,28 +195,29 @@ interface CombatStats {
 
 ```typescript
 interface EconomyStats {
-  moneyTimeline: MoneySnapshot[];      // Money snapshots every 5 seconds
-  moneyPerWave: number[];              // Money earned each wave
-  moneySpentPerWave: number[];         // Money spent each wave
-  netIncomePerWave: number[];          // Net profit/loss per wave
-  averageMoneyPerSecond: number;       // Mean income rate
-  peakMoneyPerSecond: number;          // Maximum income rate
-  totalIncome: number;                 // Total money earned
-  totalExpenses: number;               // Total money spent
-  netProfit: number;                   // Total income - expenses
-  economyEfficiency: number;           // (income / expenses) * 100
-  bankruptcyEvents: number;            // Times money reached 0
-  cashFlowTrend: string;               // "GROWING" | "STABLE" | "DECLINING"
+  moneyTimeline: MoneySnapshot[]; // Money snapshots every 5 seconds
+  moneyPerWave: number[]; // Money earned each wave
+  moneySpentPerWave: number[]; // Money spent each wave
+  netIncomePerWave: number[]; // Net profit/loss per wave
+  averageMoneyPerSecond: number; // Mean income rate
+  peakMoneyPerSecond: number; // Maximum income rate
+  totalIncome: number; // Total money earned
+  totalExpenses: number; // Total money spent
+  netProfit: number; // Total income - expenses
+  economyEfficiency: number; // (income / expenses) * 100
+  bankruptcyEvents: number; // Times money reached 0
+  cashFlowTrend: string; // "GROWING" | "STABLE" | "DECLINING"
 }
 
 interface MoneySnapshot {
-  time: number;                        // Milliseconds since game start
-  money: number;                       // Money at this time
-  wave: number;                        // Current wave number
+  time: number; // Milliseconds since game start
+  money: number; // Money at this time
+  wave: number; // Current wave number
 }
 ```
 
 **Example:**
+
 ```json
 {
   "moneyTimeline": [
@@ -238,19 +244,20 @@ interface MoneySnapshot {
 
 ```typescript
 interface EfficiencyStats {
-  damagePerDollar: number;           // Total damage / total spent
-  killsPerDollar: number;            // Total kills / total spent
-  damagePerTower: number;            // Average damage per tower
-  killsPerTower: number;             // Average kills per tower
-  upgradeEfficiency: number;         // Damage from upgraded towers / upgrade cost
-  resourceUtilization: number;       // Percentage of money used effectively
-  towerDensity: number;              // Total towers built
-  averageUpgradeLevel: number;       // Mean upgrade level across all towers
-  costEfficiencyRating: string;      // "EXCELLENT" | "GOOD" | "FAIR" | "POOR"
+  damagePerDollar: number; // Total damage / total spent
+  killsPerDollar: number; // Total kills / total spent
+  damagePerTower: number; // Average damage per tower
+  killsPerTower: number; // Average kills per tower
+  upgradeEfficiency: number; // Damage from upgraded towers / upgrade cost
+  resourceUtilization: number; // Percentage of money used effectively
+  towerDensity: number; // Total towers built
+  averageUpgradeLevel: number; // Mean upgrade level across all towers
+  costEfficiencyRating: string; // "EXCELLENT" | "GOOD" | "FAIR" | "POOR"
 }
 ```
 
 **Ratings:**
+
 - EXCELLENT: damagePerDollar > 100
 - GOOD: damagePerDollar 50-100
 - FAIR: damagePerDollar 25-50
@@ -262,18 +269,18 @@ interface EfficiencyStats {
 
 ```typescript
 interface TimelineStats {
-  snapshots: GameSnapshot[];         // Game state every 10 seconds
-  snapshotInterval: number;          // Interval in milliseconds (10000)
+  snapshots: GameSnapshot[]; // Game state every 10 seconds
+  snapshotInterval: number; // Interval in milliseconds (10000)
 }
 
 interface GameSnapshot {
-  time: number;                      // Milliseconds since game start
-  wave: number;                      // Current wave
-  money: number;                     // Current money
-  lives: number;                     // Current lives
-  towersActive: number;              // Number of towers placed
-  zombiesAlive: number;              // Zombies currently alive
-  currentDPS: number;                // DPS at this moment
+  time: number; // Milliseconds since game start
+  wave: number; // Current wave
+  money: number; // Current money
+  lives: number; // Current lives
+  towersActive: number; // Number of towers placed
+  zombiesAlive: number; // Zombies currently alive
+  currentDPS: number; // DPS at this moment
 }
 ```
 
@@ -283,14 +290,14 @@ interface GameSnapshot {
 
 ```typescript
 interface BalanceAnalysis {
-  issues: BalanceIssue[];                           // Detected balance problems
-  waveDefenseAnalysis: WaveDefenseAnalysis[];       // Lanchester's Law analysis
+  issues: BalanceIssue[]; // Detected balance problems
+  waveDefenseAnalysis: WaveDefenseAnalysis[]; // Lanchester's Law analysis
   towerEfficiencies: Record<string, TowerEfficiency>; // Tower performance metrics
-  threatScores: Record<string, ThreatScore>;        // Zombie difficulty ratings
-  optimalTowerMix: Record<string, number>;          // Calculated optimal composition
-  actualTowerMix: Record<string, number>;           // Actual towers built
-  mixDeviation: number;                             // Percentage difference
-  overallBalanceRating: string;                     // Overall assessment
+  threatScores: Record<string, ThreatScore>; // Zombie difficulty ratings
+  optimalTowerMix: Record<string, number>; // Calculated optimal composition
+  actualTowerMix: Record<string, number>; // Actual towers built
+  mixDeviation: number; // Percentage difference
+  overallBalanceRating: string; // Overall assessment
 }
 ```
 
@@ -298,22 +305,24 @@ interface BalanceAnalysis {
 
 ```typescript
 interface BalanceIssue {
-  type: string;                      // Issue type identifier
-  severity: string;                  // "LOW" | "MEDIUM" | "HIGH" | "CRITICAL"
-  message: string;                   // Human-readable description
-  value: number;                     // Actual metric value
-  threshold: number;                 // Expected threshold
-  recommendation: string;            // Suggested fix
+  type: string; // Issue type identifier
+  severity: string; // "LOW" | "MEDIUM" | "HIGH" | "CRITICAL"
+  message: string; // Human-readable description
+  value: number; // Actual metric value
+  threshold: number; // Expected threshold
+  recommendation: string; // Suggested fix
 }
 ```
 
 **Issue Types:**
+
 - `WEAK_DEFENSE` - Survival rate too low
 - `INEFFICIENT_TOWERS` - Damage per dollar too low
 - `EXCESSIVE_OVERKILL` - Too much wasted damage
 - `NEGATIVE_ECONOMY` - Spending exceeds income
 
 **Example:**
+
 ```json
 {
   "type": "WEAK_DEFENSE",
@@ -331,19 +340,20 @@ interface BalanceIssue {
 
 ```typescript
 interface WaveDefenseAnalysis {
-  wave: number;                      // Wave number analyzed
-  canDefend: boolean;                // Can current DPS handle wave?
-  totalZombieHP: number;             // Total HP of all zombies
-  totalTowerDPS: number;             // Combined DPS of all towers
-  timeToReachEnd: number;            // Seconds for zombies to reach end
-  damageDealt: number;               // Total damage towers can deal
-  damageRequired: number;            // Damage needed to kill all zombies
-  safetyMargin: number;              // Percentage of excess capacity
-  recommendation: string;            // Action to take
+  wave: number; // Wave number analyzed
+  canDefend: boolean; // Can current DPS handle wave?
+  totalZombieHP: number; // Total HP of all zombies
+  totalTowerDPS: number; // Combined DPS of all towers
+  timeToReachEnd: number; // Seconds for zombies to reach end
+  damageDealt: number; // Total damage towers can deal
+  damageRequired: number; // Damage needed to kill all zombies
+  safetyMargin: number; // Percentage of excess capacity
+  recommendation: string; // Action to take
 }
 ```
 
 **Formula:**
+
 ```
 damageDealt = totalTowerDPS × timeToReachEnd
 safetyMargin = ((damageDealt - damageRequired) / damageRequired) × 100
@@ -351,6 +361,7 @@ canDefend = damageDealt >= damageRequired
 ```
 
 **Example:**
+
 ```json
 {
   "wave": 10,
@@ -371,18 +382,19 @@ canDefend = damageDealt >= damageRequired
 
 ```typescript
 interface TowerEfficiency {
-  type: string;                      // Tower type identifier
-  cost: number;                      // Total cost (build + upgrades)
-  dps: number;                       // Nominal DPS
-  range: number;                     // Tower range
-  accuracy: number;                  // Hit rate (0.0-1.0)
-  efficiencyScore: number;           // (DPS × Range × Accuracy) / Cost
-  effectiveDPS: number;              // DPS after accounting for overkill
-  breakEvenTime: number;             // Seconds to recoup investment
+  type: string; // Tower type identifier
+  cost: number; // Total cost (build + upgrades)
+  dps: number; // Nominal DPS
+  range: number; // Tower range
+  accuracy: number; // Hit rate (0.0-1.0)
+  efficiencyScore: number; // (DPS × Range × Accuracy) / Cost
+  effectiveDPS: number; // DPS after accounting for overkill
+  breakEvenTime: number; // Seconds to recoup investment
 }
 ```
 
 **Formulas:**
+
 ```
 efficiencyScore = (dps × range × accuracy) / cost
 effectiveDPS = dps × (1 - overkillPercent)
@@ -390,6 +402,7 @@ breakEvenTime = cost / (avgZombieReward / killTime)
 ```
 
 **Example:**
+
 ```json
 {
   "type": "SNIPER",
@@ -409,24 +422,26 @@ breakEvenTime = cost / (avgZombieReward / killTime)
 
 ```typescript
 interface ThreatScore {
-  zombieType: string;                // Zombie type identifier
-  health: number;                    // Base HP
-  speed: number;                     // Movement speed
-  count: number;                     // Number spawned
-  reward: number;                    // Money per kill
-  threatScore: number;               // Calculated threat rating
-  threatPerDollar: number;           // Threat relative to reward
-  isBalanced: boolean;               // Is threat score in 0.8-1.2 range?
+  zombieType: string; // Zombie type identifier
+  health: number; // Base HP
+  speed: number; // Movement speed
+  count: number; // Number spawned
+  reward: number; // Money per kill
+  threatScore: number; // Calculated threat rating
+  threatPerDollar: number; // Threat relative to reward
+  isBalanced: boolean; // Is threat score in 0.8-1.2 range?
 }
 ```
 
 **Formula:**
+
 ```
 threatScore = (health × speed × count) / (reward × 10)
 isBalanced = threatScore >= 0.8 && threatScore <= 1.2
 ```
 
 **Example:**
+
 ```json
 {
   "zombieType": "BASIC",
@@ -446,12 +461,12 @@ isBalanced = threatScore >= 0.8 && threatScore <= 1.2
 
 ```typescript
 interface StatisticalAnalysis {
-  damageOutliers: OutlierAnalysis;       // Unusual damage values
-  dpsOutliers: OutlierAnalysis;          // Unusual DPS values
-  economyOutliers: OutlierAnalysis;      // Unusual economy values
-  difficultyTrend: TrendAnalysis;        // Wave difficulty progression
-  wavePredictions: WavePrediction[];     // Future wave forecasts
-  summary: StatisticalSummary;           // Aggregate statistics
+  damageOutliers: OutlierAnalysis; // Unusual damage values
+  dpsOutliers: OutlierAnalysis; // Unusual DPS values
+  economyOutliers: OutlierAnalysis; // Unusual economy values
+  difficultyTrend: TrendAnalysis; // Wave difficulty progression
+  wavePredictions: WavePrediction[]; // Future wave forecasts
+  summary: StatisticalSummary; // Aggregate statistics
 }
 ```
 
@@ -459,27 +474,26 @@ interface StatisticalAnalysis {
 
 ```typescript
 interface OutlierAnalysis {
-  mean: number;                          // Average value
-  standardDeviation: number;             // Spread of values
-  outliers: Outlier[];                   // Values >2 std devs from mean
-  hasOutliers: boolean;                  // Quick check flag
+  mean: number; // Average value
+  standardDeviation: number; // Spread of values
+  outliers: Outlier[]; // Values >2 std devs from mean
+  hasOutliers: boolean; // Quick check flag
 }
 
 interface Outlier {
-  value: number;                         // Outlier value
-  index: number;                         // Wave/index where it occurred
-  deviation: number;                     // Standard deviations from mean
+  value: number; // Outlier value
+  index: number; // Wave/index where it occurred
+  deviation: number; // Standard deviations from mean
 }
 ```
 
 **Example:**
+
 ```json
 {
   "mean": 163.1,
   "standardDeviation": 85.4,
-  "outliers": [
-    {"value": 425.5, "index": 17, "deviation": 3.07}
-  ],
+  "outliers": [{ "value": 425.5, "index": 17, "deviation": 3.07 }],
   "hasOutliers": true
 }
 ```
@@ -490,20 +504,22 @@ interface Outlier {
 
 ```typescript
 interface TrendAnalysis {
-  trend: string;                         // "GETTING_HARDER" | "GETTING_EASIER" | "STABLE"
-  slope: number;                         // Rate of change
-  intercept: number;                     // Y-intercept of trend line
-  rSquared: number;                      // Goodness of fit (0-1)
-  confidence: string;                    // "HIGH" | "MEDIUM" | "LOW"
+  trend: string; // "GETTING_HARDER" | "GETTING_EASIER" | "STABLE"
+  slope: number; // Rate of change
+  intercept: number; // Y-intercept of trend line
+  rSquared: number; // Goodness of fit (0-1)
+  confidence: string; // "HIGH" | "MEDIUM" | "LOW"
 }
 ```
 
 **Confidence Levels:**
+
 - HIGH: rSquared > 0.85
 - MEDIUM: rSquared 0.65-0.85
 - LOW: rSquared < 0.65
 
 **Example:**
+
 ```json
 {
   "trend": "GETTING_HARDER",
@@ -520,10 +536,11 @@ interface TrendAnalysis {
 
 ```typescript
 interface WavePrediction {
-  wave: number;                          // Future wave number
-  predictedDifficulty: number;           // Expected zombie HP
-  recommendedDPS: number;                // DPS needed to defend
-  confidenceInterval: {                  // Prediction range
+  wave: number; // Future wave number
+  predictedDifficulty: number; // Expected zombie HP
+  recommendedDPS: number; // DPS needed to defend
+  confidenceInterval: {
+    // Prediction range
     lower: number;
     upper: number;
   };
@@ -531,12 +548,13 @@ interface WavePrediction {
 ```
 
 **Example:**
+
 ```json
 {
   "wave": 19,
   "predictedDifficulty": 16200,
   "recommendedDPS": 463.0,
-  "confidenceInterval": {"lower": 15800, "upper": 16600}
+  "confidenceInterval": { "lower": 15800, "upper": 16600 }
 }
 ```
 
@@ -546,10 +564,10 @@ interface WavePrediction {
 
 ```typescript
 interface StatisticalSummary {
-  avgDamagePerWave: number;              // Mean damage per wave
-  avgDPSPerWave: number;                 // Mean DPS per wave
-  avgEconomyEfficiency: number;          // Mean economy efficiency
-  performanceConsistency: number;        // Percentage (0-100)
+  avgDamagePerWave: number; // Mean damage per wave
+  avgDPSPerWave: number; // Mean DPS per wave
+  avgEconomyEfficiency: number; // Mean economy efficiency
+  performanceConsistency: number; // Percentage (0-100)
 }
 ```
 
@@ -559,24 +577,26 @@ interface StatisticalSummary {
 
 ```typescript
 interface DashboardData {
-  labels: string[];                      // X-axis labels (wave numbers)
+  labels: string[]; // X-axis labels (wave numbers)
   datasets: {
-    playerDPS: number[];                 // Player's DPS over time
-    requiredDPS: number[];               // Required DPS over time
-    damagePerDollar: number[];           // Efficiency over time
-    economyEfficiency: number[];         // Economy health over time
-    survivalRate: number[];              // Lives remaining over time
-    threatLevel: number[];               // Zombie threat over time
+    playerDPS: number[]; // Player's DPS over time
+    requiredDPS: number[]; // Required DPS over time
+    damagePerDollar: number[]; // Efficiency over time
+    economyEfficiency: number[]; // Economy health over time
+    survivalRate: number[]; // Lives remaining over time
+    threatLevel: number[]; // Zombie threat over time
   };
 }
 ```
 
 **Purpose:**
+
 - Formatted for Chart.js
 - Ready to visualize without transformation
 - All arrays same length as labels
 
 **Example:**
+
 ```json
 {
   "labels": ["Wave 1", "Wave 3", "Wave 5", "Wave 7"],
@@ -596,7 +616,9 @@ interface DashboardData {
 ## Field Validation Rules
 
 ### Required Fields
+
 All reports MUST include:
+
 - `timestamp`
 - `sessionId`
 - `isAIRun`
@@ -609,7 +631,9 @@ All reports MUST include:
 - `timelineStats`
 
 ### Optional Fields
+
 These fields are optional for backward compatibility:
+
 - `balanceAnalysis`
 - `statisticalAnalysis`
 - `dashboardData`
@@ -617,6 +641,7 @@ These fields are optional for backward compatibility:
 ### Data Type Constraints
 
 **Numbers:**
+
 - All percentages: 0-100
 - All money values: >= 0
 - All time values: >= 0
@@ -624,11 +649,13 @@ These fields are optional for backward compatibility:
 - Wave numbers: >= 1
 
 **Strings:**
+
 - Timestamps: ISO 8601 format
 - Session IDs: Alphanumeric with underscores
 - Ratings: Predefined emoji + text format
 
 **Arrays:**
+
 - All per-wave arrays must have same length
 - Timeline snapshots sorted by time ascending
 - Money timeline sorted by time ascending
@@ -650,6 +677,7 @@ mapData.forEach((value, key) => {
 ```
 
 **Affected Fields:**
+
 - `towerComposition`
 - `upgradeDistribution`
 - `damageByTowerType`
@@ -678,15 +706,18 @@ const rounded = Math.round(value * 100) / 100;
 ## File Naming Convention
 
 Reports saved with this format:
+
 ```
 YYYY-MM-DD_HH-MM-SS_TYPE_waveX.json
 ```
 
 **Examples:**
+
 - `2025-10-15_15-45-30_AI_wave18.json`
 - `2025-10-15_16-20-15_MANUAL_wave8.json`
 
 **Special Files:**
+
 - `EXAMPLE_REPORT.json` - Template report
 - `EXAMPLE_BALANCED_GAME.json` - Well-balanced game example
 - `EXAMPLE_WEAK_DEFENSE.json` - Problematic game example
@@ -696,17 +727,20 @@ YYYY-MM-DD_HH-MM-SS_TYPE_waveX.json
 ## Backward Compatibility
 
 ### Version 1.0 (Original)
+
 - Includes all fields except balance analysis
 - Compatible with existing report viewers
 - No breaking changes
 
 ### Version 2.0 (With Balance Analysis)
+
 - Adds `balanceAnalysis` field (optional)
 - Adds `statisticalAnalysis` field (optional)
 - Adds `dashboardData` field (optional)
 - Fully backward compatible
 
 **Compatibility Check:**
+
 ```typescript
 function hasBalanceAnalysis(report: GameLogEntry): boolean {
   return report.balanceAnalysis !== undefined;
@@ -737,16 +771,13 @@ if (reportData.balanceAnalysis) {
 
 ```typescript
 // Find all critical balance issues
-const criticalReports = reports.filter(report => 
-  report.balanceAnalysis?.issues.some(issue => 
-    issue.severity === 'CRITICAL'
-  )
+const criticalReports = reports.filter(report =>
+  report.balanceAnalysis?.issues.some(issue => issue.severity === 'CRITICAL')
 );
 
 // Find high-performing games
-const excellentGames = reports.filter(report =>
-  report.gameData.survivalRate >= 90 &&
-  report.gameData.highestWave >= 15
+const excellentGames = reports.filter(
+  report => report.gameData.survivalRate >= 90 && report.gameData.highestWave >= 15
 );
 ```
 
@@ -754,18 +785,13 @@ const excellentGames = reports.filter(report =>
 
 ```typescript
 // Calculate average survival rate across all reports
-const avgSurvival = reports.reduce((sum, r) => 
-  sum + r.gameData.survivalRate, 0
-) / reports.length;
+const avgSurvival = reports.reduce((sum, r) => sum + r.gameData.survivalRate, 0) / reports.length;
 
 // Find most common balance issues
 const issueFrequency = new Map<string, number>();
 reports.forEach(report => {
   report.balanceAnalysis?.issues.forEach(issue => {
-    issueFrequency.set(
-      issue.type,
-      (issueFrequency.get(issue.type) || 0) + 1
-    );
+    issueFrequency.set(issue.type, (issueFrequency.get(issue.type) || 0) + 1);
   });
 });
 ```

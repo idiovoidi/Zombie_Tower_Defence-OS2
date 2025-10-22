@@ -1,4 +1,4 @@
-import { Container, ContainerChild, Graphics } from 'pixi.js';
+import { Container, Graphics } from 'pixi.js';
 import { GameObject } from './GameObject';
 import { TransformComponent } from '../components/TransformComponent';
 import { HealthComponent } from '../components/HealthComponent';
@@ -113,14 +113,15 @@ export class Tower extends GameObject implements ITower {
     const flash = new Graphics();
 
     switch (this.type) {
-      case GameConfig.TOWER_TYPES.MACHINE_GUN:
+      case GameConfig.TOWER_TYPES.MACHINE_GUN: {
         // Gun starts at -10, extends down by gunLength (8 + upgradeLevel)
         // Gun tip is at -10 + gunLength = -2 to +3 depending on upgrade
         const mgGunLength = 8 + this.upgradeLevel;
         const mgGunTip = -10 + mgGunLength;
         flash.circle(0, mgGunTip, 4).fill(0xffff00);
         break;
-      case GameConfig.TOWER_TYPES.SNIPER:
+      }
+      case GameConfig.TOWER_TYPES.SNIPER: {
         // Rifle starts at -12, extends down by rifleLength (12 + upgradeLevel * 2)
         // Rifle tip is at -12 + rifleLength = 0 to +10 depending on upgrade
         const sniperRifleLength = 12 + this.upgradeLevel * 2;
@@ -128,14 +129,16 @@ export class Tower extends GameObject implements ITower {
         flash.circle(0, sniperRifleTip, 5).fill(0xffff00);
         flash.circle(0, sniperRifleTip, 8).fill({ color: 0xffff00, alpha: 0.3 });
         break;
-      case GameConfig.TOWER_TYPES.SHOTGUN:
+      }
+      case GameConfig.TOWER_TYPES.SHOTGUN: {
         // Shotgun starts at -8, extends down by 8
         // Shotgun tip is at -8 + 8 = 0
         const shotgunTip = -8 + 8;
         flash.circle(-2, shotgunTip, 5).fill(0xffff00);
         flash.circle(2, shotgunTip, 5).fill(0xffff00);
         break;
-      case GameConfig.TOWER_TYPES.FLAME:
+      }
+      case GameConfig.TOWER_TYPES.FLAME: {
         // Flamethrower starts at -10, extends down by 6
         // Nozzle tip is at -10 + 6 = -4
         const flameTip = -10 + 6;
@@ -161,7 +164,8 @@ export class Tower extends GameObject implements ITower {
         // Smoke puff
         flash.circle(0, flameTip + 8, 6).fill({ color: 0x4a4a4a, alpha: 0.4 });
         break;
-      case GameConfig.TOWER_TYPES.TESLA:
+      }
+      case GameConfig.TOWER_TYPES.TESLA: {
         // Tesla gun starts at -10, extends down by 7
         // Gun tip is at -10 + 7 = -3
         const teslaTip = -10 + 7;
@@ -182,6 +186,7 @@ export class Tower extends GameObject implements ITower {
             .stroke({ width: 2, color: 0xffffff, alpha: 0.8 });
         }
         break;
+      }
       default:
         flash.circle(0, 0, 4).fill(0xffff00);
     }
@@ -1000,7 +1005,7 @@ export class Tower extends GameObject implements ITower {
         this.removeChild(highlight);
         highlight.destroy();
       }
-      delete (this as any).selectionHighlight;
+      delete (this as unknown).selectionHighlight;
     }
   }
 }

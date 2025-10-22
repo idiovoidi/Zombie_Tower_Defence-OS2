@@ -26,12 +26,14 @@ This guide explains how to read and interpret balance analysis reports generated
 ```
 
 **What to Look For:**
+
 - **highestWave**: How far the player progressed
 - **survivalRate**: Percentage of lives remaining (100% = perfect defense)
 - **duration**: Total game time in milliseconds
 - **isAIRun**: Whether this was AI or manual play
 
 **Interpretation:**
+
 - Wave 15+ = Strong performance
 - Survival rate >90% = Excellent defense
 - Survival rate <50% = Weak defense needing improvement
@@ -58,18 +60,21 @@ The `balanceAnalysis` object contains the core balance metrics and issue detecti
 ```
 
 **Issue Types:**
+
 - `WEAK_DEFENSE` - Survival rate too low
 - `INEFFICIENT_TOWERS` - Damage per dollar too low
 - `EXCESSIVE_OVERKILL` - Too much wasted damage
 - `NEGATIVE_ECONOMY` - Spending more than earning
 
 **Severity Levels:**
+
 - `CRITICAL` - Game-breaking issue, immediate attention required
 - `HIGH` - Major problem affecting gameplay significantly
 - `MEDIUM` - Noticeable issue that should be addressed
 - `LOW` - Minor optimization opportunity
 
 **How to Use:**
+
 - Empty `issues` array = Well-balanced game
 - Multiple CRITICAL issues = Major rebalancing needed
 - Focus on HIGH and CRITICAL issues first
@@ -95,6 +100,7 @@ The `balanceAnalysis` object contains the core balance metrics and issue detecti
 ```
 
 **Key Metrics:**
+
 - **canDefend**: Boolean - can current DPS handle the wave?
 - **safetyMargin**: Percentage of excess damage capacity
   - Positive = Can defend with margin
@@ -102,12 +108,14 @@ The `balanceAnalysis` object contains the core balance metrics and issue detecti
 - **damageDealt vs damageRequired**: Actual vs needed damage
 
 **Interpretation:**
+
 - Safety margin >20% = Comfortable defense
 - Safety margin 10-20% = Adequate defense
 - Safety margin 0-10% = Marginal defense
 - Safety margin <0% = Will fail wave
 
 **Action Items:**
+
 - Negative margin = Build/upgrade towers immediately
 - Low margin (<10%) = Prepare for next wave
 - High margin (>30%) = May be over-investing in defense
@@ -132,6 +140,7 @@ The `balanceAnalysis` object contains the core balance metrics and issue detecti
 ```
 
 **Key Metrics:**
+
 - **efficiencyScore**: DPS × Range × Accuracy / Cost
   - Higher = better value
   - Use to compare tower types
@@ -140,9 +149,10 @@ The `balanceAnalysis` object contains the core balance metrics and issue detecti
 - **breakEvenTime**: Seconds to recoup tower cost
   - <15s = Underpriced
   - 15-30s = Well-balanced
-  - >30s = Overpriced
+  - > 30s = Overpriced
 
 **How to Use:**
+
 - Sort towers by efficiencyScore to find best value
 - Compare effectiveDPS to nominal DPS to detect overkill
 - Use breakEvenTime to balance tower costs
@@ -167,19 +177,22 @@ The `balanceAnalysis` object contains the core balance metrics and issue detecti
 ```
 
 **Key Metrics:**
+
 - **threatScore**: (Health × Speed × Count) / (Reward × 10)
   - 0.8-1.2 = Balanced
   - <0.8 = Too easy (underrewarded)
-  - >1.2 = Too hard (overrewarded)
+  - > 1.2 = Too hard (overrewarded)
 - **threatPerDollar**: Threat relative to reward
 - **isBalanced**: Boolean flag for quick reference
 
 **Interpretation:**
+
 - Balanced zombies have threatScore near 1.0
 - High threatScore = Zombie is too dangerous for its reward
 - Low threatScore = Zombie is too weak for its reward
 
 **Action Items:**
+
 - threatScore >1.5 = Increase reward or reduce stats
 - threatScore <0.5 = Decrease reward or increase stats
 
@@ -202,16 +215,19 @@ The `balanceAnalysis` object contains the core balance metrics and issue detecti
 ```
 
 **Key Metrics:**
+
 - **optimalTowerMix**: Calculated best composition using marginal utility
 - **actualTowerMix**: What was actually built
 - **mixDeviation**: Percentage difference (lower = better)
 
 **Interpretation:**
+
 - Deviation <15% = Good strategy
 - Deviation 15-30% = Suboptimal but acceptable
 - Deviation >30% = Poor tower choices
 
 **How to Use:**
+
 - Compare optimal vs actual to identify strategy improvements
 - High deviation suggests player/AI is not building efficiently
 - Use optimal mix as a guide for future games
@@ -225,6 +241,7 @@ The `balanceAnalysis` object contains the core balance metrics and issue detecti
 ```
 
 **Ratings:**
+
 - `EXCELLENT` - No issues, all metrics in optimal range
 - `GOOD` - Minor issues only, well-balanced overall
 - `FAIR` - Some notable issues, needs attention
@@ -232,6 +249,7 @@ The `balanceAnalysis` object contains the core balance metrics and issue detecti
 - `CRITICAL` - Game-breaking balance problems
 
 **Interpretation:**
+
 - EXCELLENT/GOOD = Game is well-balanced
 - FAIR = Review issues and make adjustments
 - POOR/CRITICAL = Major rebalancing required
@@ -252,11 +270,13 @@ The `balanceAnalysis` object contains the core balance metrics and issue detecti
 ```
 
 **What It Means:**
+
 - Detects unusual spikes or drops in metrics
 - Outliers are values >2 standard deviations from mean
 - Empty outliers array = Consistent performance
 
 **How to Use:**
+
 - Outliers indicate inconsistent balance
 - Check waves with outliers for special circumstances
 - Consistent performance = predictable difficulty curve
@@ -276,17 +296,19 @@ The `balanceAnalysis` object contains the core balance metrics and issue detecti
 ```
 
 **Key Metrics:**
+
 - **trend**: GETTING_HARDER, GETTING_EASIER, or STABLE
 - **slope**: Rate of difficulty increase
-  - >0.2 = Steep difficulty curve
+  - > 0.2 = Steep difficulty curve
   - 0.1-0.2 = Moderate increase
   - <0.1 = Gentle curve
 - **rSquared**: How well data fits trend (0-1)
-  - >0.85 = HIGH confidence
+  - > 0.85 = HIGH confidence
   - 0.65-0.85 = MEDIUM confidence
   - <0.65 = LOW confidence
 
 **Interpretation:**
+
 - GETTING_HARDER with high R² = Predictable scaling
 - Steep slope (>0.2) = May be too difficult
 - Low R² = Inconsistent difficulty (spikes/valleys)
@@ -307,11 +329,13 @@ The `balanceAnalysis` object contains the core balance metrics and issue detecti
 ```
 
 **How to Use:**
+
 - **predictedDifficulty**: Expected zombie HP for future waves
 - **recommendedDPS**: DPS needed to defend
 - **confidenceInterval**: Range of possible values
 
 **Action Items:**
+
 - Use predictions to plan tower builds
 - If recommendedDPS exceeds current DPS, upgrade towers
 - Wide confidence intervals = less predictable difficulty
@@ -335,11 +359,13 @@ The `balanceAnalysis` object contains the core balance metrics and issue detecti
 ```
 
 **Purpose:**
+
 - Formatted for Chart.js visualization
 - Shows trends over time
 - Easy to graph and analyze
 
 **How to Visualize:**
+
 1. **DPS Comparison Chart**: Plot playerDPS vs requiredDPS
    - Player should stay above required
    - Gap = safety margin
@@ -355,16 +381,19 @@ The `balanceAnalysis` object contains the core balance metrics and issue detecti
 ### Pattern 1: Early Game Struggle
 
 **Symptoms:**
+
 - Low survival rate in early waves
 - Negative safety margins
 - WEAK_DEFENSE issues
 
 **Cause:**
+
 - Not enough starting money
 - Towers too expensive
 - Zombies too strong early
 
 **Fix:**
+
 - Increase starting money
 - Reduce early tower costs
 - Reduce early zombie stats
@@ -374,16 +403,19 @@ The `balanceAnalysis` object contains the core balance metrics and issue detecti
 ### Pattern 2: Late Game Collapse
 
 **Symptoms:**
+
 - Good early performance
 - Sudden drop in survival rate after wave 10+
 - Steep difficulty trend slope
 
 **Cause:**
+
 - Difficulty scaling too aggressive
 - Not enough upgrade options
 - Economy can't keep up
 
 **Fix:**
+
 - Reduce difficulty scaling factor
 - Add more upgrade levels
 - Increase zombie rewards
@@ -393,16 +425,19 @@ The `balanceAnalysis` object contains the core balance metrics and issue detecti
 ### Pattern 3: Excessive Overkill
 
 **Symptoms:**
+
 - High overkill percentage (>15%)
 - effectiveDPS much lower than nominal DPS
 - EXCESSIVE_OVERKILL issues
 
 **Cause:**
+
 - Too many high-damage towers
 - Towers stacked in one area
 - Zombies dying too quickly
 
 **Fix:**
+
 - Encourage tower diversity
 - Reduce single-target damage
 - Increase zombie HP
@@ -412,16 +447,19 @@ The `balanceAnalysis` object contains the core balance metrics and issue detecti
 ### Pattern 4: Economy Stagnation
 
 **Symptoms:**
+
 - DECLINING cash flow trend
 - Bankruptcy events
 - Low economy efficiency
 
 **Cause:**
+
 - Towers too expensive
 - Zombie rewards too low
 - Player spending too aggressively
 
 **Fix:**
+
 - Increase zombie rewards
 - Reduce tower costs
 - Add passive income sources
@@ -430,57 +468,65 @@ The `balanceAnalysis` object contains the core balance metrics and issue detecti
 
 ## Quick Reference: Ideal Metrics
 
-| Metric | Excellent | Good | Fair | Poor |
-|--------|-----------|------|------|------|
-| **Survival Rate** | 100% | 90-99% | 70-89% | <70% |
-| **Safety Margin** | >20% | 10-20% | 5-10% | <5% |
-| **Damage/Dollar** | >25 | 15-25 | 10-15 | <10 |
-| **Economy Efficiency** | >150% | 120-150% | 100-120% | <100% |
-| **Overkill %** | <5% | 5-10% | 10-15% | >15% |
-| **Mix Deviation** | <15% | 15-25% | 25-35% | >35% |
-| **Threat Score** | 0.9-1.1 | 0.8-1.2 | 0.7-1.3 | <0.7 or >1.3 |
-| **Break-Even Time** | 15-25s | 12-30s | 10-35s | <10s or >35s |
+| Metric                 | Excellent | Good     | Fair     | Poor         |
+| ---------------------- | --------- | -------- | -------- | ------------ |
+| **Survival Rate**      | 100%      | 90-99%   | 70-89%   | <70%         |
+| **Safety Margin**      | >20%      | 10-20%   | 5-10%    | <5%          |
+| **Damage/Dollar**      | >25       | 15-25    | 10-15    | <10          |
+| **Economy Efficiency** | >150%     | 120-150% | 100-120% | <100%        |
+| **Overkill %**         | <5%       | 5-10%    | 10-15%   | >15%         |
+| **Mix Deviation**      | <15%      | 15-25%   | 25-35%   | >35%         |
+| **Threat Score**       | 0.9-1.1   | 0.8-1.2  | 0.7-1.3  | <0.7 or >1.3 |
+| **Break-Even Time**    | 15-25s    | 12-30s   | 10-35s   | <10s or >35s |
 
 ---
 
 ## Step-by-Step Analysis Workflow
 
 ### Step 1: Check Overall Rating
+
 - Look at `overallBalanceRating`
 - If EXCELLENT/GOOD, game is balanced
 - If FAIR/POOR/CRITICAL, proceed to Step 2
 
 ### Step 2: Review Issues
+
 - Read all items in `issues` array
 - Focus on CRITICAL and HIGH severity first
 - Note recommendations for each issue
 
 ### Step 3: Analyze Wave Defense
+
 - Check `waveDefenseAnalysis` for negative margins
 - Identify waves where defense failed
 - Compare damageDealt vs damageRequired
 
 ### Step 4: Examine Tower Efficiency
+
 - Sort towers by `efficiencyScore`
 - Check for large gaps between towers
 - Review `breakEvenTime` for pricing issues
 
 ### Step 5: Validate Threat Scores
+
 - Look for `isBalanced: false` zombies
 - Check threatScore values
 - Identify over/under-rewarded zombie types
 
 ### Step 6: Compare Tower Mixes
+
 - Review `mixDeviation` percentage
 - Compare optimal vs actual composition
 - Identify suboptimal tower choices
 
 ### Step 7: Review Statistical Trends
+
 - Check `difficultyTrend` for scaling issues
 - Review `wavePredictions` for future challenges
 - Look for outliers indicating inconsistency
 
 ### Step 8: Visualize Dashboard Data
+
 - Plot key metrics over time
 - Look for sudden changes or spikes
 - Identify critical moments in gameplay
@@ -494,6 +540,7 @@ The `balanceAnalysis` object contains the core balance metrics and issue detecti
 **Overall Rating:** GOOD
 
 **Key Findings:**
+
 - ✅ No balance issues detected
 - ✅ All waves defended successfully
 - ✅ Safety margins positive throughout
@@ -502,6 +549,7 @@ The `balanceAnalysis` object contains the core balance metrics and issue detecti
 - ⚠️ Wave 18 had -4.5% safety margin (marginal)
 
 **Recommendations:**
+
 - Game is well-balanced overall
 - Consider slight DPS boost for wave 18+
 - Monitor late-game difficulty scaling
@@ -515,6 +563,7 @@ The `balanceAnalysis` object contains the core balance metrics and issue detecti
 **Overall Rating:** CRITICAL
 
 **Key Findings:**
+
 - ❌ WEAK_DEFENSE (0% survival rate)
 - ❌ INEFFICIENT_TOWERS (69.4 DPS vs 150+ needed)
 - ❌ EXCESSIVE_OVERKILL (15% wasted damage)
@@ -523,6 +572,7 @@ The `balanceAnalysis` object contains the core balance metrics and issue detecti
 - ❌ 42.8% tower mix deviation
 
 **Recommendations:**
+
 1. Increase starting money to allow more tower builds
 2. Reduce early tower costs
 3. Reduce zombie HP scaling in waves 5-8
@@ -538,6 +588,7 @@ The `balanceAnalysis` object contains the core balance metrics and issue detecti
 **Cause:** BalanceTrackingManager not enabled or integrated
 
 **Fix:**
+
 1. Check GameManager has BalanceTrackingManager instance
 2. Verify tracking is enabled: `balanceTrackingManager.enable()`
 3. Ensure tracking calls integrated in game systems
@@ -549,6 +600,7 @@ The `balanceAnalysis` object contains the core balance metrics and issue detecti
 **Cause:** Tracking methods not being called
 
 **Fix:**
+
 1. Integrate `trackDamage()` in combat system
 2. Integrate `trackEconomy()` in money system
 3. Integrate `trackWaveStart/Complete()` in wave manager
@@ -561,6 +613,7 @@ The `balanceAnalysis` object contains the core balance metrics and issue detecti
 **Cause:** Insufficient historical data or inconsistent difficulty
 
 **Fix:**
+
 1. Need at least 5 waves for reliable predictions
 2. Check `rSquared` value - low values indicate poor fit
 3. Review difficulty scaling for consistency
@@ -572,6 +625,7 @@ The `balanceAnalysis` object contains the core balance metrics and issue detecti
 **Cause:** Reward values not properly tuned
 
 **Fix:**
+
 1. Adjust zombie rewards to match difficulty
 2. Use formula: reward = (health × speed × avgCount) / 100
 3. Iterate based on threat score feedback
@@ -583,6 +637,7 @@ The `balanceAnalysis` object contains the core balance metrics and issue detecti
 ### Technique 1: Cross-Session Comparison
 
 Compare multiple reports to identify patterns:
+
 1. Collect 5-10 reports from different sessions
 2. Average key metrics across sessions
 3. Look for consistent issues
@@ -591,6 +646,7 @@ Compare multiple reports to identify patterns:
 ### Technique 2: Difficulty Curve Visualization
 
 Plot predicted difficulty over 30+ waves:
+
 1. Use `wavePredictions` data
 2. Graph predictedDifficulty vs wave number
 3. Check for exponential growth
@@ -599,6 +655,7 @@ Plot predicted difficulty over 30+ waves:
 ### Technique 3: Tower Meta Analysis
 
 Analyze which towers are most effective:
+
 1. Compare `efficiencyScore` across all reports
 2. Track which towers appear in `optimalTowerMix`
 3. Identify underused towers
@@ -607,6 +664,7 @@ Analyze which towers are most effective:
 ### Technique 4: Economy Flow Analysis
 
 Track money over time:
+
 1. Plot `moneyTimeline` data
 2. Identify bankruptcy events
 3. Check `netIncomePerWave` for negative values
@@ -628,6 +686,7 @@ Use this guide as a reference when analyzing reports. Over time, you'll develop 
 ---
 
 **Related Documentation:**
+
 - `BALANCE_ANALYSIS_GUIDE.md` - Comprehensive balance analysis overview
 - `BALANCE_CONFIG_REFERENCE.md` - Configuration thresholds and formulas
 - `BALANCE_ANALYSIS_EXAMPLES.md` - More example scenarios

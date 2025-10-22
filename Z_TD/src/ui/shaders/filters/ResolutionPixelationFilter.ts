@@ -8,7 +8,7 @@ export class ResolutionPixelationFilter extends Filter {
   private _pixelSize: number = 4;
 
   constructor(pixelSize = 4) {
-    super();
+    super({} as any);
     console.log('📐 ResolutionPixelationFilter: Creating filter');
     this._pixelSize = pixelSize;
     this.updateResolution();

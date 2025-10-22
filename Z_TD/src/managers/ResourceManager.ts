@@ -3,8 +3,6 @@ import { ResourceCost as ResourceCostType } from '../components/ResourceCost';
 
 export type ResourceCost = ResourceCostType;
 
-import { PathfindingManager, Waypoint } from './PathfindingManager';
-
 export class ResourceManager {
   private money: number;
   private resources: {

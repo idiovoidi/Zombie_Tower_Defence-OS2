@@ -17,6 +17,7 @@ Core performance profiling utility that provides:
 - **Console Logging**: Clear, formatted output with pass/fail indicators
 
 **Key Features**:
+
 - Configurable thresholds (default: 5ms)
 - Automatic pass/fail determination
 - Statistical summaries (avg, max, min execution times)
@@ -28,6 +29,7 @@ Core performance profiling utility that provides:
 Comprehensive test suite for balance analysis system:
 
 **Test Suites**:
+
 1. **BalanceAnalyzer Operations** - Tests all 9 mathematical functions
 2. **StatisticalAnalyzer Operations** - Tests all 4 statistical functions
 3. **Combined Analysis** - Real-world scenarios (real-time, wave-end, end-game)
@@ -35,6 +37,7 @@ Comprehensive test suite for balance analysis system:
 5. **Frame Rate Impact** - Measures FPS drop during continuous analysis
 
 **Console Functions**:
+
 - `runBalancePerformanceTests()` - Run all tests
 - `runFrameRateTest()` - Test frame rate impact
 
@@ -58,18 +61,19 @@ Added to `src/main.ts`:
 
 ```javascript
 // Load performance testing tools
-performanceTest()
+performanceTest();
 
 // Run tests
-runBalancePerformanceTests()
+runBalancePerformanceTests();
 
 // Test frame rate impact
-await runFrameRateTest()
+await runFrameRateTest();
 ```
 
 ### Automatic Monitoring
 
 The `BalanceTrackingManager` automatically:
+
 - Tracks analysis execution time
 - Logs warnings if > 5ms
 - Maintains performance statistics
@@ -81,16 +85,16 @@ The `BalanceTrackingManager` automatically:
 
 ```javascript
 // In browser console
-performanceTest()
-runBalancePerformanceTests()
+performanceTest();
+runBalancePerformanceTests();
 ```
 
 ### Frame Rate Test
 
 ```javascript
 // In browser console
-performanceTest()
-await runFrameRateTest()
+performanceTest();
+await runFrameRateTest();
 ```
 
 ### Get Performance Stats
@@ -104,13 +108,13 @@ console.log('Max:', stats.maxAnalysisTime.toFixed(3), 'ms');
 
 ## Performance Targets
 
-| Metric | Target | Good | Acceptable |
-|--------|--------|------|------------|
-| Single Operation | < 5ms | < 3ms | < 5ms |
-| Real-Time Analysis | < 5ms | < 3ms | < 5ms |
-| Wave-End Analysis | < 5ms | < 4ms | < 5ms |
-| End-Game Analysis | < 5ms | < 4ms | < 5ms |
-| FPS Impact | < 5% | < 2% | < 5% |
+| Metric             | Target | Good  | Acceptable |
+| ------------------ | ------ | ----- | ---------- |
+| Single Operation   | < 5ms  | < 3ms | < 5ms      |
+| Real-Time Analysis | < 5ms  | < 3ms | < 5ms      |
+| Wave-End Analysis  | < 5ms  | < 4ms | < 5ms      |
+| End-Game Analysis  | < 5ms  | < 4ms | < 5ms      |
+| FPS Impact         | < 5%   | < 2%  | < 5%       |
 
 ## Test Results Format
 
@@ -159,7 +163,7 @@ The system automatically logs warnings during gameplay:
 ✅ **Easy Access**: Simple console commands  
 ✅ **Detailed Reports**: Clear, actionable results  
 ✅ **Continuous Monitoring**: Automatic performance tracking  
-✅ **Documentation**: Complete testing guide  
+✅ **Documentation**: Complete testing guide
 
 ## Next Steps
 
@@ -171,6 +175,7 @@ The system automatically logs warnings during gameplay:
 ## Verification
 
 Task 13.2 Requirements:
+
 - ✅ Profile analysis execution time
 - ✅ Verify < 5ms per analysis
 - ✅ Verify no frame rate impact

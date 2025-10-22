@@ -27,7 +27,7 @@ export class VisualMapRenderer {
     console.log('🏕️ Callback stored, onCampClickCallback is now:', typeof this.onCampClickCallback);
   }
 
-  public renderMap(mapName: string): void {
+  public renderMap(_mapName: string): void {
     // Clear previous map
     this.mapContainer.clear();
     this.pathGraphics.clear();
@@ -492,7 +492,7 @@ export class VisualMapRenderer {
         if (Math.random() > 0.8) {
           const offsetX = (Math.random() - 0.5) * pathWidth * 0.4;
           const offsetY = (Math.random() - 0.5) * pathWidth * 0.4;
-          const angle = Math.random() * Math.PI * 2;
+          const _angle = Math.random() * Math.PI * 2;
           this.mapContainer.ellipse(x + offsetX, y + offsetY, 3, 5).fill({
             color: 0x3a2a1a,
             alpha: 0.2 + Math.random() * 0.2,
@@ -512,7 +512,7 @@ export class VisualMapRenderer {
     });
   }
 
-  private renderGraveyard(mapData: MapData): void {
+  private renderGraveyard(_mapData: MapData): void {
     const graveyardX = 20;
     const graveyardY = 250;
     const graveyardWidth = 140;
@@ -887,7 +887,7 @@ export class VisualMapRenderer {
     this.renderOpenGrave(graveyardX + 110, graveyardY + 160);
   }
 
-  private renderGravestone(x: number, y: number, type: string, tilt: number): void {
+  private renderGravestone(x: number, y: number, type: string, _tilt: number): void {
     const baseColor = 0x696969;
     const darkColor = 0x4a4a4a;
 
@@ -971,7 +971,7 @@ export class VisualMapRenderer {
     this.mapContainer.rect(x - 2, y + 6, 1, 4).fill(0xf5f5dc); // Finger
   }
 
-  private renderDestroyedHouses(mapData: MapData): void {
+  private renderDestroyedHouses(_mapData: MapData): void {
     // Render several destroyed houses at the top of the map with varied positions
     const houses = [
       { x: 120, y: 20, width: 70, height: 60, destroyed: 0.8 },
@@ -1450,7 +1450,7 @@ export class VisualMapRenderer {
     this.pathGraphics.stroke({ width: 1, color: 0x654321 });
 
     // Sandbag barriers - more organic placement
-    const drawSandbag = (x: number, y: number, rotation = 0) => {
+    const drawSandbag = (x: number, y: number, _rotation = 0) => {
       this.pathGraphics.roundRect(x, y, 12, 8, 2).fill(0x8b7355);
       this.pathGraphics.stroke({ width: 1, color: 0x654321 });
       // Texture lines
