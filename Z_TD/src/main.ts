@@ -494,6 +494,19 @@ import { ScaleManager } from './utils/ScaleManager';
     // Update camp upgrade panel money
     campUpgradePanel.setMoneyAvailable(gameManager.getMoney());
 
+    // Update tower shop affordability
+    towerShop.updateAffordability(gameManager.getMoney());
+
+    // Update tower placement affordability
+    const placementManager = gameManager.getTowerPlacementManager();
+    if (placementManager.isInPlacementMode()) {
+      const selectedType = towerShop.getSelectedTowerType();
+      if (selectedType) {
+        const cost = gameManager.getTowerManager().getTowerCost(selectedType);
+        placementManager.setCanAfford(gameManager.getMoney() >= cost);
+      }
+    }
+
     // Show next wave button when wave is complete
     if (gameManager.getCurrentState() === GameConfig.GAME_STATES.WAVE_COMPLETE) {
       hud.showNextWaveButton();
@@ -542,10 +555,10 @@ import { ScaleManager } from './utils/ScaleManager';
 
   // Expose wave balancing tools to console for testing
   if (DevConfig.DEBUG.ENABLED) {
-    (window as unknown).waveBalance = async () => {
+    (window as any).waveBalance = async () => {
       const { WaveBalancing, printWaveBalance } = await import('./config/waveBalancing');
-      (window as unknown).WaveBalancing = WaveBalancing;
-      (window as unknown).printWaveBalance = printWaveBalance;
+      (window as any).WaveBalancing = WaveBalancing;
+      (window as any).printWaveBalance = printWaveBalance;
       console.log('Wave balancing tools loaded!');
       console.log('Usage:');
       console.log('  printWaveBalance(1, 10) - Print balance report for waves 1-10');

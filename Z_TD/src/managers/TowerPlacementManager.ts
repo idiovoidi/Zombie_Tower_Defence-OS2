@@ -15,6 +15,7 @@ export class TowerPlacementManager {
   private selectedTower: Tower | null = null;
   private onTowerPlacedCallback: ((tower: Tower) => void) | null = null;
   private onTowerSelectedCallback: ((tower: Tower | null) => void) | null = null;
+  private canAffordTower: boolean = true;
 
   constructor(container: Container, towerManager: TowerManager, mapManager: MapManager) {
     this.container = container;
@@ -96,10 +97,18 @@ export class TowerPlacementManager {
     if (this.ghostTower && this.isPlacementMode) {
       this.ghostTower.position.set(x, y);
 
-      // Check if position is valid
-      const isValid = this.isValidPlacement(x, y);
-      this.ghostTower.tint = isValid ? 0xffffff : 0xff0000;
+      // Check if position is valid and if player can afford
+      const isValidPosition = this.isValidPlacement(x, y);
+      const canPlace = isValidPosition && this.canAffordTower;
+      
+      // Red if can't place (either invalid position or can't afford), white if can place
+      this.ghostTower.tint = canPlace ? 0xffffff : 0xff0000;
     }
+  }
+
+  // Set whether the player can afford the current tower
+  public setCanAfford(canAfford: boolean): void {
+    this.canAffordTower = canAfford;
   }
 
   // Check if placement position is valid

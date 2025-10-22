@@ -254,10 +254,11 @@ export class TowerShop extends UIComponent {
     led.alpha = 0.5;
     button.addChild(led);
 
-    // Store references for hover effects
+    // Store references for hover effects and affordability updates
     (button as any).bgGraphics = concreteBg;
     (button as any).frame = frame;
     (button as any).led = led;
+    (button as any).costText = cost;
 
     // Hover effects
     button.on('pointerover', () => {
@@ -520,5 +521,43 @@ export class TowerShop extends UIComponent {
 
   public update(_deltaTime: number): void {
     // Update logic if needed
+  }
+
+  // Update button affordability based on current money
+  public updateAffordability(currentMoney: number): void {
+    this.towerButtons.forEach((button, type) => {
+      const stats = this.towerManager.getTowerStats(type);
+      if (!stats) {
+        return;
+      }
+
+      const canAfford = currentMoney >= stats.cost;
+      const led = (button as any).led;
+      const costText = (button as unknown).costText;
+
+      if (canAfford) {
+        // Can afford - normal appearance
+        button.alpha = 1.0;
+        button.eventMode = 'static';
+        button.cursor = 'pointer';
+        if (led) {
+          led.tint = 0x00ff00; // Green LED
+        }
+        if (costText) {
+          costText.style.fill = 0x00ff00; // Green cost
+        }
+      } else {
+        // Cannot afford - grayed out
+        button.alpha = 0.6;
+        button.eventMode = 'none';
+        button.cursor = 'not-allowed';
+        if (led) {
+          led.tint = 0xff0000; // Red LED
+        }
+        if (costText) {
+          costText.style.fill = 0xff0000; // Red cost
+        }
+      }
+    });
   }
 }
