@@ -1,5 +1,6 @@
 import { Container, Graphics } from 'pixi.js';
 import { Zombie } from './Zombie';
+import { type TowerType } from '../config/zombieResistances';
 
 export class Projectile extends Container {
   private visual: Graphics;
@@ -111,8 +112,13 @@ export class Projectile extends Container {
 
     // Apply damage to target if it still exists
     if (this.target && this.target.parent) {
+      // Apply damage modifier based on zombie type
+      const towerType = this.towerType as TowerType;
+      const modifier = this.target.getDamageModifier(towerType);
+      const modifiedDamage = this.damage * modifier;
+
       const healthBefore = this.target.getHealth();
-      this.target.takeDamage(this.damage);
+      this.target.takeDamage(modifiedDamage);
       const healthAfter = this.target.getHealth();
       const actualDamage = healthBefore - healthAfter;
       const killed = healthAfter <= 0;

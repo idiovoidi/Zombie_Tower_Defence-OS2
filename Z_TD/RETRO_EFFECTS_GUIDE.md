@@ -9,6 +9,7 @@ Your game now has multiple options for retro visual effects using PixiJS v8. Her
 **File:** `src/ui/shaders/filters/SimpleRetroFilter.ts`
 
 This is a working, tested filter that provides:
+
 - **Pixelation effect** - Makes the game look like old pixel art
 - **Scanlines** - Horizontal lines like old CRT monitors
 - **Subtle flicker** - Slight screen flicker for authenticity
@@ -20,9 +21,9 @@ import { SimpleRetroFilter } from './ui/shaders/filters/SimpleRetroFilter';
 
 // Create the filter
 const retroFilter = new SimpleRetroFilter({
-  pixelSize: 3,              // Size of pixels (1 = no pixelation, 4 = chunky)
-  scanlineIntensity: 0.3,    // Scanline darkness (0 = none, 1 = very dark)
-  enabled: true
+  pixelSize: 3, // Size of pixels (1 = no pixelation, 4 = chunky)
+  scanlineIntensity: 0.3, // Scanline darkness (0 = none, 1 = very dark)
+  enabled: true,
 });
 
 // Apply to your game
@@ -33,6 +34,7 @@ retroFilter.updateTime(deltaTime);
 ```
 
 ### How to Enable:
+
 Open the **Shader Test Panel** (🎨 button in top-left) and click the **"Retro"** button
 
 ## Option 2: RetroEffects Utility (Easy to Use) ✅
@@ -56,7 +58,7 @@ retroEffects.enable({
   pixelSize: 4,
   scanlines: true,
   scanlineIntensity: 0.4,
-  colorMode: 'greenscreen'  // 'normal', 'sepia', 'desaturate', 'greenscreen'
+  colorMode: 'greenscreen', // 'normal', 'sepia', 'desaturate', 'greenscreen'
 });
 
 // Update in game loop
@@ -86,13 +88,13 @@ import { ColorMatrixFilter, NoiseFilter } from 'pixi.js';
 
 // Retro color effect
 const colorFilter = new ColorMatrixFilter();
-colorFilter.desaturate(0.3);  // Slight desaturation
-colorFilter.contrast(1.2);     // Increase contrast
+colorFilter.desaturate(0.3); // Slight desaturation
+colorFilter.contrast(1.2); // Increase contrast
 
 // Add some noise for grain
 const noiseFilter = new NoiseFilter({
   noise: 0.1,
-  seed: Math.random()
+  seed: Math.random(),
 });
 
 app.stage.filters = [colorFilter, noiseFilter];
@@ -112,38 +114,42 @@ The game is already set up with **Option 1 (SimpleRetroFilter)** integrated into
 ## Customization Examples
 
 ### Subtle Retro Look
+
 ```typescript
 retroEffects.enable({
   pixelSize: 2,
   scanlineIntensity: 0.2,
-  colorMode: 'normal'
+  colorMode: 'normal',
 });
 ```
 
 ### Heavy Pixelation
+
 ```typescript
 retroEffects.enable({
   pixelSize: 6,
   scanlineIntensity: 0.5,
-  colorMode: 'desaturate'
+  colorMode: 'desaturate',
 });
 ```
 
 ### Old Terminal Look
+
 ```typescript
 retroEffects.enable({
   pixelSize: 3,
   scanlineIntensity: 0.4,
-  colorMode: 'greenscreen'
+  colorMode: 'greenscreen',
 });
 ```
 
 ### Gameboy-style
+
 ```typescript
 retroEffects.enable({
   pixelSize: 4,
   scanlineIntensity: 0.1,
-  colorMode: 'greenscreen'
+  colorMode: 'greenscreen',
 });
 ```
 
@@ -157,19 +163,24 @@ retroEffects.enable({
 ## Troubleshooting
 
 ### Effects not showing?
+
 1. Make sure you're calling `retroEffects.update(deltaTime)` in your game loop
 2. Check that filters are applied: `console.log(app.stage.filters)`
 3. Try toggling with Ctrl+R
 
 ### Effects too strong?
+
 Adjust the intensity:
+
 ```typescript
-retroEffects.setPixelSize(2);           // Less pixelation
+retroEffects.setPixelSize(2); // Less pixelation
 retroEffects.setScanlineIntensity(0.1); // Lighter scanlines
 ```
 
 ### Want different effects?
+
 You can combine multiple filters:
+
 ```typescript
 import { BlurFilter, ColorMatrixFilter } from 'pixi.js';
 

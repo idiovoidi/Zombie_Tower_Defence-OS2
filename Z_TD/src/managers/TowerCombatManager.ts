@@ -2,6 +2,7 @@ import { Tower } from '../objects/Tower';
 import { Zombie } from '../objects/Zombie';
 import { ProjectileManager } from './ProjectileManager';
 import { Graphics } from 'pixi.js';
+import { type TowerType } from '../config/zombieResistances';
 
 export class TowerCombatManager {
   private towers: Tower[] = [];
@@ -183,9 +184,14 @@ export class TowerCombatManager {
     target: Zombie,
     damage: number
   ): void {
+    // Apply damage modifier based on zombie type
+    const towerType = tower.getType() as TowerType;
+    const modifier = target.getDamageModifier(towerType);
+    const modifiedDamage = damage * modifier;
+
     // Apply damage instantly
     const healthBefore = target.getHealth();
-    target.takeDamage(damage);
+    target.takeDamage(modifiedDamage);
     const healthAfter = target.getHealth();
     const actualDamage = healthBefore - healthAfter;
     const killed = healthAfter <= 0;
@@ -287,9 +293,14 @@ export class TowerCombatManager {
     target: Zombie,
     damage: number
   ): void {
+    // Apply damage modifier based on zombie type
+    const towerType = tower.getType() as TowerType;
+    const modifier = target.getDamageModifier(towerType);
+    const modifiedDamage = damage * modifier;
+
     // Apply damage instantly
     const healthBefore = target.getHealth();
-    target.takeDamage(damage);
+    target.takeDamage(modifiedDamage);
     const healthAfter = target.getHealth();
     const actualDamage = healthBefore - healthAfter;
     const killed = healthAfter <= 0;

@@ -5,15 +5,19 @@
 Your current approach has a fundamental issue:
 
 **Current Method:**
+
 ```
 Full Resolution Render → Sample at Lower Resolution → Display at Full Resolution
 ```
+
 **Result:** Blurry, soft pixelation (not true pixel art)
 
 **What You Need:**
+
 ```
 Render at Lower Resolution → Scale Up with NO SMOOTHING → Display
 ```
+
 **Result:** Sharp, blocky pixels (true pixel art)
 
 ---
@@ -32,6 +36,7 @@ Texture.defaultOptions.scaleMode = 'nearest';
 ```
 
 **What this does:**
+
 - Disables texture smoothing/interpolation
 - Makes all textures render with sharp pixels
 - No blur when scaling
@@ -53,17 +58,21 @@ const retroFilter = new SimpleRetroFilter({
 ## Why This Works
 
 ### Without Nearest-Neighbor (Current):
+
 ```
 Pixel → [Smooth Interpolation] → Blurry Pixel
 ```
+
 - PixiJS smooths between pixels
 - Creates gradients and blur
 - Looks soft and muddy
 
 ### With Nearest-Neighbor (Fixed):
+
 ```
 Pixel → [No Interpolation] → Sharp Pixel
 ```
+
 - PixiJS uses exact pixel values
 - No smoothing or blending
 - Looks crisp and blocky
@@ -85,12 +94,14 @@ console.log('🎮 Pixel-perfect mode enabled');
 ```
 
 **Pros:**
+
 - One line of code
 - Works immediately
 - No performance cost
 - Works with existing shaders
 
 **Cons:**
+
 - Affects ALL textures (including UI)
 - Can't toggle on/off easily
 
@@ -109,11 +120,13 @@ PixelPerfectMode.disable();
 ```
 
 **Pros:**
+
 - Easy to toggle
 - Clean API
 - Can enable/disable anytime
 
 **Cons:**
+
 - Still affects all textures
 
 ### Option C: Per-Texture Control
@@ -129,10 +142,12 @@ uiSprite.texture.source.scaleMode = 'linear';
 ```
 
 **Pros:**
+
 - Full control
 - Can mix pixel art and smooth UI
 
 **Cons:**
+
 - More code
 - Need to set for each texture
 
@@ -151,14 +166,15 @@ Texture.defaultOptions.scaleMode = 'nearest';
 
 // Then use your SimpleRetroFilter
 const retroFilter = new SimpleRetroFilter({
-  pixelSize: 3,              // Moderate pixelation
-  scanlineIntensity: 0.2,    // Light scanlines
+  pixelSize: 3, // Moderate pixelation
+  scanlineIntensity: 0.2, // Light scanlines
 });
 
 app.stage.filters = [retroFilter];
 ```
 
 **Result:**
+
 - Sharp, blocky pixels (true pixel art)
 - Subtle scanlines for CRT feel
 - Adjustable pixelation amount
@@ -168,6 +184,7 @@ app.stage.filters = [retroFilter];
 ## Visual Comparison
 
 ### Before (Current):
+
 ```
 🔲 Blurry pixelation
 🔲 Soft edges
@@ -176,6 +193,7 @@ app.stage.filters = [retroFilter];
 ```
 
 ### After (With Nearest-Neighbor):
+
 ```
 ✅ Sharp pixels
 ✅ Hard edges
@@ -190,15 +208,19 @@ app.stage.filters = [retroFilter];
 Once you have nearest-neighbor enabled, you can add:
 
 ### 1. Color Palette Reduction
+
 Limit colors to specific palette (Game Boy, NES, etc.)
 
 ### 2. Dithering
+
 Add ordered dithering for texture without gradients
 
 ### 3. Scanlines
+
 Your existing scanline effect (already have this)
 
 ### 4. CRT Curvature
+
 Bend the screen edges for CRT monitor look
 
 ---
@@ -206,11 +228,13 @@ Bend the screen edges for CRT monitor look
 ## Performance Notes
 
 **Nearest-Neighbor Filtering:**
+
 - ⚡ **Faster** than linear filtering
 - Less GPU work (no interpolation)
 - Better performance overall
 
 **Your Current Shader:**
+
 - Works fine with nearest-neighbor
 - No performance change needed
 
@@ -235,6 +259,7 @@ You should immediately see sharper, more pixelated graphics!
 ## What To Do Next
 
 1. **Add one line** to `main.ts`:
+
    ```typescript
    Texture.defaultOptions.scaleMode = 'nearest';
    ```
@@ -246,6 +271,7 @@ You should immediately see sharper, more pixelated graphics!
 4. **Optional:** Add to Shader Test Panel as a toggle
 
 Would you like me to:
+
 1. Add this to your main.ts file?
 2. Create a toggle in the Shader Test Panel?
 3. Create additional style effects (dithering, palette reduction)?
