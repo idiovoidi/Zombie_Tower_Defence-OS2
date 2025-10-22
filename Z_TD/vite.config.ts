@@ -3,6 +3,7 @@ import { resolve } from 'path';
 
 // https://vite.dev/config/
 export default defineConfig({
+  base: process.env.NODE_ENV === 'production' ? '/z-td/' : '/',
   server: {
     port: 8080,
     open: false, // Disabled to prevent duplicate instances when debugging
