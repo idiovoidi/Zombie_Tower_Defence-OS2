@@ -26,7 +26,7 @@ export const TowerConstants = {
 
   // Sniper Tower - High single-target damage, armor-piercing
   SNIPER: {
-    cost: 500,
+    cost: 900,
     damage: 150,
     range: 400,
     fireRate: 1, // 1 shot per second
@@ -34,19 +34,19 @@ export const TowerConstants = {
     upgradeCostMultiplier: 0.75,
   } as TowerStats,
 
-  // Shotgun Tower - Multiple target hits, good crowd control
+  // Shotgun Tower - Short range area denial, shoots in all directions
   SHOTGUN: {
-    cost: 800,
-    damage: 40,
-    range: 100,
-    fireRate: 3, // 3 shots per second
-    specialAbility: 'Multiple target hits, good crowd control',
+    cost: 400,
+    damage: 60, // Higher damage per shot since it's split among many pellets
+    range: 120, // Short range
+    fireRate: 0.8, // Slower fire rate (0.8 shots per second = ~1.25s between shots)
+    specialAbility: 'Shoots in all 4 directions with spread, excellent area denial',
     upgradeCostMultiplier: 0.75,
   } as TowerStats,
 
   // Flame Tower - Area damage over time, burning effect
   FLAME: {
-    cost: 600,
+    cost: 750,
     damage: 200,
     range: 120,
     fireRate: 0.75, // 0.75 shots per second (one shot every ~1.3 seconds)

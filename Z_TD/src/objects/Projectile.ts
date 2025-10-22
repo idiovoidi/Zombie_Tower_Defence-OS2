@@ -15,6 +15,7 @@ export class Projectile extends Container {
   private onDamageCallback:
     | ((damage: number, towerType: string, killed: boolean, overkill: number) => void)
     | null = null;
+  private zombies: Zombie[] = [];
 
   constructor(
     x: number,
@@ -73,6 +74,10 @@ export class Projectile extends Container {
     }
   }
 
+  public setZombies(zombies: Zombie[]): void {
+    this.zombies = zombies;
+  }
+
   public update(deltaTime: number): void {
     if (!this.isActive) {
       return;
@@ -82,6 +87,16 @@ export class Projectile extends Container {
     if (this.target && this.target.parent) {
       this.targetX = this.target.position.x;
       this.targetY = this.target.position.y;
+    }
+
+    // Check for collision with any zombie if no specific target (for shotgun pellets)
+    if (!this.target) {
+      const hitZombie = this.checkZombieCollision();
+      if (hitZombie) {
+        this.target = hitZombie;
+        this.onHitTarget();
+        return;
+      }
     }
 
     // Calculate direction to target
@@ -105,6 +120,26 @@ export class Projectile extends Container {
 
     // Rotate projectile to face direction of travel
     this.rotation = Math.atan2(dy, dx);
+  }
+
+  private checkZombieCollision(): Zombie | null {
+    const hitRadius = 15; // Collision detection radius
+
+    for (const zombie of this.zombies) {
+      if (!zombie.parent) {
+        continue;
+      }
+
+      const dx = zombie.position.x - this.position.x;
+      const dy = zombie.position.y - this.position.y;
+      const distance = Math.sqrt(dx * dx + dy * dy);
+
+      if (distance < hitRadius) {
+        return zombie;
+      }
+    }
+
+    return null;
   }
 
   private onHitTarget(): void {

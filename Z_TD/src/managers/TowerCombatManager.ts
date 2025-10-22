@@ -22,6 +22,10 @@ export class TowerCombatManager {
 
   public setZombies(zombies: Zombie[]): void {
     this.zombies = zombies;
+    // Also update projectile manager with zombie list for collision detection
+    if (this.projectileManager) {
+      this.projectileManager.setZombies(zombies);
+    }
   }
 
   public setOnDamageCallback(
@@ -139,24 +143,35 @@ export class TowerCombatManager {
         break;
     }
 
-    // For shotgun, create multiple projectiles
+    // For shotgun, create a cone of pellets towards the target
     if (projectileType === 'shotgun') {
-      const spreadAngles = [-0.2, 0, 0.2]; // 3 pellets with spread
-      for (const angleOffset of spreadAngles) {
-        const angle = Math.atan2(target.position.y - spawnPos.y, target.position.x - spawnPos.x);
-        const adjustedAngle = angle + angleOffset;
-        const targetX = spawnPos.x + Math.cos(adjustedAngle) * 1000;
-        const targetY = spawnPos.y + Math.sin(adjustedAngle) * 1000;
+      // Calculate angle towards target
+      const baseAngle = Math.atan2(target.position.y - spawnPos.y, target.position.x - spawnPos.x);
+
+      // Shotgun parameters
+      const pelletCount = 7; // Number of pellets in the cone
+      const coneSpread = 0.6; // Total cone spread in radians (~34 degrees)
+      const shotgunRange = tower.getRange(); // Use tower's actual range
+      const damagePerPellet = damage / pelletCount;
+
+      for (let i = 0; i < pelletCount; i++) {
+        // Spread pellets in a cone pattern
+        const offset = (i - (pelletCount - 1) / 2) * (coneSpread / (pelletCount - 1));
+        const adjustedAngle = baseAngle + offset;
+
+        // Calculate target point at shotgun range
+        const targetX = spawnPos.x + Math.cos(adjustedAngle) * shotgunRange;
+        const targetY = spawnPos.y + Math.sin(adjustedAngle) * shotgunRange;
 
         const projectile = this.projectileManager.createProjectile(
           spawnPos.x,
           spawnPos.y,
           targetX,
           targetY,
-          damage / 3, // Split damage among pellets
+          damagePerPellet,
           speed,
           projectileType,
-          target
+          null // No specific target - pellets hit whatever they encounter
         );
         projectile.setTowerType(tower.getType());
         if (this.onDamageCallback) {

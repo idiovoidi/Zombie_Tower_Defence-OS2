@@ -5,9 +5,14 @@ import { Zombie } from '../objects/Zombie';
 export class ProjectileManager {
   private projectiles: Projectile[] = [];
   private container: Container;
+  private zombies: Zombie[] = [];
 
   constructor(container: Container) {
     this.container = container;
+  }
+
+  public setZombies(zombies: Zombie[]): void {
+    this.zombies = zombies;
   }
 
   public createProjectile(
@@ -30,6 +35,7 @@ export class ProjectileManager {
       projectileType,
       target
     );
+    projectile.setZombies(this.zombies); // Pass zombie list for collision detection
     this.projectiles.push(projectile);
     this.container.addChild(projectile);
     return projectile;
