@@ -18,6 +18,7 @@ import { StatsPanel } from './ui/StatsPanel';
 import { MoneyAnimation } from './ui/MoneyAnimation';
 import { LogExporter } from './utils/LogExporter';
 import { GameConfig } from './config/gameConfig';
+import { InputManager } from './managers/InputManager';
 import { DebugUtils } from './utils/DebugUtils';
 import { DevConfig } from './config/devConfig';
 import { DebugConstants } from './config/debugConstants';
@@ -44,9 +45,27 @@ import { ScaleManager } from './utils/ScaleManager';
 
   // Create scale manager for responsive scaling
   const scaleManager = new ScaleManager(app);
-
+  
   // Create game manager
   const gameManager = new GameManager(app);
+  
+  // Create input manager for robust input handling
+  const inputManager = new InputManager(app, scaleManager);
+  
+  // Add debug info to console
+  console.log('🎮 Game initialized:', scaleManager.getDebugInfo());
+  
+  // Enable debug mode by default to investigate the issue
+  inputManager.setDebugMode(true);
+  
+  // Add keyboard shortcut to toggle debug mode (Ctrl+D)
+  window.addEventListener('keydown', (event) => {
+    if (event.key.toLowerCase() === 'd' && event.ctrlKey) {
+      const currentDebug = !inputManager['debugMode'];
+      inputManager.setDebugMode(currentDebug);
+      console.log(`🔧 Debug mode ${currentDebug ? 'enabled' : 'disabled'}:`, scaleManager.getDebugInfo());
+    }
+  });
 
   // Create money animation system
   const moneyAnimation = new MoneyAnimation(app.stage);
@@ -312,10 +331,8 @@ import { ScaleManager } from './utils/ScaleManager';
     }
   });
 
-  // Set up map click for tower placement
-  app.stage.eventMode = 'static';
-  app.stage.hitArea = app.screen;
-  app.stage.on('pointerdown', (event: FederatedPointerEvent) => {
+  // Set up input handling using InputManager
+  inputManager.onPointerDown((coords, event) => {
     // Check if event was already handled by a child (like camp click area)
     if (event.defaultPrevented) {
       return;
@@ -325,9 +342,8 @@ import { ScaleManager } from './utils/ScaleManager';
       const placementManager = gameManager.getTowerPlacementManager();
 
       if (placementManager.isInPlacementMode()) {
-        // Convert screen coordinates to game coordinates
-        const gamePos = scaleManager.screenToGame(event.global.x, event.global.y);
-        const pos = { x: gamePos.x, y: gamePos.y };
+        // Use game coordinates from InputManager
+        const pos = coords.game;
 
         // Check if player has enough money before placing
         const selectedType = towerShop.getSelectedTowerType();
@@ -353,19 +369,18 @@ import { ScaleManager } from './utils/ScaleManager';
   });
 
   // Track mouse movement for ghost tower
-  app.stage.on('pointermove', (event: FederatedPointerEvent) => {
+  inputManager.onPointerMove((coords, event) => {
     if (gameManager.getCurrentState() === GameConfig.GAME_STATES.PLAYING) {
       const placementManager = gameManager.getTowerPlacementManager();
       if (placementManager.isInPlacementMode()) {
-        // Convert screen coordinates to game coordinates
-        const gamePos = scaleManager.screenToGame(event.global.x, event.global.y);
-        placementManager.updateGhostPosition(gamePos.x, gamePos.y);
+        // Use game coordinates from InputManager
+        placementManager.updateGhostPosition(coords.game.x, coords.game.y);
       }
     }
   });
 
-  // Cancel placement on right click or ESC
-  app.stage.on('rightdown', () => {
+  // Cancel placement on right click
+  inputManager.onRightClick((coords, event) => {
     const placementManager = gameManager.getTowerPlacementManager();
     if (placementManager.isInPlacementMode()) {
       placementManager.cancelPlacement();
@@ -522,10 +537,10 @@ import { ScaleManager } from './utils/ScaleManager';
 
   // Expose wave balancing tools to console for testing
   if (DevConfig.DEBUG.ENABLED) {
-    (window as any).waveBalance = async () => {
+    (window as unknown).waveBalance = async () => {
       const { WaveBalancing, printWaveBalance } = await import('./config/waveBalancing');
-      (window as any).WaveBalancing = WaveBalancing;
-      (window as any).printWaveBalance = printWaveBalance;
+      (window as unknown).WaveBalancing = WaveBalancing;
+      (window as unknown).printWaveBalance = printWaveBalance;
       console.log('Wave balancing tools loaded!');
       console.log('Usage:');
       console.log('  printWaveBalance(1, 10) - Print balance report for waves 1-10');

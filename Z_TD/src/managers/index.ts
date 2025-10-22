@@ -1,5 +1,6 @@
 export { CampUpgradeManager } from './CampUpgradeManager';
 export { GameManager } from './GameManager';
+export { InputManager } from './InputManager';
 export { LevelManager } from './LevelManager';
 export { MapManager } from './MapManager';
 export { ParticleManager } from './ParticleManager';
