@@ -3,7 +3,7 @@
   "version": "0.0.0",
   "private": true,
   "type": "module",
-  "homepage": "https://idiovoidi.github.io/z-td",
+  "homepage": "https://idiovoidi.github.io/Zombie_Tower_Defenced-OS2/Z_TD",
   "scripts": {
     "start": "npm run dev",
     "dev": "vite",
