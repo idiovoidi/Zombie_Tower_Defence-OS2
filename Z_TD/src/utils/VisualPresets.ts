@@ -53,9 +53,6 @@ export class VisualPresets {
     this.clear();
 
     switch (presetName) {
-      case 'neon':
-        this.applyNeonPreset();
-        break;
       case 'cinematic':
         this.applyCinematicPreset();
         break;
@@ -65,8 +62,8 @@ export class VisualPresets {
       case 'horror':
         this.applyHorrorPreset();
         break;
-      case 'dreamy':
-        this.applyDreamyPreset();
+      case 'dark-mode':
+        this.applyDarkModePreset();
         break;
       case 'glitch':
         this.applyGlitchPreset();
@@ -186,6 +183,24 @@ export class VisualPresets {
     this.activeFilters = [color, vignette, chromatic];
     this.container.filters = this.activeFilters;
     console.log('👻 Horror preset applied');
+  }
+
+  /**
+   * Dark Mode - Mild horror effect with better readability
+   */
+  private applyDarkModePreset(): void {
+    const color = new ColorMatrixFilter();
+    // Less desaturation for better color clarity
+    color.desaturate();
+    color.saturate(0.7, false); // Bring back some color
+    color.contrast(1.15, false); // Less contrast for readability
+
+    // Lighter vignette for less darkness
+    const vignette = new VignetteFilter({ intensity: 0.5, radius: 0.75 });
+
+    this.activeFilters = [color, vignette];
+    this.container.filters = this.activeFilters;
+    console.log('🌙 Dark Mode preset applied (mild, readable)');
   }
 
   /**

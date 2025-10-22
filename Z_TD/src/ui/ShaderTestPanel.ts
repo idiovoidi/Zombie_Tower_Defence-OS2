@@ -156,14 +156,13 @@ export class ShaderTestPanel extends UIComponent {
     yPos += 25;
 
     const presetButtons = [
-      { name: 'Neon', color: 0x00ffff, desc: 'Bright bloom + contrast' },
       { name: 'Cinematic', color: 0x8b7355, desc: 'Vignette + film grain' },
-      { name: 'Retro-Arcade', color: 0xff6600, desc: 'Pixels + scanlines + bloom' },
+      { name: 'Retro-Arcade', color: 0xff6600, desc: 'Pixels + scanlines' },
       { name: 'Horror', color: 0x4a0e4e, desc: 'Dark + chromatic aberration' },
-      { name: 'Dreamy', color: 0xffb6c1, desc: 'Soft bloom + saturation' },
+      { name: 'Dark-Mode', color: 0x2d2d44, desc: 'Mild dark theme, readable' },
       { name: 'Glitch', color: 0xff0088, desc: 'RGB split + noise' },
       { name: 'Oil-Painting', color: 0xd4a574, desc: 'Artistic painterly effect' },
-      { name: 'Comic-Book', color: 0xff3333, desc: 'Edge detection + contrast' },
+      { name: 'Comic-Book', color: 0xff3333, desc: 'Edge detection' },
       { name: 'Psychedelic', color: 0xff00ff, desc: 'Color shift + bloom' },
       { name: 'Underwater', color: 0x0088ff, desc: 'Wave distortion + blue tint' },
       { name: 'Kaleidoscope', color: 0xaa00ff, desc: 'Mirror effect + bloom' },
@@ -289,11 +288,10 @@ export class ShaderTestPanel extends UIComponent {
 
     // Check if it's a preset first
     const presets = [
-      'Neon',
       'Cinematic',
       'Retro-Arcade',
       'Horror',
-      'Dreamy',
+      'Dark-Mode',
       'Glitch',
       'Oil-Painting',
       'Comic-Book',
