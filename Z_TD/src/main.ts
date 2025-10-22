@@ -1,4 +1,4 @@
-import { Application, FederatedPointerEvent } from 'pixi.js';
+import { Application, FederatedPointerEvent, Texture } from 'pixi.js';
 import { GameManager } from './managers/GameManager';
 import { CampUpgradeManager } from './managers/CampUpgradeManager';
 import { UIManager } from './ui/UIManager';
@@ -43,6 +43,18 @@ import { ScaleManager } from './utils/ScaleManager';
   // Append the application canvas to the document body
   document.getElementById('pixi-container')?.appendChild(app.canvas);
 
+  // Enable pixel-perfect rendering (nearest-neighbor filtering)
+  // This makes textures render with sharp pixels instead of smooth/blurry
+  // Note: In PixiJS v8, this is set per-texture or via TextureSource
+  console.log('🎮 Pixel-perfect mode: Use PixelArtRenderer for true pixel art');
+
+  // Create pixel art renderer (optional - for true low-res rendering)
+  const { PixelArtRenderer } = await import('./utils/PixelArtRenderer');
+  const pixelArtRenderer = new PixelArtRenderer(app, app.stage);
+  
+  // Uncomment to enable pixel art rendering (renders at lower resolution)
+  // pixelArtRenderer.enable(3); // 3x scale = 1/3 resolution
+
   // Create scale manager for responsive scaling
   const scaleManager = new ScaleManager(app);
   
@@ -55,8 +67,9 @@ import { ScaleManager } from './utils/ScaleManager';
   // Add debug info to console
   console.log('🎮 Game initialized:', scaleManager.getDebugInfo());
   
-  // Add keyboard shortcut to toggle debug mode (Ctrl+D)
+  // Add keyboard shortcuts
   window.addEventListener('keydown', (event) => {
+    // Toggle debug mode (Ctrl+D)
     if (event.key.toLowerCase() === 'd' && event.ctrlKey) {
       const currentDebug = !inputManager['debugMode'];
       inputManager.setDebugMode(currentDebug);
@@ -132,6 +145,7 @@ import { ScaleManager } from './utils/ScaleManager';
   // Set game manager and stage reference for applying filters
   shaderTestPanel.setGameManager(gameManager);
   shaderTestPanel.setGameStage(app.stage);
+  shaderTestPanel.setPixelArtRenderer(pixelArtRenderer);
   if (DebugConstants.ENABLED) {
     shaderTestPanel.show();
   } else {
@@ -515,6 +529,11 @@ import { ScaleManager } from './utils/ScaleManager';
       hud.hideNextWaveButton();
       bottomBar.hideNextWaveButton();
     }
+
+    // Render with pixel art renderer if enabled
+    if (pixelArtRenderer.isEnabled()) {
+      pixelArtRenderer.render();
+    }
   });
 
   DebugUtils.info('Game initialized successfully');
@@ -558,7 +577,7 @@ import { ScaleManager } from './utils/ScaleManager';
     (window as any).waveBalance = async () => {
       const { WaveBalancing, printWaveBalance } = await import('./config/waveBalancing');
       (window as any).WaveBalancing = WaveBalancing;
-      (window as any).printWaveBalance = printWaveBalance;
+      (window as unknown).printWaveBalance = printWaveBalance;
       console.log('Wave balancing tools loaded!');
       console.log('Usage:');
       console.log('  printWaveBalance(1, 10) - Print balance report for waves 1-10');

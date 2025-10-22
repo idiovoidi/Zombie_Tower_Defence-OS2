@@ -1,40 +1,19 @@
 import { UIComponent } from './UIComponent';
 import { ColorMatrixFilter, Container, Graphics, Text } from 'pixi.js';
-import { CRTFilter } from './shaders/filters/CRTFilter';
-import { PixelationFilter } from './shaders/filters/PixelationFilter';
-import { TestFilter } from './shaders/filters/TestFilter';
-import { SimpleTestFilter } from './shaders/filters/SimpleTestFilter';
-import { DirectTestFilter } from './shaders/filters/DirectTestFilter';
-import { WorkingPixelationFilter } from './shaders/filters/WorkingPixelationFilter';
-import { SimplePixelationFilter } from './shaders/filters/SimplePixelationFilter';
-import { VerboseDebugFilter } from './shaders/filters/VerboseDebugFilter';
-import { ResolutionPixelationFilter } from './shaders/filters/ResolutionPixelationFilter';
-import { WorkingResolutionPixelFilter } from './shaders/filters/WorkingResolutionPixelFilter';
-import { AlternativePixelationFilter } from './shaders/filters/AlternativePixelationFilter';
-import { EnhancedPixelationFilter } from './shaders/filters/EnhancedPixelationFilter';
-import { BaseRetroFilter } from './shaders/filters/BaseRetroFilter';
+import { SimpleRetroFilter } from './shaders/filters/SimpleRetroFilter';
+import { VisualPresets } from '../utils/VisualPresets';
 
 export class ShaderTestPanel extends UIComponent {
   private background!: Graphics;
   private contentContainer!: Container;
   private isExpanded: boolean = false;
   private toggleButton!: Container;
-  private currentFilter:
-    | BaseRetroFilter
-    | DirectTestFilter
-    | WorkingPixelationFilter
-    | SimplePixelationFilter
-    | VerboseDebugFilter
-    | ResolutionPixelationFilter
-    | WorkingResolutionPixelFilter
-    | AlternativePixelationFilter
-    | EnhancedPixelationFilter
-    | ColorMatrixFilter
-    | null = null;
+  private currentFilter: ColorMatrixFilter | SimpleRetroFilter | null = null;
   private gameStage: Container | null = null;
   private gameManager: unknown = null;
   private sliders: Map<string, Container> = new Map();
   private settingTexts: Map<string, Text> = new Map();
+  private pixelArtRenderer: unknown = null;
 
   constructor() {
     super();
@@ -47,6 +26,10 @@ export class ShaderTestPanel extends UIComponent {
 
   public setGameManager(gameManager: unknown): void {
     this.gameManager = gameManager;
+  }
+
+  public setPixelArtRenderer(renderer: unknown): void {
+    this.pixelArtRenderer = renderer;
   }
 
   private createPanel(): void {
@@ -136,14 +119,76 @@ export class ShaderTestPanel extends UIComponent {
 
     let yPos = panelTop + 65;
 
-    // Shader selection buttons
+    // Pixel Art Renderer Toggle
+    const pixelArtTitle = new Text({
+      text: 'True Pixel Art (Low-Res Rendering):',
+      style: {
+        fontFamily: 'Arial',
+        fontSize: 12,
+        fill: 0xffcc00,
+        fontWeight: 'bold',
+      },
+    });
+    pixelArtTitle.position.set(panelLeft + 15, yPos);
+    this.contentContainer.addChild(pixelArtTitle);
+    yPos += 20;
+
+    const pixelArtToggle = this.createPixelArtToggle();
+    pixelArtToggle.position.set(panelLeft + 15, yPos);
+    this.contentContainer.addChild(pixelArtToggle);
+    yPos += 45;
+
+    // Visual Presets (layered effects)
+    const presetTitle = new Text({
+      text: 'Visual Presets (Layered):',
+      style: {
+        fontFamily: 'Arial',
+        fontSize: 14,
+        fill: 0xffcc00,
+        fontWeight: 'bold',
+      },
+    });
+    presetTitle.position.set(panelLeft + 15, yPos);
+    this.contentContainer.addChild(presetTitle);
+    yPos += 25;
+
+    const presetButtons = [
+      { name: 'Neon', color: 0x00ffff, desc: 'Bright bloom + contrast' },
+      { name: 'Cinematic', color: 0x8b7355, desc: 'Vignette + film grain' },
+      { name: 'Retro-Arcade', color: 0xff6600, desc: 'Pixels + scanlines + bloom' },
+      { name: 'Horror', color: 0x4a0e4e, desc: 'Dark + chromatic aberration' },
+      { name: 'Dreamy', color: 0xffb6c1, desc: 'Soft bloom + saturation' },
+      { name: 'Glitch', color: 0xff0088, desc: 'RGB split + noise' },
+    ];
+
+    presetButtons.forEach((preset, index) => {
+      const button = this.createShaderButton(preset.name, preset.color);
+      button.position.set(panelLeft + 15 + (index % 3) * 110, yPos + Math.floor(index / 3) * 40);
+      this.contentContainer.addChild(button);
+    });
+    yPos += 100;
+
+    // Single Effect Buttons
+    const singleTitle = new Text({
+      text: 'Single Effects:',
+      style: {
+        fontFamily: 'Arial',
+        fontSize: 14,
+        fill: 0xffcc00,
+        fontWeight: 'bold',
+      },
+    });
+    singleTitle.position.set(panelLeft + 15, yPos);
+    this.contentContainer.addChild(singleTitle);
+    yPos += 25;
+
     const shaderButtons = [
       { name: 'None', color: 0x666666 },
-      { name: 'Pixel', color: 0x00ff88 },
-      { name: 'ResPixel', color: 0x00aa88 },
-      { name: 'Enhanced', color: 0xffaa00 },
-      { name: 'AltPixel', color: 0xaa0088 },
-      { name: 'Built-in', color: 0x00ffff },
+      { name: 'Retro', color: 0xff6600 },
+      { name: 'Sepia', color: 0xaa8844 },
+      { name: 'Grayscale', color: 0x888888 },
+      { name: 'Invert', color: 0xff00ff },
+      { name: 'Contrast', color: 0xffaa00 },
     ];
 
     const buttonSectionTitle = new Text({
@@ -270,60 +315,47 @@ export class ShaderTestPanel extends UIComponent {
     // Clear existing sliders
     this.clearSliders();
 
+    // Check if it's a preset first
+    const presets = ['Neon', 'Cinematic', 'Retro-Arcade', 'Horror', 'Dreamy', 'Glitch'];
+    if (presets.includes(shaderName)) {
+      console.log(`🎨 Applying preset: ${shaderName}`);
+      if (this.gameStage) {
+        const visualPresets = new VisualPresets(this.gameStage);
+        visualPresets.applyPreset(shaderName.toLowerCase().replace('-', '-'));
+      }
+      this.clearSliders();
+      return;
+    }
+
     // Apply new shader
     switch (shaderName) {
-      case 'Built-in':
-        console.log('🌈 Creating Built-in ColorMatrix filter');
+      case 'Retro':
+        console.log('🎮 Creating Simple Retro filter (Recommended)');
+        this.currentFilter = new SimpleRetroFilter({
+          pixelSize: 3,
+          scanlineIntensity: 0.3,
+          enabled: true,
+        });
+        break;
+      case 'Sepia':
+        console.log('📜 Creating Sepia filter');
         this.currentFilter = new ColorMatrixFilter();
-        (this.currentFilter as ColorMatrixFilter).tint(0xff0000);
+        (this.currentFilter as ColorMatrixFilter).sepia(true);
         break;
-      case 'Pixel':
-        console.log('🎯 Creating Working Resolution Pixel filter');
-        this.currentFilter = new WorkingResolutionPixelFilter();
+      case 'Grayscale':
+        console.log('⚫ Creating Grayscale filter');
+        this.currentFilter = new ColorMatrixFilter();
+        (this.currentFilter as ColorMatrixFilter).desaturate();
         break;
-      case 'ResPixel':
-        console.log('📐 Creating Resolution Pixelation filter');
-        this.currentFilter = new ResolutionPixelationFilter();
+      case 'Invert':
+        console.log('🔄 Creating Invert filter');
+        this.currentFilter = new ColorMatrixFilter();
+        (this.currentFilter as ColorMatrixFilter).negative(true);
         break;
-      case 'Enhanced':
-        console.log('✨ Creating Enhanced Pixelation filter');
-        this.currentFilter = new EnhancedPixelationFilter();
-        break;
-      case 'AltPixel':
-        console.log('🎨 Creating Alternative Pixelation filter');
-        this.currentFilter = new AlternativePixelationFilter();
-        break;
-      case 'Verbose':
-        console.log('🔍 Creating Verbose Debug filter');
-        this.currentFilter = new VerboseDebugFilter();
-        break;
-      case 'Direct':
-        console.log('🔥 Creating Direct test filter');
-        this.currentFilter = new DirectTestFilter();
-        break;
-      case 'EasyPixel':
-        console.log('🟦 Creating Simple Pixelation filter');
-        this.currentFilter = new SimplePixelationFilter();
-        break;
-      case 'Simple':
-        console.log('🟢 Creating Simple test filter');
-        this.currentFilter = new SimpleTestFilter();
-        break;
-      case 'Test':
-        console.log('🔴 Creating Test filter');
-        this.currentFilter = new TestFilter();
-        break;
-      case 'CRT':
-        console.log('🖥️ Creating CRT filter');
-        this.currentFilter = new CRTFilter();
-        break;
-      case 'Pixelation':
-        console.log('🔲 Creating Pixelation filter');
-        this.currentFilter = new PixelationFilter();
-        // Set resolution for pixelation filter
-        if (this.gameStage && this.currentFilter instanceof PixelationFilter) {
-          this.currentFilter.setResolution(1280, 768);
-        }
+      case 'Contrast':
+        console.log('🔆 Creating Contrast filter');
+        this.currentFilter = new ColorMatrixFilter();
+        (this.currentFilter as ColorMatrixFilter).contrast(1.5, true);
         break;
       case 'None':
       default:
@@ -348,22 +380,15 @@ export class ShaderTestPanel extends UIComponent {
     }
 
     // Create sliders for the selected shader
-    if (this.currentFilter && this.currentFilter instanceof BaseRetroFilter) {
-      console.log('🎛️ Creating sliders for shader');
-      this.createSlidersForShader(this.currentFilter);
-    } else if (this.currentFilter instanceof WorkingPixelationFilter) {
-      console.log('🎛️ Creating slider for pixelation filter');
-      this.createPixelationSlider(this.currentFilter);
-    } else if (
-      this.currentFilter instanceof ResolutionPixelationFilter ||
-      this.currentFilter instanceof WorkingResolutionPixelFilter ||
-      this.currentFilter instanceof AlternativePixelationFilter ||
-      this.currentFilter instanceof EnhancedPixelationFilter
-    ) {
-      console.log('🎛️ Creating slider for built-in pixelation filter');
-      this.createBuiltInPixelationSlider(this.currentFilter);
+    if (this.currentFilter instanceof SimpleRetroFilter) {
+      console.log('🎛️ Creating sliders for Simple Retro filter');
+      this.createSimpleRetroSliders(this.currentFilter);
+    } else if (this.currentFilter instanceof ColorMatrixFilter) {
+      console.log('🎛️ Color filter applied (no sliders needed)');
+      this.clearSliders();
     } else if (this.currentFilter) {
-      console.log('🎛️ Direct filter applied (no sliders)');
+      console.log('🎛️ Filter applied (no sliders)');
+      this.clearSliders();
     }
   }
 
@@ -562,6 +587,141 @@ export class ShaderTestPanel extends UIComponent {
       if (sliderElement) {
         const handle = sliderElement.children[1]; // Handle is second child
         const normalizedValue = (4.0 - 1) / (20 - 1);
+        handle.position.x = normalizedValue * 280;
+      }
+    });
+    resetButton.position.set(15, yPos + 10);
+    this.contentContainer.addChild(resetButton);
+  }
+
+  private createSimpleRetroSliders(filter: SimpleRetroFilter): void {
+    let yPos = 180; // Start position for sliders
+
+    // Clear existing sliders first
+    this.clearSliders();
+
+    // Pixel Size slider
+    this.createRetroSlider(
+      'Pixel Size',
+      'pixelSize',
+      filter.pixelSize,
+      1,
+      8,
+      'Size of pixels for retro pixelation effect',
+      yPos,
+      (value: number) => {
+        filter.pixelSize = value;
+      },
+      () => {
+        filter.pixelSize = 3;
+      }
+    );
+
+    yPos += 90;
+
+    // Scanline Intensity slider
+    this.createRetroSlider(
+      'Scanline Intensity',
+      'scanlineIntensity',
+      filter.scanlineIntensity,
+      0,
+      1,
+      'Intensity of CRT-style horizontal scanlines',
+      yPos,
+      (value: number) => {
+        filter.scanlineIntensity = value;
+      },
+      () => {
+        filter.scanlineIntensity = 0.3;
+      }
+    );
+  }
+
+  private createRetroSlider(
+    labelText: string,
+    key: string,
+    initialValue: number,
+    min: number,
+    max: number,
+    description: string,
+    yPos: number,
+    onChange: (value: number) => void,
+    onReset: () => void
+  ): void {
+    // Label
+    const label = new Text({
+      text: `${labelText}:`,
+      style: {
+        fontFamily: 'Arial',
+        fontSize: 12,
+        fill: 0xcccccc,
+        fontWeight: 'bold',
+      },
+    });
+    label.position.set(15, yPos);
+    this.contentContainer.addChild(label);
+    this.settingTexts.set(`${key}_label`, label);
+
+    // Value display
+    const valueText = new Text({
+      text: initialValue.toFixed(2),
+      style: {
+        fontFamily: 'Courier New, monospace',
+        fontSize: 11,
+        fill: 0x00ff00,
+      },
+    });
+    valueText.position.set(320, yPos);
+    this.contentContainer.addChild(valueText);
+    this.settingTexts.set(`${key}_value`, valueText);
+
+    yPos += 20;
+
+    // Description
+    const desc = new Text({
+      text: description,
+      style: {
+        fontFamily: 'Arial',
+        fontSize: 9,
+        fill: 0x888888,
+        fontStyle: 'italic',
+        wordWrap: true,
+        wordWrapWidth: 340,
+      },
+    });
+    desc.position.set(25, yPos);
+    this.contentContainer.addChild(desc);
+    this.settingTexts.set(`${key}_desc`, desc);
+
+    yPos += 15;
+
+    // Create slider
+    const slider = this.createSlider(key, initialValue, min, max, (value: number) => {
+      onChange(value);
+      const valueDisplay = this.settingTexts.get(`${key}_value`);
+      if (valueDisplay) {
+        valueDisplay.text = value.toFixed(2);
+      }
+    });
+
+    slider.position.set(25, yPos);
+    this.contentContainer.addChild(slider);
+    this.sliders.set(key, slider);
+
+    yPos += 35;
+
+    // Reset button
+    const resetButton = this.createResetButton(() => {
+      onReset();
+      const defaultValue = key === 'pixelSize' ? 3 : 0.3;
+      const valueDisplay = this.settingTexts.get(`${key}_value`);
+      if (valueDisplay) {
+        valueDisplay.text = defaultValue.toFixed(2);
+      }
+      const sliderElement = this.sliders.get(key);
+      if (sliderElement) {
+        const handle = sliderElement.children[1];
+        const normalizedValue = (defaultValue - min) / (max - min);
         handle.position.x = normalizedValue * 280;
       }
     });
@@ -793,5 +953,78 @@ export class ShaderTestPanel extends UIComponent {
       }
     }
     super.destroy();
+  }
+
+  private createPixelArtToggle(): Container {
+    const container = new Container();
+
+    // Toggle button
+    const button = new Container();
+    button.eventMode = 'static';
+    button.cursor = 'pointer';
+
+    const bg = new Graphics();
+    bg.roundRect(0, 0, 120, 30, 5).fill({ color: 0x2a2a2a, alpha: 0.9 });
+    bg.stroke({ width: 2, color: 0x666666 });
+    button.addChild(bg);
+
+    const buttonText = new Text({
+      text: 'Enable (3x)',
+      style: {
+        fontFamily: 'Arial',
+        fontSize: 12,
+        fill: 0xcccccc,
+        fontWeight: 'bold',
+      },
+    });
+    buttonText.anchor.set(0.5);
+    buttonText.position.set(60, 15);
+    button.addChild(buttonText);
+
+    let isEnabled = false;
+
+    button.on('pointerdown', () => {
+      if (!this.pixelArtRenderer) {
+        console.warn('⚠️ Pixel Art Renderer not available');
+        return;
+      }
+
+      isEnabled = !isEnabled;
+
+      if (isEnabled) {
+        (this.pixelArtRenderer as any).enable(3);
+        buttonText.text = 'Disable';
+        buttonText.style.fill = 0x00ff00;
+        bg.clear();
+        bg.roundRect(0, 0, 120, 30, 5).fill({ color: 0x2a4a2a, alpha: 0.9 });
+        bg.stroke({ width: 2, color: 0x00ff00 });
+      } else {
+        (this.pixelArtRenderer as any).disable();
+        buttonText.text = 'Enable (3x)';
+        buttonText.style.fill = 0xcccccc;
+        bg.clear();
+        bg.roundRect(0, 0, 120, 30, 5).fill({ color: 0x2a2a2a, alpha: 0.9 });
+        bg.stroke({ width: 2, color: 0x666666 });
+      }
+    });
+
+    container.addChild(button);
+
+    // Info text
+    const infoText = new Text({
+      text: 'Renders at 1/3 resolution for true pixel art',
+      style: {
+        fontFamily: 'Arial',
+        fontSize: 9,
+        fill: 0x888888,
+        fontStyle: 'italic',
+        wordWrap: true,
+        wordWrapWidth: 340,
+      },
+    });
+    infoText.position.set(130, 8);
+    container.addChild(infoText);
+
+    return container;
   }
 }
