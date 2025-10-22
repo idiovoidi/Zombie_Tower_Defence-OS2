@@ -6,6 +6,7 @@ import { ITower } from './Tower.interface';
 import { GameConfig } from '../config/gameConfig';
 import { TowerRangeVisualizer } from '../utils/TowerRangeVisualizer';
 import { TowerManager } from '../managers/TowerManager';
+import { BarrelHeatGlow } from '../effects/BarrelHeatGlow';
 
 export class Tower extends GameObject implements ITower {
   private type: string;
@@ -27,6 +28,10 @@ export class Tower extends GameObject implements ITower {
   private idleScanDirection: number = 1; // 1 for right, -1 for left
   private idleScanAngle: number = 0;
   private lastShootTime: number = 0;
+
+  // Machine gun effects
+  private barrelHeatGlow: BarrelHeatGlow | null = null;
+  private effectManager: Container | null = null; // Reference to effect manager container
 
   constructor(type: string, x: number, y: number) {
     super();
@@ -53,6 +58,11 @@ export class Tower extends GameObject implements ITower {
 
     // Initialize tower stats
     this.initializeStats();
+
+    // Initialize machine gun effects if this is a machine gun tower
+    if (this.type === GameConfig.TOWER_TYPES.MACHINE_GUN) {
+      this.barrelHeatGlow = new BarrelHeatGlow(this.barrel);
+    }
   }
 
   private initializeStats(): void {
@@ -100,6 +110,11 @@ export class Tower extends GameObject implements ITower {
 
     // Update idle animation
     this.updateIdleAnimation(deltaTime);
+
+    // Update barrel heat glow for machine gun
+    if (this.barrelHeatGlow) {
+      this.barrelHeatGlow.update(deltaTime);
+    }
   }
 
   private updateIdleAnimation(deltaTime: number): void {
@@ -224,6 +239,11 @@ export class Tower extends GameObject implements ITower {
     this.barrel.x = 0;
     this.barrel.y = 0;
 
+    // Add heat to machine gun barrel
+    if (this.barrelHeatGlow) {
+      this.barrelHeatGlow.addHeat();
+    }
+
     // Shooting logic is handled by showShootingEffect()
   }
 
@@ -238,7 +258,20 @@ export class Tower extends GameObject implements ITower {
         // Gun tip is at -10 + gunLength = -2 to +3 depending on upgrade
         const mgGunLength = 8 + this.upgradeLevel;
         const mgGunTip = -10 + mgGunLength;
-        flash.circle(0, mgGunTip, 4).fill(0xffff00);
+
+        // Enhanced muzzle flash - more realistic and subtle
+        // Bright white core
+        flash.circle(0, mgGunTip, 3).fill({ color: 0xffffff, alpha: 0.9 });
+        // Yellow-orange glow
+        flash.circle(0, mgGunTip, 5).fill({ color: 0xffcc00, alpha: 0.6 });
+        // Outer orange fade
+        flash.circle(0, mgGunTip, 7).fill({ color: 0xff9933, alpha: 0.3 });
+
+        // Spawn shell casing effect
+        this.spawnShellCasing();
+
+        // Spawn muzzle flash light effect
+        this.spawnMuzzleFlashLight(mgGunTip);
         break;
       }
       case GameConfig.TOWER_TYPES.SNIPER: {
@@ -1132,5 +1165,114 @@ export class Tower extends GameObject implements ITower {
       }
       delete (this as unknown).selectionHighlight;
     }
+  }
+
+  /**
+   * Set the effect manager container for spawning effects
+   */
+  public setEffectManager(container: Container): void {
+    this.effectManager = container;
+  }
+
+  /**
+   * Spawn a shell casing effect (Machine Gun)
+   */
+  private spawnShellCasing(): void {
+    if (!this.effectManager) {
+      return;
+    }
+
+    // Calculate ejection position (right side of gun)
+    const ejectX = this.x + Math.cos(this.barrel.rotation + Math.PI / 2) * 5;
+    const ejectY = this.y + Math.sin(this.barrel.rotation + Math.PI / 2) * 5;
+
+    // Calculate ejection angle (perpendicular to barrel, slightly upward)
+    const ejectAngle = this.barrel.rotation + Math.PI / 2 - 0.3;
+
+    // Import and spawn shell casing
+    import('../effects/ShellCasing')
+      .then(({ ShellCasing }) => {
+        if (!this.effectManager) {
+          return;
+        }
+        const casing = new ShellCasing(ejectX, ejectY, ejectAngle);
+        this.effectManager.addChild(casing);
+
+        // Store reference for cleanup
+        if (!(this as any).shellCasings) {
+          (this as any).shellCasings = [];
+        }
+        (this as any).shellCasings.push(casing);
+      })
+      .catch(() => {
+        // Silently fail if import fails
+      });
+  }
+
+  /**
+   * Spawn a muzzle flash light effect (Machine Gun)
+   */
+  private spawnMuzzleFlashLight(gunTipOffset: number): void {
+    if (!this.effectManager) {
+      return;
+    }
+
+    // Calculate world position of gun tip
+    const tipX = this.x + Math.cos(this.barrel.rotation) * gunTipOffset;
+    const tipY = this.y + Math.sin(this.barrel.rotation) * gunTipOffset;
+
+    // Import and spawn muzzle flash light
+    import('../effects/MuzzleFlashLight')
+      .then(({ MuzzleFlashLight }) => {
+        if (!this.effectManager) {
+          return;
+        }
+        const flash = new MuzzleFlashLight(tipX, tipY, 30);
+        this.effectManager.addChild(flash);
+
+        // Store reference for cleanup
+        if (!(this as any).muzzleFlashes) {
+          (this as any).muzzleFlashes = [];
+        }
+        (this as any).muzzleFlashes.push(flash);
+      })
+      .catch(() => {
+        // Silently fail if import fails
+      });
+  }
+
+  /**
+   * Clean up effects when tower is destroyed
+   */
+  public override destroy(): void {
+    // Clean up barrel heat glow
+    if (this.barrelHeatGlow) {
+      this.barrelHeatGlow.destroy();
+      this.barrelHeatGlow = null;
+    }
+
+    // Clean up shell casings
+    if ((this as any).shellCasings) {
+      for (const casing of (this as any).shellCasings) {
+        if (casing && !casing.destroyed && casing.parent) {
+          casing.parent.removeChild(casing);
+          casing.destroy();
+        }
+      }
+      delete (this as any).shellCasings;
+    }
+
+    // Clean up muzzle flashes
+    if ((this as any).muzzleFlashes) {
+      for (const flash of (this as any).muzzleFlashes) {
+        if (flash && !flash.destroyed && flash.parent) {
+          flash.parent.removeChild(flash);
+          flash.destroy();
+        }
+      }
+      delete (this as any).muzzleFlashes;
+    }
+
+    super.destroy();
   }
 }
