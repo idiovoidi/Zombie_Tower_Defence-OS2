@@ -1270,7 +1270,7 @@ export class Tower extends GameObject implements ITower {
           flash.destroy();
         }
       }
-      delete (this as any).muzzleFlashes;
+      delete (this as unknown).muzzleFlashes;
     }
 
     super.destroy();
