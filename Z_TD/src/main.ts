@@ -51,29 +51,32 @@ import { ScaleManager } from './utils/ScaleManager';
   // Create pixel art renderer (optional - for true low-res rendering)
   const { PixelArtRenderer } = await import('./utils/PixelArtRenderer');
   const pixelArtRenderer = new PixelArtRenderer(app, app.stage);
-  
+
   // Uncomment to enable pixel art rendering (renders at lower resolution)
   // pixelArtRenderer.enable(3); // 3x scale = 1/3 resolution
 
   // Create scale manager for responsive scaling
   const scaleManager = new ScaleManager(app);
-  
+
   // Create game manager
   const gameManager = new GameManager(app);
-  
+
   // Create input manager for robust input handling
   const inputManager = new InputManager(app, scaleManager);
-  
+
   // Add debug info to console
   console.log('🎮 Game initialized:', scaleManager.getDebugInfo());
-  
+
   // Add keyboard shortcuts
-  window.addEventListener('keydown', (event) => {
+  window.addEventListener('keydown', event => {
     // Toggle debug mode (Ctrl+D)
     if (event.key.toLowerCase() === 'd' && event.ctrlKey) {
       const currentDebug = !inputManager['debugMode'];
       inputManager.setDebugMode(currentDebug);
-      console.log(`🔧 Debug mode ${currentDebug ? 'enabled' : 'disabled'}:`, scaleManager.getDebugInfo());
+      console.log(
+        `🔧 Debug mode ${currentDebug ? 'enabled' : 'disabled'}:`,
+        scaleManager.getDebugInfo()
+      );
     }
   });
 

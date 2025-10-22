@@ -331,3 +331,465 @@ export class FilmGrainFilter extends Filter {
     this.resources.grainUniforms.uniforms.uTime += deltaTime * 0.001;
   }
 }
+
+/**
+ * Oil Painting effect - Artistic painterly look
+ */
+export class OilPaintingFilter extends Filter {
+  constructor(options: { radius?: number; intensity?: number } = {}) {
+    const radius = options.radius ?? 4.0;
+    const intensity = options.intensity ?? 10.0;
+
+    const vertex = `
+      in vec2 aPosition;
+      out vec2 vTextureCoord;
+
+      uniform vec4 uInputSize;
+      uniform vec4 uOutputFrame;
+      uniform vec4 uOutputTexture;
+
+      vec4 filterVertexPosition(void) {
+        vec2 position = aPosition * uOutputFrame.zw + uOutputFrame.xy;
+        position.x = position.x * (2.0 / uOutputTexture.x) - 1.0;
+        position.y = position.y * (2.0 * uOutputTexture.z / uOutputTexture.y) - uOutputTexture.z;
+        return vec4(position, 0.0, 1.0);
+      }
+
+      vec2 filterTextureCoord(void) {
+        return aPosition * (uOutputFrame.zw * uInputSize.zw);
+      }
+
+      void main(void) {
+        gl_Position = filterVertexPosition();
+        vTextureCoord = filterTextureCoord();
+      }
+    `;
+
+    const fragment = `
+      in vec2 vTextureCoord;
+      uniform sampler2D uTexture;
+      uniform float uRadius;
+      uniform float uIntensity;
+      uniform vec4 uInputSize;
+
+      out vec4 finalColor;
+
+      void main(void) {
+        vec2 src_size = uInputSize.xy;
+        vec2 uv = vTextureCoord;
+        float n = float((uRadius + 1.0) * (uRadius + 1.0));
+        
+        vec3 m[4];
+        vec3 s[4];
+        for (int k = 0; k < 4; ++k) {
+          m[k] = vec3(0.0);
+          s[k] = vec3(0.0);
+        }
+        
+        for (float j = -uRadius; j <= 0.0; ++j) {
+          for (float i = -uRadius; i <= 0.0; ++i) {
+            vec3 c = texture(uTexture, uv + vec2(i, j) / src_size).rgb;
+            m[0] += c;
+            s[0] += c * c;
+          }
+        }
+        
+        for (float j = -uRadius; j <= 0.0; ++j) {
+          for (float i = 0.0; i <= uRadius; ++i) {
+            vec3 c = texture(uTexture, uv + vec2(i, j) / src_size).rgb;
+            m[1] += c;
+            s[1] += c * c;
+          }
+        }
+        
+        for (float j = 0.0; j <= uRadius; ++j) {
+          for (float i = 0.0; i <= uRadius; ++i) {
+            vec3 c = texture(uTexture, uv + vec2(i, j) / src_size).rgb;
+            m[2] += c;
+            s[2] += c * c;
+          }
+        }
+        
+        for (float j = 0.0; j <= uRadius; ++j) {
+          for (float i = -uRadius; i <= 0.0; ++i) {
+            vec3 c = texture(uTexture, uv + vec2(i, j) / src_size).rgb;
+            m[3] += c;
+            s[3] += c * c;
+          }
+        }
+        
+        float min_sigma2 = 1e+2;
+        for (int k = 0; k < 4; ++k) {
+          m[k] /= n;
+          s[k] = abs(s[k] / n - m[k] * m[k]);
+          
+          float sigma2 = s[k].r + s[k].g + s[k].b;
+          if (sigma2 < min_sigma2) {
+            min_sigma2 = sigma2;
+            finalColor = vec4(m[k], 1.0);
+          }
+        }
+      }
+    `;
+
+    const gpuProgram = GlProgram.from({ vertex, fragment, name: 'oil-painting-filter' });
+
+    super({
+      glProgram: gpuProgram,
+      resources: {
+        oilUniforms: {
+          uRadius: { value: radius, type: 'f32' },
+          uIntensity: { value: intensity, type: 'f32' },
+        },
+      },
+    });
+  }
+
+  set radius(value: number) {
+    this.resources.oilUniforms.uniforms.uRadius = value;
+  }
+
+  get radius(): number {
+    return this.resources.oilUniforms.uniforms.uRadius;
+  }
+}
+
+/**
+ * Edge Detection - Outlines/cel-shading style
+ */
+export class EdgeDetectionFilter extends Filter {
+  constructor(options: { thickness?: number; threshold?: number } = {}) {
+    const thickness = options.thickness ?? 1.0;
+    const threshold = options.threshold ?? 0.2;
+
+    const vertex = `
+      in vec2 aPosition;
+      out vec2 vTextureCoord;
+
+      uniform vec4 uInputSize;
+      uniform vec4 uOutputFrame;
+      uniform vec4 uOutputTexture;
+
+      vec4 filterVertexPosition(void) {
+        vec2 position = aPosition * uOutputFrame.zw + uOutputFrame.xy;
+        position.x = position.x * (2.0 / uOutputTexture.x) - 1.0;
+        position.y = position.y * (2.0 * uOutputTexture.z / uOutputTexture.y) - uOutputTexture.z;
+        return vec4(position, 0.0, 1.0);
+      }
+
+      vec2 filterTextureCoord(void) {
+        return aPosition * (uOutputFrame.zw * uInputSize.zw);
+      }
+
+      void main(void) {
+        gl_Position = filterVertexPosition();
+        vTextureCoord = filterTextureCoord();
+      }
+    `;
+
+    const fragment = `
+      in vec2 vTextureCoord;
+      uniform sampler2D uTexture;
+      uniform float uThickness;
+      uniform float uThreshold;
+      uniform vec4 uInputSize;
+
+      out vec4 finalColor;
+
+      void main(void) {
+        vec2 texel = uThickness / uInputSize.xy;
+        
+        // Sobel edge detection
+        float tl = length(texture(uTexture, vTextureCoord + vec2(-texel.x, texel.y)).rgb);
+        float t  = length(texture(uTexture, vTextureCoord + vec2(0.0, texel.y)).rgb);
+        float tr = length(texture(uTexture, vTextureCoord + vec2(texel.x, texel.y)).rgb);
+        float l  = length(texture(uTexture, vTextureCoord + vec2(-texel.x, 0.0)).rgb);
+        float r  = length(texture(uTexture, vTextureCoord + vec2(texel.x, 0.0)).rgb);
+        float bl = length(texture(uTexture, vTextureCoord + vec2(-texel.x, -texel.y)).rgb);
+        float b  = length(texture(uTexture, vTextureCoord + vec2(0.0, -texel.y)).rgb);
+        float br = length(texture(uTexture, vTextureCoord + vec2(texel.x, -texel.y)).rgb);
+        
+        float gx = -tl - 2.0 * l - bl + tr + 2.0 * r + br;
+        float gy = -tl - 2.0 * t - tr + bl + 2.0 * b + br;
+        
+        float edge = length(vec2(gx, gy));
+        
+        vec4 color = texture(uTexture, vTextureCoord);
+        
+        if (edge > uThreshold) {
+          finalColor = vec4(0.0, 0.0, 0.0, color.a);
+        } else {
+          finalColor = color;
+        }
+      }
+    `;
+
+    const gpuProgram = GlProgram.from({ vertex, fragment, name: 'edge-detection-filter' });
+
+    super({
+      glProgram: gpuProgram,
+      resources: {
+        edgeUniforms: {
+          uThickness: { value: thickness, type: 'f32' },
+          uThreshold: { value: threshold, type: 'f32' },
+        },
+      },
+    });
+  }
+
+  set thickness(value: number) {
+    this.resources.edgeUniforms.uniforms.uThickness = value;
+  }
+
+  get thickness(): number {
+    return this.resources.edgeUniforms.uniforms.uThickness;
+  }
+}
+
+/**
+ * Kaleidoscope - Trippy mirror effect
+ */
+export class KaleidoscopeFilter extends Filter {
+  constructor(options: { segments?: number; angle?: number } = {}) {
+    const segments = options.segments ?? 6.0;
+    const angle = options.angle ?? 0.0;
+
+    const vertex = `
+      in vec2 aPosition;
+      out vec2 vTextureCoord;
+
+      uniform vec4 uInputSize;
+      uniform vec4 uOutputFrame;
+      uniform vec4 uOutputTexture;
+
+      vec4 filterVertexPosition(void) {
+        vec2 position = aPosition * uOutputFrame.zw + uOutputFrame.xy;
+        position.x = position.x * (2.0 / uOutputTexture.x) - 1.0;
+        position.y = position.y * (2.0 * uOutputTexture.z / uOutputTexture.y) - uOutputTexture.z;
+        return vec4(position, 0.0, 1.0);
+      }
+
+      vec2 filterTextureCoord(void) {
+        return aPosition * (uOutputFrame.zw * uInputSize.zw);
+      }
+
+      void main(void) {
+        gl_Position = filterVertexPosition();
+        vTextureCoord = filterTextureCoord();
+      }
+    `;
+
+    const fragment = `
+      in vec2 vTextureCoord;
+      uniform sampler2D uTexture;
+      uniform float uSegments;
+      uniform float uAngle;
+
+      out vec4 finalColor;
+
+      void main(void) {
+        vec2 uv = vTextureCoord - 0.5;
+        
+        float r = length(uv);
+        float a = atan(uv.y, uv.x) + uAngle;
+        
+        float tau = 6.28318530718;
+        a = mod(a, tau / uSegments);
+        a = abs(a - tau / uSegments / 2.0);
+        
+        uv = vec2(cos(a), sin(a)) * r + 0.5;
+        
+        finalColor = texture(uTexture, uv);
+      }
+    `;
+
+    const gpuProgram = GlProgram.from({ vertex, fragment, name: 'kaleidoscope-filter' });
+
+    super({
+      glProgram: gpuProgram,
+      resources: {
+        kaleidoscopeUniforms: {
+          uSegments: { value: segments, type: 'f32' },
+          uAngle: { value: angle, type: 'f32' },
+        },
+      },
+    });
+  }
+
+  set segments(value: number) {
+    this.resources.kaleidoscopeUniforms.uniforms.uSegments = value;
+  }
+
+  get segments(): number {
+    return this.resources.kaleidoscopeUniforms.uniforms.uSegments;
+  }
+
+  updateAngle(deltaTime: number): void {
+    this.resources.kaleidoscopeUniforms.uniforms.uAngle += deltaTime * 0.001;
+  }
+}
+
+/**
+ * Wave Distortion - Wavy water-like effect
+ */
+export class WaveDistortionFilter extends Filter {
+  constructor(options: { amplitude?: number; frequency?: number; speed?: number } = {}) {
+    const amplitude = options.amplitude ?? 0.02;
+    const frequency = options.frequency ?? 10.0;
+    const _speed = options.speed ?? 2.0;
+
+    const vertex = `
+      in vec2 aPosition;
+      out vec2 vTextureCoord;
+
+      uniform vec4 uInputSize;
+      uniform vec4 uOutputFrame;
+      uniform vec4 uOutputTexture;
+
+      vec4 filterVertexPosition(void) {
+        vec2 position = aPosition * uOutputFrame.zw + uOutputFrame.xy;
+        position.x = position.x * (2.0 / uOutputTexture.x) - 1.0;
+        position.y = position.y * (2.0 * uOutputTexture.z / uOutputTexture.y) - uOutputTexture.z;
+        return vec4(position, 0.0, 1.0);
+      }
+
+      vec2 filterTextureCoord(void) {
+        return aPosition * (uOutputFrame.zw * uInputSize.zw);
+      }
+
+      void main(void) {
+        gl_Position = filterVertexPosition();
+        vTextureCoord = filterTextureCoord();
+      }
+    `;
+
+    const fragment = `
+      in vec2 vTextureCoord;
+      uniform sampler2D uTexture;
+      uniform float uAmplitude;
+      uniform float uFrequency;
+      uniform float uTime;
+
+      out vec4 finalColor;
+
+      void main(void) {
+        vec2 uv = vTextureCoord;
+        
+        // Create wave distortion
+        uv.x += sin(uv.y * uFrequency + uTime) * uAmplitude;
+        uv.y += cos(uv.x * uFrequency + uTime) * uAmplitude;
+        
+        finalColor = texture(uTexture, uv);
+      }
+    `;
+
+    const gpuProgram = GlProgram.from({ vertex, fragment, name: 'wave-distortion-filter' });
+
+    super({
+      glProgram: gpuProgram,
+      resources: {
+        waveUniforms: {
+          uAmplitude: { value: amplitude, type: 'f32' },
+          uFrequency: { value: frequency, type: 'f32' },
+          uTime: { value: 0, type: 'f32' },
+        },
+      },
+    });
+  }
+
+  set amplitude(value: number) {
+    this.resources.waveUniforms.uniforms.uAmplitude = value;
+  }
+
+  get amplitude(): number {
+    return this.resources.waveUniforms.uniforms.uAmplitude;
+  }
+
+  updateTime(deltaTime: number): void {
+    this.resources.waveUniforms.uniforms.uTime += deltaTime * 0.001;
+  }
+}
+
+/**
+ * Color Shift - Psychedelic color rotation
+ */
+export class ColorShiftFilter extends Filter {
+  constructor(options: { speed?: number; intensity?: number } = {}) {
+    const _speed = options.speed ?? 1.0;
+    const intensity = options.intensity ?? 1.0;
+
+    const vertex = `
+      in vec2 aPosition;
+      out vec2 vTextureCoord;
+
+      uniform vec4 uInputSize;
+      uniform vec4 uOutputFrame;
+      uniform vec4 uOutputTexture;
+
+      vec4 filterVertexPosition(void) {
+        vec2 position = aPosition * uOutputFrame.zw + uOutputFrame.xy;
+        position.x = position.x * (2.0 / uOutputTexture.x) - 1.0;
+        position.y = position.y * (2.0 * uOutputTexture.z / uOutputTexture.y) - uOutputTexture.z;
+        return vec4(position, 0.0, 1.0);
+      }
+
+      vec2 filterTextureCoord(void) {
+        return aPosition * (uOutputFrame.zw * uInputSize.zw);
+      }
+
+      void main(void) {
+        gl_Position = filterVertexPosition();
+        vTextureCoord = filterTextureCoord();
+      }
+    `;
+
+    const fragment = `
+      in vec2 vTextureCoord;
+      uniform sampler2D uTexture;
+      uniform float uTime;
+      uniform float uIntensity;
+
+      out vec4 finalColor;
+
+      vec3 hueShift(vec3 color, float shift) {
+        const vec3 k = vec3(0.57735, 0.57735, 0.57735);
+        float cosAngle = cos(shift);
+        return vec3(color * cosAngle + cross(k, color) * sin(shift) + k * dot(k, color) * (1.0 - cosAngle));
+      }
+
+      void main(void) {
+        vec4 color = texture(uTexture, vTextureCoord);
+        
+        // Shift hue based on time
+        float shift = uTime * uIntensity;
+        color.rgb = hueShift(color.rgb, shift);
+        
+        finalColor = color;
+      }
+    `;
+
+    const gpuProgram = GlProgram.from({ vertex, fragment, name: 'color-shift-filter' });
+
+    super({
+      glProgram: gpuProgram,
+      resources: {
+        colorShiftUniforms: {
+          uTime: { value: 0, type: 'f32' },
+          uIntensity: { value: intensity, type: 'f32' },
+        },
+      },
+    });
+  }
+
+  set intensity(value: number) {
+    this.resources.colorShiftUniforms.uniforms.uIntensity = value;
+  }
+
+  get intensity(): number {
+    return this.resources.colorShiftUniforms.uniforms.uIntensity;
+  }
+
+  updateTime(deltaTime: number): void {
+    this.resources.colorShiftUniforms.uniforms.uTime += deltaTime * 0.001;
+  }
+}

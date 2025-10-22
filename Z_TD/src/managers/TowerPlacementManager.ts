@@ -100,7 +100,7 @@ export class TowerPlacementManager {
       // Check if position is valid and if player can afford
       const isValidPosition = this.isValidPlacement(x, y);
       const canPlace = isValidPosition && this.canAffordTower;
-      
+
       // Red if can't place (either invalid position or can't afford), white if can place
       this.ghostTower.tint = canPlace ? 0xffffff : 0xff0000;
     }

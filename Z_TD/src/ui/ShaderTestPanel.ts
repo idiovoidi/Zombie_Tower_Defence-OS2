@@ -2,6 +2,7 @@ import { UIComponent } from './UIComponent';
 import { ColorMatrixFilter, Container, Graphics, Text } from 'pixi.js';
 import { SimpleRetroFilter } from './shaders/filters/SimpleRetroFilter';
 import { VisualPresets } from '../utils/VisualPresets';
+import { ResolutionPixelationFilter } from './shaders/filters/ResolutionPixelationFilter';
 
 export class ShaderTestPanel extends UIComponent {
   private background!: Graphics;
@@ -14,6 +15,7 @@ export class ShaderTestPanel extends UIComponent {
   private sliders: Map<string, Container> = new Map();
   private settingTexts: Map<string, Text> = new Map();
   private pixelArtRenderer: unknown = null;
+  private visualPresets: VisualPresets | null = null;
 
   constructor() {
     super();
@@ -22,6 +24,7 @@ export class ShaderTestPanel extends UIComponent {
 
   public setGameStage(stage: Container): void {
     this.gameStage = stage;
+    this.visualPresets = new VisualPresets(stage);
   }
 
   public setGameManager(gameManager: unknown): void {
@@ -77,7 +80,7 @@ export class ShaderTestPanel extends UIComponent {
   private createPanelContent(): void {
     // Position at absolute screen coordinates
     const panelWidth = 380;
-    const panelHeight = 650;
+    const panelHeight = 600;
     this.contentContainer.position.set(640 - panelWidth / 2, 384 - panelHeight / 2);
 
     const panelLeft = 0;
@@ -159,6 +162,18 @@ export class ShaderTestPanel extends UIComponent {
       { name: 'Horror', color: 0x4a0e4e, desc: 'Dark + chromatic aberration' },
       { name: 'Dreamy', color: 0xffb6c1, desc: 'Soft bloom + saturation' },
       { name: 'Glitch', color: 0xff0088, desc: 'RGB split + noise' },
+      { name: 'Oil-Painting', color: 0xd4a574, desc: 'Artistic painterly effect' },
+      { name: 'Comic-Book', color: 0xff3333, desc: 'Edge detection + contrast' },
+      { name: 'Psychedelic', color: 0xff00ff, desc: 'Color shift + bloom' },
+      { name: 'Underwater', color: 0x0088ff, desc: 'Wave distortion + blue tint' },
+      { name: 'Kaleidoscope', color: 0xaa00ff, desc: 'Mirror effect + bloom' },
+      { name: 'Trippy', color: 0xff6600, desc: 'All effects combined!' },
+      { name: 'GameBoy', color: 0x9bbc0f, desc: 'Classic Game Boy green' },
+      { name: 'VHS', color: 0x8b4513, desc: 'Retro VHS tape effect' },
+      { name: 'Pixel-Perfect', color: 0xff8800, desc: 'Clean pixelation' },
+      { name: 'Dithered', color: 0x666666, desc: 'Classic dithering' },
+      { name: 'CRT-Monitor', color: 0x00aaff, desc: 'Old CRT monitor' },
+      { name: 'Inscryption', color: 0x2a4a4a, desc: 'Dark, eerie aesthetic' },
     ];
 
     presetButtons.forEach((preset, index) => {
@@ -166,50 +181,7 @@ export class ShaderTestPanel extends UIComponent {
       button.position.set(panelLeft + 15 + (index % 3) * 110, yPos + Math.floor(index / 3) * 40);
       this.contentContainer.addChild(button);
     });
-    yPos += 100;
-
-    // Single Effect Buttons
-    const singleTitle = new Text({
-      text: 'Single Effects:',
-      style: {
-        fontFamily: 'Arial',
-        fontSize: 14,
-        fill: 0xffcc00,
-        fontWeight: 'bold',
-      },
-    });
-    singleTitle.position.set(panelLeft + 15, yPos);
-    this.contentContainer.addChild(singleTitle);
-    yPos += 25;
-
-    const shaderButtons = [
-      { name: 'None', color: 0x666666 },
-      { name: 'Retro', color: 0xff6600 },
-      { name: 'Sepia', color: 0xaa8844 },
-      { name: 'Grayscale', color: 0x888888 },
-      { name: 'Invert', color: 0xff00ff },
-      { name: 'Contrast', color: 0xffaa00 },
-    ];
-
-    const buttonSectionTitle = new Text({
-      text: 'Shader Type:',
-      style: {
-        fontFamily: 'Arial',
-        fontSize: 14,
-        fill: 0xffcc00,
-        fontWeight: 'bold',
-      },
-    });
-    buttonSectionTitle.position.set(panelLeft + 15, yPos);
-    this.contentContainer.addChild(buttonSectionTitle);
-    yPos += 25;
-
-    shaderButtons.forEach((shader, index) => {
-      const button = this.createShaderButton(shader.name, shader.color);
-      button.position.set(panelLeft + 15 + (index % 3) * 110, yPos + Math.floor(index / 3) * 40);
-      this.contentContainer.addChild(button);
-    });
-    yPos += 120;
+    yPos += 240;
 
     // Settings section (will be populated when shader is selected)
     const settingsTitle = new Text({
@@ -316,80 +288,44 @@ export class ShaderTestPanel extends UIComponent {
     this.clearSliders();
 
     // Check if it's a preset first
-    const presets = ['Neon', 'Cinematic', 'Retro-Arcade', 'Horror', 'Dreamy', 'Glitch'];
+    const presets = [
+      'Neon',
+      'Cinematic',
+      'Retro-Arcade',
+      'Horror',
+      'Dreamy',
+      'Glitch',
+      'Oil-Painting',
+      'Comic-Book',
+      'Psychedelic',
+      'Underwater',
+      'Kaleidoscope',
+      'Trippy',
+      'GameBoy',
+      'VHS',
+      'Pixel-Perfect',
+      'Dithered',
+      'CRT-Monitor',
+      'Inscryption',
+    ];
     if (presets.includes(shaderName)) {
       console.log(`🎨 Applying preset: ${shaderName}`);
-      if (this.gameStage) {
-        const visualPresets = new VisualPresets(this.gameStage);
-        visualPresets.applyPreset(shaderName.toLowerCase().replace('-', '-'));
+      if (this.visualPresets) {
+        this.visualPresets.applyPreset(shaderName.toLowerCase());
+        console.log(`✅ Preset applied: ${shaderName}`);
+      } else {
+        console.error('❌ VisualPresets not initialized!');
       }
       this.clearSliders();
       return;
     }
 
-    // Apply new shader
-    switch (shaderName) {
-      case 'Retro':
-        console.log('🎮 Creating Simple Retro filter (Recommended)');
-        this.currentFilter = new SimpleRetroFilter({
-          pixelSize: 3,
-          scanlineIntensity: 0.3,
-          enabled: true,
-        });
-        break;
-      case 'Sepia':
-        console.log('📜 Creating Sepia filter');
-        this.currentFilter = new ColorMatrixFilter();
-        (this.currentFilter as ColorMatrixFilter).sepia(true);
-        break;
-      case 'Grayscale':
-        console.log('⚫ Creating Grayscale filter');
-        this.currentFilter = new ColorMatrixFilter();
-        (this.currentFilter as ColorMatrixFilter).desaturate();
-        break;
-      case 'Invert':
-        console.log('🔄 Creating Invert filter');
-        this.currentFilter = new ColorMatrixFilter();
-        (this.currentFilter as ColorMatrixFilter).negative(true);
-        break;
-      case 'Contrast':
-        console.log('🔆 Creating Contrast filter');
-        this.currentFilter = new ColorMatrixFilter();
-        (this.currentFilter as ColorMatrixFilter).contrast(1.5, true);
-        break;
-      case 'None':
-      default:
-        console.log('❌ No filter selected');
-        this.currentFilter = null;
-        break;
+    // If we get here, it's not a preset - just clear filters
+    console.log('❌ Unknown shader:', shaderName);
+    if (this.visualPresets) {
+      this.visualPresets.clear();
     }
-
-    // Apply filter to game stage
-    if (this.currentFilter && this.gameStage) {
-      console.log('✅ Applying filter to game stage');
-      console.log('✅ Filter type:', this.currentFilter.constructor.name);
-      console.log('✅ Filter object:', this.currentFilter);
-
-      // Set filters array directly (don't append, replace)
-      this.gameStage.filters = [this.currentFilter];
-      console.log(`📊 Filters applied: ${this.gameStage.filters.length}`);
-      console.log(`📊 Filter in array:`, this.gameStage.filters[0]);
-    } else if (!this.currentFilter && this.gameStage) {
-      console.log('✅ Clearing all filters');
-      this.gameStage.filters = null;
-    }
-
-    // Create sliders for the selected shader
-    if (this.currentFilter instanceof SimpleRetroFilter) {
-      console.log('🎛️ Creating sliders for Simple Retro filter');
-      this.createSimpleRetroSliders(this.currentFilter);
-    } else if (this.currentFilter instanceof ColorMatrixFilter) {
-      console.log('🎛️ Color filter applied (no sliders needed)');
-      this.clearSliders();
-    } else if (this.currentFilter) {
-      console.log('🎛️ Filter applied (no sliders)');
-      this.clearSliders();
-    }
+    this.clearSliders();
   }
 
   private clearSliders(): void {
@@ -404,194 +340,6 @@ export class ShaderTestPanel extends UIComponent {
     });
     this.sliders.clear();
     this.settingTexts.clear();
-  }
-
-  private createBuiltInPixelationSlider(
-    filter:
-      | ResolutionPixelationFilter
-      | WorkingResolutionPixelFilter
-      | AlternativePixelationFilter
-      | EnhancedPixelationFilter
-  ): void {
-    let yPos = 180; // Start position for slider
-
-    // Clear existing sliders first
-    this.clearSliders();
-
-    // Pixel Size label
-    const label = new Text({
-      text: 'pixelSize:',
-      style: {
-        fontFamily: 'Arial',
-        fontSize: 12,
-        fill: 0xcccccc,
-        fontWeight: 'bold',
-      },
-    });
-    label.position.set(15, yPos);
-    this.contentContainer.addChild(label);
-    this.settingTexts.set('pixelSize_label', label);
-
-    // Value display
-    const valueText = new Text({
-      text: filter.getPixelSize().toFixed(1),
-      style: {
-        fontFamily: 'Courier New, monospace',
-        fontSize: 11,
-        fill: 0x00ff00,
-      },
-    });
-    valueText.position.set(320, yPos);
-    this.contentContainer.addChild(valueText);
-    this.settingTexts.set('pixelSize_value', valueText);
-
-    yPos += 20;
-
-    // Description
-    const description = new Text({
-      text: 'Size of pixels for retro pixelation effect (built-in filter)',
-      style: {
-        fontFamily: 'Arial',
-        fontSize: 9,
-        fill: 0x888888,
-        fontStyle: 'italic',
-        wordWrap: true,
-        wordWrapWidth: 340,
-      },
-    });
-    description.position.set(25, yPos);
-    this.contentContainer.addChild(description);
-    this.settingTexts.set('pixelSize_desc', description);
-
-    yPos += 15;
-
-    // Create slider
-    const slider = this.createSlider('pixelSize', filter.getPixelSize(), 1, 20, (value: number) => {
-      // Update filter setting
-      filter.setPixelSize(value);
-
-      // Update value display
-      const valueDisplay = this.settingTexts.get('pixelSize_value');
-      if (valueDisplay) {
-        valueDisplay.text = value.toFixed(1);
-      }
-    });
-
-    slider.position.set(25, yPos);
-    this.contentContainer.addChild(slider);
-    this.sliders.set('pixelSize', slider);
-
-    yPos += 35;
-
-    // Reset button
-    const resetButton = this.createResetButton(() => {
-      filter.setPixelSize(4.0);
-      // Update value display
-      const valueDisplay = this.settingTexts.get('pixelSize_value');
-      if (valueDisplay) {
-        valueDisplay.text = '4.0';
-      }
-      // Update slider position
-      const sliderElement = this.sliders.get('pixelSize');
-      if (sliderElement) {
-        const handle = sliderElement.children[1]; // Handle is second child
-        const normalizedValue = (4.0 - 1) / (20 - 1);
-        handle.position.x = normalizedValue * 280;
-      }
-    });
-    resetButton.position.set(15, yPos + 10);
-    this.contentContainer.addChild(resetButton);
-  }
-
-  private createPixelationSlider(filter: WorkingPixelationFilter): void {
-    let yPos = 180; // Start position for slider
-
-    // Clear existing sliders first
-    this.clearSliders();
-
-    // Pixel Size label
-    const label = new Text({
-      text: 'pixelSize:',
-      style: {
-        fontFamily: 'Arial',
-        fontSize: 12,
-        fill: 0xcccccc,
-        fontWeight: 'bold',
-      },
-    });
-    label.position.set(15, yPos);
-    this.contentContainer.addChild(label);
-    this.settingTexts.set('pixelSize_label', label);
-
-    // Value display
-    const valueText = new Text({
-      text: filter.getPixelSize().toFixed(1),
-      style: {
-        fontFamily: 'Courier New, monospace',
-        fontSize: 11,
-        fill: 0x00ff00,
-      },
-    });
-    valueText.position.set(320, yPos);
-    this.contentContainer.addChild(valueText);
-    this.settingTexts.set('pixelSize_value', valueText);
-
-    yPos += 20;
-
-    // Description
-    const description = new Text({
-      text: 'Size of pixels for retro pixelation effect',
-      style: {
-        fontFamily: 'Arial',
-        fontSize: 9,
-        fill: 0x888888,
-        fontStyle: 'italic',
-        wordWrap: true,
-        wordWrapWidth: 340,
-      },
-    });
-    description.position.set(25, yPos);
-    this.contentContainer.addChild(description);
-    this.settingTexts.set('pixelSize_desc', description);
-
-    yPos += 15;
-
-    // Create slider
-    const slider = this.createSlider('pixelSize', filter.getPixelSize(), 1, 20, (value: number) => {
-      // Update filter setting
-      filter.setPixelSize(value);
-
-      // Update value display
-      const valueDisplay = this.settingTexts.get('pixelSize_value');
-      if (valueDisplay) {
-        valueDisplay.text = value.toFixed(1);
-      }
-    });
-
-    slider.position.set(25, yPos);
-    this.contentContainer.addChild(slider);
-    this.sliders.set('pixelSize', slider);
-
-    yPos += 35;
-
-    // Reset button
-    const resetButton = this.createResetButton(() => {
-      filter.setPixelSize(4.0);
-      // Update value display
-      const valueDisplay = this.settingTexts.get('pixelSize_value');
-      if (valueDisplay) {
-        valueDisplay.text = '4.0';
-      }
-      // Update slider position
-      const sliderElement = this.sliders.get('pixelSize');
-      if (sliderElement) {
-        const handle = sliderElement.children[1]; // Handle is second child
-        const normalizedValue = (4.0 - 1) / (20 - 1);
-        handle.position.x = normalizedValue * 280;
-      }
-    });
-    resetButton.position.set(15, yPos + 10);
-    this.contentContainer.addChild(resetButton);
   }
 
   private createSimpleRetroSliders(filter: SimpleRetroFilter): void {
@@ -729,90 +477,6 @@ export class ShaderTestPanel extends UIComponent {
     this.contentContainer.addChild(resetButton);
   }
 
-  private createSlidersForShader(filter: BaseRetroFilter): void {
-    const settingsInfo = filter.getSettingsInfo();
-    let yPos = 180; // Start position for sliders
-
-    Object.entries(settingsInfo).forEach(
-      ([key, info]: [string, { value: number; min: number; max: number; description: string }]) => {
-        // Setting label
-        const label = new Text({
-          text: `${key}:`,
-          style: {
-            fontFamily: 'Arial',
-            fontSize: 12,
-            fill: 0xcccccc,
-            fontWeight: 'bold',
-          },
-        });
-        label.position.set(15, yPos);
-        this.contentContainer.addChild(label);
-        this.settingTexts.set(`${key}_label`, label);
-
-        // Value display
-        const valueText = new Text({
-          text: info.value.toFixed(2),
-          style: {
-            fontFamily: 'Courier New, monospace',
-            fontSize: 11,
-            fill: 0x00ff00,
-          },
-        });
-        valueText.position.set(320, yPos);
-        this.contentContainer.addChild(valueText);
-        this.settingTexts.set(`${key}_value`, valueText);
-
-        yPos += 20;
-
-        // Description
-        const description = new Text({
-          text: info.description,
-          style: {
-            fontFamily: 'Arial',
-            fontSize: 9,
-            fill: 0x888888,
-            fontStyle: 'italic',
-            wordWrap: true,
-            wordWrapWidth: 340,
-          },
-        });
-        description.position.set(25, yPos);
-        this.contentContainer.addChild(description);
-        this.settingTexts.set(`${key}_desc`, description);
-
-        yPos += 15;
-
-        // Create slider (simplified - using a basic implementation)
-        const slider = this.createSlider(key, info.value, info.min, info.max, (value: number) => {
-          // Update filter setting
-          const settings: Record<string, number> = {};
-          settings[key] = value;
-          filter.updateSettings(settings);
-
-          // Update value display
-          const valueDisplay = this.settingTexts.get(`${key}_value`);
-          if (valueDisplay) {
-            valueDisplay.text = value.toFixed(2);
-          }
-        });
-
-        slider.position.set(25, yPos);
-        this.contentContainer.addChild(slider);
-        this.sliders.set(key, slider);
-
-        yPos += 35;
-      }
-    );
-
-    // Reset button
-    const resetButton = this.createResetButton(() => {
-      filter.resetToDefaults();
-      this.updateSliderValues(filter);
-    });
-    resetButton.position.set(15, yPos + 10);
-    this.contentContainer.addChild(resetButton);
-  }
-
   private createSlider(
     name: string,
     initialValue: number,
@@ -899,28 +563,6 @@ export class ShaderTestPanel extends UIComponent {
     return button;
   }
 
-  private updateSliderValues(filter: BaseRetroFilter): void {
-    const settingsInfo = filter.getSettingsInfo();
-
-    Object.entries(settingsInfo).forEach(
-      ([key, info]: [string, { value: number; min: number; max: number; description: string }]) => {
-        // Update value display
-        const valueDisplay = this.settingTexts.get(`${key}_value`);
-        if (valueDisplay) {
-          valueDisplay.text = info.value.toFixed(2);
-        }
-
-        // Update slider position
-        const slider = this.sliders.get(key);
-        if (slider) {
-          const handle = slider.children[1]; // Handle is second child
-          const normalizedValue = (info.value - info.min) / (info.max - info.min);
-          handle.position.x = normalizedValue * 280;
-        }
-      }
-    );
-  }
-
   private togglePanel(): void {
     this.isExpanded = !this.isExpanded;
     this.contentContainer.visible = this.isExpanded;
@@ -934,8 +576,11 @@ export class ShaderTestPanel extends UIComponent {
     this.visible = false;
   }
 
-  public update(_deltaTime: number): void {
-    // Update logic if needed
+  public update(deltaTime: number): void {
+    // Update animated filters
+    if (this.visualPresets) {
+      this.visualPresets.update(deltaTime);
+    }
   }
 
   public dispose(): void {
