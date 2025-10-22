@@ -22,6 +22,12 @@ export class Tower extends GameObject implements ITower {
   private currentRotation: number = 0;
   private static readonly MAX_UPGRADE_LEVEL: number = 5; // Maximum upgrade level
 
+  // Idle animation properties
+  private idleTime: number = 0;
+  private idleScanDirection: number = 1; // 1 for right, -1 for left
+  private idleScanAngle: number = 0;
+  private lastShootTime: number = 0;
+
   constructor(type: string, x: number, y: number) {
     super();
     this.type = type;
@@ -91,7 +97,114 @@ export class Tower extends GameObject implements ITower {
 
   public update(deltaTime: number): void {
     super.update(deltaTime);
-    // Tower-specific update logic would go here
+
+    // Update idle animation
+    this.updateIdleAnimation(deltaTime);
+  }
+
+  private updateIdleAnimation(deltaTime: number): void {
+    this.idleTime += deltaTime;
+
+    // Check if tower has been idle for more than 2 seconds
+    const timeSinceLastShot = performance.now() - this.lastShootTime;
+    const isIdle = timeSinceLastShot > 2000;
+
+    if (!isIdle) {
+      // Reset idle animation when shooting
+      this.idleScanAngle = 0;
+      return;
+    }
+
+    // Different idle animations based on tower type
+    switch (this.type) {
+      case GameConfig.TOWER_TYPES.MACHINE_GUN:
+        this.idleAnimationMachineGun(deltaTime);
+        break;
+      case GameConfig.TOWER_TYPES.SNIPER:
+        this.idleAnimationSniper(deltaTime);
+        break;
+      case GameConfig.TOWER_TYPES.SHOTGUN:
+        this.idleAnimationShotgun(deltaTime);
+        break;
+      case GameConfig.TOWER_TYPES.FLAME:
+        this.idleAnimationFlame(deltaTime);
+        break;
+      case GameConfig.TOWER_TYPES.TESLA:
+        this.idleAnimationTesla(deltaTime);
+        break;
+    }
+  }
+
+  // Machine Gun: Scans left and right slowly
+  private idleAnimationMachineGun(deltaTime: number): void {
+    const scanSpeed = 0.0005; // Slow scanning
+    const maxScanAngle = 0.3; // About 17 degrees each way
+
+    this.idleScanAngle += scanSpeed * deltaTime * this.idleScanDirection;
+
+    // Reverse direction at limits
+    if (this.idleScanAngle > maxScanAngle) {
+      this.idleScanDirection = -1;
+    } else if (this.idleScanAngle < -maxScanAngle) {
+      this.idleScanDirection = 1;
+    }
+
+    // Apply scan rotation to barrel
+    this.barrel.rotation = this.currentRotation + this.idleScanAngle;
+  }
+
+  // Sniper: Subtle breathing motion (up and down)
+  private idleAnimationSniper(_deltaTime: number): void {
+    const breathSpeed = 0.002;
+    const breathAmount = 0.5; // pixels
+
+    const breathOffset = Math.sin(this.idleTime * breathSpeed) * breathAmount;
+    this.barrel.y = breathOffset;
+  }
+
+  // Shotgun: Occasional pump/check animation
+  private idleAnimationShotgun(_deltaTime: number): void {
+    // Every 5 seconds, do a quick check animation
+    const checkInterval = 5000;
+    const checkDuration = 300;
+
+    const timeMod = this.idleTime % checkInterval;
+
+    if (timeMod < checkDuration) {
+      // Quick tilt animation
+      const progress = timeMod / checkDuration;
+      const tiltAmount = Math.sin(progress * Math.PI) * 0.1;
+      this.barrel.rotation = this.currentRotation + tiltAmount;
+    } else {
+      this.barrel.rotation = this.currentRotation;
+    }
+  }
+
+  // Flame: Subtle flickering/pilot light effect
+  private idleAnimationFlame(_deltaTime: number): void {
+    // Small random movements to simulate pilot light
+    const flickerAmount = 0.3;
+
+    const flicker = (Math.random() - 0.5) * flickerAmount;
+    this.barrel.x = flicker;
+    this.barrel.y = flicker * 0.5;
+  }
+
+  // Tesla: Capacitor charging glow (handled in visual, but add subtle rotation)
+  private idleAnimationTesla(deltaTime: number): void {
+    // Slow rotation back and forth
+    const rotateSpeed = 0.0003;
+    const maxRotation = 0.2;
+
+    this.idleScanAngle += rotateSpeed * deltaTime * this.idleScanDirection;
+
+    if (this.idleScanAngle > maxRotation) {
+      this.idleScanDirection = -1;
+    } else if (this.idleScanAngle < -maxRotation) {
+      this.idleScanDirection = 1;
+    }
+
+    this.barrel.rotation = this.currentRotation + this.idleScanAngle;
   }
 
   // Check if tower can shoot (based on fire rate)
@@ -104,6 +217,13 @@ export class Tower extends GameObject implements ITower {
   // Shoot at a target
   public shoot(): void {
     this.lastShotTime = performance.now();
+    this.lastShootTime = performance.now(); // Track for idle animation
+
+    // Reset idle animation state
+    this.idleScanAngle = 0;
+    this.barrel.x = 0;
+    this.barrel.y = 0;
+
     // Shooting logic is handled by showShootingEffect()
   }
 
@@ -879,6 +999,11 @@ export class Tower extends GameObject implements ITower {
 
     this.currentRotation = angle;
     this.barrel.rotation = angle;
+
+    // Reset idle animation offsets when actively targeting
+    this.idleScanAngle = 0;
+    this.barrel.x = 0;
+    this.barrel.y = 0;
   }
 
   // Get projectile spawn position (at barrel tip)
@@ -1000,7 +1125,7 @@ export class Tower extends GameObject implements ITower {
 
     // Remove highlight if it exists
     if ((this as any).selectionHighlight) {
-      const highlight = (this as any).selectionHighlight;
+      const highlight = (this as unknown).selectionHighlight;
       if (highlight && !highlight.destroyed && highlight.parent) {
         this.removeChild(highlight);
         highlight.destroy();
