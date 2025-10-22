@@ -3,14 +3,15 @@ import { resolve } from 'path';
 
 // https://vite.dev/config/
 export default defineConfig({
-  base: process.env.NODE_ENV === 'production' ? '/Zombie_Tower_Defence-OS2/Z_TD/' : '/',
+  base: process.env.NODE_ENV === 'production' ? '/Zombie_Tower_Defence-OS2/' : '/',
   server: {
     port: 8080,
     open: false, // Disabled to prevent duplicate instances when debugging
   },
   build: {
-    outDir: 'dist',
+    outDir: 'dist', // GitHub Actions expects dist folder
     sourcemap: true,
+    emptyOutDir: true,
   },
   resolve: {
     alias: {

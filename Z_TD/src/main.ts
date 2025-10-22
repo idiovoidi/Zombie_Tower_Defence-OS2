@@ -482,7 +482,7 @@ import { DebugConstants } from './config/debugConstants';
 
   // Expose LogExporter to console for easy access
   (window as unknown).LogExporter = LogExporter;
-  
+
   // Check if we're in production (GitHub Pages) and warn about server features
   if (process.env.NODE_ENV === 'production') {
     console.warn('⚠️ Running in production mode - server features disabled');
@@ -490,7 +490,7 @@ import { DebugConstants } from './config/debugConstants';
   } else {
     console.log('📊 LogExporter available in console');
   }
-  
+
   console.log('💡 Commands:');
   console.log('  LogExporter.viewStoredLogs() - View all stored logs');
   console.log('  LogExporter.exportAllLogs() - Export all logs as files');
