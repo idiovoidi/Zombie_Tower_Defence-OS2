@@ -55,9 +55,6 @@ import { ScaleManager } from './utils/ScaleManager';
   // Add debug info to console
   console.log('🎮 Game initialized:', scaleManager.getDebugInfo());
   
-  // Enable debug mode by default to investigate the issue
-  inputManager.setDebugMode(true);
-  
   // Add keyboard shortcut to toggle debug mode (Ctrl+D)
   window.addEventListener('keydown', (event) => {
     if (event.key.toLowerCase() === 'd' && event.ctrlKey) {
@@ -338,7 +335,11 @@ import { ScaleManager } from './utils/ScaleManager';
       return;
     }
 
-    if (gameManager.getCurrentState() === GameConfig.GAME_STATES.PLAYING) {
+    const currentState = gameManager.getCurrentState();
+    if (
+      currentState === GameConfig.GAME_STATES.PLAYING ||
+      currentState === GameConfig.GAME_STATES.WAVE_COMPLETE
+    ) {
       const placementManager = gameManager.getTowerPlacementManager();
 
       if (placementManager.isInPlacementMode()) {
@@ -370,7 +371,11 @@ import { ScaleManager } from './utils/ScaleManager';
 
   // Track mouse movement for ghost tower
   inputManager.onPointerMove((coords, event) => {
-    if (gameManager.getCurrentState() === GameConfig.GAME_STATES.PLAYING) {
+    const currentState = gameManager.getCurrentState();
+    if (
+      currentState === GameConfig.GAME_STATES.PLAYING ||
+      currentState === GameConfig.GAME_STATES.WAVE_COMPLETE
+    ) {
       const placementManager = gameManager.getTowerPlacementManager();
       if (placementManager.isInPlacementMode()) {
         // Use game coordinates from InputManager

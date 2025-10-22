@@ -72,22 +72,14 @@ export class InputManager {
     const screenX = event.global.x;
     const screenY = event.global.y;
 
-    // Also check client and local coordinates for debugging
-    const clientX = event.client?.x ?? screenX;
-    const clientY = event.client?.y ?? screenY;
-    const localX = event.local?.x ?? 0;
-    const localY = event.local?.y ?? 0;
-
     // Convert to game coordinates using ScaleManager
     const gameCoords = this.scaleManager.screenToGame(screenX, screenY);
 
     // Debug logging
     if (this.debugMode) {
-      console.log(`🎯 Input Event Coordinates:
-        Global: (${screenX.toFixed(1)}, ${screenY.toFixed(1)})
-        Client: (${clientX.toFixed(1)}, ${clientY.toFixed(1)})
-        Local: (${localX.toFixed(1)}, ${localY.toFixed(1)})
-        Converted Game: (${gameCoords.x.toFixed(1)}, ${gameCoords.y.toFixed(1)})`);
+      console.log(
+        `🎯 Input: Screen(${screenX.toFixed(1)}, ${screenY.toFixed(1)}) -> Game(${gameCoords.x.toFixed(1)}, ${gameCoords.y.toFixed(1)})`
+      );
     }
 
     return {

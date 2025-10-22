@@ -54,20 +54,9 @@ export class ScaleManager {
 
   // Simple and reliable coordinate conversion
   public screenToGame(screenX: number, screenY: number): { x: number; y: number } {
-    const gameX = (screenX - this.offsetX) / this.scale;
-    const gameY = (screenY - this.offsetY) / this.scale;
-
-    // Detailed debug logging
-    console.log(`🔍 Conversion Details:
-      Screen: (${screenX.toFixed(1)}, ${screenY.toFixed(1)})
-      Offset: (${this.offsetX.toFixed(1)}, ${this.offsetY.toFixed(1)})
-      Scale: ${this.scale.toFixed(3)}
-      After offset: (${(screenX - this.offsetX).toFixed(1)}, ${(screenY - this.offsetY).toFixed(1)})
-      Game: (${gameX.toFixed(1)}, ${gameY.toFixed(1)})`);
-
     return {
-      x: gameX,
-      y: gameY,
+      x: (screenX - this.offsetX) / this.scale,
+      y: (screenY - this.offsetY) / this.scale,
     };
   }
 
