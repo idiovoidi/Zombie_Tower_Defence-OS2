@@ -12,7 +12,7 @@ In `src/config/debugConstants.ts`:
 
 ```typescript
 export const DebugConstants = {
-  ENABLED: true,  // Set to true to enable debug hotkeys
+  ENABLED: true, // Set to true to enable debug hotkeys
   // ... other settings
 };
 ```
@@ -141,6 +141,7 @@ export const DebugConstants = {
 - Quick reference without leaving the game
 
 **Console Output:**
+
 ```
 🔧 Debug Hotkeys:
   M - Add $1000 (Shift+M for $10000)
@@ -210,7 +211,7 @@ Edit `src/main.ts` to change the amounts:
 ```typescript
 // M - Add money
 if (key === 'm') {
-  const amount = event.shiftKey ? 10000 : 1000;  // Change these values
+  const amount = event.shiftKey ? 10000 : 1000; // Change these values
   gameManager.addMoney(amount);
 }
 ```
@@ -235,6 +236,7 @@ if (key === 't') {
 ### Hotkeys Not Working
 
 **Check:**
+
 1. `DebugConstants.ENABLED` is `true` in `src/config/debugConstants.ts`
 2. You're in the game (not main menu)
 3. No input fields are focused
@@ -255,11 +257,13 @@ if (key === 't') {
 ### During Development
 
 ✅ **DO:**
+
 - Use hotkeys to quickly test specific scenarios
 - Combine hotkeys for efficient testing
 - Use `H` to remind yourself of available keys
 
 ❌ **DON'T:**
+
 - Leave debug mode enabled in production builds
 - Rely on hotkeys for normal gameplay testing
 - Forget to test without debug features enabled
@@ -293,7 +297,7 @@ All debug hotkeys are implemented in `src/main.ts` in the keyboard event listene
 window.addEventListener('keydown', event => {
   if (DebugConstants.ENABLED) {
     const key = event.key.toLowerCase();
-    
+
     if (key === 'm') {
       // Add money logic
     }
@@ -328,12 +332,14 @@ window.addEventListener('keydown', event => {
 ## Status
 
 ✅ **Implemented**
+
 - All basic resource hotkeys (M, L, W, E, R)
 - Wave control (N, K)
 - Tower upgrades (U)
 - Help display (H)
 
 🔄 **Planned**
+
 - More advanced testing features
 - Customizable hotkey bindings
 - Debug UI panel with buttons

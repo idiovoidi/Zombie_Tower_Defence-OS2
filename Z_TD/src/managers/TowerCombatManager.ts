@@ -229,6 +229,9 @@ export class TowerCombatManager {
       // Mark this zombie as hit
       hitZombies.add(currentTarget);
 
+      // Add electric particle effect to zombie
+      this.createElectricParticles(currentTarget, jump === 0);
+
       // Store chain info for visual
       chainTargets.push({
         from: { x: currentSource.x, y: currentSource.y },
@@ -375,6 +378,13 @@ export class TowerCombatManager {
     }
     graphics.stroke({ width: mainWidth * 3, color: 0xffffff, alpha: 0.3 });
 
+    // Add bright flash at start and end points
+    const flashSize = isPrimary ? 8 : 6;
+    graphics.circle(startX, startY, flashSize).fill({ color: 0xffffff, alpha: 0.8 });
+    graphics.circle(startX, startY, flashSize * 1.5).fill({ color: 0x00ffff, alpha: 0.5 });
+    graphics.circle(endX, endY, flashSize).fill({ color: 0xffffff, alpha: 0.8 });
+    graphics.circle(endX, endY, flashSize * 1.5).fill({ color: 0x00ffff, alpha: 0.5 });
+
     // Add branching arcs (smaller side bolts) - only for primary arc
     if (isPrimary) {
       for (let i = 2; i < points.length - 2; i += 2) {
@@ -519,5 +529,127 @@ export class TowerCombatManager {
       }
       flameGraphics.destroy();
     }, 120); // Flame lasts 120ms
+  }
+
+  /**
+   * Create electric particle effects on a zombie when hit by lightning
+   */
+  private createElectricParticles(zombie: Zombie, isPrimary: boolean): void {
+    if (!zombie.parent) {
+      return;
+    }
+
+    // Create particle container as a child of the zombie so it moves with it
+    const particleContainer = new Graphics();
+    zombie.addChild(particleContainer);
+
+    // Number of particles based on whether it's primary or chain hit
+    const particleCount = isPrimary ? 12 : 8;
+    const particleSize = isPrimary ? 3 : 2;
+    const spreadRadius = isPrimary ? 20 : 15;
+
+    // Create electric sparks around the zombie (relative to zombie position)
+    for (let i = 0; i < particleCount; i++) {
+      const angle = (i / particleCount) * Math.PI * 2;
+      const distance = Math.random() * spreadRadius;
+      const x = Math.cos(angle) * distance;
+      const y = Math.sin(angle) * distance;
+
+      // Bright cyan spark
+      particleContainer.circle(x, y, particleSize).fill({ color: 0x00ffff, alpha: 0.9 });
+
+      // Glow around spark
+      particleContainer.circle(x, y, particleSize * 2).fill({ color: 0xffffff, alpha: 0.5 });
+    }
+
+    // Electric ring around zombie (centered at 0,0 since it's a child)
+    const ringRadius = isPrimary ? 18 : 14;
+    particleContainer.circle(0, 0, ringRadius).stroke({ width: 2, color: 0x00ffff, alpha: 0.8 });
+    particleContainer
+      .circle(0, 0, ringRadius + 3)
+      .stroke({ width: 1, color: 0xffffff, alpha: 0.4 });
+
+    // Electric arcs emanating from zombie center
+    const arcCount = isPrimary ? 6 : 4;
+    for (let i = 0; i < arcCount; i++) {
+      const angle = (i / arcCount) * Math.PI * 2 + Math.random() * 0.5;
+      const length = 10 + Math.random() * 15;
+      const startX = Math.cos(angle) * 8;
+      const startY = Math.sin(angle) * 8;
+      const endX = startX + Math.cos(angle) * length;
+      const endY = startY + Math.sin(angle) * length;
+
+      // Jagged lightning arc
+      const segments = 3;
+      particleContainer.moveTo(startX, startY);
+      for (let j = 1; j <= segments; j++) {
+        const t = j / segments;
+        const midX = startX + (endX - startX) * t;
+        const midY = startY + (endY - startY) * t;
+        const offset = (Math.random() - 0.5) * 8;
+        const perpX = -(endY - startY);
+        const perpY = endX - startX;
+        const perpLength = Math.sqrt(perpX * perpX + perpY * perpY);
+        const normalizedPerpX = perpX / perpLength;
+        const normalizedPerpY = perpY / perpLength;
+
+        particleContainer.lineTo(midX + normalizedPerpX * offset, midY + normalizedPerpY * offset);
+      }
+      particleContainer.stroke({ width: 1.5, color: 0x00ffff, alpha: 0.8 });
+    }
+
+    // Make zombie glow blue/cyan
+    if (zombie['visual']) {
+      const originalTint = zombie['visual'].tint;
+      zombie['visual'].tint = 0x00ffff; // Cyan/electric blue tint
+
+      // Fade back to original color
+      let tintElapsed = 0;
+      const tintDuration = isPrimary ? 300 : 200;
+      const tintInterval = setInterval(() => {
+        tintElapsed += 16;
+        const progress = tintElapsed / tintDuration;
+
+        if (progress >= 1 || !zombie['visual'] || zombie['visual'].destroyed) {
+          clearInterval(tintInterval);
+          if (zombie['visual'] && !zombie['visual'].destroyed) {
+            zombie['visual'].tint = originalTint;
+          }
+        } else {
+          // Interpolate from cyan back to original
+          const r1 = 0x00;
+          const g1 = 0xff;
+          const b1 = 0xff;
+          const r2 = (originalTint >> 16) & 0xff;
+          const g2 = (originalTint >> 8) & 0xff;
+          const b2 = originalTint & 0xff;
+
+          const r = Math.floor(r1 + (r2 - r1) * progress);
+          const g = Math.floor(g1 + (g2 - g1) * progress);
+          const b = Math.floor(b1 + (b2 - b1) * progress);
+
+          zombie['visual'].tint = (r << 16) | (g << 8) | b;
+        }
+      }, 16);
+    }
+
+    // Animate particles fading out (no scaling to prevent flying away)
+    let elapsed = 0;
+    const duration = isPrimary ? 250 : 180;
+    const fadeInterval = setInterval(() => {
+      elapsed += 16; // ~60fps
+      const progress = elapsed / duration;
+
+      if (progress >= 1) {
+        clearInterval(fadeInterval);
+        if (particleContainer.parent) {
+          particleContainer.parent.removeChild(particleContainer);
+        }
+        particleContainer.destroy();
+      } else {
+        // Just fade out, no scaling
+        particleContainer.alpha = 1 - progress;
+      }
+    }, 16);
   }
 }
