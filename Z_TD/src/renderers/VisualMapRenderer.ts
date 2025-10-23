@@ -1635,29 +1635,29 @@ export class VisualMapRenderer {
     this.pathGraphics.rect(campX - 46, campY + 5, 3, 8).fill(0x654321);
     this.pathGraphics.rect(campX + 43, campY + 5, 3, 8).fill(0x654321);
 
-    // === MEDICAL TENT (Left) ===
+    // === MEDICAL TENT (Left - Behind main tent) ===
     this.pathGraphics
-      .moveTo(campX - 50, campY - 25)
-      .lineTo(campX - 35, campY - 36)
-      .lineTo(campX - 20, campY - 25)
-      .lineTo(campX - 50, campY - 25)
+      .moveTo(campX - 52, campY - 40)
+      .lineTo(campX - 37, campY - 50)
+      .lineTo(campX - 22, campY - 40)
+      .lineTo(campX - 52, campY - 40)
       .fill(0xe5e5cc);
     this.pathGraphics.stroke({ width: 2, color: 0xc5c5ac });
-    this.pathGraphics.rect(campX - 48, campY - 25, 28, 20).fill(0xf5f5dc);
+    this.pathGraphics.rect(campX - 50, campY - 40, 28, 18).fill(0xf5f5dc);
     this.pathGraphics.stroke({ width: 1, color: 0xc5c5ac });
     // Red cross
-    this.pathGraphics.rect(campX - 37, campY - 18, 5, 2).fill(0xcc0000);
-    this.pathGraphics.rect(campX - 36, campY - 20, 2, 5).fill(0xcc0000);
+    this.pathGraphics.rect(campX - 39, campY - 34, 5, 2).fill(0xcc0000);
+    this.pathGraphics.rect(campX - 38, campY - 36, 2, 5).fill(0xcc0000);
 
-    // === SUPPLY TENT (Right) ===
+    // === SUPPLY TENT (Right - Behind main tent) ===
     this.pathGraphics
-      .moveTo(campX + 20, campY - 25)
-      .lineTo(campX + 35, campY - 36)
-      .lineTo(campX + 50, campY - 25)
-      .lineTo(campX + 20, campY - 25)
+      .moveTo(campX + 22, campY - 40)
+      .lineTo(campX + 37, campY - 50)
+      .lineTo(campX + 52, campY - 40)
+      .lineTo(campX + 22, campY - 40)
       .fill(0x8b7355);
     this.pathGraphics.stroke({ width: 2, color: 0x654321 });
-    this.pathGraphics.rect(campX + 22, campY - 25, 26, 20).fill(0xa0826d);
+    this.pathGraphics.rect(campX + 24, campY - 40, 26, 18).fill(0xa0826d);
     this.pathGraphics.stroke({ width: 1, color: 0x654321 });
 
     // === SANDBAG BARRIERS ===
@@ -1674,7 +1674,7 @@ export class VisualMapRenderer {
     drawSandbag(campX + 46, campY + 30);
     drawSandbag(campX + 46, campY + 40);
 
-    // === SUPPLY CRATES ===
+    // === SUPPLY CRATES (Behind tents) ===
     const drawCrate = (x: number, y: number) => {
       this.pathGraphics.rect(x, y, 14, 14).fill(0x8b7355);
       this.pathGraphics.stroke({ width: 2, color: 0x654321 });
@@ -1683,9 +1683,10 @@ export class VisualMapRenderer {
       this.pathGraphics.rect(x, y + 9, 14, 2).fill({ color: 0x4a4a4a, alpha: 0.6 });
     };
 
-    drawCrate(campX - 54, campY - 38);
-    drawCrate(campX - 54, campY - 22);
-    drawCrate(campX - 38, campY - 38);
+    // Position crates further back to avoid overlap
+    drawCrate(campX - 56, campY - 48);
+    drawCrate(campX - 56, campY - 32);
+    drawCrate(campX - 40, campY - 48);
 
     // === WATCHTOWER ===
     // Tower legs
@@ -1985,14 +1986,14 @@ export class VisualMapRenderer {
     this.campAnimationContainer.rect(campX + 22 + sway * 0.5, campY + 24, 6, 8).fill(0x654321);
     this.campAnimationContainer.rect(campX + 25 + sway * 0.5, campY + 18, 1, 6).fill(0x2a2a2a);
 
-    // Survivor 3 - working on crate (bobbing up and down)
+    // Survivor 3 - working on crate (bobbing up and down) - adjusted position
     const workBob = Math.abs(Math.sin(this.campAnimationTime * 3)) * 2;
-    this.campAnimationContainer.circle(campX - 48, campY - 12 - workBob, 4).fill(0xffdbac);
-    this.campAnimationContainer.rect(campX - 51, campY - 8 - workBob, 6, 8).fill(0x4a4a4a);
+    this.campAnimationContainer.circle(campX - 50, campY - 36 - workBob, 4).fill(0xffdbac);
+    this.campAnimationContainer.rect(campX - 53, campY - 32 - workBob, 6, 8).fill(0x4a4a4a);
 
-    // Survivor 4 - near medical tent (subtle breathing)
-    this.campAnimationContainer.circle(campX - 30, campY - 10 + breathe * 0.15, 4).fill(0xffdbac);
-    this.campAnimationContainer.rect(campX - 33, campY - 6 + breathe * 0.15, 6, 8).fill(0xf5f5dc);
+    // Survivor 4 - near medical tent (subtle breathing) - adjusted position
+    this.campAnimationContainer.circle(campX - 32, campY - 26 + breathe * 0.15, 4).fill(0xffdbac);
+    this.campAnimationContainer.rect(campX - 35, campY - 22 + breathe * 0.15, 6, 8).fill(0xf5f5dc);
   }
 
   public addCorpse(x: number, y: number, type: string): void {
