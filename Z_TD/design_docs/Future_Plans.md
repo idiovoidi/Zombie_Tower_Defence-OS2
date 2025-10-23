@@ -15,14 +15,15 @@ src\managers\TowerPlacementManager.ts refactor so I can simplify imports for tow
 
 Some zombies should be immune to slows
 
-
 Remove old lasersight and bullet casing code from tower.ts around line 1500
+
+Remove obsolete code
+Move input functions from src\renderers\VisualMapRenderer.ts to src\managers\InputManager.ts
+src\managers\CampUpgradeManager.ts to handle all camp upgrade functionality
 
 ---
 
 Implemented design plans
-
-
 
 Tower:
 Lower machine gun damage, weight upgrades towards fire rate

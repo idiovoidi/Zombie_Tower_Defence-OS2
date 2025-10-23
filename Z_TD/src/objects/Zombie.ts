@@ -665,18 +665,19 @@ export class Zombie extends GameObject {
 
   // Method called when zombie dies
   private async onDeath(): Promise<void> {
-    // Play death animation if using new renderer
-    if (this.renderer) {
-      await this.renderer.playDeathAnimation();
-    }
-
-    // Emit death event with position and type for blood/corpse systems
+    // Emit death event IMMEDIATELY for blood/corpse systems
+    // This ensures corpse appears at death location before animation moves the zombie
     this.emit('zombieDeath', {
       x: this.position.x,
       y: this.position.y,
       type: this.type,
       size: this.getVisualSize(),
     });
+
+    // Play death animation if using new renderer
+    if (this.renderer) {
+      await this.renderer.playDeathAnimation();
+    }
   }
 
   // Get visual size for corpse creation

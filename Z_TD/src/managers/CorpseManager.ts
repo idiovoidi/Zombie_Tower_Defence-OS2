@@ -1,7 +1,15 @@
 import { Container, Graphics } from 'pixi.js';
+import { BasicZombieRenderer } from '../renderers/zombies/types/BasicZombieRenderer';
+import { FastZombieRenderer } from '../renderers/zombies/types/FastZombieRenderer';
+import { TankZombieRenderer } from '../renderers/zombies/types/TankZombieRenderer';
+import { ArmoredZombieRenderer } from '../renderers/zombies/types/ArmoredZombieRenderer';
+import { SwarmZombieRenderer } from '../renderers/zombies/types/SwarmZombieRenderer';
+import { StealthZombieRenderer } from '../renderers/zombies/types/StealthZombieRenderer';
+import { MechanicalZombieRenderer } from '../renderers/zombies/types/MechanicalZombieRenderer';
+import { IZombieRenderer, ZombieRenderState } from '../renderers/zombies/ZombieRenderer';
 
 interface Corpse {
-  graphics: Graphics;
+  container: Container;
   fadeTimer: number;
   maxFadeTime: number;
 }
@@ -16,52 +24,164 @@ export class CorpseManager {
   }
 
   // Create a corpse at the given position with zombie type styling
-  public createCorpse(x: number, y: number, zombieType: string, size: number = 10): void {
+  public createCorpse(x: number, y: number, zombieType: string, _size: number = 10): void {
+    // Create a container for the corpse
+    const corpseContainer = new Container();
+    corpseContainer.position.set(x, y);
+
+    // Choose random death pose
+    const deathPose = Math.floor(Math.random() * 3); // 0, 1, or 2
+
+    // Render the zombie in death pose
+    this.renderDeadZombie(corpseContainer, zombieType, deathPose);
+
     const corpse: Corpse = {
-      graphics: new Graphics(),
+      container: corpseContainer,
       fadeTimer: 0,
-      maxFadeTime: 8, // Corpses fade after 8 seconds (longer for atmosphere)
+      maxFadeTime: 8, // Corpses fade after 8 seconds
     };
 
-    // Draw blood pool first (underneath)
-    this.drawBloodPool(corpse.graphics, size);
-
-    // Draw corpse based on zombie type
-    this.drawCorpse(corpse.graphics, zombieType, size);
-    corpse.graphics.position.set(x, y);
-    corpse.graphics.rotation = Math.random() * Math.PI * 2; // Random rotation
-    corpse.graphics.alpha = 0.9;
-
     this.corpses.push(corpse);
-    this.container.addChild(corpse.graphics);
+    this.container.addChild(corpseContainer);
 
     // Remove oldest corpse if we exceed max
     if (this.corpses.length > this.maxCorpses) {
       const oldCorpse = this.corpses.shift();
       if (oldCorpse) {
-        this.container.removeChild(oldCorpse.graphics);
-        oldCorpse.graphics.destroy();
+        this.container.removeChild(oldCorpse.container);
+        oldCorpse.container.destroy({ children: true });
       }
     }
   }
 
-  private drawBloodPool(graphics: Graphics, size: number): void {
-    // Create irregular blood pool with multiple layers
-    const poolSize = size * 2;
+  private renderDeadZombie(container: Container, zombieType: string, deathPose: number): void {
+    // Create the appropriate zombie renderer
+    let renderer: IZombieRenderer;
+
+    switch (zombieType) {
+      case 'Basic':
+        renderer = new BasicZombieRenderer();
+        break;
+      case 'Fast':
+        renderer = new FastZombieRenderer();
+        break;
+      case 'Tank':
+        renderer = new TankZombieRenderer();
+        break;
+      case 'Armored':
+        renderer = new ArmoredZombieRenderer();
+        break;
+      case 'Swarm':
+        renderer = new SwarmZombieRenderer();
+        break;
+      case 'Stealth':
+        renderer = new StealthZombieRenderer();
+        break;
+      case 'Mechanical':
+        renderer = new MechanicalZombieRenderer();
+        break;
+      default:
+        renderer = new BasicZombieRenderer();
+    }
+
+    // Create a fake render state for the dead zombie
+    const deadState: ZombieRenderState = {
+      position: { x: 0, y: 0 },
+      health: 0,
+      maxHealth: 100,
+      speed: 0,
+      direction: { x: 0, y: 0 },
+      isMoving: false,
+      isDamaged: true,
+      statusEffects: [],
+    };
+
+    // Render the zombie
+    renderer.render(container, deadState);
+
+    // Draw blood pool underneath (before applying rotation)
+    const bloodGraphics = new Graphics();
+    this.drawBloodPool(bloodGraphics, zombieType);
+    container.addChildAt(bloodGraphics, 0); // Add at bottom layer
+
+    // Apply death pose transformation
+    this.applyDeathPose(container, deathPose);
+
+    // Remove glow effects (dead eyes don't glow)
+    this.removeGlowEffects(container);
+  }
+
+  private applyDeathPose(container: Container, pose: number): void {
+    // Add slight random variation to each pose
+    const randomVariation = (Math.random() - 0.5) * 0.2;
+
+    switch (pose) {
+      case 0: // Lying on back
+        container.rotation = Math.PI / 2 + randomVariation; // ~90 degrees
+        container.scale.y = 0.7; // Flattened
+        // Adjust position to compensate for rotation
+        // When rotated 90°, the zombie's vertical extent becomes horizontal
+        container.position.x += 8; // Shift right by half the zombie's height
+        break;
+      case 1: // Lying on side
+        container.rotation = Math.PI / 2 + 0.3 + randomVariation; // Slightly tilted
+        container.scale.y = 0.8;
+        container.position.x += 8;
+        container.position.y -= 2; // Slight vertical adjustment for tilt
+        break;
+      case 2: // Face down
+        container.rotation = -Math.PI / 2 + randomVariation; // ~-90 degrees
+        container.scale.y = 0.6; // More flattened
+        // When rotated -90°, shift left
+        container.position.x -= 8;
+        break;
+    }
+  }
+
+  private removeGlowEffects(container: Container): void {
+    // Recursively dim all graphics to remove glow effects
+    for (const child of container.children) {
+      if (child instanceof Graphics) {
+        // Dim the graphics to remove glow (dead eyes don't glow)
+        child.alpha = Math.min(child.alpha, 0.7);
+      } else if (child instanceof Container) {
+        // Recursively process nested containers
+        this.removeGlowEffects(child);
+      }
+    }
+  }
+
+  private drawBloodPool(graphics: Graphics, zombieType: string): void {
+    // Mechanical zombies leak oil instead of blood
+    if (zombieType === 'Mechanical') {
+      graphics.ellipse(0, 12, 20, 15).fill({ color: 0x1a1a1a, alpha: 0.7 });
+      // Oil drips
+      for (let i = 0; i < 3; i++) {
+        const angle = Math.random() * Math.PI * 2;
+        const dist = 15 + Math.random() * 10;
+        const x = Math.cos(angle) * dist;
+        const y = 12 + Math.sin(angle) * dist;
+        graphics.circle(x, y, 3).fill({ color: 0x1a1a1a, alpha: 0.6 });
+      }
+      return;
+    }
+
+    // Create irregular blood pool
+    const poolSize = 15;
 
     // Outer blood splatter (irregular)
     for (let i = 0; i < 8; i++) {
       const angle = (i / 8) * Math.PI * 2 + Math.random() * 0.5;
       const dist = poolSize * (0.8 + Math.random() * 0.4);
       const x = Math.cos(angle) * dist;
-      const y = Math.sin(angle) * dist;
-      const splatterSize = size * (0.3 + Math.random() * 0.4);
+      const y = 12 + Math.sin(angle) * dist;
+      const splatterSize = 3 + Math.random() * 4;
       graphics.circle(x, y, splatterSize).fill({ color: 0x6a0000, alpha: 0.7 });
     }
 
     // Main blood pool (darker center)
-    graphics.ellipse(0, 0, poolSize * 0.9, poolSize * 0.7).fill({ color: 0x5a0000, alpha: 0.8 });
-    graphics.ellipse(0, 0, poolSize * 0.6, poolSize * 0.5).fill({ color: 0x4a0000, alpha: 0.85 });
+    graphics.ellipse(0, 12, poolSize * 0.9, poolSize * 0.7).fill({ color: 0x5a0000, alpha: 0.8 });
+    graphics.ellipse(0, 12, poolSize * 0.6, poolSize * 0.5).fill({ color: 0x4a0000, alpha: 0.85 });
 
     // Blood drips/streaks
     for (let i = 0; i < 5; i++) {
@@ -69,112 +189,14 @@ export class CorpseManager {
       const startDist = poolSize * 0.5;
       const endDist = poolSize * (1.2 + Math.random() * 0.5);
       const startX = Math.cos(angle) * startDist;
-      const startY = Math.sin(angle) * startDist;
+      const startY = 12 + Math.sin(angle) * startDist;
       const endX = Math.cos(angle) * endDist;
-      const endY = Math.sin(angle) * endDist;
+      const endY = 12 + Math.sin(angle) * endDist;
       graphics
         .moveTo(startX, startY)
         .lineTo(endX, endY)
         .stroke({ width: 2, color: 0x6a0000, alpha: 0.6 });
     }
-  }
-
-  private drawCorpse(graphics: Graphics, zombieType: string, size: number): void {
-    // Draw a detailed flattened/collapsed version of the zombie
-    const corpseColor = this.getZombieColor(zombieType);
-    const darkColor = this.getDarkerColor(corpseColor);
-
-    // Main body (flattened, irregular shape)
-    graphics.ellipse(0, 0, size * 1.2, size * 0.7).fill({ color: corpseColor, alpha: 0.9 });
-    graphics
-      .ellipse(0, 0, size * 1.2, size * 0.7)
-      .stroke({ width: 1.5, color: darkColor, alpha: 0.7 });
-
-    // Decay/wound patches
-    graphics.circle(-size * 0.4, -size * 0.2, size * 0.3).fill({ color: darkColor, alpha: 0.8 });
-    graphics.circle(size * 0.3, size * 0.1, size * 0.25).fill({ color: darkColor, alpha: 0.7 });
-
-    // Limbs (arms and legs sprawled out)
-    // Left arm
-    graphics.ellipse(-size * 1.1, -size * 0.4, size * 0.5, size * 0.2).fill({
-      color: corpseColor,
-      alpha: 0.85,
-    });
-    graphics.ellipse(-size * 1.1, -size * 0.4, size * 0.5, size * 0.2).stroke({
-      width: 1,
-      color: darkColor,
-      alpha: 0.6,
-    });
-
-    // Right arm
-    graphics.ellipse(size * 1.0, -size * 0.3, size * 0.5, size * 0.2).fill({
-      color: corpseColor,
-      alpha: 0.85,
-    });
-    graphics.ellipse(size * 1.0, -size * 0.3, size * 0.5, size * 0.2).stroke({
-      width: 1,
-      color: darkColor,
-      alpha: 0.6,
-    });
-
-    // Left leg
-    graphics.ellipse(-size * 0.5, size * 0.8, size * 0.3, size * 0.6).fill({
-      color: corpseColor,
-      alpha: 0.85,
-    });
-
-    // Right leg
-    graphics.ellipse(size * 0.4, size * 0.9, size * 0.3, size * 0.6).fill({
-      color: corpseColor,
-      alpha: 0.85,
-    });
-
-    // Head (partially visible)
-    graphics.circle(0, -size * 0.5, size * 0.4).fill({ color: corpseColor, alpha: 0.9 });
-    graphics.circle(0, -size * 0.5, size * 0.4).stroke({ width: 1, color: darkColor, alpha: 0.7 });
-
-    // Blood stains on corpse
-    for (let i = 0; i < 4; i++) {
-      const x = (Math.random() - 0.5) * size * 1.5;
-      const y = (Math.random() - 0.5) * size * 0.8;
-      const stainSize = size * (0.15 + Math.random() * 0.2);
-      graphics.circle(x, y, stainSize).fill({ color: 0x6a0000, alpha: 0.7 });
-    }
-
-    // Type-specific details
-    if (zombieType === 'armored') {
-      // Broken armor pieces
-      graphics
-        .rect(-size * 0.4, -size * 0.2, size * 0.3, size * 0.2)
-        .fill({ color: 0x5a5a5a, alpha: 0.8 });
-      graphics.rect(size * 0.2, 0, size * 0.3, size * 0.2).fill({ color: 0x5a5a5a, alpha: 0.8 });
-    } else if (zombieType === 'mechanical') {
-      // Sparking wires
-      graphics.circle(-size * 0.3, 0, size * 0.15).fill({ color: 0xffff00, alpha: 0.6 });
-      graphics.circle(size * 0.4, -size * 0.2, size * 0.12).fill({ color: 0xff6600, alpha: 0.6 });
-    }
-  }
-
-  private getDarkerColor(color: number): number {
-    // Darken the color by reducing RGB values
-    const r = Math.max(0, ((color >> 16) & 0xff) - 40);
-    const g = Math.max(0, ((color >> 8) & 0xff) - 40);
-    const b = Math.max(0, (color & 0xff) - 40);
-    return (r << 16) | (g << 8) | b;
-  }
-
-  private getZombieColor(zombieType: string): number {
-    // Return appropriate color based on zombie type (matching improved zombie visuals)
-    const colors: { [key: string]: number } = {
-      basic: 0x5a6a4a, // Gray-green
-      fast: 0x6a7a3a, // Olive
-      tank: 0x4a5a2a, // Dark olive
-      armored: 0x5a6a4a, // Gray-green with armor
-      swarm: 0x7a8a5a, // Yellowish-green
-      stealth: 0x3a4a5a, // Dark blue-gray
-      mechanical: 0x6a7a8a, // Steel gray
-    };
-    return colors[zombieType] || 0x5a6a4a;
   }
 
   // Update corpses (fade out over time)
@@ -188,13 +210,13 @@ export class CorpseManager {
       // Start fading after half the max fade time
       if (corpse.fadeTimer > corpse.maxFadeTime / 2) {
         const fadeProgress = (corpse.fadeTimer - corpse.maxFadeTime / 2) / (corpse.maxFadeTime / 2);
-        corpse.graphics.alpha = Math.max(0, 0.8 * (1 - fadeProgress));
+        corpse.container.alpha = Math.max(0, 0.9 * (1 - fadeProgress));
       }
 
       // Remove fully faded corpses
       if (corpse.fadeTimer >= corpse.maxFadeTime) {
-        this.container.removeChild(corpse.graphics);
-        corpse.graphics.destroy();
+        this.container.removeChild(corpse.container);
+        corpse.container.destroy({ children: true });
         this.corpses.splice(i, 1);
       }
     }
@@ -203,8 +225,8 @@ export class CorpseManager {
   // Clear all corpses
   public clear(): void {
     for (const corpse of this.corpses) {
-      this.container.removeChild(corpse.graphics);
-      corpse.graphics.destroy();
+      this.container.removeChild(corpse.container);
+      corpse.container.destroy({ children: true });
     }
     this.corpses = [];
   }

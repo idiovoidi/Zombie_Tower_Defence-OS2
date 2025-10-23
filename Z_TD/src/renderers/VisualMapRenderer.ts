@@ -1,6 +1,7 @@
 import { Application, Container, Graphics } from 'pixi.js';
 import { MapData, MapManager } from '../managers/MapManager';
 import { Waypoint } from '../managers/PathfindingManager';
+import { ZombieCorpseRenderer } from './zombies/ZombieCorpseRenderer';
 
 interface FogParticle {
   x: number;
@@ -26,6 +27,8 @@ export class VisualMapRenderer {
   private fogParticles: FogParticle[] = [];
   private fogTime: number = 0;
   private graveyardBounds = { x: 20, y: 250, width: 140, height: 280 };
+  private corpseContainer: Graphics;
+  private corpseRenderer: ZombieCorpseRenderer;
 
   constructor(app: Application, mapManager: MapManager) {
     this.app = app;
@@ -33,12 +36,16 @@ export class VisualMapRenderer {
     this.mapContainer = new Graphics();
     this.pathGraphics = new Graphics();
     this.fogContainer = new Graphics();
+    this.corpseContainer = new Graphics();
+    this.corpseRenderer = new ZombieCorpseRenderer(this.corpseContainer);
 
     // Add to stage at the beginning (index 0) so it renders behind everything
     this.app.stage.addChildAt(this.mapContainer, 0);
     this.app.stage.addChildAt(this.pathGraphics, 1);
-    // Fog renders on top of map but behind game objects
-    this.app.stage.addChildAt(this.fogContainer, 2);
+    // Corpses render on ground level
+    this.app.stage.addChildAt(this.corpseContainer, 2);
+    // Fog renders on top of corpses but behind game objects
+    this.app.stage.addChildAt(this.fogContainer, 3);
   }
 
   public setCampClickCallback(callback: () => void): void {
@@ -1837,7 +1844,9 @@ export class VisualMapRenderer {
     this.mapContainer.clear();
     this.pathGraphics.clear();
     this.fogContainer.clear();
+    this.corpseContainer.clear();
     this.fogParticles = [];
+    this.corpseRenderer.clear();
 
     // Clean up click area
     if (this.campClickArea) {
@@ -1927,8 +1936,21 @@ export class VisualMapRenderer {
       }
     }
 
-    // Render fog
+    // Update corpses (fade over time)
+    this.corpseRenderer.update(deltaTime);
+
+    // Render fog and corpses
     this.renderFog();
+    this.renderCorpses();
+  }
+
+  public addCorpse(x: number, y: number, type: string): void {
+    this.corpseRenderer.addCorpse(x, y, type);
+  }
+
+  private renderCorpses(): void {
+    this.corpseContainer.clear();
+    this.corpseRenderer.render();
   }
 
   private renderFog(): void {
