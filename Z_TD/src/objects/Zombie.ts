@@ -12,6 +12,7 @@ import {
 } from '../config/zombieResistances';
 import { IZombieRenderer, ZombieRenderState } from '../renderers/zombies/ZombieRenderer';
 import { BasicZombieRenderer } from '../renderers/zombies/types/BasicZombieRenderer';
+import { FastZombieRenderer } from '../renderers/zombies/types/FastZombieRenderer';
 
 export class Zombie extends GameObject {
   private type: string;
@@ -121,10 +122,15 @@ export class Zombie extends GameObject {
 
   // Update visual representation based on zombie type
   private initializeVisual(): void {
-    // Try to use new renderer system for Basic zombies
-    if (this.useNewRenderer && this.type === GameConfig.ZOMBIE_TYPES.BASIC) {
-      this.renderer = new BasicZombieRenderer();
-      return;
+    // Try to use new renderer system
+    if (this.useNewRenderer) {
+      if (this.type === GameConfig.ZOMBIE_TYPES.BASIC) {
+        this.renderer = new BasicZombieRenderer();
+        return;
+      } else if (this.type === GameConfig.ZOMBIE_TYPES.FAST) {
+        this.renderer = new FastZombieRenderer();
+        return;
+      }
     }
 
     // Fall back to old rendering system

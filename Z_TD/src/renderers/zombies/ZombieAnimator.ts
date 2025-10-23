@@ -38,20 +38,31 @@ export class ZombieAnimator {
   }
 
   private getWalkFrame(time: number): AnimationData {
+    // Different animation speeds based on zombie type
+    const speed = this.getAnimationSpeed();
+
     // More pronounced shambling with multiple frequencies
-    const primaryWalk = Math.sin(time * 4);
-    const secondaryWalk = Math.sin(time * 3.2) * 0.3;
+    const primaryWalk = Math.sin(time * 4 * speed);
+    const secondaryWalk = Math.sin(time * 3.2 * speed) * 0.3;
 
     return {
       bodyBob: primaryWalk * 2 + secondaryWalk * 0.5,
-      headTilt: Math.sin(time * 2) * 0.2 + Math.sin(time * 3.7) * 0.1,
-      headSway: Math.sin(time * 2.3) * 1.5 + Math.sin(time * 4.1) * 0.5,
-      leftArmAngle: Math.sin(time * 4) * 0.6 + 0.3,
-      rightArmAngle: Math.sin(time * 4 + Math.PI) * 0.5 + 0.2,
-      leftLegOffset: Math.sin(time * 4) * 2.5,
-      rightLegOffset: Math.sin(time * 4 + Math.PI) * 2.5,
+      headTilt: Math.sin(time * 2 * speed) * 0.2 + Math.sin(time * 3.7 * speed) * 0.1,
+      headSway: Math.sin(time * 2.3 * speed) * 1.5 + Math.sin(time * 4.1 * speed) * 0.5,
+      leftArmAngle: Math.sin(time * 4 * speed) * 0.6 + 0.3,
+      rightArmAngle: Math.sin(time * 4 * speed + Math.PI) * 0.5 + 0.2,
+      leftLegOffset: Math.sin(time * 4 * speed) * 2.5,
+      rightLegOffset: Math.sin(time * 4 * speed + Math.PI) * 2.5,
       limbSwing: primaryWalk,
     };
+  }
+
+  private getAnimationSpeed(): number {
+    // Fast zombies animate 1.5x faster
+    if (this.zombieType === 'FAST') {
+      return 1.5;
+    }
+    return 1.0;
   }
 
   private getIdleFrame(time: number): AnimationData {
