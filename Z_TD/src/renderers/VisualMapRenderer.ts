@@ -1853,7 +1853,12 @@ export class VisualMapRenderer {
     graveyardWidth: number,
     graveyardHeight: number
   ): void {
-    this.graveyardBounds = { x: graveyardX, y: graveyardY, width: graveyardWidth, height: graveyardHeight };
+    this.graveyardBounds = {
+      x: graveyardX,
+      y: graveyardY,
+      width: graveyardWidth,
+      height: graveyardHeight,
+    };
     this.fogParticles = [];
 
     // Upper fog layer (lighter, more ethereal)
@@ -1894,7 +1899,9 @@ export class VisualMapRenderer {
   }
 
   public updateFog(deltaTime: number): void {
-    if (this.fogParticles.length === 0) return;
+    if (this.fogParticles.length === 0) {
+      return;
+    }
 
     this.fogTime += deltaTime * 0.001; // Convert to seconds
 
