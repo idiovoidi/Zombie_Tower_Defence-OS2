@@ -155,8 +155,16 @@ export class TowerInfoPanel extends UIComponent {
     // Update info text
     this.infoText.text = `Type: ${this.getTowerDisplayName(type)}\nLevel: ${level}/${this.selectedTower.getMaxUpgradeLevel()}`;
 
-    // Update stats text
-    this.statsText.text = `Damage: ${damage}\nRange: ${range}\nFire Rate: ${fireRate}/s\nHealth: ${this.selectedTower.getHealth()}/${this.selectedTower.getMaxHealth()}`;
+    // Update stats text - special handling for Sludge tower
+    if (type === 'Sludge') {
+      // Calculate slow percentage based on upgrade level
+      const slowPercent = Math.round((0.3 + (level - 1) * 0.1) * 100);
+      // Calculate pool radius based on upgrade level
+      const poolRadius = 35 + (level - 1) * 5;
+      this.statsText.text = `Slow: ${slowPercent}%\nPool Size: ${poolRadius}px\nRange: ${range}\nFire Rate: ${fireRate}/s\nHealth: ${this.selectedTower.getHealth()}/${this.selectedTower.getMaxHealth()}`;
+    } else {
+      this.statsText.text = `Damage: ${damage}\nRange: ${range}\nFire Rate: ${fireRate}/s\nHealth: ${this.selectedTower.getHealth()}/${this.selectedTower.getMaxHealth()}`;
+    }
 
     // Update upgrade button
     const upgradeCost = this.towerManager.calculateUpgradeCost(type, level);
@@ -196,6 +204,8 @@ export class TowerInfoPanel extends UIComponent {
         return 'Flame';
       case 'Tesla':
         return 'Tesla';
+      case 'Sludge':
+        return 'Sludge';
       default:
         return type;
     }
