@@ -523,6 +523,9 @@ export class GameManager {
 
   // Update game state
   public update(deltaTime: number): void {
+    // Update animated fog effects
+    this.visualMapRenderer.updateFog(deltaTime);
+
     // Update AI player (needs to run in all states to detect wave complete)
     this.aiPlayerManager.update(deltaTime);
 
