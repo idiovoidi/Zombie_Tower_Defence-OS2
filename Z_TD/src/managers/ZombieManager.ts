@@ -124,9 +124,14 @@ export class ZombieManager {
       return;
     }
 
-    // Spawn at the exact spawn point
-    const spawnX = spawnPoint.x;
-    const spawnY = spawnPoint.y;
+    // Add spacing variation to prevent visual clumping
+    // Spread zombies across the path width (±15px from center)
+    const lateralOffset = (Math.random() - 0.5) * 30;
+    // Add small random backward offset to create depth (0-20px behind spawn point)
+    const depthOffset = Math.random() * -20;
+
+    const spawnX = spawnPoint.x + lateralOffset;
+    const spawnY = spawnPoint.y + depthOffset;
 
     console.log(`Spawning zombie: ${type} at (${spawnX.toFixed(1)}, ${spawnY.toFixed(1)})`);
 

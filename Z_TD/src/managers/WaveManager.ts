@@ -46,12 +46,12 @@ export class WaveManager {
         {
           type: GameConfig.ZOMBIE_TYPES.BASIC,
           count: Math.floor(totalZombies * 0.7),
-          spawnInterval: 1.8,
+          spawnInterval: 2.2, // Increased from 1.8 for better spacing
         },
         {
           type: GameConfig.ZOMBIE_TYPES.FAST,
           count: Math.floor(totalZombies * 0.3),
-          spawnInterval: 2.2,
+          spawnInterval: 2.6, // Increased from 2.2 for better spacing
         },
       ]);
     }
@@ -63,17 +63,17 @@ export class WaveManager {
         {
           type: GameConfig.ZOMBIE_TYPES.BASIC,
           count: Math.floor(totalZombies * 0.6),
-          spawnInterval: 1.6,
+          spawnInterval: 2.0, // Increased from 1.6 for better spacing
         },
         {
           type: GameConfig.ZOMBIE_TYPES.FAST,
           count: Math.floor(totalZombies * 0.3),
-          spawnInterval: 2.0,
+          spawnInterval: 2.4, // Increased from 2.0 for better spacing
         },
         {
           type: GameConfig.ZOMBIE_TYPES.TANK,
           count: Math.floor(totalZombies * 0.1),
-          spawnInterval: 3.5,
+          spawnInterval: 4.0, // Increased from 3.5 for better spacing
         },
       ]);
     }
@@ -85,17 +85,17 @@ export class WaveManager {
         {
           type: GameConfig.ZOMBIE_TYPES.BASIC,
           count: Math.floor(totalZombies * 0.5),
-          spawnInterval: 1.4,
+          spawnInterval: 1.8, // Increased from 1.4 for better spacing
         },
         {
           type: GameConfig.ZOMBIE_TYPES.FAST,
           count: Math.floor(totalZombies * 0.25),
-          spawnInterval: 1.8,
+          spawnInterval: 2.2, // Increased from 1.8 for better spacing
         },
         {
           type: GameConfig.ZOMBIE_TYPES.TANK,
           count: Math.floor(totalZombies * 0.15),
-          spawnInterval: 3.0,
+          spawnInterval: 3.5, // Increased from 3.0 for better spacing
         },
         {
           type: GameConfig.ZOMBIE_TYPES.ARMORED,

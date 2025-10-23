@@ -7,9 +7,11 @@ import { Container, Graphics } from 'pixi.js';
 import {
   type TowerType,
   type ZombieType,
-  getDamageModifier,
   convertToTowerType,
+  getDamageModifier,
 } from '../config/zombieResistances';
+import { IZombieRenderer, ZombieRenderState } from '../renderers/zombies/ZombieRenderer';
+import { BasicZombieRenderer } from '../renderers/zombies/types/BasicZombieRenderer';
 
 export class Zombie extends GameObject {
   private type: string;
@@ -30,6 +32,8 @@ export class Zombie extends GameObject {
   private speedVariation: number = 1.0; // Random speed multiplier for variation
   private isSlowed: boolean = false; // Track if zombie is currently slowed
   private currentSlowPercent: number = 0; // Current slow percentage applied
+  private renderer: IZombieRenderer | null = null; // New modular renderer
+  private useNewRenderer: boolean = true; // Toggle for new renderer system
 
   constructor(type: string, x: number, y: number, wave: number) {
     super();
@@ -117,6 +121,13 @@ export class Zombie extends GameObject {
 
   // Update visual representation based on zombie type
   private initializeVisual(): void {
+    // Try to use new renderer system for Basic zombies
+    if (this.useNewRenderer && this.type === GameConfig.ZOMBIE_TYPES.BASIC) {
+      this.renderer = new BasicZombieRenderer();
+      return;
+    }
+
+    // Fall back to old rendering system
     this.visual = new Graphics();
     this.addChild(this.visual);
 
@@ -465,6 +476,13 @@ export class Zombie extends GameObject {
   public update(deltaTime: number): void {
     super.update(deltaTime);
 
+    // Update new renderer if using it
+    if (this.renderer) {
+      const state = this.getRenderState();
+      this.renderer.update(deltaTime, state);
+      this.renderer.render(this, state);
+    }
+
     // Update health bar
     const healthComponent = this.getComponent<HealthComponent>('Health');
     if (healthComponent && this.healthBar) {
@@ -479,6 +497,24 @@ export class Zombie extends GameObject {
 
     // Move towards next waypoint
     this.moveTowardsWaypoint(deltaTime);
+  }
+
+  private getRenderState(): ZombieRenderState {
+    const target = this.waypoints[this.currentWaypointIndex] || this.waypoints[0];
+    const dx = target.x - this.position.x;
+    const dy = target.y - this.position.y;
+    const distance = Math.sqrt(dx * dx + dy * dy);
+
+    return {
+      position: { x: this.position.x, y: this.position.y },
+      health: this.healthComponent.getHealth(),
+      maxHealth: this.healthComponent.getMaxHealth(),
+      speed: this.speed,
+      direction: distance > 0 ? { x: dx / distance, y: dy / distance } : { x: 0, y: 0 },
+      isMoving: this.currentWaypointIndex < this.waypoints.length,
+      isDamaged: false,
+      statusEffects: [],
+    };
   }
 
   private moveTowardsWaypoint(deltaTime: number): void {
@@ -561,12 +597,14 @@ export class Zombie extends GameObject {
     return this.healthComponent.getHealth();
   }
 
-  public takeDamage(damage: number): number {
+  public takeDamage(damage: number, towerType?: string): number {
     // Apply damage to health component
     const actualDamage = this.healthComponent.takeDamage(damage);
 
     // Visual feedback for damage
-    if (this.visual) {
+    if (this.renderer) {
+      this.renderer.showDamageEffect(towerType || 'unknown', actualDamage);
+    } else if (this.visual) {
       // Flash red to indicate damage
       this.visual.tint = 0xff0000;
 
@@ -600,7 +638,12 @@ export class Zombie extends GameObject {
   }
 
   // Method called when zombie dies
-  private onDeath(): void {
+  private async onDeath(): Promise<void> {
+    // Play death animation if using new renderer
+    if (this.renderer) {
+      await this.renderer.playDeathAnimation();
+    }
+
     // Emit death event with position and type for blood/corpse systems
     this.emit('zombieDeath', {
       x: this.position.x,

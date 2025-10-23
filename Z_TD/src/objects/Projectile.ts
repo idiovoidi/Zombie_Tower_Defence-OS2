@@ -1,6 +1,5 @@
 import { Container, Graphics } from 'pixi.js';
 import { Zombie } from './Zombie';
-import { type TowerType } from '../config/zombieResistances';
 
 export class Projectile extends Container {
   private visual: Graphics;

@@ -2,7 +2,6 @@ import { Tower } from '../objects/Tower';
 import { Zombie } from '../objects/Zombie';
 import { ProjectileManager } from './ProjectileManager';
 import { Graphics } from 'pixi.js';
-import { type TowerType } from '../config/zombieResistances';
 
 export class TowerCombatManager {
   private towers: Tower[] = [];
