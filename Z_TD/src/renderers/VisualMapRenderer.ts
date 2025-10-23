@@ -1567,65 +1567,97 @@ export class VisualMapRenderer {
       this.pathGraphics.ellipse(x, y, 2, 4).fill({ color: 0x3a2a1a, alpha: 0.15 });
     }
 
-    // === METAL FENCE ===
-    const gateHeight = 40;
+    // === SIMPLE METAL FENCE PERIMETER ===
+    const drawFencePanel = (x: number, y: number, width: number, height: number) => {
+      // Metal panel background
+      this.pathGraphics.rect(x, y, width, height).fill({ color: 0x5a5a5a, alpha: 0.9 });
+      this.pathGraphics.stroke({ width: 2, color: 0x3a3a3a });
 
-    // Top fence
-    this.pathGraphics.rect(campX - 60, campY - 55, 120, 6).fill(0x6a6a6a);
-    this.pathGraphics.stroke({ width: 1, color: 0x4a4a4a });
+      // Simple horizontal bars for texture
+      const barCount = Math.floor(height / 6);
+      for (let i = 1; i < barCount; i++) {
+        const barY = y + (i * height) / barCount;
+        this.pathGraphics
+          .moveTo(x, barY)
+          .lineTo(x + width, barY)
+          .stroke({ width: 1, color: 0x4a4a4a, alpha: 0.5 });
+      }
 
-    // Bottom fence
-    this.pathGraphics.rect(campX - 60, campY + 52, 120, 6).fill(0x6a6a6a);
-    this.pathGraphics.stroke({ width: 1, color: 0x4a4a4a });
+      // Vertical supports
+      if (width > height) {
+        // Horizontal fence - add vertical supports
+        const supportCount = Math.floor(width / 8);
+        for (let i = 1; i < supportCount; i++) {
+          const supportX = x + (i * width) / supportCount;
+          this.pathGraphics
+            .moveTo(supportX, y)
+            .lineTo(supportX, y + height)
+            .stroke({ width: 1, color: 0x4a4a4a, alpha: 0.5 });
+        }
+      }
+    };
 
-    // Right fence
-    this.pathGraphics.rect(campX + 57, campY - 55, 6, 113).fill(0x6a6a6a);
-    this.pathGraphics.stroke({ width: 1, color: 0x4a4a4a });
+    const gateHeight = 50;
+    const gateCenter = 0; // Gate centered on path
 
-    // Left fence with gate opening
-    // Top section (above gate)
-    this.pathGraphics.rect(campX - 60, campY - 55, 6, 35 - gateHeight / 2).fill(0x6a6a6a);
-    this.pathGraphics.stroke({ width: 1, color: 0x4a4a4a });
+    // Left fence with gate opening (where path enters from graveyard)
+    // Top section of left fence (above gate)
+    drawFencePanel(campX - 68, campY - 55, 6, campY + gateCenter - gateHeight / 2 - (campY - 55));
 
-    // Bottom section (below gate)
-    this.pathGraphics
-      .rect(campX - 60, campY + gateHeight / 2, 6, 38 - gateHeight / 2)
-      .fill(0x6a6a6a);
-    this.pathGraphics.stroke({ width: 1, color: 0x4a4a4a });
+    // Bottom section of left fence (below gate)
+    drawFencePanel(
+      campX - 68,
+      campY + gateCenter + gateHeight / 2,
+      6,
+      campY + 55 - (campY + gateCenter + gateHeight / 2)
+    );
 
+    // Right fence (solid)
+    drawFencePanel(campX + 62, campY - 55, 6, 110);
+
+    // Top fence (solid)
+    drawFencePanel(campX - 62, campY - 60, 124, 6);
+
+    // Bottom fence (solid)
+    drawFencePanel(campX - 62, campY + 54, 124, 6);
+
+    // === GATE (on left side where path enters) ===
     // Gate posts
-    this.pathGraphics.rect(campX - 63, campY - gateHeight / 2 - 4, 6, 6).fill(0x5a5a5a);
+    this.pathGraphics.rect(campX - 71, campY - gateHeight / 2 - 4, 6, 6).fill(0x5a5a5a);
     this.pathGraphics.stroke({ width: 1, color: 0x3a3a3a });
-    this.pathGraphics.rect(campX - 63, campY + gateHeight / 2 - 2, 6, 6).fill(0x5a5a5a);
+    this.pathGraphics.rect(campX - 71, campY + gateHeight / 2 - 2, 6, 6).fill(0x5a5a5a);
     this.pathGraphics.stroke({ width: 1, color: 0x3a3a3a });
 
     // Gate doors (opening outward)
+    const gateY1 = campY - gateHeight / 2;
+    const gateY2 = campY + gateHeight / 2;
+
     // Top door
     this.pathGraphics
-      .moveTo(campX - 60, campY - gateHeight / 2)
-      .lineTo(campX - 75, campY - gateHeight / 2 - 7)
-      .lineTo(campX - 75, campY - 2)
-      .lineTo(campX - 60, campY + 2)
+      .moveTo(campX - 68, gateY1)
+      .lineTo(campX - 83, gateY1 - 7)
+      .lineTo(campX - 83, campY - 2)
+      .lineTo(campX - 68, campY + 2)
       .fill({ color: 0x7a7a7a, alpha: 0.85 });
     this.pathGraphics.stroke({ width: 2, color: 0x5a5a5a });
     // Horizontal bar
     this.pathGraphics
-      .moveTo(campX - 73, campY - gateHeight / 2 - 3)
-      .lineTo(campX - 62, campY)
+      .moveTo(campX - 81, gateY1 - 3)
+      .lineTo(campX - 70, campY)
       .stroke({ width: 1.5, color: 0x5a5a5a });
 
     // Bottom door
     this.pathGraphics
-      .moveTo(campX - 60, campY + gateHeight / 2)
-      .lineTo(campX - 75, campY + gateHeight / 2 + 7)
-      .lineTo(campX - 75, campY + 2)
-      .lineTo(campX - 60, campY - 2)
+      .moveTo(campX - 68, gateY2)
+      .lineTo(campX - 83, gateY2 + 7)
+      .lineTo(campX - 83, campY + 2)
+      .lineTo(campX - 68, campY - 2)
       .fill({ color: 0x7a7a7a, alpha: 0.85 });
     this.pathGraphics.stroke({ width: 2, color: 0x5a5a5a });
     // Horizontal bar
     this.pathGraphics
-      .moveTo(campX - 73, campY + gateHeight / 2 + 3)
-      .lineTo(campX - 62, campY)
+      .moveTo(campX - 81, gateY2 + 3)
+      .lineTo(campX - 70, campY)
       .stroke({ width: 1.5, color: 0x5a5a5a });
 
     // === MAIN COMMAND TENT ===
