@@ -45,6 +45,9 @@ export class StatsPanel extends UIComponent {
     this.collapseButton = this.createCollapseButton();
     this.addChild(this.collapseButton);
 
+    const hideButton = this.createHideButton();
+    this.addChild(hideButton);
+
     this.contentContainer = new Container();
     this.addChild(this.contentContainer);
 
@@ -100,6 +103,41 @@ export class StatsPanel extends UIComponent {
     this.collapseButtonText.text = this.isCollapsed ? '+' : '−';
     this.contentContainer.visible = !this.isCollapsed;
     this.drawBackground();
+  }
+
+  private createHideButton(): Container {
+    const button = new Container();
+    button.eventMode = 'static';
+    button.cursor = 'pointer';
+
+    const bg = new Graphics();
+    bg.circle(0, 0, 12).fill(0xff4444);
+    bg.stroke({ width: 1, color: 0xffffff });
+    button.addChild(bg);
+
+    const text = new Text({
+      text: '✕',
+      style: { fontSize: 14, fill: 0xffffff, fontWeight: 'bold' },
+    });
+    text.anchor.set(0.5);
+    text.position.set(0, 0);
+    button.addChild(text);
+
+    button.position.set(this.PANEL_WIDTH - 15, 15);
+
+    button.on('pointerdown', () => this.hide());
+    button.on('pointerover', () => {
+      bg.clear();
+      bg.circle(0, 0, 12).fill(0xff6666);
+      bg.stroke({ width: 1, color: 0xffffff });
+    });
+    button.on('pointerout', () => {
+      bg.clear();
+      bg.circle(0, 0, 12).fill(0xff4444);
+      bg.stroke({ width: 1, color: 0xffffff });
+    });
+
+    return button;
   }
 
   private createExportButton(): Container {

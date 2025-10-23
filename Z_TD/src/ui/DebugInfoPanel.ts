@@ -10,6 +10,7 @@ export class DebugInfoPanel extends UIComponent {
   private onOpenShaderTest?: () => void;
   private onOpenWaveInfo?: () => void;
   private onOpenBestiary?: () => void;
+  private onOpenStats?: () => void;
 
   constructor() {
     super();
@@ -27,6 +28,10 @@ export class DebugInfoPanel extends UIComponent {
 
   public setBestiaryCallback(callback: () => void): void {
     this.onOpenBestiary = callback;
+  }
+
+  public setStatsCallback(callback: () => void): void {
+    this.onOpenStats = callback;
   }
 
   private createPanel(): void {
@@ -75,7 +80,7 @@ export class DebugInfoPanel extends UIComponent {
   private createPanelContent(): void {
     // Position at absolute screen coordinates (centered)
     const panelWidth = 280;
-    const panelHeight = 420;
+    const panelHeight = 460;
     this.contentContainer.position.set(640 - panelWidth / 2, 384 - panelHeight / 2);
 
     // Background - simple positioning from (0,0)
@@ -117,11 +122,23 @@ export class DebugInfoPanel extends UIComponent {
     this.contentContainer.addChild(panelsTitle);
     yPos += 30;
 
+    // Performance Stats Button
+    const statsButton = this.createPanelButton('📊 Performance Stats', 0x4caf50, () => {
+      if (this.onOpenStats) {
+        this.onOpenStats();
+      }
+      this.close();
+    });
+    statsButton.position.set(panelLeft + 20, yPos);
+    this.contentContainer.addChild(statsButton);
+    yPos += 40;
+
     // Shader Test Button
     const shaderButton = this.createPanelButton('🎨 Shader Test', 0x9966ff, () => {
       if (this.onOpenShaderTest) {
         this.onOpenShaderTest();
       }
+      this.close();
     });
     shaderButton.position.set(panelLeft + 20, yPos);
     this.contentContainer.addChild(shaderButton);
@@ -132,6 +149,7 @@ export class DebugInfoPanel extends UIComponent {
       if (this.onOpenWaveInfo) {
         this.onOpenWaveInfo();
       }
+      this.close();
     });
     waveButton.position.set(panelLeft + 20, yPos);
     this.contentContainer.addChild(waveButton);
@@ -142,6 +160,7 @@ export class DebugInfoPanel extends UIComponent {
       if (this.onOpenBestiary) {
         this.onOpenBestiary();
       }
+      this.close();
     });
     bestiaryButton.position.set(panelLeft + 20, yPos);
     this.contentContainer.addChild(bestiaryButton);
@@ -243,6 +262,11 @@ export class DebugInfoPanel extends UIComponent {
   private togglePanel(): void {
     this.isExpanded = !this.isExpanded;
     this.contentContainer.visible = this.isExpanded;
+  }
+
+  public close(): void {
+    this.isExpanded = false;
+    this.contentContainer.visible = false;
   }
 
   public show(): void {

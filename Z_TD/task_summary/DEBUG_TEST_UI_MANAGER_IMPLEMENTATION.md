@@ -69,19 +69,24 @@ debugTestUIManager.toggleAll();
 
 ## Managed Panels
 
-1. **Shader Test Panel** 🎨 - Visual effects and retro shaders
-2. **Wave Info Panel** 📊 - Upcoming wave composition
-3. **Bestiary Panel** 📖 - Zombie encyclopedia and spawn testing
+1. **Performance Stats Panel** 📊 - Real-time game statistics and metrics
+2. **Shader Test Panel** 🎨 - Visual effects and retro shaders
+3. **Wave Info Panel** 📊 - Upcoming wave composition
+4. **Bestiary Panel** 📖 - Zombie encyclopedia and spawn testing
 
 ## Panel Layout
 
 ```
 Left Side:                    Right Side:
 ┌─────────────────────┐      ┌─────────────────────┐
-│  Shader Test Panel  │      │  Wave Info Panel    │
-└─────────────────────┘      ├─────────────────────┤
-                             │  Bestiary Panel     │
-                             └─────────────────────┘
+│ Performance Stats   │      │  Wave Info Panel    │
+│     (Top)           │      ├─────────────────────┤
+└─────────────────────┘      │  Bestiary Panel     │
+                             ├─────────────────────┤
+┌─────────────────────┐      │  Debug Info Panel   │
+│  Shader Test Panel  │      └─────────────────────┘
+│     (Bottom)        │
+└─────────────────────┘
 ```
 
 ## Testing

@@ -2,19 +2,22 @@ import { Application } from 'pixi.js';
 import { ShaderTestPanel } from '../ui/ShaderTestPanel';
 import { WaveInfoPanel } from '../ui/WaveInfoPanel';
 import { ZombieBestiary } from '../ui/ZombieBestiary';
+import { StatsPanel } from '../ui/StatsPanel';
 import { WaveManager } from './WaveManager';
 import { DebugConstants } from '../config/debugConstants';
+import type { GameManager } from './GameManager';
 
 /**
  * Centralized manager for all debug/test UI panels
- * Handles shader test, wave info, debug info, and bestiary panels
+ * Handles shader test, wave info, bestiary, and stats panels
  */
 export class DebugTestUIManager {
   private app: Application;
   private shaderTestPanel: ShaderTestPanel | null = null;
   private waveInfoPanel: WaveInfoPanel | null = null;
   private bestiaryPanel: ZombieBestiary | null = null;
-  private gameManager: unknown = null;
+  private statsPanel: StatsPanel | null = null;
+  private gameManager: GameManager | null = null;
   private waveManager: WaveManager | null = null;
   private pixelArtRenderer: unknown = null;
 
@@ -30,7 +33,7 @@ export class DebugTestUIManager {
    * Initialize all debug panels
    */
   public initialize(
-    gameManager: unknown,
+    gameManager: GameManager,
     waveManager: WaveManager,
     pixelArtRenderer: unknown
   ): void {
@@ -42,6 +45,7 @@ export class DebugTestUIManager {
     this.createShaderTestPanel();
     this.createWaveInfoPanel();
     this.createBestiaryPanel();
+    this.createStatsPanel();
 
     this.layoutPanels();
     console.log('✅ DebugTestUIManager: Initialization complete');
@@ -126,15 +130,40 @@ export class DebugTestUIManager {
   }
 
   /**
+   * Create and setup stats panel
+   */
+  private createStatsPanel(): void {
+    if (!this.gameManager) {
+      console.warn('⚠️ Game manager not available, skipping stats panel');
+      return;
+    }
+
+    console.log('📊 Creating Stats Panel...');
+    this.statsPanel = new StatsPanel(this.gameManager);
+
+    // Add to stage
+    this.app.stage.addChild(this.statsPanel);
+
+    // Show/hide based on debug settings
+    if (DebugConstants.ENABLED) {
+      this.statsPanel.show();
+      console.log('✅ Stats Panel created and shown');
+    } else {
+      this.statsPanel.hide();
+      console.log('✅ Stats Panel created but hidden');
+    }
+  }
+
+  /**
    * Layout all panel toggle buttons to avoid overlap
    */
   private layoutPanels(): void {
     const screenWidth = this.app.screen.width;
     const screenHeight = this.app.screen.height;
 
-    // Left side panels (shader test)
+    // Left side panels (shader test, stats)
     const leftX = this.LEFT_SIDE_X;
-    const leftYOffset = screenHeight - 140; // Start from bottom
+    let leftYOffset = screenHeight - 140; // Start from bottom
 
     // Right side panels (wave info, bestiary)
     const rightX = screenWidth - this.RIGHT_SIDE_OFFSET;
@@ -144,6 +173,12 @@ export class DebugTestUIManager {
     if (this.shaderTestPanel) {
       this.shaderTestPanel.position.set(leftX, leftYOffset);
       console.log(`🎨 Shader Test Panel positioned at (${leftX}, ${leftYOffset})`);
+    }
+
+    // Position stats panel (left side, above shader test or at top)
+    if (this.statsPanel) {
+      this.statsPanel.position.set(leftX, 100);
+      console.log(`📊 Stats Panel positioned at (${leftX}, 100)`);
     }
 
     // Position wave info panel (right side, near bottom)
@@ -174,6 +209,10 @@ export class DebugTestUIManager {
 
     if (this.bestiaryPanel && this.bestiaryPanel.visible) {
       this.bestiaryPanel.update(deltaTime);
+    }
+
+    if (this.statsPanel && this.statsPanel.visible) {
+      this.statsPanel.update();
     }
   }
 
@@ -208,6 +247,9 @@ export class DebugTestUIManager {
     if (this.bestiaryPanel) {
       this.bestiaryPanel.show();
     }
+    if (this.statsPanel) {
+      this.statsPanel.show();
+    }
   }
 
   /**
@@ -222,6 +264,9 @@ export class DebugTestUIManager {
     }
     if (this.bestiaryPanel) {
       this.bestiaryPanel.hide();
+    }
+    if (this.statsPanel) {
+      this.statsPanel.hide();
     }
   }
 
@@ -252,6 +297,10 @@ export class DebugTestUIManager {
     return this.bestiaryPanel;
   }
 
+  public getStatsPanel(): StatsPanel | null {
+    return this.statsPanel;
+  }
+
   /**
    * Open individual panels programmatically
    */
@@ -277,6 +326,12 @@ export class DebugTestUIManager {
     }
   }
 
+  public openStatsPanel(): void {
+    if (this.statsPanel) {
+      this.statsPanel.show();
+    }
+  }
+
   /**
    * Cleanup all panels
    */
@@ -294,6 +349,11 @@ export class DebugTestUIManager {
     if (this.bestiaryPanel) {
       this.bestiaryPanel.destroy();
       this.bestiaryPanel = null;
+    }
+
+    if (this.statsPanel) {
+      this.statsPanel.destroy();
+      this.statsPanel = null;
     }
   }
 

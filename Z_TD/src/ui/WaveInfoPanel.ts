@@ -106,6 +106,34 @@ export class WaveInfoPanel extends UIComponent {
     subtitle.position.set(panelLeft + 10, panelTop + 35);
     this.contentContainer.addChild(subtitle);
 
+    // Close button
+    const closeButton = new Container();
+    closeButton.eventMode = 'static';
+    closeButton.cursor = 'pointer';
+
+    const closeBg = new Graphics();
+    closeBg.circle(0, 0, 20).fill({ color: 0xffcc00, alpha: 0.9 });
+    closeBg.stroke({ width: 2, color: 0xffffff });
+    closeButton.addChild(closeBg);
+
+    const closeText = new Text({
+      text: '✕',
+      style: {
+        fontFamily: 'Arial',
+        fontSize: 20,
+        fill: 0xffffff,
+        fontWeight: 'bold',
+      },
+    });
+    closeText.anchor.set(0.5);
+    closeButton.addChild(closeText);
+
+    closeButton.position.set(panelLeft + panelWidth - 30, panelTop + 20);
+    closeButton.on('pointerdown', () => {
+      this.close();
+    });
+    this.contentContainer.addChild(closeButton);
+
     // Wave info will be dynamically added here
     this.addChild(this.contentContainer);
   }
@@ -237,7 +265,7 @@ export class WaveInfoPanel extends UIComponent {
       });
 
       // Difficulty info
-      const difficultyMod = this.waveManager!.getDifficultyModifier();
+      const difficultyMod = this.waveManager?.getDifficultyModifier();
       if (i === 0 && difficultyMod !== 1.0) {
         const diffText = new Text({
           text: `Difficulty: ${(difficultyMod * 100).toFixed(0)}%`,

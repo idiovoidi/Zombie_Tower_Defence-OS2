@@ -13,7 +13,6 @@ import { DebugInfoPanel } from './ui/DebugInfoPanel';
 import { CampUpgradePanel } from './ui/CampUpgradePanel';
 import { DebugTestUIManager } from './managers/DebugTestUIManager';
 import { AIControlPanel } from './ui/AIControlPanel';
-import { StatsPanel } from './ui/StatsPanel';
 import { MoneyAnimation } from './ui/MoneyAnimation';
 import { LogExporter } from './utils/LogExporter';
 import { GameConfig } from './config/gameConfig';
@@ -142,6 +141,9 @@ import { ScaleManager } from './utils/ScaleManager';
   app.stage.addChild(debugInfoPanel.getContentContainer());
 
   // Set up callbacks to open debug test panels
+  debugInfoPanel.setStatsCallback(() => {
+    debugTestUIManager.openStatsPanel();
+  });
   debugInfoPanel.setShaderTestCallback(() => {
     debugTestUIManager.openShaderTestPanel();
   });
@@ -170,12 +172,6 @@ import { ScaleManager } from './utils/ScaleManager';
     gameManager.getAIPlayerManager().setEnabled(enabled);
     gameManager.getStatTracker().setAIModeEnabled(enabled);
   });
-
-  // Create stats panel (left side, below AI control)
-  const statsPanel = new StatsPanel(gameManager);
-  statsPanel.position.set(10, 100);
-  uiManager.registerComponent('statsPanel', statsPanel);
-  app.stage.addChild(statsPanel);
 
   // Create camp upgrade system
   const campUpgradeManager = new CampUpgradeManager();

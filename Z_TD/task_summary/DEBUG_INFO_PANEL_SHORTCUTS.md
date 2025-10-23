@@ -13,16 +13,17 @@ Updated the Debug Info Panel to remove redundant sections and add quick-access s
 - 📊 Game Stats section (redundant with other panels)
 
 **Added:**
-- 🔧 Debug Panels section with three shortcut buttons:
+- 🔧 Debug Panels section with four shortcut buttons:
+  - 📊 Performance Stats - Opens performance stats panel
   - 🎨 Shader Test - Opens shader test panel
   - 📊 Wave Info - Opens wave info panel
   - 📖 Bestiary - Opens bestiary panel
 - Callback methods for panel opening
 
 **Result:**
-- Panel height reduced from 580px to 420px
+- Panel height adjusted to 460px (from original 580px)
 - Cleaner, more focused interface
-- Direct access to all debug tools
+- Direct access to all debug tools including Performance Stats
 
 ### Wave Info Panel (`src/ui/WaveInfoPanel.ts`)
 
@@ -59,27 +60,27 @@ Updated the Debug Info Panel to remove redundant sections and add quick-access s
 ## Usage
 
 1. **Open Debug Info Panel** - Click 🐛 Debug Info button (right side)
-2. **Access Debug Tools** - Click any of the three shortcut buttons:
+2. **Access Debug Tools** - Click any of the four shortcut buttons:
+   - 📊 Performance Stats - Real-time game metrics
    - 🎨 Shader Test - Visual effects and shaders
    - 📊 Wave Info - Upcoming wave composition
    - 📖 Bestiary - Zombie encyclopedia and spawn testing
+3. **Auto-Close** - Debug Info Panel automatically closes when you select a tool
 
 ## Panel Layout
 
 ```
-Right Side (Top to Bottom):
-┌─────────────────────┐
-│  Wave Info Panel    │ ← Direct access or via Debug Info
-├─────────────────────┤
-│  Bestiary Panel     │ ← Direct access or via Debug Info
-├─────────────────────┤
-│  Debug Info Panel   │ ← Central hub with shortcuts
-└─────────────────────┘
-
-Left Side:
-┌─────────────────────┐
-│  Shader Test Panel  │ ← Direct access or via Debug Info
-└─────────────────────┘
+Left Side:                    Right Side:
+┌─────────────────────┐      ┌─────────────────────┐
+│ Performance Stats   │      │  Wave Info Panel    │
+│  (Via Debug Info)   │      │  (Direct or Debug)  │
+└─────────────────────┘      ├─────────────────────┤
+                             │  Bestiary Panel     │
+┌─────────────────────┐      │  (Direct or Debug)  │
+│  Shader Test Panel  │      ├─────────────────────┤
+│  (Direct or Debug)  │      │  Debug Info Panel   │
+└─────────────────────┘      │  (Central Hub)      │
+                             └─────────────────────┘
 ```
 
 ## Benefits
@@ -88,7 +89,8 @@ Left Side:
 ✅ **Better Organization** - Each panel has clear purpose  
 ✅ **Easier Access** - One-click to any debug tool  
 ✅ **Cleaner UI** - Smaller, focused panels  
-✅ **Better UX** - Central hub for all debug features
+✅ **Better UX** - Central hub for all debug features  
+✅ **Auto-Close** - Menu gets out of the way after selection
 
 ## API Reference
 
@@ -96,9 +98,13 @@ Left Side:
 
 ```typescript
 // Set callbacks for opening panels
+debugInfoPanel.setStatsCallback(() => { ... });
 debugInfoPanel.setShaderTestCallback(() => { ... });
 debugInfoPanel.setWaveInfoCallback(() => { ... });
 debugInfoPanel.setBestiaryCallback(() => { ... });
+
+// Close the panel programmatically
+debugInfoPanel.close();
 ```
 
 ### Debug Test UI Manager

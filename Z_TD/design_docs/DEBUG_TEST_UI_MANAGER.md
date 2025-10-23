@@ -16,7 +16,19 @@ Previously, debug panels were scattered throughout `main.ts` with individual ini
 
 ## Managed Panels
 
-### 1. Shader Test Panel 🎨
+### 1. Performance Stats Panel 📊
+
+- **Location**: Left side, top
+- **Purpose**: Real-time performance and game statistics
+- **Features**:
+  - Combat stats (damage, DPS, kills, accuracy)
+  - Economy stats (income, expenses, efficiency)
+  - Efficiency metrics (damage/dollar, kills/dollar)
+  - Export report button
+  - Collapsible interface
+- **Access**: Via Debug Info Panel
+
+### 2. Shader Test Panel 🎨
 
 - **Location**: Bottom-left corner
 - **Purpose**: Test and adjust retro shader effects
@@ -26,7 +38,7 @@ Previously, debug panels were scattered throughout `main.ts` with individual ini
   - Real-time shader parameter adjustment
 - **Access**: Click button or via Debug Info Panel
 
-### 2. Wave Info Panel 📊
+### 3. Wave Info Panel 📊
 
 - **Location**: Bottom-right corner
 - **Purpose**: Display upcoming wave composition
@@ -37,7 +49,7 @@ Previously, debug panels were scattered throughout `main.ts` with individual ini
   - Color-coded zombie types
 - **Access**: Click button or via Debug Info Panel
 
-### 3. Bestiary Panel 📖
+### 4. Bestiary Panel 📖
 
 - **Location**: Right side, below wave info panel
 - **Purpose**: View all zombie types and spawn test zombies
@@ -48,7 +60,7 @@ Previously, debug panels were scattered throughout `main.ts` with individual ini
   - Spawn test buttons for debugging
 - **Access**: Click button or via Debug Info Panel
 
-### 4. Debug Info Panel 🐛 (Integration Point)
+### 5. Debug Info Panel 🐛 (Integration Point)
 
 - **Location**: Right side, below bestiary
 - **Purpose**: Central hub for accessing all debug panels
@@ -56,7 +68,8 @@ Previously, debug panels were scattered throughout `main.ts` with individual ini
   - Quick access buttons to all debug panels
   - Debug keyboard shortcuts reference
   - Configuration file location
-- **Note**: This panel provides shortcuts to open the other debug panels
+  - Auto-closes when a panel is selected
+- **Note**: This panel provides shortcuts to open the other debug panels and automatically closes after selection for a cleaner UI
 
 ## Usage
 
@@ -117,10 +130,14 @@ Panels are automatically positioned to avoid overlap:
 ```
 Left Side:                    Right Side:
 ┌─────────────────────┐      ┌─────────────────────┐
-│  Shader Test Panel  │      │  Wave Info Panel    │
-└─────────────────────┘      ├─────────────────────┤
-                             │  Bestiary Panel     │
-                             └─────────────────────┘
+│ Performance Stats   │      │  Wave Info Panel    │
+│     (Top)           │      ├─────────────────────┤
+└─────────────────────┘      │  Bestiary Panel     │
+                             ├─────────────────────┤
+┌─────────────────────┐      │  Debug Info Panel   │
+│  Shader Test Panel  │      └─────────────────────┘
+│     (Bottom)        │
+└─────────────────────┘
 ```
 
 Each panel has a toggle button that's always visible, with the full panel content appearing on click.
