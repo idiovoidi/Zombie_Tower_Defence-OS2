@@ -826,27 +826,45 @@ export class VisualMapRenderer {
         .stroke({ width: 1, color: 0x3a2a1a });
     }
 
-    // Gravestones (various types)
+    // Gravestones (various types with better variety)
     const gravestones = [
-      { x: 40, y: 280, type: 'cross', tilt: 0.1 },
-      { x: 80, y: 290, type: 'rect', tilt: -0.15 },
-      { x: 120, y: 285, type: 'round', tilt: 0.05 },
-      { x: 50, y: 330, type: 'rect', tilt: 0.2 },
-      { x: 95, y: 340, type: 'cross', tilt: -0.1 },
-      { x: 135, y: 335, type: 'rect', tilt: 0.15 },
-      { x: 35, y: 380, type: 'round', tilt: -0.05 },
-      { x: 75, y: 390, type: 'rect', tilt: 0.25 },
-      { x: 115, y: 385, type: 'cross', tilt: -0.2 },
-      { x: 145, y: 395, type: 'rect', tilt: 0.1 },
-      { x: 45, y: 440, type: 'round', tilt: 0.15 },
-      { x: 90, y: 450, type: 'rect', tilt: -0.1 },
-      { x: 130, y: 445, type: 'cross', tilt: 0.05 },
-      { x: 60, y: 490, type: 'rect', tilt: -0.2 },
-      { x: 105, y: 500, type: 'round', tilt: 0.1 },
+      // Top row
+      { x: 40, y: 280, type: 'cross', size: 12, tilt: 0.1 },
+      { x: 70, y: 275, type: 'headstone', size: 14, tilt: -0.08 },
+      { x: 100, y: 285, type: 'cross', size: 10, tilt: 0.15 },
+      { x: 130, y: 280, type: 'headstone', size: 13, tilt: -0.12 },
+
+      // Second row
+      { x: 35, y: 320, type: 'headstone', size: 15, tilt: 0.2 },
+      { x: 65, y: 315, type: 'cross', size: 11, tilt: -0.1 },
+      { x: 95, y: 325, type: 'monument', size: 18, tilt: 0.05 },
+      { x: 125, y: 320, type: 'headstone', size: 12, tilt: 0.18 },
+
+      // Third row (middle - avoid gate area)
+      { x: 40, y: 365, type: 'cross', size: 13, tilt: -0.15 },
+      { x: 70, y: 370, type: 'headstone', size: 14, tilt: 0.1 },
+      { x: 100, y: 360, type: 'cross', size: 10, tilt: -0.2 },
+
+      // Fourth row
+      { x: 35, y: 410, type: 'headstone', size: 16, tilt: 0.12 },
+      { x: 65, y: 405, type: 'cross', size: 11, tilt: -0.08 },
+      { x: 95, y: 415, type: 'headstone', size: 13, tilt: 0.25 },
+      { x: 125, y: 410, type: 'cross', size: 12, tilt: -0.15 },
+
+      // Bottom row
+      { x: 45, y: 455, type: 'monument', size: 17, tilt: 0.08 },
+      { x: 75, y: 450, type: 'headstone', size: 14, tilt: -0.1 },
+      { x: 105, y: 460, type: 'cross', size: 10, tilt: 0.15 },
+      { x: 135, y: 455, type: 'headstone', size: 13, tilt: -0.18 },
+
+      // Last row
+      { x: 50, y: 500, type: 'cross', size: 11, tilt: 0.2 },
+      { x: 80, y: 495, type: 'headstone', size: 12, tilt: -0.12 },
+      { x: 110, y: 505, type: 'cross', size: 10, tilt: 0.1 },
     ];
 
     for (const stone of gravestones) {
-      this.renderGravestone(stone.x, stone.y, stone.type, stone.tilt);
+      this.renderGravestone(stone.x, stone.y, stone.type, stone.size, stone.tilt);
     }
 
     // Dead trees in graveyard (multiple for atmosphere)
@@ -887,36 +905,193 @@ export class VisualMapRenderer {
     this.renderOpenGrave(graveyardX + 110, graveyardY + 160);
   }
 
-  private renderGravestone(x: number, y: number, type: string, _tilt: number): void {
-    const baseColor = 0x696969;
-    const darkColor = 0x4a4a4a;
+  private renderGravestone(x: number, y: number, type: string, size: number, tilt: number): void {
+    const graphics = this.mapContainer;
 
-    if (type === 'rect') {
-      // Rectangular gravestone
-      this.mapContainer.rect(x - 8, y, 16, 25).fill(baseColor);
-      this.mapContainer.stroke({ width: 1, color: darkColor });
-      // Moss/weathering
-      this.mapContainer.circle(x - 3, y + 5, 3).fill({ color: 0x2a4a2a, alpha: 0.5 });
-      this.mapContainer.circle(x + 4, y + 15, 2).fill({ color: 0x2a4a2a, alpha: 0.5 });
-    } else if (type === 'round') {
-      // Rounded top gravestone
-      this.mapContainer.rect(x - 8, y + 8, 16, 20).fill(baseColor);
-      this.mapContainer.circle(x, y + 8, 8).fill(baseColor);
-      this.mapContainer.stroke({ width: 1, color: darkColor });
-      // Crack
-      this.mapContainer
-        .moveTo(x - 2, y + 5)
-        .lineTo(x + 1, y + 20)
-        .stroke({ width: 1, color: darkColor });
-    } else if (type === 'cross') {
-      // Cross gravestone
-      this.mapContainer.rect(x - 2, y, 4, 25).fill(baseColor); // Vertical
-      this.mapContainer.rect(x - 8, y + 8, 16, 4).fill(baseColor); // Horizontal
-      this.mapContainer.stroke({ width: 1, color: darkColor });
+    if (type === 'cross') {
+      // Wooden cross - weathered and tilted
+      const crossWidth = size * 0.6;
+      const crossHeight = size;
+      const beamThickness = size * 0.15;
+
+      // Apply tilt transformation
+      const cos = Math.cos(tilt);
+      const sin = Math.sin(tilt);
+
+      // Vertical beam
+      const v1x = x + (-beamThickness / 2) * cos - 0 * sin;
+      const v1y = y + (-beamThickness / 2) * sin + 0 * cos;
+      const v2x = x + (beamThickness / 2) * cos - 0 * sin;
+      const v2y = y + (beamThickness / 2) * sin + 0 * cos;
+      const v3x = x + (beamThickness / 2) * cos - crossHeight * sin;
+      const v3y = y + (beamThickness / 2) * sin + crossHeight * cos;
+      const v4x = x + (-beamThickness / 2) * cos - crossHeight * sin;
+      const v4y = y + (-beamThickness / 2) * sin + crossHeight * cos;
+
+      graphics.moveTo(v1x, v1y).lineTo(v2x, v2y).lineTo(v3x, v3y).lineTo(v4x, v4y).lineTo(v1x, v1y);
+      graphics.fill({ color: 0x4a3a2a });
+      graphics.moveTo(v1x, v1y).lineTo(v2x, v2y).lineTo(v3x, v3y).lineTo(v4x, v4y).lineTo(v1x, v1y);
+      graphics.stroke({ width: 1, color: 0x2a1a1a });
+
+      // Horizontal beam
+      const hBeamY = crossHeight * 0.3;
+      const h1x = x + (-crossWidth / 2) * cos - hBeamY * sin;
+      const h1y = y + (-crossWidth / 2) * sin + hBeamY * cos;
+      const h2x = x + (crossWidth / 2) * cos - hBeamY * sin;
+      const h2y = y + (crossWidth / 2) * sin + hBeamY * cos;
+      const h3x = x + (crossWidth / 2) * cos - (hBeamY + beamThickness) * sin;
+      const h3y = y + (crossWidth / 2) * sin + (hBeamY + beamThickness) * cos;
+      const h4x = x + (-crossWidth / 2) * cos - (hBeamY + beamThickness) * sin;
+      const h4y = y + (-crossWidth / 2) * sin + (hBeamY + beamThickness) * cos;
+
+      graphics.moveTo(h1x, h1y).lineTo(h2x, h2y).lineTo(h3x, h3y).lineTo(h4x, h4y).lineTo(h1x, h1y);
+      graphics.fill({ color: 0x4a3a2a });
+      graphics.moveTo(h1x, h1y).lineTo(h2x, h2y).lineTo(h3x, h3y).lineTo(h4x, h4y).lineTo(h1x, h1y);
+      graphics.stroke({ width: 1, color: 0x2a1a1a });
+
+      // Shadow
+      graphics.ellipse(x + 2, y + crossHeight + 2, size * 0.4, size * 0.2);
+      graphics.fill({ color: 0x000000, alpha: 0.3 });
+    } else if (type === 'headstone') {
+      // Stone headstone - rectangular with rounded top
+      const width = size * 0.8;
+      const height = size;
+
+      // Apply tilt
+      const cos = Math.cos(tilt);
+      const sin = Math.sin(tilt);
+
+      // Draw rounded rectangle (simplified)
+      const points = [
+        { x: -width / 2, y: height * 0.2 },
+        { x: -width / 2, y: height },
+        { x: width / 2, y: height },
+        { x: width / 2, y: height * 0.2 },
+      ];
+
+      const transformedPoints = points.map(p => ({
+        x: x + p.x * cos - p.y * sin,
+        y: y + p.x * sin + p.y * cos,
+      }));
+
+      graphics.moveTo(transformedPoints[0].x, transformedPoints[0].y);
+      for (let i = 1; i < transformedPoints.length; i++) {
+        graphics.lineTo(transformedPoints[i].x, transformedPoints[i].y);
+      }
+      graphics.lineTo(transformedPoints[0].x, transformedPoints[0].y);
+      graphics.fill({ color: 0x5a5a5a });
+
+      graphics.moveTo(transformedPoints[0].x, transformedPoints[0].y);
+      for (let i = 1; i < transformedPoints.length; i++) {
+        graphics.lineTo(transformedPoints[i].x, transformedPoints[i].y);
+      }
+      graphics.lineTo(transformedPoints[0].x, transformedPoints[0].y);
+      graphics.stroke({ width: 1, color: 0x3a3a3a });
+
+      // Rounded top
+      const topCenterX = x + 0 * cos - height * 0.2 * sin;
+      const topCenterY = y + 0 * sin + height * 0.2 * cos;
+      graphics.arc(topCenterX, topCenterY, width / 2, Math.PI, 0);
+      graphics.fill({ color: 0x5a5a5a });
+      graphics.arc(topCenterX, topCenterY, width / 2, Math.PI, 0);
+      graphics.stroke({ width: 1, color: 0x3a3a3a });
+
+      // Add crack
+      const crackStartX = x + -width * 0.2 * cos - height * 0.4 * sin;
+      const crackStartY = y + -width * 0.2 * sin + height * 0.4 * cos;
+      const crackEndX = x + width * 0.1 * cos - height * 0.7 * sin;
+      const crackEndY = y + width * 0.1 * sin + height * 0.7 * cos;
+      graphics.moveTo(crackStartX, crackStartY).lineTo(crackEndX, crackEndY);
+      graphics.stroke({ width: 1, color: 0x2a2a2a, alpha: 0.7 });
+
+      // Moss patches
+      for (let i = 0; i < 2; i++) {
+        const mossX =
+          x + (Math.random() - 0.5) * width * 0.5 * cos - height * (0.5 + i * 0.2) * sin;
+        const mossY =
+          y + (Math.random() - 0.5) * width * 0.5 * sin + height * (0.5 + i * 0.2) * cos;
+        graphics.circle(mossX, mossY, 2);
+        graphics.fill({ color: 0x2a4a2a, alpha: 0.6 });
+      }
+
+      // Shadow
+      graphics.ellipse(x + 3, y + height + 2, width * 0.5, width * 0.25);
+      graphics.fill({ color: 0x000000, alpha: 0.3 });
+    } else if (type === 'monument') {
+      // Larger stone monument
+      const width = size * 0.9;
+      const height = size * 1.2;
+
+      // Apply tilt
+      const cos = Math.cos(tilt);
+      const sin = Math.sin(tilt);
+
+      // Base
+      const basePoints = [
+        { x: -width / 2, y: height * 0.8 },
+        { x: -width / 2, y: height },
+        { x: width / 2, y: height },
+        { x: width / 2, y: height * 0.8 },
+      ];
+
+      const transformedBase = basePoints.map(p => ({
+        x: x + p.x * cos - p.y * sin,
+        y: y + p.x * sin + p.y * cos,
+      }));
+
+      graphics.moveTo(transformedBase[0].x, transformedBase[0].y);
+      for (let i = 1; i < transformedBase.length; i++) {
+        graphics.lineTo(transformedBase[i].x, transformedBase[i].y);
+      }
+      graphics.lineTo(transformedBase[0].x, transformedBase[0].y);
+      graphics.fill({ color: 0x6a6a6a });
+      graphics.stroke({ width: 1, color: 0x4a4a4a });
+
+      // Main body
+      const bodyPoints = [
+        { x: -width * 0.4, y: height * 0.2 },
+        { x: -width * 0.4, y: height * 0.8 },
+        { x: width * 0.4, y: height * 0.8 },
+        { x: width * 0.4, y: height * 0.2 },
+      ];
+
+      const transformedBody = bodyPoints.map(p => ({
+        x: x + p.x * cos - p.y * sin,
+        y: y + p.x * sin + p.y * cos,
+      }));
+
+      graphics.moveTo(transformedBody[0].x, transformedBody[0].y);
+      for (let i = 1; i < transformedBody.length; i++) {
+        graphics.lineTo(transformedBody[i].x, transformedBody[i].y);
+      }
+      graphics.lineTo(transformedBody[0].x, transformedBody[0].y);
+      graphics.fill({ color: 0x5a5a5a });
+      graphics.stroke({ width: 1, color: 0x3a3a3a });
+
+      // Top (pointed)
+      const topPoints = [
+        { x: -width * 0.4, y: height * 0.2 },
+        { x: 0, y: 0 },
+        { x: width * 0.4, y: height * 0.2 },
+      ];
+
+      const transformedTop = topPoints.map(p => ({
+        x: x + p.x * cos - p.y * sin,
+        y: y + p.x * sin + p.y * cos,
+      }));
+
+      graphics.moveTo(transformedTop[0].x, transformedTop[0].y);
+      for (let i = 1; i < transformedTop.length; i++) {
+        graphics.lineTo(transformedTop[i].x, transformedTop[i].y);
+      }
+      graphics.lineTo(transformedTop[0].x, transformedTop[0].y);
+      graphics.fill({ color: 0x6a6a6a });
+      graphics.stroke({ width: 1, color: 0x4a4a4a });
+
+      // Shadow
+      graphics.ellipse(x + 4, y + height + 2, width * 0.6, width * 0.3);
+      graphics.fill({ color: 0x000000, alpha: 0.3 });
     }
-
-    // Shadow/base
-    this.mapContainer.rect(x - 10, y + 25, 20, 3).fill({ color: 0x1a1a1a, alpha: 0.4 });
   }
 
   private renderDeadTree(x: number, y: number): void {
