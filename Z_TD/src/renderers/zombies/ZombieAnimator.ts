@@ -58,11 +58,15 @@ export class ZombieAnimator {
   }
 
   private getAnimationSpeed(): number {
-    // Fast zombies animate 1.5x faster
-    if (this.zombieType === 'FAST') {
-      return 1.5;
+    // Different animation speeds for different zombie types
+    switch (this.zombieType) {
+      case 'FAST':
+        return 1.5; // 50% faster
+      case 'TANK':
+        return 0.7; // 30% slower (lumbering)
+      default:
+        return 1.0;
     }
-    return 1.0;
   }
 
   private getIdleFrame(time: number): AnimationData {

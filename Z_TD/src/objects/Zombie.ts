@@ -13,6 +13,7 @@ import {
 import { IZombieRenderer, ZombieRenderState } from '../renderers/zombies/ZombieRenderer';
 import { BasicZombieRenderer } from '../renderers/zombies/types/BasicZombieRenderer';
 import { FastZombieRenderer } from '../renderers/zombies/types/FastZombieRenderer';
+import { TankZombieRenderer } from '../renderers/zombies/types/TankZombieRenderer';
 
 export class Zombie extends GameObject {
   private type: string;
@@ -129,6 +130,9 @@ export class Zombie extends GameObject {
         return;
       } else if (this.type === GameConfig.ZOMBIE_TYPES.FAST) {
         this.renderer = new FastZombieRenderer();
+        return;
+      } else if (this.type === GameConfig.ZOMBIE_TYPES.TANK) {
+        this.renderer = new TankZombieRenderer();
         return;
       }
     }
