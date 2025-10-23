@@ -158,10 +158,10 @@ export class TowerInfoPanel extends UIComponent {
     // Update stats text - special handling for Sludge tower
     if (type === 'Sludge') {
       // Calculate slow percentage based on upgrade level
-      // Level 1: 10%, Level 2: 15%, Level 3: 20%, Level 4: 25%, Level 5: 30%
-      const slowPercent = Math.round((0.1 + (level - 1) * 0.05) * 100);
+      // Level 1: 10%, Level 2: 17.5%, Level 3: 25%, Level 4: 32.5%, Level 5: 40%
+      const slowPercent = Math.round((0.1 + (level - 1) * 0.075) * 100);
       // Calculate pool radius based on upgrade level
-      const poolRadius = 35 + (level - 1) * 5;
+      const poolRadius = 35 + (level - 1) * 3;
       this.statsText.text = `Slow: ${slowPercent}%\nPool Size: ${poolRadius}px\nRange: ${range}\nFire Rate: ${fireRate}/s\nHealth: ${this.selectedTower.getHealth()}/${this.selectedTower.getMaxHealth()}`;
     } else {
       this.statsText.text = `Damage: ${damage}\nRange: ${range}\nFire Rate: ${fireRate}/s\nHealth: ${this.selectedTower.getHealth()}/${this.selectedTower.getMaxHealth()}`;
@@ -175,7 +175,7 @@ export class TowerInfoPanel extends UIComponent {
     if (canUpgrade) {
       upgradeText.text = `Upgrade ($${upgradeCost})`;
       this.upgradeButton.alpha = 1;
-      (this.upgradeButton as any).interactive = true;
+      (this.upgradeButton as unknown).interactive = true;
     } else {
       upgradeText.text = 'Max Level';
       this.upgradeButton.alpha = 0.5;

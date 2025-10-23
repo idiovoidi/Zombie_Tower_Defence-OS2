@@ -474,14 +474,14 @@ export class Projectile extends Container {
     const sludgePool = new Graphics();
 
     // Scale pool radius with upgrade level - SMALL pools for path coverage
-    // Level 1: 35px, Level 2: 40px, Level 3: 45px, Level 4: 50px, Level 5: 55px
+    // Level 1: 35px, Level 2: 38px, Level 3: 41px, Level 4: 44px, Level 5: 47px
     const baseRadius = 35;
-    const radiusPerLevel = 5;
+    const radiusPerLevel = 3;
     const poolRadius = baseRadius + (this.upgradeLevel - 1) * radiusPerLevel;
 
     // Calculate slow percentage based on upgrade level
-    // Level 1: 10%, Level 2: 15%, Level 3: 20%, Level 4: 25%, Level 5: 30%
-    const slowPercent = 0.1 + (this.upgradeLevel - 1) * 0.05;
+    // Level 1: 10%, Level 2: 17.5%, Level 3: 25%, Level 4: 32.5%, Level 5: 40%
+    const slowPercent = 0.1 + (this.upgradeLevel - 1) * 0.075;
 
     // Calculate pool duration based on upgrade level
     // Level 1: 4s, Level 2: 5s, Level 3: 5s, Level 4: 6s, Level 5: 7s
