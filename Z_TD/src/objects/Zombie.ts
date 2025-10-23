@@ -11,6 +11,7 @@ import {
   getDamageModifier,
 } from '../config/zombieResistances';
 import { IZombieRenderer, ZombieRenderState } from '../renderers/zombies/ZombieRenderer';
+import { ArmoredZombieRenderer } from '../renderers/zombies/types/ArmoredZombieRenderer';
 import { BasicZombieRenderer } from '../renderers/zombies/types/BasicZombieRenderer';
 import { FastZombieRenderer } from '../renderers/zombies/types/FastZombieRenderer';
 import { TankZombieRenderer } from '../renderers/zombies/types/TankZombieRenderer';
@@ -133,6 +134,9 @@ export class Zombie extends GameObject {
         return;
       } else if (this.type === GameConfig.ZOMBIE_TYPES.TANK) {
         this.renderer = new TankZombieRenderer();
+        return;
+      } else if (this.type === GameConfig.ZOMBIE_TYPES.ARMORED) {
+        this.renderer = new ArmoredZombieRenderer();
         return;
       }
     }
