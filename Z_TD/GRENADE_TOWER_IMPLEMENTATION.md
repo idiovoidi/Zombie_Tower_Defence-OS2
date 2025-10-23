@@ -1,11 +1,13 @@
 # Grenade Tower Implementation
 
 ## Overview
+
 Successfully implemented the Grenade Tower with explosion animation and splash damage mechanics.
 
 ## Features Implemented
 
 ### 1. Grenade Tower Stats
+
 - **Cost:** $600
 - **Damage:** 100 (base splash damage)
 - **Range:** 180 pixels
@@ -13,6 +15,7 @@ Successfully implemented the Grenade Tower with explosion animation and splash d
 - **Special Ability:** Explosive area damage with arc trajectory
 
 ### 2. Visual Design
+
 - **Tower Appearance:** Olive drab military theme
 - **Upgrade Levels:** 5 levels with progressive improvements
   - Level 1-2: Makeshift mortar/launcher with ammo crates
@@ -20,13 +23,16 @@ Successfully implemented the Grenade Tower with explosion animation and splash d
   - Level 5: Military grenade launcher with armored storage
 
 ### 3. Grenade Projectile
+
 - **Visual:** Olive drab grenade with red pin
 - **Trajectory:** Parabolic arc (80px height at peak)
 - **Speed:** 350 pixels/second
 - **Animation:** Tumbles through the air while traveling
 
 ### 4. Explosion Animation
+
 Multi-layered explosion effect with:
+
 - **Shockwave Ring:** Expanding orange ring at 60px radius
 - **Explosion Layers:** 6 concentric circles from white core to red outer
   - White core (6px)
@@ -40,6 +46,7 @@ Multi-layered explosion effect with:
 - **Animation:** Expands from 0.5x to 1.5x scale over 400ms while fading out
 
 ### 5. Splash Damage Mechanics
+
 - **Radius Scaling:** Increases significantly with tower upgrade level
   - Level 1: 45px radius (base)
   - Level 2: 56px radius (+11px, +24%)
@@ -61,6 +68,7 @@ Multi-layered explosion effect with:
 ## Files Modified
 
 ### src/objects/Projectile.ts
+
 - Added grenade visual (olive grenade with red pin)
 - Implemented arc trajectory system with parabolic motion
 - Created explosion animation with multi-layered effects
@@ -68,23 +76,28 @@ Multi-layered explosion effect with:
 - Grenade tumbles while in flight for realistic effect
 
 ### src/managers/TowerCombatManager.ts
+
 - Added grenade projectile creation logic
 - Set grenade speed to 350 px/s (slower than bullets)
 - Integrated with damage callback system
 
 ### src/objects/TowerFactory.ts
+
 - Added GrenadeTower import
 - Added grenade case to tower creation switch
 
 ### src/managers/TowerManager.ts
+
 - Added grenade tower stats initialization from constants
 
 ### src/ui/TowerShop.ts
+
 - Added grenade tower icon (olive military theme)
 - Added "Grenade" display name
 - Icon shows ammo crates and military aesthetic
 
 ### src/objects/Tower.ts
+
 - Already had complete grenade visual implementation
 - Already had grenade projectile type in getProjectileType()
 - Includes idle animation (subtle bobbing)
@@ -92,6 +105,7 @@ Multi-layered explosion effect with:
 ## Testing
 
 ### Test Files Created
+
 1. **test-grenade-tower.html** - Basic tower creation test
 2. **test-grenade-explosion.html** - Full explosion and splash damage demo
    - Shows grenade tower shooting at zombie cluster
@@ -105,6 +119,7 @@ Multi-layered explosion effect with:
    - Real-time upgrade testing
 
 ### How to Test
+
 1. Start dev server: `npm run dev`
 2. Open http://localhost:8081/test-grenade-explosion.html
 3. Watch the grenade tower automatically shoot at the zombie cluster
@@ -115,6 +130,7 @@ Multi-layered explosion effect with:
    - Damage falloff based on distance
 
 **Test Explosion Scaling:**
+
 1. Open http://localhost:8081/test-grenade-scaling.html
 2. Click level buttons (1-5) to upgrade the tower
 3. Watch the explosion radius indicator grow
@@ -124,17 +140,19 @@ Multi-layered explosion effect with:
 ## Technical Details
 
 ### Arc Trajectory Math
+
 ```typescript
 // Linear interpolation for horizontal movement
-linearX = startX + totalDx * progress
+linearX = startX + totalDx * progress;
 
 // Parabolic arc for vertical offset
-arcProgress = sin(progress * π)
-heightOffset = -arcHeight * arcProgress
-finalY = linearY + heightOffset
+arcProgress = sin(progress * π);
+heightOffset = -arcHeight * arcProgress;
+finalY = linearY + heightOffset;
 ```
 
 ### Splash Damage Calculation
+
 ```typescript
 // For each zombie in explosion radius
 distance = sqrt((zombie.x - explosion.x)² + (zombie.y - explosion.y)²)
@@ -142,48 +160,53 @@ distance = sqrt((zombie.x - explosion.x)² + (zombie.y - explosion.y)²)
 if (distance <= explosionRadius) {
   damageFalloff = 1 - (distance / explosionRadius) * 0.7
   splashDamage = baseDamage * damageFalloff
-  
+
   // Apply zombie type modifier
   finalDamage = splashDamage * zombie.getDamageModifier(towerType)
 }
 ```
 
 ### Explosion Animation Timing
+
 - **Duration:** 400ms
 - **Scale:** 0.5x → 1.5x
 - **Alpha:** 1.0 → 0.0
 - **Frame Rate:** ~60fps (16ms intervals)
 
 ### Explosion Scaling Formula
+
 ```typescript
 // Base radius scales with upgrade level
-baseRadius = 40
-radiusPerLevel = 8
-explosionRadius = baseRadius + (upgradeLevel - 1) * radiusPerLevel
+baseRadius = 40;
+radiusPerLevel = 8;
+explosionRadius = baseRadius + (upgradeLevel - 1) * radiusPerLevel;
 
 // Visual elements scale proportionally
-radiusScale = explosionRadius / 60  // Normalize to original design
-layerRadius = originalRadius * radiusScale
+radiusScale = explosionRadius / 60; // Normalize to original design
+layerRadius = originalRadius * radiusScale;
 
 // Particle counts increase with level
-debrisCount = 15 + upgradeLevel * 3
-smokeCount = 10 + upgradeLevel * 2
+debrisCount = 15 + upgradeLevel * 3;
+smokeCount = 10 + upgradeLevel * 2;
 ```
 
 ## Integration with Game Systems
 
 ### Combat System
+
 - Grenade tower uses standard tower targeting (closest zombie in range)
 - Projectile manager handles grenade creation and updates
 - Combat manager coordinates shooting and damage callbacks
 
 ### Damage Tracking
+
 - Each zombie hit by splash damage triggers damage callback
 - Tracks actual damage dealt (after resistances)
 - Reports kills and overkill damage
 - Integrates with balance tracking system
 
 ### Visual Effects
+
 - Explosion graphics added to parent container
 - Automatically cleaned up after animation completes
 - No memory leaks (proper destroy() calls)
@@ -191,17 +214,20 @@ smokeCount = 10 + upgradeLevel * 2
 ## Balance Considerations
 
 ### Strengths
+
 - High area damage against grouped zombies
 - Good range (180px)
 - Effective against swarms
 
 ### Weaknesses
+
 - Slow fire rate (0.6 shots/sec)
 - Moderate cost ($600)
 - Damage falls off at edges
 - Slower projectile speed (350 px/s)
 
 ### Upgrade Scaling
+
 - Damage: +20% per level (lower than other towers)
 - Explosion Radius: +11px per level (+24% per level)
 - Range: +20% per level
@@ -220,10 +246,13 @@ smokeCount = 10 + upgradeLevel * 2
 6. **Impact Crater:** Temporary ground texture at explosion site
 
 ## Status
+
 ✅ **COMPLETE** - Grenade tower is fully functional and can be bought, placed, and used in-game with explosion animation and splash damage.
 
 ## Dev Server
+
 Running at: http://localhost:8081/
+
 - Main game: http://localhost:8081/
 - Grenade explosion test: http://localhost:8081/test-grenade-explosion.html
 - Grenade scaling test: http://localhost:8081/test-grenade-scaling.html

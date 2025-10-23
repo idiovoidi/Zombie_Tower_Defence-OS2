@@ -161,8 +161,6 @@ export class BottomBar extends UIComponent {
     return panel;
   }
 
-
-
   private createNextWaveButton(): Container {
     const button = new Container();
     button.eventMode = 'static';
@@ -247,8 +245,6 @@ export class BottomBar extends UIComponent {
   public updateWave(wave: number): void {
     this.waveValue.text = `${wave}`;
   }
-
-
 
   public showNextWaveButton(): void {
     this.nextWaveButton.visible = true;

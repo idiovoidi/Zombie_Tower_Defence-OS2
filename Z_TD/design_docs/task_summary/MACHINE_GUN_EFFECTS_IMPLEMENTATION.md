@@ -11,6 +11,7 @@ Successfully implemented enhanced visual effects for the Machine Gun tower as sp
 ### 1. Enhanced Muzzle Flash ✅
 
 **What was added:**
+
 - Multi-layered muzzle flash with realistic colors
 - Bright white core (3px radius, 90% alpha)
 - Yellow-orange glow (5px radius, 60% alpha)
@@ -23,6 +24,7 @@ Successfully implemented enhanced visual effects for the Machine Gun tower as sp
 ### 2. Muzzle Flash Lighting ✅
 
 **What was added:**
+
 - Subtle radial glow effect (30-pixel radius)
 - Three-layer gradient: white center → warm yellow → faint orange
 - Very brief lifetime (100ms)
@@ -35,6 +37,7 @@ Successfully implemented enhanced visual effects for the Machine Gun tower as sp
 ### 3. Shell Casing Effects ✅
 
 **What was added:**
+
 - Brass shell casings eject from gun with realistic physics
 - Gravity, rotation, and bounce mechanics
 - Ejection angle perpendicular to barrel
@@ -49,6 +52,7 @@ Successfully implemented enhanced visual effects for the Machine Gun tower as sp
 ### 4. Barrel Heat Glow ✅
 
 **What was added:**
+
 - Heat accumulation system (8 heat per shot, max 100)
 - Gradual cooling (0.015 heat per millisecond)
 - Subtle visual effects:
@@ -100,6 +104,7 @@ Successfully implemented enhanced visual effects for the Machine Gun tower as sp
 ### `src/objects/Tower.ts`
 
 **Added:**
+
 - Import for `BarrelHeatGlow`
 - Properties: `barrelHeatGlow`, `effectManager`
 - Method: `setEffectManager()` - Set container for effects
@@ -117,21 +122,25 @@ Successfully implemented enhanced visual effects for the Machine Gun tower as sp
 ### From Initial Implementation
 
 **Problem:** Barrel heat glow was too aggressive
+
 - Applied tint to entire barrel graphics (including human)
 - Large red circles looked unrealistic
 - Overwhelming visual effect
 
 **Solution:** Made it subtle and realistic
+
 - Only affects gun barrel area
 - Subtle heat distortion lines
 - Small glow at gun tip only
 - No tint on human gunner
 
 **Problem:** Muzzle flash was too bright
+
 - Large bright circles
 - Overpowered other visuals
 
 **Solution:** Reduced intensity
+
 - Smaller radius (3-5-7px instead of 6-10-14px)
 - Lower alpha values (0.9-0.6-0.3)
 - More realistic colors (warm yellow-orange)
@@ -150,7 +159,7 @@ Successfully implemented enhanced visual effects for the Machine Gun tower as sp
 ### Performance Impact
 
 - **Shell Casings:** ~0.01ms per update
-- **Muzzle Flash:** ~0.005ms per update  
+- **Muzzle Flash:** ~0.005ms per update
 - **Barrel Heat:** ~0.002ms per update
 - **Total:** <1% FPS impact with 50 effects active
 
@@ -195,12 +204,14 @@ this.spawnMuzzleFlashLight(gunTipOffset);
 ## ✨ Visual Results
 
 ### Before
+
 - Basic yellow circle muzzle flash
 - No shell casings
 - No heat indication
 - Static, lifeless shooting
 
 ### After
+
 - Multi-layered realistic muzzle flash
 - Brass casings ejecting with physics
 - Subtle barrel heat glow on sustained fire
@@ -246,6 +257,7 @@ this.spawnMuzzleFlashLight(gunTipOffset);
 ### None Currently
 
 All initial issues have been resolved:
+
 - ✅ Human gunner no longer glows red
 - ✅ Red circles removed
 - ✅ Effects are subtle and realistic
@@ -258,6 +270,7 @@ All initial issues have been resolved:
 ### Design Philosophy
 
 The effects were designed to be:
+
 1. **Subtle** - Enhance without overwhelming
 2. **Realistic** - Based on real-world physics
 3. **Performant** - Minimal FPS impact
@@ -275,15 +288,19 @@ The effects were designed to be:
 ## 🎯 Success Metrics
 
 **Visual Appeal:** ⭐⭐⭐⭐⭐
+
 - Effects look great and feel satisfying
 
 **Performance:** ⭐⭐⭐⭐⭐
+
 - <1% FPS impact, well optimized
 
 **Code Quality:** ⭐⭐⭐⭐⭐
+
 - Clean, documented, maintainable
 
 **Player Experience:** ⭐⭐⭐⭐⭐
+
 - Shooting feels much more satisfying
 
 ---

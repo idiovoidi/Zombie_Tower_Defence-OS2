@@ -1,1 +1,0 @@
-Let's create a sludge tower, this tower will do no damage and will fling barrels of radioactive sludge that will leave a temporary pool of residue that will slow zombies movement speed. Upgrades will increase the slow percent. Crowd control effects are extremely strong so we should be modest with slow amounts and fire rate

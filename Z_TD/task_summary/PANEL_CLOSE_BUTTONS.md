@@ -9,30 +9,36 @@ Added close buttons to all debug panels (Shader Test, Wave Info, Performance Sta
 ### Shader Test Panel (`src/ui/ShaderTestPanel.ts`)
 
 **Added:**
+
 - Close button (✕) in top-right corner (purple color)
 - `closePanel()` private method to close the panel
 
 **Behavior:**
+
 - Click ✕ button to close the panel completely
 - Panel can be reopened via toggle button or Debug Info shortcut
 
 ### Wave Info Panel (`src/ui/WaveInfoPanel.ts`)
 
 **Added:**
+
 - Close button (✕) in top-right corner (yellow color)
 - Wired to existing `close()` method
 
 **Behavior:**
+
 - Click ✕ button to close the panel completely
 - Panel can be reopened via toggle button or Debug Info shortcut
 
 ### Performance Stats Panel (`src/ui/StatsPanel.ts`)
 
 **Added:**
+
 - Hide button (✕) in top-right corner (red color)
 - `createHideButton()` method
 
 **Behavior:**
+
 - Collapse button (−/+) minimizes/expands the panel
 - Hide button (✕) completely hides the panel
 - Panel can be reopened via Debug Info shortcut
@@ -40,11 +46,13 @@ Added close buttons to all debug panels (Shader Test, Wave Info, Performance Sta
 ## User Experience
 
 ### Before
+
 - **Shader Test**: No way to close, only toggle
 - **Wave Info**: No way to close, only toggle
 - **Performance Stats**: Could only collapse (minimize), not hide
 
 ### After
+
 - **All Panels**: Have close buttons (✕) in top-right corner
 - **Clean UI**: Users can fully close panels they don't need
 - **Easy Reopen**: All panels can be reopened via Debug Info shortcuts
@@ -52,6 +60,7 @@ Added close buttons to all debug panels (Shader Test, Wave Info, Performance Sta
 ## Button Positions
 
 All close buttons positioned at:
+
 - **X**: Panel width - 30px (top-right area)
 - **Y**: 20px from top (next to title)
 - **Style**: Circle with ✕ symbol

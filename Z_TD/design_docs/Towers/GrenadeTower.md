@@ -10,13 +10,13 @@ The Grenade Tower is a mid-range explosive tower that launches grenades in an ar
 
 ### Base Stats (Level 1)
 
-| Stat | Value |
-|------|-------|
-| **Cost** | $600 |
-| **Damage** | 100 (splash) |
-| **Range** | 180 |
-| **Fire Rate** | 0.6 shots/second |
-| **Health** | 95 HP |
+| Stat           | Value                    |
+| -------------- | ------------------------ |
+| **Cost**       | $600                     |
+| **Damage**     | 100 (splash)             |
+| **Range**      | 180                      |
+| **Fire Rate**  | 0.6 shots/second         |
+| **Health**     | 95 HP                    |
 | **Projectile** | Grenade (arc trajectory) |
 
 ### Upgrade Scaling
@@ -33,18 +33,21 @@ The Grenade Tower is a mid-range explosive tower that launches grenades in an ar
 ### Tower Appearance
 
 **Level 1-2: Makeshift Mortar**
+
 - Olive drab wooden platform
 - Wooden ammo crates with grenade symbols
 - Rustic, improvised appearance
 - Survivor in basic olive gear
 
 **Level 3-4: Reinforced Launcher**
+
 - Dark olive metal platform
 - Metal ammo boxes
 - Yellow warning stripes
 - Survivor in tactical gear
 
 **Level 5: Military Grenade Launcher**
+
 - Military green armored platform
 - Armored ammo storage
 - Caution markings and explosive warnings
@@ -65,6 +68,7 @@ The Grenade Tower is a mid-range explosive tower that launches grenades in an ar
 ### Role
 
 **Mid-Range Area Damage**
+
 - Fills gap between Shotgun (short) and Sniper (long)
 - Explosive AoE damage
 - Burst damage pattern
@@ -75,14 +79,14 @@ The Grenade Tower is a mid-range explosive tower that launches grenades in an ar
 ✅ **Good Range:** 180 range is solid mid-range  
 ✅ **Area Damage:** Hits multiple zombies in explosion  
 ✅ **Cost Effective:** $600 is affordable  
-✅ **Arc Trajectory:** Can shoot over obstacles (future)  
+✅ **Arc Trajectory:** Can shoot over obstacles (future)
 
 ### Weaknesses
 
 ❌ **Slow Fire Rate:** 0.6 shots/sec is quite slow  
 ❌ **Lower Damage:** 100 vs Flame's 200  
 ❌ **Projectile Travel:** Grenades take time to reach target  
-❌ **Predictive Aiming:** Need to lead moving targets  
+❌ **Predictive Aiming:** Need to lead moving targets
 
 ### Best Against
 
@@ -102,24 +106,24 @@ The Grenade Tower is a mid-range explosive tower that launches grenades in an ar
 
 ### vs Flame Tower
 
-| Aspect | Flame | Grenade |
-|--------|-------|---------|
-| Cost | $750 | $600 |
-| Damage | 200 | 100 |
-| Range | 120 | 180 |
-| Fire Rate | 0.75/sec | 0.6/sec |
-| Pattern | Sustained DoT | Burst AoE |
-| **Advantage** | Higher DPS | Better range, cheaper |
+| Aspect        | Flame         | Grenade               |
+| ------------- | ------------- | --------------------- |
+| Cost          | $750          | $600                  |
+| Damage        | 200           | 100                   |
+| Range         | 120           | 180                   |
+| Fire Rate     | 0.75/sec      | 0.6/sec               |
+| Pattern       | Sustained DoT | Burst AoE             |
+| **Advantage** | Higher DPS    | Better range, cheaper |
 
 ### vs Shotgun Tower
 
-| Aspect | Shotgun | Grenade |
-|--------|---------|---------|
-| Cost | $400 | $600 |
-| Damage | 60 | 100 |
-| Range | 120 | 180 |
-| Fire Rate | 0.8/sec | 0.6/sec |
-| Pattern | Cone spread | Single explosion |
+| Aspect        | Shotgun         | Grenade           |
+| ------------- | --------------- | ----------------- |
+| Cost          | $400            | $600              |
+| Damage        | 60              | 100               |
+| Range         | 120             | 180               |
+| Fire Rate     | 0.8/sec         | 0.6/sec           |
+| Pattern       | Cone spread     | Single explosion  |
 | **Advantage** | Cheaper, faster | Better range, AoE |
 
 ---
@@ -156,6 +160,7 @@ export class GrenadeTower extends Tower {
 Returns `'grenade'` from `getProjectileType()`
 
 **Projectile Requirements:**
+
 - Arc trajectory (parabolic path)
 - Explosion on impact
 - Area damage radius
@@ -192,11 +197,13 @@ Returns `'grenade'` from `getProjectileType()`
 ### DPS Analysis (Level 1)
 
 **Single Target:**
+
 - Damage: 100
 - Fire Rate: 0.6/sec
 - DPS: 60
 
 **Multi-Target (3 zombies):**
+
 - Effective DPS: 180 (60 × 3)
 
 ### Cost Efficiency
@@ -205,19 +212,20 @@ Returns `'grenade'` from `getProjectileType()`
 - **Cost per DPS:** $3.33 per DPS (3 targets)
 
 **Comparison:**
+
 - Machine Gun: $2.60 per DPS
 - Flame: $5 per DPS
 - Grenade: $10 per DPS (single) / $3.33 (multi)
 
 ### Upgrade Value
 
-| Level | Damage | Fire Rate | DPS | Cost |
-|-------|--------|-----------|-----|------|
-| 1 | 100 | 0.6 | 60 | $600 |
-| 2 | 150 | 0.66 | 99 | +$450 |
-| 3 | 225 | 0.73 | 164 | +$675 |
-| 4 | 338 | 0.80 | 270 | +$900 |
-| 5 | 506 | 0.88 | 445 | +$1125 |
+| Level | Damage | Fire Rate | DPS | Cost   |
+| ----- | ------ | --------- | --- | ------ |
+| 1     | 100    | 0.6       | 60  | $600   |
+| 2     | 150    | 0.66      | 99  | +$450  |
+| 3     | 225    | 0.73      | 164 | +$675  |
+| 4     | 338    | 0.80      | 270 | +$900  |
+| 5     | 506    | 0.88      | 445 | +$1125 |
 
 ---
 
@@ -226,12 +234,14 @@ Returns `'grenade'` from `getProjectileType()`
 ### Placement
 
 **Best Locations:**
+
 - Choke points where zombies group
 - Mid-range coverage areas
 - Behind front-line towers
 - Covering multiple paths
 
 **Avoid:**
+
 - Front line (too slow)
 - Long range positions (wasted range)
 - Isolated spots (needs support)
@@ -239,11 +249,13 @@ Returns `'grenade'` from `getProjectileType()`
 ### Synergies
 
 **Good With:**
+
 - **Shotgun:** Slows zombies for easier hits
 - **Machine Gun:** Finishes wounded zombies
 - **Sniper:** Takes out high-HP targets
 
 **Weak With:**
+
 - **Flame:** Overlapping AoE is redundant
 - **Tesla:** Both are burst damage
 
@@ -261,17 +273,20 @@ Returns `'grenade'` from `getProjectileType()`
 ### Planned Features
 
 **Arc Trajectory:**
+
 - Parabolic projectile path
 - Can shoot over obstacles
 - Visual grenade trail
 
 **Explosion System:**
+
 - Radial damage calculation
 - Visual explosion effect
 - Shockwave animation
 - Debris particles
 
 **Upgrade Variations:**
+
 - **Cluster Grenades:** Multiple explosions
 - **Incendiary:** Fire DoT after explosion
 - **Sticky:** Attach to zombies before exploding
@@ -280,16 +295,19 @@ Returns `'grenade'` from `getProjectileType()`
 ### Special Mechanics
 
 **Knockback:**
+
 - Explosion pushes zombies back
 - Delays zombie progress
 - Stacks with other knockback
 
 **Stun:**
+
 - Brief stun on explosion
 - Interrupts zombie movement
 - Synergizes with other towers
 
 **Armor Shred:**
+
 - Reduces zombie armor
 - Makes them vulnerable
 - Team support role

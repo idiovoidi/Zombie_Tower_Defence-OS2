@@ -5,6 +5,7 @@
 ### ✅ Phase 1: Enhanced Gravestones (COMPLETE)
 
 **What Was Added:**
+
 - 3 gravestone types (crosses, headstones, monuments)
 - 22 total gravestones with varied sizes (10-18px)
 - Realistic tilt angles (-0.2 to 0.25 radians)
@@ -12,6 +13,7 @@
 - Strategic placement in family plot clusters
 
 **Visual Impact:**
+
 - Much more variety and depth
 - Realistic weathered appearance
 - Better storytelling through variety
@@ -20,6 +22,7 @@
 ### ✅ Phase 2: Animated Fog Effects (COMPLETE)
 
 **What Was Added:**
+
 - 22 animated fog particles (2 layers)
 - Smooth horizontal drift (15px range)
 - Subtle vertical bobbing (3px range)
@@ -27,6 +30,7 @@
 - Seamless wrapping at boundaries
 
 **Visual Impact:**
+
 - Living, breathing atmosphere
 - Eerie supernatural feeling
 - Smooth professional animation
@@ -35,6 +39,7 @@
 ## Current Graveyard Features
 
 ### Static Elements
+
 - ✅ Dark cursed earth ground
 - ✅ Dead grass patches
 - ✅ Disturbed earth (zombie emergence sites)
@@ -51,18 +56,21 @@
 - ✅ Eerie green glow spots
 
 ### Animated Elements
+
 - ✅ Drifting fog (NEW)
 - ✅ Pulsing fog alpha (NEW)
 
 ## Visual Quality Improvements
 
 **Before Redesign:**
+
 - Basic geometric shapes
 - Limited variety
 - Static appearance
 - Functional but plain
 
 **After Redesign:**
+
 - Detailed, varied elements
 - Realistic weathering
 - Smooth animations
@@ -72,6 +80,7 @@
 ## Performance
 
 **Rendering Cost:**
+
 - Gravestones: Static (rendered once)
 - Fog: 22 particles, ~0.05ms/frame
 - Total Impact: Negligible
@@ -80,12 +89,14 @@
 ## Next Steps (Future Phases)
 
 ### Phase 3: Particle Effects (Planned)
+
 - Zombie spawn effects (ground rumble, dirt burst)
 - Dust particles floating in air
 - Occasional fireflies/spirits
 - Dripping effects
 
 ### Phase 4: Enhanced Details (Planned)
+
 - More debris variety (coffin fragments, tools)
 - Blood trails to gate
 - Crows/ravens on gravestones
@@ -93,12 +104,14 @@
 - Broken lanterns
 
 ### Phase 5: Dynamic Lighting (Planned)
+
 - Flickering supernatural lights
 - Glowing runes on gate
 - Moonlight shafts through fog
 - Shadow animations
 
 ### Phase 6: Environmental Interaction (Planned)
+
 - Fog swirls when zombies pass
 - Ground cracks before spawns
 - Lingering spawn effects
@@ -107,6 +120,7 @@
 ## Technical Architecture
 
 **File Structure:**
+
 ```
 src/renderers/
 ├── VisualMapRenderer.ts (main renderer)
@@ -118,12 +132,14 @@ src/renderers/
 ```
 
 **Integration:**
+
 ```
 GameManager.update()
   └── visualMapRenderer.updateFog(deltaTime)
 ```
 
 **Rendering Order:**
+
 ```
 Layer 0: Ground & structures (mapContainer)
 Layer 1: Path (pathGraphics)
@@ -143,16 +159,19 @@ Layer 3+: Game objects, UI
 ## Player Experience Impact
 
 **Atmosphere:** ⭐⭐⭐⭐⭐
+
 - Significantly more immersive
 - Strong horror/survival theme
 - Professional visual quality
 
 **Clarity:** ⭐⭐⭐⭐⭐
+
 - Gameplay elements still clear
 - Fog doesn't obscure important info
 - Good visual hierarchy
 
 **Performance:** ⭐⭐⭐⭐⭐
+
 - Smooth 60 FPS
 - No lag or stuttering
 - Efficient rendering
@@ -162,6 +181,7 @@ Layer 3+: Game objects, UI
 **From GRAVEYARD_GRAPHICS_OVERHAUL.md:**
 
 Phase 1 Goals:
+
 - ✅ Enhanced ground rendering (layers)
 - ✅ Gravestone variety and placement
 - ✅ Improved fence with details (already existed)
@@ -190,6 +210,7 @@ The graveyard now serves as an atmospheric, immersive focal point that enhances 
 ## Ready for Testing
 
 The enhanced graveyard is ready for player testing:
+
 - Visual quality assessment
 - Atmospheric effectiveness
 - Performance validation

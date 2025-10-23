@@ -19,13 +19,13 @@ Successfully created a new Grenade tower based on the Flame tower, with explosiv
 
 ### Comparison with Flame Tower
 
-| Stat | Flame | Grenade |
-|------|-------|---------|
-| Cost | $750 | $600 |
-| Damage | 200 | 100 |
-| Range | 120 | 180 |
-| Fire Rate | 0.75/sec | 0.6/sec |
-| Special | Burning DoT | Explosive AoE |
+| Stat      | Flame       | Grenade       |
+| --------- | ----------- | ------------- |
+| Cost      | $750        | $600          |
+| Damage    | 200         | 100           |
+| Range     | 120         | 180           |
+| Fire Rate | 0.75/sec    | 0.6/sec       |
+| Special   | Burning DoT | Explosive AoE |
 
 ---
 
@@ -34,18 +34,21 @@ Successfully created a new Grenade tower based on the Flame tower, with explosiv
 ### Tower Appearance
 
 **Level 1-2: Makeshift Mortar**
+
 - Olive drab platform
 - Wooden ammo crates
 - Grenade symbols
 - Rustic, improvised look
 
 **Level 3-4: Reinforced Launcher**
+
 - Dark olive platform
 - Metal ammo boxes
 - Yellow warning stripes
 - More professional appearance
 
 **Level 5: Military Grenade Launcher**
+
 - Military green with armor
 - Armored ammo storage
 - Caution markings
@@ -55,6 +58,7 @@ Successfully created a new Grenade tower based on the Flame tower, with explosiv
 ### Survivor Character
 
 **"The Demolitionist"**
+
 - Olive/military green tactical gear
 - Grenade launcher (tube style)
 - Helmet progression:
@@ -68,12 +72,14 @@ Successfully created a new Grenade tower based on the Flame tower, with explosiv
 ## 💥 Visual Effects
 
 ### Launch Flash
+
 - Bright orange/yellow flash
 - Multi-layered (5px → 8px → 12px)
 - Smoke puff after launch
 - Less intense than flame tower
 
 ### Idle Animation
+
 - Subtle bob up and down
 - Simulates loading/ready state
 - Gentle, rhythmic movement
@@ -83,17 +89,20 @@ Successfully created a new Grenade tower based on the Flame tower, with explosiv
 ## 🎮 Gameplay Role
 
 ### Strengths
+
 - **Area Damage:** Hits multiple zombies in explosion radius
 - **Arc Trajectory:** Can shoot over obstacles (future feature)
 - **Good Range:** 180 range is solid mid-range
 - **Cost Effective:** $600 is affordable mid-game
 
 ### Weaknesses
+
 - **Slow Fire Rate:** 0.6 shots/sec is quite slow
 - **Lower Damage:** 100 base damage vs Flame's 200
 - **Projectile Travel:** Grenades take time to reach target
 
 ### Best Use Cases
+
 - **Grouped Zombies:** Explosive AoE shines against clusters
 - **Mid-Range Defense:** 180 range fills gap between short and long
 - **Budget Option:** Cheaper than Flame for AoE damage
@@ -106,13 +115,16 @@ Successfully created a new Grenade tower based on the Flame tower, with explosiv
 ### Files Modified
 
 **`src/config/gameConfig.ts`**
+
 - Added `GRENADE: 'Grenade'` to TOWER_TYPES
 
 **`src/config/towerConstants.ts`**
+
 - Added GRENADE tower stats
 - Added to getTowerStats() switch
 
 **`src/objects/Tower.ts`**
+
 - Added grenade health (95 HP)
 - Added idleAnimationGrenade() method
 - Added grenade shooting effect (launch flash)
@@ -141,6 +153,7 @@ case 'grenade':
 ### Explosion Effect
 
 Create explosion visual effect:
+
 - Bright orange/yellow flash
 - Expanding shockwave
 - Debris particles
@@ -150,6 +163,7 @@ Create explosion visual effect:
 ### Arc Trajectory
 
 Implement parabolic path:
+
 - Launch angle based on distance
 - Gravity simulation
 - Visual arc trail
@@ -161,12 +175,12 @@ Implement parabolic path:
 
 ### DPS Comparison (Level 1)
 
-| Tower | Damage | Fire Rate | Single Target DPS | Notes |
-|-------|--------|-----------|-------------------|-------|
-| Machine Gun | 12 | 8.0 | 96 | Multi-target |
-| Grenade | 100 | 0.6 | 60 | AoE splash |
-| Flame | 200 | 0.75 | 150 | DoT + AoE |
-| Shotgun | 60 | 0.8 | 48 | Multi-pellet |
+| Tower       | Damage | Fire Rate | Single Target DPS | Notes        |
+| ----------- | ------ | --------- | ----------------- | ------------ |
+| Machine Gun | 12     | 8.0       | 96                | Multi-target |
+| Grenade     | 100    | 0.6       | 60                | AoE splash   |
+| Flame       | 200    | 0.75      | 150               | DoT + AoE    |
+| Shotgun     | 60     | 0.8       | 48                | Multi-pellet |
 
 ### Cost Efficiency
 
@@ -175,6 +189,7 @@ Implement parabolic path:
 - **Machine Gun:** $250 for 96 DPS = $2.60 per DPS
 
 Grenade is less efficient than Flame but offers:
+
 - Lower upfront cost
 - Better range
 - Different damage pattern
@@ -186,10 +201,12 @@ Grenade is less efficient than Flame but offers:
 ### Distinct Identity
 
 **Grenade vs Flame:**
+
 - Grenade: Burst AoE, arc trajectory, explosive
 - Flame: Sustained DoT, direct line, burning
 
 **Grenade vs Shotgun:**
+
 - Grenade: Single explosive projectile, long range
 - Shotgun: Multiple pellets, short range, instant
 
@@ -263,6 +280,7 @@ The grenade tower returns 'grenade' as its projectile type. The ProjectileManage
 ### Balance Tuning
 
 Current stats are initial values. May need adjustment after testing:
+
 - Damage might be too low (100 vs Flame's 200)
 - Fire rate might be too slow (0.6/sec)
 - Range might need tweaking (180)
@@ -271,6 +289,7 @@ Current stats are initial values. May need adjustment after testing:
 ### Visual Polish
 
 Consider adding:
+
 - Grenade visible in launcher before firing
 - Ammo counter visual
 - Reload animation

@@ -11,10 +11,11 @@ These improvements will significantly enhance tower feel and gameplay with minim
 ### Machine Gun & Sniper
 
 **Implementation:**
+
 ```typescript
 // After shooting
 const casing = new Graphics();
-casing.rect(0, 0, 2, 4).fill(0xFFD700); // Brass color
+casing.rect(0, 0, 2, 4).fill(0xffd700); // Brass color
 casing.position.set(tower.x + 5, tower.y);
 casing.rotation = Math.random() * Math.PI;
 
@@ -24,6 +25,7 @@ const velocity = { x: Math.random() * 2 - 1, y: Math.random() * 2 + 1 };
 ```
 
 **Impact:**
+
 - Immediate visual feedback
 - Makes shooting feel more "real"
 - Adds life to the battlefield
@@ -38,20 +40,22 @@ const velocity = { x: Math.random() * 2 - 1, y: Math.random() * 2 + 1 };
 **Current:** Small yellow circle
 
 **Improved:**
+
 ```typescript
 // Machine Gun - Rapid flash
-flash.circle(0, gunTip, 6).fill(0xFFFF00);
-flash.circle(0, gunTip, 10).fill({ color: 0xFFFF00, alpha: 0.5 });
-flash.circle(0, gunTip, 14).fill({ color: 0xFF6600, alpha: 0.3 });
+flash.circle(0, gunTip, 6).fill(0xffff00);
+flash.circle(0, gunTip, 10).fill({ color: 0xffff00, alpha: 0.5 });
+flash.circle(0, gunTip, 14).fill({ color: 0xff6600, alpha: 0.3 });
 
 // Sniper - Massive flash
-flash.circle(0, rifleTip, 8).fill(0xFFFFFF);
-flash.circle(0, rifleTip, 12).fill({ color: 0xFFFF00, alpha: 0.7 });
-flash.circle(0, rifleTip, 18).fill({ color: 0xFF6600, alpha: 0.4 });
-flash.circle(0, rifleTip, 24).fill({ color: 0xFF0000, alpha: 0.2 });
+flash.circle(0, rifleTip, 8).fill(0xffffff);
+flash.circle(0, rifleTip, 12).fill({ color: 0xffff00, alpha: 0.7 });
+flash.circle(0, rifleTip, 18).fill({ color: 0xff6600, alpha: 0.4 });
+flash.circle(0, rifleTip, 24).fill({ color: 0xff0000, alpha: 0.2 });
 ```
 
 **Impact:**
+
 - More satisfying shooting
 - Better visual distinction between towers
 - Sniper feels more powerful
@@ -85,6 +89,7 @@ showDamageNumber(damage: number, type: DamageType, x: number, y: number) {
 ```
 
 **Impact:**
+
 - Clear feedback on damage effectiveness
 - Players understand resistances/weaknesses
 - Satisfying to see big yellow crits
@@ -113,6 +118,7 @@ this.heatLevel = Math.max(0, this.heatLevel - deltaTime * 0.01);
 ```
 
 **Impact:**
+
 - Visual feedback for sustained fire
 - Looks cool and realistic
 - Adds personality to machine gun
@@ -131,13 +137,13 @@ enum TargetMode {
   STRONGEST = '🛡️',
   WEAKEST = '💔',
   FASTEST = '⚡',
-  CLOSEST = '🎯'
+  CLOSEST = '🎯',
 }
 
 // Show icon above tower
 const modeIcon = new Text(this.targetMode, {
   fontSize: 12,
-  fill: 0xFFFFFF
+  fill: 0xffffff,
 });
 modeIcon.position.set(0, -30);
 this.addChild(modeIcon);
@@ -149,6 +155,7 @@ tower.on('click', () => {
 ```
 
 **Impact:**
+
 - Adds strategic depth
 - Easy to understand
 - Minimal UI clutter
@@ -171,6 +178,7 @@ smoke.circle(0, 0, 12).fill({ color: 0x888888, alpha: 0.3 });
 ```
 
 **Impact:**
+
 - Shotgun feels more powerful
 - Adds atmosphere
 - Minimal performance cost
@@ -189,17 +197,18 @@ const isCrit = Math.random() < critChance;
 
 if (isCrit) {
   damage *= this.getCritMultiplier(); // 1.5x - 2.5x
-  
+
   // Visual feedback
   this.showCritEffect();
   this.showDamageNumber(damage, DamageType.CRITICAL, x, y);
-  
+
   // Audio feedback
   this.playCritSound();
 }
 ```
 
 **Tower-Specific Crit Chances:**
+
 - Machine Gun: 15% (1.5x)
 - Sniper: 25% (2.5x)
 - Shotgun: 20% at close range (2.0x)
@@ -207,6 +216,7 @@ if (isCrit) {
 - Tesla: 20% (1.8x + extra chains)
 
 **Impact:**
+
 - Adds excitement and unpredictability
 - Makes towers feel more powerful
 - Rewards good positioning
@@ -236,7 +246,7 @@ private updateVeterancyLevel(): void {
     this.veterancyLevel = 1; // Bronze star
     this.damageBonus = 1.05;
   }
-  
+
   this.updateVeterancyVisual();
 }
 
@@ -248,6 +258,7 @@ private updateVeterancyVisual(): void {
 ```
 
 **Impact:**
+
 - Rewards keeping towers alive
 - Adds progression during gameplay
 - Visual feedback for tower performance
@@ -263,15 +274,15 @@ private updateVeterancyVisual(): void {
 // Circular cooldown indicator
 private drawCooldownIndicator(progress: number): void {
   const indicator = new Graphics();
-  
+
   // Background circle
   indicator.circle(0, -25, 8).fill({ color: 0x000000, alpha: 0.5 });
-  
+
   // Progress arc
   const angle = progress * Math.PI * 2;
   indicator.arc(0, -25, 8, -Math.PI/2, -Math.PI/2 + angle)
     .stroke({ width: 2, color: 0x00FF00 });
-  
+
   this.addChild(indicator);
 }
 
@@ -283,6 +294,7 @@ if (this.abilityOnCooldown) {
 ```
 
 **Impact:**
+
 - Clear feedback on ability status
 - Encourages ability usage
 - Professional feel
@@ -297,9 +309,10 @@ if (this.abilityOnCooldown) {
 ```typescript
 // Create trail from tower to target
 const trail = new Graphics();
-trail.moveTo(tower.x, tower.y)
+trail
+  .moveTo(tower.x, tower.y)
   .lineTo(target.x, target.y)
-  .stroke({ width: 2, color: 0xFFFF00, alpha: 0.8 });
+  .stroke({ width: 2, color: 0xffff00, alpha: 0.8 });
 
 // Fade out over 100ms
 setTimeout(() => {
@@ -309,6 +322,7 @@ setTimeout(() => {
 ```
 
 **Impact:**
+
 - Shows where shots are going
 - Looks awesome
 - Helps players understand tower behavior
@@ -319,6 +333,7 @@ setTimeout(() => {
 ## 🎯 Implementation Order
 
 ### Week 1: Visual Feedback
+
 1. Enhanced muzzle flashes (Day 1)
 2. Shell casings (Day 2)
 3. Damage number colors (Day 3)
@@ -326,11 +341,13 @@ setTimeout(() => {
 5. Smoke effects (Day 5)
 
 ### Week 2: Gameplay Depth
+
 1. Critical hit system (Day 1-2)
 2. Targeting modes (Day 3)
 3. Tower veterancy (Day 4-5)
 
 ### Week 3: Polish
+
 1. Barrel heat glow (Day 1)
 2. Ability cooldown indicators (Day 2)
 3. Testing and balancing (Day 3-5)
@@ -340,12 +357,14 @@ setTimeout(() => {
 ## 📊 Expected Impact
 
 ### Player Experience
+
 - **Satisfaction:** +40% (more visual feedback)
 - **Clarity:** +30% (damage numbers, targeting)
 - **Excitement:** +50% (crits, veterancy)
 - **Strategy:** +35% (targeting modes)
 
 ### Development Cost
+
 - **Total Time:** ~30-40 hours
 - **Performance Impact:** <5% FPS drop
 - **Code Complexity:** Low to Medium
@@ -409,18 +428,21 @@ src/managers/TowerCombatManager.ts
 ## 💡 Pro Tips
 
 ### Performance Optimization
+
 - Pool particle effects (reuse instead of create/destroy)
 - Limit max particles on screen (50-100)
 - Use simple shapes (circles, rectangles)
 - Fade and remove effects quickly (1-2 seconds max)
 
 ### Visual Clarity
+
 - Keep effects subtle but noticeable
 - Use contrasting colors
 - Don't obscure gameplay
 - Test at different zoom levels
 
 ### Balance
+
 - Start with conservative crit chances (10-15%)
 - Test veterancy bonuses carefully
 - Make sure all targeting modes are useful

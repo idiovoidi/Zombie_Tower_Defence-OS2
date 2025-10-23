@@ -371,8 +371,6 @@ export class GameManager {
     }
   }
 
-
-
   public loseLife(amount: number = 1): void {
     this.lives -= amount;
     if (this.lives <= 0) {

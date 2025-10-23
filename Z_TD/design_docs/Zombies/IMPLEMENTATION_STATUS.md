@@ -3,6 +3,7 @@
 ## Completed ✓
 
 ### Core Architecture
+
 - [x] Created modular renderer system (`src/renderers/zombies/`)
 - [x] Implemented `IZombieRenderer` interface
 - [x] Created `ZombieRenderState` for state management
@@ -10,11 +11,13 @@
 - [x] Implemented `ZombieParticleSystem` for effects
 
 ### Components
+
 - [x] `ZombieEffects.ts` - Glow, shadow, and outline effects
 - [x] `ZombieAnimator.ts` - Walk and idle animation states
 - [x] `ZombieParticleSystem.ts` - Blood, decay, and particle effects
 
 ### Basic Zombie Renderer
+
 - [x] Complete visual redesign with modular body parts
 - [x] Procedural walk animation (limb swing, body bob, head sway)
 - [x] Idle animation (breathing, subtle movement)
@@ -26,6 +29,7 @@
 - [x] Shadow rendering
 
 ### Integration
+
 - [x] Updated `Zombie.ts` to support new renderer
 - [x] Toggle system (`useNewRenderer` flag)
 - [x] Backward compatibility with old rendering
@@ -34,6 +38,7 @@
 ## Features
 
 ### Animation System
+
 - **Walk Cycle**: Asymmetric limb swing for shambling effect
 - **Body Bob**: Vertical oscillation during movement
 - **Head Sway**: Side-to-side movement with tilt
@@ -41,12 +46,14 @@
 - **Idle Breathing**: Subtle scale pulsing when stationary
 
 ### Particle System
+
 - **Blood Splatter**: On damage (5 particles, 50 px/s velocity)
 - **Blood Drip**: Continuous dripping (3% spawn rate)
 - **Decay Cloud**: At low health <30% (8% spawn rate)
 - **Death Burst**: 12 particles on death
 
 ### Visual Effects
+
 - **Eye Glow**: Layered red glow effect
 - **Shadow**: Elliptical ground shadow
 - **Health Degradation**: 4 stages based on health percentage
@@ -56,6 +63,7 @@
   - 25-0%: Critical (heavy decay)
 
 ### Death Animation
+
 - **Phase 1** (0-300ms): Impact with rotation and scale
 - **Phase 2** (300-800ms): Collapse with vertical squash
 - **Phase 3** (800-1500ms): Fade out and sink
@@ -63,13 +71,16 @@
 ## Testing
 
 ### How to Test
+
 1. Start dev server: `npm run dev`
 2. Open game in browser
 3. Basic zombies will use new renderer automatically
 4. Observe animations, particles, and death effects
 
 ### Toggle Renderer
+
 To switch back to old renderer, set in `Zombie.ts`:
+
 ```typescript
 private useNewRenderer: boolean = false;
 ```
@@ -77,12 +88,14 @@ private useNewRenderer: boolean = false;
 ## Performance
 
 ### Optimizations Implemented
+
 - Graphics object reuse
 - Particle count limits (max 100)
 - Conditional particle spawning (random chance)
 - Health-based effect scaling
 
 ### Future Optimizations
+
 - [ ] Object pooling for graphics
 - [ ] LOD system (distance-based detail)
 - [ ] Culling for off-screen zombies
@@ -91,6 +104,7 @@ private useNewRenderer: boolean = false;
 ## Next Steps
 
 ### Other Zombie Types
+
 - [ ] Fast Zombie renderer
 - [ ] Tank Zombie renderer
 - [ ] Armored Zombie renderer
@@ -99,6 +113,7 @@ private useNewRenderer: boolean = false;
 - [ ] Mechanical Zombie renderer
 
 ### Enhancements
+
 - [ ] Status effect visuals (burning, frozen, electrocuted)
 - [ ] Blood decal system (persistent ground stains)
 - [ ] Corpse persistence
@@ -107,6 +122,7 @@ private useNewRenderer: boolean = false;
 - [ ] Procedural variation (unique appearances)
 
 ### Environment
+
 - [ ] Weather system (fog, rain, lightning)
 - [ ] Time of day lighting
 - [ ] Dynamic shadows

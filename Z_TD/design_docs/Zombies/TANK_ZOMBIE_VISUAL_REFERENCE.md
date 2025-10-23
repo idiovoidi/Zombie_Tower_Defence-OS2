@@ -3,17 +3,18 @@
 ## Color Palette
 
 ```typescript
-PRIMARY_COLOR: 0x5a1a1a  // Dark blood red (main body)
-DARK_RED:      0x3a0a0a  // Very dark red (shadows/details)
-PALE_RED:      0x7a2a2a  // Slightly lighter red (highlights)
-BLOOD_RED:     0x8b0000  // Blood/wounds
-BONE_WHITE:    0xcccccc  // Teeth/bones
-EYE_GLOW:      0xff0000  // Bright red glow
+PRIMARY_COLOR: 0x5a1a1a; // Dark blood red (main body)
+DARK_RED: 0x3a0a0a; // Very dark red (shadows/details)
+PALE_RED: 0x7a2a2a; // Slightly lighter red (highlights)
+BLOOD_RED: 0x8b0000; // Blood/wounds
+BONE_WHITE: 0xcccccc; // Teeth/bones
+EYE_GLOW: 0xff0000; // Bright red glow
 ```
 
 ## Design Philosophy
 
 **Massive & Threatening:**
+
 - Largest zombie type (2x size of Basic)
 - Bulky, muscular proportions
 - Dark red color for danger/blood
@@ -26,7 +27,7 @@ EYE_GLOW:      0xff0000  // Bright red glow
       ●●●●●●      ← Head (6px radius, large)
      ●👁 👁●      ← Glowing red eyes (beady)
       ▬▬▬▬▬      ← Large gaping mouth
-      
+
     ┌──────┐     ← Torso (14x16px, massive)
    ╱│ ●  ● │╲    ← Arms (9px, thick)
   ●─│ ════ │─●   ← Hands (2.5px, large)
@@ -39,6 +40,7 @@ EYE_GLOW:      0xff0000  // Bright red glow
 ## Differences from Basic Zombie
 
 ### Proportions
+
 - **Torso**: 14x16px (vs 10x12px) - 40% larger
 - **Legs**: 4px wide (vs 3px) - Thicker
 - **Arms**: 9px long, 3px thick (vs 7px, 2px) - Massive
@@ -46,6 +48,7 @@ EYE_GLOW:      0xff0000  // Bright red glow
 - **Shadow**: 12px (vs 8px) - Bigger
 
 ### Visual Details
+
 - **Bulging muscles** on shoulders
 - **Thick muscle lines** (4 lines vs 3)
 - **Scars** on head
@@ -53,12 +56,14 @@ EYE_GLOW:      0xff0000  // Bright red glow
 - **Larger mouth** for intimidation
 
 ### Animation
+
 - **0.7x slower** animation speed (lumbering)
 - **Heavier movements** (less bob, more weight)
 - **Ground shake** dust particles
 - **Slower death** animation (1.8s vs 1.5s)
 
 ### Particles
+
 - **Ground shake dust** when moving (8% chance)
 - **Heavy bleeding** (larger blood drops)
 - **Massive death burst** (15 particles vs 8)
@@ -66,6 +71,7 @@ EYE_GLOW:      0xff0000  // Bright red glow
 ## Component Breakdown
 
 ### Head (6px radius)
+
 - Large dark red circle
 - Two scars across face
 - Beady glowing red eyes (smaller spacing)
@@ -73,6 +79,7 @@ EYE_GLOW:      0xff0000  // Bright red glow
 - Large gaping mouth (5x1.5px)
 
 ### Torso (14x16px)
+
 - Massive rounded rectangle (2px corner radius)
 - Bulging muscle masses on shoulders
 - 4 thick horizontal muscle lines
@@ -80,12 +87,14 @@ EYE_GLOW:      0xff0000  // Bright red glow
 - Intimidating size
 
 ### Arms (9px length, 3px thick)
+
 - Thick powerful arms
 - 4px outline width
 - Large hands (2.5px radius)
 - Heavy appearance
 
 ### Legs (4x7px each)
+
 - Thick sturdy rectangles
 - Support massive weight
 - Positioned lower (y: 12)
@@ -93,6 +102,7 @@ EYE_GLOW:      0xff0000  // Bright red glow
 ## Animation Details
 
 ### Walk Cycle (0.7x speed)
+
 - Body bob: ±2px vertical (slower)
 - Head sway: ±1.5px horizontal (lumbering)
 - Arm swing: ±0.6 radians (heavy)
@@ -100,16 +110,19 @@ EYE_GLOW:      0xff0000  // Bright red glow
 - Ground shake dust particles
 
 ### Idle (0.7x speed)
+
 - Heavy breathing
 - Minimal movement
 - Imposing presence
 
 ### Damage
+
 - Red flash (100ms)
 - 5 blood particles (more than Basic)
 - Larger particle size (2.5px)
 
 ### Death (1.8s total)
+
 - **Phase 1** (0-400ms): Slower impact
 - **Phase 2** (400-1000ms): Heavy collapse
 - **Phase 3** (1000-1800ms): Slow fade
@@ -118,17 +131,20 @@ EYE_GLOW:      0xff0000  // Bright red glow
 ## Visual Effects
 
 ### Eye Glow
+
 - Bright red color (0xff0000)
 - 3-layer glow effect
 - 2px base radius (larger)
 - Intense and menacing
 
 ### Shadow
+
 - Larger elliptical shadow (12px width)
 - Matches massive body size
 - 30% alpha
 
 ### Ground Shake
+
 - Dust particles when moving
 - 8% spawn chance per frame
 - Gray smoke particles
@@ -136,6 +152,7 @@ EYE_GLOW:      0xff0000  // Bright red glow
 - Size: 3px
 
 ### Blood Particles
+
 - Larger drops (2px size)
 - More frequent when damaged (5% vs 3%)
 - Heavier bleeding effect
@@ -144,6 +161,7 @@ EYE_GLOW:      0xff0000  // Bright red glow
 ## Health-Based Changes
 
 Tank has 300 HP (3x Basic), so more wounds:
+
 - 100-75%: Normal (0-2 wounds)
 - 75-50%: Damaged (2-4 wounds)
 - 50-25%: Heavily damaged (4-6 wounds)
@@ -158,18 +176,18 @@ Tank has 300 HP (3x Basic), so more wounds:
 
 ## Comparison to Other Zombies
 
-| Feature | Basic | Fast | Tank |
-|---------|-------|------|------|
-| Color | Dark Green | Dark Orange | Dark Red |
-| Torso | 10x12px | 8x11px | 14x16px |
-| Speed | 50 px/s | 100 px/s | 25 px/s |
-| Health | 100 HP | 80 HP | 300 HP |
-| Animation | 1.0x | 1.5x | 0.7x |
-| Arms | 7px, 2px | 8px, 1.8px | 9px, 3px |
-| Legs | 3px wide | 2.5px wide | 4px wide |
-| Eyes | Red glow | Orange glow | Red glow |
-| Special | - | Dust trail | Ground shake |
-| Threat | Low | Medium | High |
+| Feature   | Basic      | Fast        | Tank         |
+| --------- | ---------- | ----------- | ------------ |
+| Color     | Dark Green | Dark Orange | Dark Red     |
+| Torso     | 10x12px    | 8x11px      | 14x16px      |
+| Speed     | 50 px/s    | 100 px/s    | 25 px/s      |
+| Health    | 100 HP     | 80 HP       | 300 HP       |
+| Animation | 1.0x       | 1.5x        | 0.7x         |
+| Arms      | 7px, 2px   | 8px, 1.8px  | 9px, 3px     |
+| Legs      | 3px wide   | 2.5px wide  | 4px wide     |
+| Eyes      | Red glow   | Orange glow | Red glow     |
+| Special   | -          | Dust trail  | Ground shake |
+| Threat    | Low        | Medium      | High         |
 
 ## Strategic Role
 

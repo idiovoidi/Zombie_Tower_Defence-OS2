@@ -9,10 +9,12 @@ Added auto-close functionality to the Debug Info Panel so it automatically close
 ### Debug Info Panel (`src/ui/DebugInfoPanel.ts`)
 
 **Added:**
+
 - `close()` public method - Closes the panel programmatically
 - `this.close()` call after each shortcut button callback
 
 **Modified Buttons:**
+
 - 📊 Performance Stats - Calls `close()` after opening stats panel
 - 🎨 Shader Test - Calls `close()` after opening shader panel
 - 📊 Wave Info - Calls `close()` after opening wave info panel
@@ -21,6 +23,7 @@ Added auto-close functionality to the Debug Info Panel so it automatically close
 ## User Experience
 
 ### Before
+
 1. Click 🐛 Debug Info button
 2. Click a shortcut button (e.g., 📊 Performance Stats)
 3. Target panel opens
@@ -28,6 +31,7 @@ Added auto-close functionality to the Debug Info Panel so it automatically close
 5. User must manually close Debug Info Panel
 
 ### After
+
 1. Click 🐛 Debug Info button
 2. Click a shortcut button (e.g., 📊 Performance Stats)
 3. Target panel opens

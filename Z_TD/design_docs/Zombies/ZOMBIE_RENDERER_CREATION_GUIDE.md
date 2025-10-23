@@ -9,6 +9,7 @@ This guide explains how to create new zombie renderers using the modular renderi
 ## Step 1: Choose Visual Identity
 
 ### Color Palette
+
 Define 6 core colors for your zombie type:
 
 ```typescript
@@ -21,6 +22,7 @@ private readonly EYE_GLOW = 0x______;       // Eye color
 ```
 
 ### Color Scheme Examples
+
 - **Basic**: Dark green (0x2d5016) - Classic zombie
 - **Fast**: Dark orange (0x8b4513) - Aggressive/speed
 - **Tank**: Dark red (0x5a1a1a) - Massive/dangerous
@@ -30,6 +32,7 @@ private readonly EYE_GLOW = 0x______;       // Eye color
 - **Mechanical**: Cyan-gray (0x3a4a5a) - Robotic/industrial
 
 ### Body Proportions
+
 Define size based on zombie role:
 
 ```typescript
@@ -44,6 +47,7 @@ Define size based on zombie role:
 ## Step 2: Create Renderer File
 
 ### File Location
+
 ```
 src/renderers/zombies/types/[ZombieType]Renderer.ts
 ```
@@ -115,6 +119,7 @@ export class [ZombieType]Renderer implements IZombieRenderer {
 ## Step 3: Implement Render Method
 
 ### Rendering Order (Back to Front)
+
 ```typescript
 render(container: Container, state: ZombieRenderState): void {
   this.graphics.clear();
@@ -153,19 +158,21 @@ render(container: Container, state: ZombieRenderState): void {
 ### Drawing Guidelines
 
 **Legs:**
+
 ```typescript
 const leftLegX = -3 + anim.leftLegOffset;
 const rightLegX = 1 + anim.rightLegOffset;
 
 this.graphics.rect(leftLegX, 10, width, height).fill(this.PRIMARY_COLOR);
-this.graphics.rect(leftLegX, 10, width, height).stroke({ 
-  color: 0x000000, 
-  width: 0.5, 
-  alpha: 0.6 
+this.graphics.rect(leftLegX, 10, width, height).stroke({
+  color: 0x000000,
+  width: 0.5,
+  alpha: 0.6,
 });
 ```
 
 **Torso:**
+
 ```typescript
 const torsoY = anim.bodyBob;
 this.graphics
@@ -175,19 +182,21 @@ this.graphics
 ```
 
 **Head:**
+
 ```typescript
 const headY = torsoY - offset;
 const headX = anim.headSway;
 
 this.graphics.circle(headX, headY, radius).fill(this.PRIMARY_COLOR);
-this.graphics.circle(headX, headY, radius).stroke({ 
-  color: 0x000000, 
-  width: 1, 
-  alpha: 0.6 
+this.graphics.circle(headX, headY, radius).stroke({
+  color: 0x000000,
+  width: 1,
+  alpha: 0.6,
 });
 ```
 
 **Eyes:**
+
 ```typescript
 // Glow effect
 GlowEffect.apply(this.graphics, eyeX, eyeY, glowRadius, this.EYE_GLOW);
@@ -207,6 +216,7 @@ this.graphics.circle(eyeX, eyeY, pupilRadius).fill(this.EYE_GLOW);
 ## Step 4: Implement Update Method
 
 ### Standard Update Pattern
+
 ```typescript
 update(deltaTime: number, state: ZombieRenderState): void {
   this.animator.update(deltaTime, state);
@@ -230,6 +240,7 @@ update(deltaTime: number, state: ZombieRenderState): void {
 ```
 
 ### Particle Types
+
 - `BLOOD_SPLATTER` - On damage
 - `BLOOD_DRIP` - Continuous when damaged
 - `DECAY_CLOUD` - Low health (organic zombies)
@@ -243,6 +254,7 @@ update(deltaTime: number, state: ZombieRenderState): void {
 ## Step 5: Implement Damage & Death
 
 ### Damage Effect
+
 ```typescript
 showDamageEffect(_damageType: string, _amount: number): void {
   // Flash color (match zombie theme)
@@ -263,6 +275,7 @@ showDamageEffect(_damageType: string, _amount: number): void {
 ```
 
 ### Death Animation
+
 ```typescript
 async playDeathAnimation(): Promise<void> {
   return new Promise(resolve => {
@@ -313,6 +326,7 @@ async playDeathAnimation(): Promise<void> {
 ## Step 6: Add Animation Speed (Optional)
 
 ### For Fast/Slow Zombies
+
 Update `ZombieAnimator.ts`:
 
 ```typescript
@@ -331,17 +345,21 @@ private getAnimationSpeed(): number {
 ## Step 7: Integration
 
 ### 1. Export Renderer
+
 Add to `src/renderers/zombies/index.ts`:
+
 ```typescript
 export { [ZombieType]Renderer } from './types/[ZombieType]Renderer';
 ```
 
 ### 2. Import in Zombie.ts
+
 ```typescript
 import { [ZombieType]Renderer } from '../renderers/zombies/types/[ZombieType]Renderer';
 ```
 
 ### 3. Add to initializeVisual()
+
 ```typescript
 if (this.useNewRenderer) {
   // ... existing types
@@ -362,21 +380,27 @@ Create `design_docs/Zombies/[TYPE]_ZOMBIE_VISUAL_REFERENCE.md`:
 # [Type] Zombie - Visual Reference
 
 ## Color Palette
+
 [List colors with hex codes]
 
 ## Design Philosophy
+
 [Describe visual theme and goals]
 
 ## Body Structure
+
 [ASCII art diagram]
 
 ## Differences from Basic
+
 [Comparison table]
 
 ## Animation Details
+
 [Speed, movements, special effects]
 
 ## Strategic Role
+
 [Gameplay purpose]
 ```
 
@@ -385,24 +409,28 @@ Create `design_docs/Zombies/[TYPE]_ZOMBIE_VISUAL_REFERENCE.md`:
 ## Design Principles
 
 ### Visual Clarity
+
 - **Silhouette**: Must be readable at all zoom levels
 - **Color**: Distinct from other zombie types
 - **Size**: Proportional to threat level
 - **Animation**: Matches movement speed
 
 ### Performance
+
 - **Simple shapes**: Circles, rectangles, lines
 - **Minimal particles**: < 10 per zombie
 - **Efficient rendering**: Reuse graphics objects
 - **LOD ready**: Design works at low detail
 
 ### Consistency
+
 - **Outline**: 0.5-1px black with 60% alpha
 - **Eyes**: Always glowing with effect
 - **Shadow**: Elliptical, 30% alpha
 - **Wounds**: Blood spots, simple circles
 
 ### Uniqueness
+
 - **Color scheme**: Unique to zombie type
 - **Proportions**: Match role (lean/bulky/small)
 - **Details**: 1-2 unique features max
@@ -413,24 +441,28 @@ Create `design_docs/Zombies/[TYPE]_ZOMBIE_VISUAL_REFERENCE.md`:
 ## Common Patterns
 
 ### Small Zombie (Swarm)
+
 - 6x9px torso
 - 2px legs
 - 3.5px head
 - Fast animation (1.3x)
 
 ### Normal Zombie (Basic/Fast)
+
 - 8-10x11-12px torso
 - 2.5-3px legs
 - 4-4.5px head
 - Standard animation (1.0-1.5x)
 
 ### Large Zombie (Tank)
+
 - 14x16px torso
 - 4px legs
 - 6px head
 - Slow animation (0.7x)
 
 ### Armored Zombie
+
 - Normal base + armor plates
 - Metallic colors
 - Rivets/bolts details
@@ -458,21 +490,25 @@ Create `design_docs/Zombies/[TYPE]_ZOMBIE_VISUAL_REFERENCE.md`:
 Let's create a "Toxic Zombie" step by step:
 
 ### 1. Visual Identity
+
 - **Color**: Sickly green (0x4a6a2a)
 - **Size**: Normal (9x11px torso)
 - **Feature**: Dripping toxic ooze
 - **Eyes**: Green glow (0x00ff00)
 
 ### 2. Create File
+
 `src/renderers/zombies/types/ToxicZombieRenderer.ts`
 
 ### 3. Implement Render
+
 - Green body with darker shading
 - Toxic drip particles (green)
 - Glowing green eyes
 - Ooze puddles on ground
 
 ### 4. Add Unique Effect
+
 ```typescript
 // Toxic drips
 if (Math.random() < 0.08) {
@@ -486,11 +522,13 @@ if (Math.random() < 0.08) {
 ```
 
 ### 5. Integrate
+
 - Export in index.ts
 - Import in Zombie.ts
 - Add to initializeVisual()
 
 ### 6. Document
+
 Create visual reference with colors, proportions, and features.
 
 ---
@@ -513,24 +551,29 @@ Create visual reference with colors, proportions, and features.
 ## Common Issues
 
 **Zombie too detailed:**
+
 - Simplify to 3-5 main shapes
 - Remove small details
 
 **Outline too thick:**
+
 - Reduce to 0.5-1px
 - Lower alpha to 50-60%
 
 **Particles lag:**
+
 - Reduce spawn rate
 - Lower particle count
 - Shorter lifetime
 
 **Animation jerky:**
+
 - Check animation speed multiplier
 - Smooth sine wave transitions
 - Test at 60 FPS
 
 **Colors blend together:**
+
 - Increase contrast
 - Use distinct hue
 - Add subtle outline

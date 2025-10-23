@@ -1,6 +1,6 @@
 ---
 inclusion: fileMatch
-fileMatchPattern: "utils/**/*.tsx"
+fileMatchPattern: 'utils/**/*.tsx'
 ---
 
 # Stat Tracking & Player Reports
@@ -12,8 +12,8 @@ Z-TD includes comprehensive stat tracking for both AI and manual gameplay. All g
 ## Report System Architecture
 
 ### Core Components
-#[[file:src/utils/LogExporter.ts]]
-#[[file:src/managers/AIPlayerManager.ts]]
+
+#[[file:src/utils/LogExporter.ts]] #[[file:src/managers/AIPlayerManager.ts]]
 
 - **LogExporter** (`src/utils/LogExporter.ts`) - Handles report generation and storage
 - **AIPlayerManager** (`src/managers/AIPlayerManager.ts`) - Tracks metrics during gameplay

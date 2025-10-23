@@ -10,6 +10,7 @@ Complete reference for all zombie types including stats, combat modifiers, and s
 ## Zombie Type Definitions
 
 ### 1. Basic Zombie 🧟
+
 - **Type ID:** `BASIC` | **Color:** `0x00ff00` (green)
 - **Stats:** 100 HP, 50 px/s, $10 reward, 10px size
 - **Combat:** No resistances or weaknesses (100% damage from all towers)
@@ -18,6 +19,7 @@ Complete reference for all zombie types including stats, combat modifiers, and s
 - **Strategy:** Balanced baseline enemy, good for testing tower effectiveness
 
 ### 2. Fast Zombie 🏃
+
 - **Type ID:** `FAST` | **Color:** `0xff6600` (orange)
 - **Stats:** 80 HP, 100 px/s, $15 reward, 10px size
 - **Combat:**
@@ -29,6 +31,7 @@ Complete reference for all zombie types including stats, combat modifiers, and s
 - **Strategy:** Use area-effect and instant-hit towers. Avoid precision towers.
 
 ### 3. Tank Zombie 💪
+
 - **Type ID:** `TANK` | **Color:** `0xff0000` (red)
 - **Stats:** 300 HP, 25 px/s, $50 reward, 15px size
 - **Combat:**
@@ -40,6 +43,7 @@ Complete reference for all zombie types including stats, combat modifiers, and s
 - **Strategy:** Use high-damage single-target (Sniper) or sustained damage (Flame)
 
 ### 4. Armored Zombie 🛡️
+
 - **Type ID:** `ARMORED` | **Color:** `0x888888` (gray)
 - **Stats:** 150 HP, 40 px/s, $30 reward, 11px size
 - **Combat:**
@@ -50,6 +54,7 @@ Complete reference for all zombie types including stats, combat modifiers, and s
 - **Strategy:** Prioritize Sniper and Tesla. Avoid rapid-fire low-damage towers.
 
 ### 5. Swarm Zombie 🐝
+
 - **Type ID:** `SWARM` | **Color:** `0xffff00` (yellow)
 - **Stats:** 30 HP, 60 px/s, $5 reward, 6px size
 - **Combat:**
@@ -61,6 +66,7 @@ Complete reference for all zombie types including stats, combat modifiers, and s
 - **Strategy:** Use area-effect towers. Single-target high-damage wastes damage.
 
 ### 6. Stealth Zombie 👻
+
 - **Type ID:** `STEALTH` | **Color:** `0x6600ff` (purple)
 - **Stats:** 70 HP, 70 px/s, $25 reward, 10px size
 - **Combat:**
@@ -72,6 +78,7 @@ Complete reference for all zombie types including stats, combat modifiers, and s
 - **Strategy:** Use auto-targeting and area towers. Avoid precision towers.
 
 ### 7. Mechanical Zombie 🤖
+
 - **Type ID:** `MECHANICAL` | **Color:** `0x00ffff` (cyan)
 - **Stats:** 120 HP, 55 px/s, $40 reward, 12px size
 - **Combat:**
@@ -85,17 +92,18 @@ Complete reference for all zombie types including stats, combat modifiers, and s
 
 ## Tower Effectiveness Matrix
 
-| Zombie      | Machine Gun | Sniper | Shotgun | Flame | Tesla |
-|-------------|-------------|--------|---------|-------|-------|
-| Basic       | 100%        | 100%   | 100%    | 100%  | 100%  |
-| Fast        | 100%        | 90%    | 125%    | 75%   | 125%  |
-| Tank        | 70%         | 150%   | 80%     | 125%  | 100%  |
-| Armored     | 75%         | 140%   | 85%     | 90%   | 120%  |
-| Swarm       | 100%        | 60%    | 150%    | 140%  | 130%  |
-| Stealth     | 95%         | 80%    | 115%    | 130%  | 125%  |
-| Mechanical  | 80%         | 120%   | 85%     | 50%   | 200%  |
+| Zombie     | Machine Gun | Sniper | Shotgun | Flame | Tesla |
+| ---------- | ----------- | ------ | ------- | ----- | ----- |
+| Basic      | 100%        | 100%   | 100%    | 100%  | 100%  |
+| Fast       | 100%        | 90%    | 125%    | 75%   | 125%  |
+| Tank       | 70%         | 150%   | 80%     | 125%  | 100%  |
+| Armored    | 75%         | 140%   | 85%     | 90%   | 120%  |
+| Swarm      | 100%        | 60%    | 150%    | 140%  | 130%  |
+| Stealth    | 95%         | 80%    | 115%    | 130%  | 125%  |
+| Mechanical | 80%         | 120%   | 85%     | 50%   | 200%  |
 
 ### Tower Strategy Guide
+
 - **Tesla:** Most versatile. Excellent vs Mechanical (200%), good vs Fast/Stealth/Armored
 - **Shotgun:** Great vs Fast/Swarm (125-150%), decent vs Stealth
 - **Sniper:** Essential vs Tank/Armored (140-150%), poor vs Swarm (60%)
@@ -107,25 +115,31 @@ Complete reference for all zombie types including stats, combat modifiers, and s
 ## Game Mechanics
 
 ### Health Scaling
+
 ```typescript
-baseHealth * (1 + (wave - 1) * 0.15)
+baseHealth * (1 + (wave - 1) * 0.15);
 ```
+
 Wave 1: 100% | Wave 5: 160% | Wave 10: 235% | Wave 20: 385%
 
 ### Damage Calculation
+
 ```typescript
-finalDamage = baseDamage * damageModifier * (1 + upgrades)
+finalDamage = baseDamage * damageModifier * (1 + upgrades);
 ```
 
 ### Wave Composition Strategy
+
 - **Waves 1-5:** Basic (80%), Fast (20%) → Machine Gun, Shotgun effective
 - **Waves 6-10:** Basic (60%), Fast (30%), Tank (10%) → Add Sniper towers
 - **Waves 11+:** All types active → Diverse tower composition required
 
 ### Speed Rankings
+
 Fast (100) > Stealth (70) > Swarm (60) > Mechanical (55) > Basic (50) > Armored (40) > Tank (25)
 
 ### Reward Rankings
+
 Tank ($50) > Mechanical ($40) > Armored ($30) > Stealth ($25) > Fast ($15) > Basic ($10) > Swarm ($5)
 
 ---
@@ -133,17 +147,20 @@ Tank ($50) > Mechanical ($40) > Armored ($30) > Stealth ($25) > Fast ($15) > Bas
 ## Implementation Reference
 
 ### File Locations
+
 - Base: `src/objects/Zombie.ts`
 - Factory: `src/objects/ZombieFactory.ts`
 - Types: `src/objects/zombies/*.ts`
 
 ### Debug Testing
+
 ```typescript
 // src/config/debugConstants.ts
-ZOMBIE_HEALTH_MULTIPLIER: 0.1  // Weak zombies
-ZOMBIE_SPEED_MULTIPLIER: 0.5   // Slow zombies
+ZOMBIE_HEALTH_MULTIPLIER: 0.1; // Weak zombies
+ZOMBIE_SPEED_MULTIPLIER: 0.5; // Slow zombies
 ```
 
 ### Color Constants
+
 Basic: `0x00ff00` | Fast: `0xff6600` | Tank: `0xff0000` | Armored: `0x888888`
 Swarm: `0xffff00` | Stealth: `0x6600ff` | Mechanical: `0x00ffff`

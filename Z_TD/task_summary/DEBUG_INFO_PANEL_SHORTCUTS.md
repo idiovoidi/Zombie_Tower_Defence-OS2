@@ -9,10 +9,12 @@ Updated the Debug Info Panel to remove redundant sections and add quick-access s
 ### Debug Info Panel (`src/ui/DebugInfoPanel.ts`)
 
 **Removed:**
+
 - 🧟 Zombie Types section (moved to Bestiary)
 - 📊 Game Stats section (redundant with other panels)
 
 **Added:**
+
 - 🔧 Debug Panels section with four shortcut buttons:
   - 📊 Performance Stats - Opens performance stats panel
   - 🎨 Shader Test - Opens shader test panel
@@ -21,6 +23,7 @@ Updated the Debug Info Panel to remove redundant sections and add quick-access s
 - Callback methods for panel opening
 
 **Result:**
+
 - Panel height adjusted to 460px (from original 580px)
 - Cleaner, more focused interface
 - Direct access to all debug tools including Performance Stats
@@ -28,12 +31,14 @@ Updated the Debug Info Panel to remove redundant sections and add quick-access s
 ### Wave Info Panel (`src/ui/WaveInfoPanel.ts`)
 
 **Added:**
+
 - `open()` method - Opens panel programmatically
 - `close()` method - Closes panel programmatically
 
 ### Debug Test UI Manager (`src/managers/DebugTestUIManager.ts`)
 
 **Added:**
+
 - `openShaderTestPanel()` - Opens shader test panel
 - `openWaveInfoPanel()` - Opens wave info panel
 - `openBestiaryPanel()` - Opens bestiary panel
@@ -41,17 +46,20 @@ Updated the Debug Info Panel to remove redundant sections and add quick-access s
 ### Main Integration (`src/main.ts`)
 
 **Added:**
+
 - Connected Debug Info Panel callbacks to Debug Test UI Manager
 - Enables one-click access to all debug panels
 
 ## User Experience
 
 ### Before
+
 - Debug Info Panel showed zombie types and game stats
 - Users had to find individual panel buttons scattered around screen
 - Redundant information across multiple panels
 
 ### After
+
 - Debug Info Panel is a central hub for debug tools
 - One-click access to all specialized debug panels
 - Each panel focuses on its specific purpose
@@ -120,7 +128,7 @@ debugTestUIManager.openBestiaryPanel();
 
 ```typescript
 // New methods
-waveInfoPanel.open();  // Open panel
+waveInfoPanel.open(); // Open panel
 waveInfoPanel.close(); // Close panel
 ```
 
