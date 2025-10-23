@@ -12,7 +12,6 @@ import { TowerInfoPanel } from './ui/TowerInfoPanel';
 import { DebugInfoPanel } from './ui/DebugInfoPanel';
 import { CampUpgradePanel } from './ui/CampUpgradePanel';
 import { DebugTestUIManager } from './managers/DebugTestUIManager';
-import { AIControlPanel } from './ui/AIControlPanel';
 import { MoneyAnimation } from './ui/MoneyAnimation';
 import { LogExporter } from './utils/LogExporter';
 import { GameConfig } from './config/gameConfig';
@@ -153,25 +152,22 @@ import { ScaleManager } from './utils/ScaleManager';
   debugInfoPanel.setBestiaryCallback(() => {
     debugTestUIManager.openBestiaryPanel();
   });
+  debugInfoPanel.setAIControlCallback(() => {
+    debugTestUIManager.openAIControlPanel();
+  });
+
+  // Set up AI toggle callback
+  debugTestUIManager.setAIToggleCallback((enabled: boolean) => {
+    DebugUtils.debug(`AI Player ${enabled ? 'enabled' : 'disabled'}`);
+    gameManager.getAIPlayerManager().setEnabled(enabled);
+    gameManager.getStatTracker().setAIModeEnabled(enabled);
+  });
 
   if (DebugConstants.ENABLED) {
     debugInfoPanel.show();
   } else {
     debugInfoPanel.hide();
   }
-
-  // Create AI control panel (left side, below wave info)
-  const aiControlPanel = new AIControlPanel();
-  aiControlPanel.position.set(20, screenHeight - 94);
-  uiManager.registerComponent('aiControlPanel', aiControlPanel);
-  app.stage.addChild(aiControlPanel);
-
-  // Set up AI toggle callback
-  aiControlPanel.setToggleCallback((enabled: boolean) => {
-    DebugUtils.debug(`AI Player ${enabled ? 'enabled' : 'disabled'}`);
-    gameManager.getAIPlayerManager().setEnabled(enabled);
-    gameManager.getStatTracker().setAIModeEnabled(enabled);
-  });
 
   // Create camp upgrade system
   const campUpgradeManager = new CampUpgradeManager();

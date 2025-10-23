@@ -11,6 +11,7 @@ export class DebugInfoPanel extends UIComponent {
   private onOpenWaveInfo?: () => void;
   private onOpenBestiary?: () => void;
   private onOpenStats?: () => void;
+  private onOpenAIControl?: () => void;
 
   constructor() {
     super();
@@ -32,6 +33,10 @@ export class DebugInfoPanel extends UIComponent {
 
   public setStatsCallback(callback: () => void): void {
     this.onOpenStats = callback;
+  }
+
+  public setAIControlCallback(callback: () => void): void {
+    this.onOpenAIControl = callback;
   }
 
   private createPanel(): void {
@@ -80,7 +85,7 @@ export class DebugInfoPanel extends UIComponent {
   private createPanelContent(): void {
     // Position at absolute screen coordinates (centered)
     const panelWidth = 280;
-    const panelHeight = 460;
+    const panelHeight = 500;
     this.contentContainer.position.set(640 - panelWidth / 2, 384 - panelHeight / 2);
 
     // Background - simple positioning from (0,0)
@@ -164,6 +169,17 @@ export class DebugInfoPanel extends UIComponent {
     });
     bestiaryButton.position.set(panelLeft + 20, yPos);
     this.contentContainer.addChild(bestiaryButton);
+    yPos += 40;
+
+    // AI Control Button
+    const aiButton = this.createPanelButton('🤖 AI Control', 0x00aaff, () => {
+      if (this.onOpenAIControl) {
+        this.onOpenAIControl();
+      }
+      this.close();
+    });
+    aiButton.position.set(panelLeft + 20, yPos);
+    this.contentContainer.addChild(aiButton);
     yPos += 50;
 
     // Controls Section

@@ -3,13 +3,14 @@ import { ShaderTestPanel } from '../ui/ShaderTestPanel';
 import { WaveInfoPanel } from '../ui/WaveInfoPanel';
 import { ZombieBestiary } from '../ui/ZombieBestiary';
 import { StatsPanel } from '../ui/StatsPanel';
+import { AIControlPanel } from '../ui/AIControlPanel';
 import { WaveManager } from './WaveManager';
 import { DebugConstants } from '../config/debugConstants';
 import type { GameManager } from './GameManager';
 
 /**
  * Centralized manager for all debug/test UI panels
- * Handles shader test, wave info, bestiary, and stats panels
+ * Handles shader test, wave info, bestiary, stats, and AI control panels
  */
 export class DebugTestUIManager {
   private app: Application;
@@ -17,6 +18,7 @@ export class DebugTestUIManager {
   private waveInfoPanel: WaveInfoPanel | null = null;
   private bestiaryPanel: ZombieBestiary | null = null;
   private statsPanel: StatsPanel | null = null;
+  private aiControlPanel: AIControlPanel | null = null;
   private gameManager: GameManager | null = null;
   private waveManager: WaveManager | null = null;
   private pixelArtRenderer: unknown = null;
@@ -46,6 +48,7 @@ export class DebugTestUIManager {
     this.createWaveInfoPanel();
     this.createBestiaryPanel();
     this.createStatsPanel();
+    this.createAIControlPanel();
 
     this.layoutPanels();
     console.log('✅ DebugTestUIManager: Initialization complete');
@@ -155,15 +158,35 @@ export class DebugTestUIManager {
   }
 
   /**
+   * Create and setup AI control panel
+   */
+  private createAIControlPanel(): void {
+    console.log('🤖 Creating AI Control Panel...');
+    this.aiControlPanel = new AIControlPanel();
+
+    // Add to stage
+    this.app.stage.addChild(this.aiControlPanel);
+
+    // Show/hide based on debug settings
+    if (DebugConstants.ENABLED) {
+      this.aiControlPanel.show();
+      console.log('✅ AI Control Panel created and shown');
+    } else {
+      this.aiControlPanel.hide();
+      console.log('✅ AI Control Panel created but hidden');
+    }
+  }
+
+  /**
    * Layout all panel toggle buttons to avoid overlap
    */
   private layoutPanels(): void {
     const screenWidth = this.app.screen.width;
     const screenHeight = this.app.screen.height;
 
-    // Left side panels (shader test, stats)
+    // Left side panels (shader test, stats, AI control)
     const leftX = this.LEFT_SIDE_X;
-    let leftYOffset = screenHeight - 140; // Start from bottom
+    const shaderTestY = screenHeight - 140; // Shader test at bottom
 
     // Right side panels (wave info, bestiary)
     const rightX = screenWidth - this.RIGHT_SIDE_OFFSET;
@@ -171,11 +194,17 @@ export class DebugTestUIManager {
 
     // Position shader test panel (bottom-left)
     if (this.shaderTestPanel) {
-      this.shaderTestPanel.position.set(leftX, leftYOffset);
-      console.log(`🎨 Shader Test Panel positioned at (${leftX}, ${leftYOffset})`);
+      this.shaderTestPanel.position.set(leftX, shaderTestY);
+      console.log(`🎨 Shader Test Panel positioned at (${leftX}, ${shaderTestY})`);
     }
 
-    // Position stats panel (left side, above shader test or at top)
+    // Position AI control panel (left side, top-left corner)
+    if (this.aiControlPanel) {
+      this.aiControlPanel.position.set(leftX, 10);
+      console.log(`🤖 AI Control Panel positioned at (${leftX}, 10)`);
+    }
+
+    // Position stats panel (left side, below AI control)
     if (this.statsPanel) {
       this.statsPanel.position.set(leftX, 100);
       console.log(`📊 Stats Panel positioned at (${leftX}, 100)`);
@@ -214,6 +243,10 @@ export class DebugTestUIManager {
     if (this.statsPanel && this.statsPanel.visible) {
       this.statsPanel.update();
     }
+
+    if (this.aiControlPanel && this.aiControlPanel.visible) {
+      this.aiControlPanel.update(deltaTime);
+    }
   }
 
   /**
@@ -250,6 +283,9 @@ export class DebugTestUIManager {
     if (this.statsPanel) {
       this.statsPanel.show();
     }
+    if (this.aiControlPanel) {
+      this.aiControlPanel.show();
+    }
   }
 
   /**
@@ -267,6 +303,9 @@ export class DebugTestUIManager {
     }
     if (this.statsPanel) {
       this.statsPanel.hide();
+    }
+    if (this.aiControlPanel) {
+      this.aiControlPanel.hide();
     }
   }
 
@@ -301,6 +340,10 @@ export class DebugTestUIManager {
     return this.statsPanel;
   }
 
+  public getAIControlPanel(): AIControlPanel | null {
+    return this.aiControlPanel;
+  }
+
   /**
    * Open individual panels programmatically
    */
@@ -332,6 +375,26 @@ export class DebugTestUIManager {
     }
   }
 
+  public openAIControlPanel(): void {
+    if (this.aiControlPanel) {
+      // Toggle visibility instead of just showing
+      if (this.aiControlPanel.visible) {
+        this.aiControlPanel.hide();
+      } else {
+        this.aiControlPanel.show();
+      }
+    }
+  }
+
+  /**
+   * Set AI toggle callback
+   */
+  public setAIToggleCallback(callback: (enabled: boolean) => void): void {
+    if (this.aiControlPanel) {
+      this.aiControlPanel.setToggleCallback(callback);
+    }
+  }
+
   /**
    * Cleanup all panels
    */
@@ -354,6 +417,11 @@ export class DebugTestUIManager {
     if (this.statsPanel) {
       this.statsPanel.destroy();
       this.statsPanel = null;
+    }
+
+    if (this.aiControlPanel) {
+      this.aiControlPanel.destroy();
+      this.aiControlPanel = null;
     }
   }
 

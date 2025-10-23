@@ -144,6 +144,14 @@ To test the changes:
 
 **Location**: `src/main.ts` line ~569
 
+### AI Panel Positioning
+
+**Issue**: AI Control Panel was not visible (overlapping with Shader Test Panel)
+
+**Fix**: Adjusted AI panel Y position from `screenHeight - 94` to `screenHeight - 230` to position it above the Shader Test Panel with proper spacing.
+
+**Location**: `src/managers/DebugTestUIManager.ts` layoutPanels() method
+
 ---
 
 **Status**: ✅ Complete and tested
