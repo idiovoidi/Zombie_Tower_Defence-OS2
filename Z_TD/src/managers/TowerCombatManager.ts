@@ -98,7 +98,7 @@ export class TowerCombatManager {
       towerPos.x,
       towerPos.y,
       range,
-      (zombie) => zombie.parent !== null // Filter out destroyed zombies
+      zombie => zombie.parent !== null // Filter out destroyed zombies
     );
 
     return closest;

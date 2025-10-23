@@ -1,15 +1,15 @@
 /**
  * Spatial Grid for efficient spatial queries
- * 
+ *
  * Divides 2D space into a grid of cells for O(1) insertion and O(k) range queries
  * where k is the number of entities in nearby cells (much smaller than total entities).
- * 
+ *
  * Performance:
  * - Insert: O(1)
- * - Remove: O(1) 
+ * - Remove: O(1)
  * - Query: O(k) where k = entities in nearby cells
  * - Update: O(1) (remove + insert)
- * 
+ *
  * Typical improvement: O(n²) → O(n) for collision detection
  */
 
@@ -49,11 +49,11 @@ export class SpatialGrid<T extends SpatialEntity> {
   private getCellIndex(x: number, y: number): number {
     const col = Math.floor(x / this.cellSize);
     const row = Math.floor(y / this.cellSize);
-    
+
     // Clamp to grid bounds
     const clampedCol = Math.max(0, Math.min(col, this.cols - 1));
     const clampedRow = Math.max(0, Math.min(row, this.rows - 1));
-    
+
     return clampedRow * this.cols + clampedCol;
   }
 
@@ -71,14 +71,14 @@ export class SpatialGrid<T extends SpatialEntity> {
    */
   public insert(entity: T): void {
     const cellIndex = this.getCellIndex(entity.position.x, entity.position.y);
-    
+
     // Get or create cell
     let cell = this.grid.get(cellIndex);
     if (!cell) {
       cell = new Set();
       this.grid.set(cellIndex, cell);
     }
-    
+
     cell.add(entity);
     this.entityToCell.set(entity, cellIndex);
   }
@@ -91,17 +91,17 @@ export class SpatialGrid<T extends SpatialEntity> {
     if (cellIndex === undefined) {
       return;
     }
-    
+
     const cell = this.grid.get(cellIndex);
     if (cell) {
       cell.delete(entity);
-      
+
       // Clean up empty cells to save memory
       if (cell.size === 0) {
         this.grid.delete(cellIndex);
       }
     }
-    
+
     this.entityToCell.delete(entity);
   }
 
@@ -111,7 +111,7 @@ export class SpatialGrid<T extends SpatialEntity> {
   public update(entity: T): void {
     const oldCellIndex = this.entityToCell.get(entity);
     const newCellIndex = this.getCellIndex(entity.position.x, entity.position.y);
-    
+
     // Only update if cell changed
     if (oldCellIndex !== newCellIndex) {
       this.remove(entity);
@@ -128,24 +128,24 @@ export class SpatialGrid<T extends SpatialEntity> {
    */
   public queryRange(x: number, y: number, range: number): T[] {
     const results: T[] = [];
-    
+
     // Calculate which cells to check
     const minX = Math.max(0, x - range);
     const maxX = Math.min(this.width, x + range);
     const minY = Math.max(0, y - range);
     const maxY = Math.min(this.height, y + range);
-    
+
     const minCol = Math.floor(minX / this.cellSize);
     const maxCol = Math.floor(maxX / this.cellSize);
     const minRow = Math.floor(minY / this.cellSize);
     const maxRow = Math.floor(maxY / this.cellSize);
-    
+
     // Check all cells in range
     for (let row = minRow; row <= maxRow; row++) {
       for (let col = minCol; col <= maxCol; col++) {
         const cellIndex = row * this.cols + col;
         const cell = this.grid.get(cellIndex);
-        
+
         if (cell) {
           // Add all entities from this cell
           for (const entity of cell) {
@@ -154,7 +154,7 @@ export class SpatialGrid<T extends SpatialEntity> {
         }
       }
     }
-    
+
     return results;
   }
 
@@ -173,26 +173,26 @@ export class SpatialGrid<T extends SpatialEntity> {
     filter?: (entity: T) => boolean
   ): T | null {
     const candidates = this.queryRange(x, y, range);
-    
+
     let closest: T | null = null;
     let closestDistSq = range * range; // Use squared distance to avoid sqrt
-    
+
     for (const entity of candidates) {
       // Apply filter if provided
       if (filter && !filter(entity)) {
         continue;
       }
-      
+
       const dx = entity.position.x - x;
       const dy = entity.position.y - y;
       const distSq = dx * dx + dy * dy;
-      
+
       if (distSq <= closestDistSq) {
         closestDistSq = distSq;
         closest = entity;
       }
     }
-    
+
     return closest;
   }
 
@@ -232,7 +232,7 @@ export class SpatialGrid<T extends SpatialEntity> {
     const activeCells = this.grid.size;
     const totalCells = this.cols * this.rows;
     const avgEntitiesPerCell = activeCells > 0 ? totalEntities / activeCells : 0;
-    
+
     return {
       totalEntities,
       activeCells,
@@ -242,4 +242,3 @@ export class SpatialGrid<T extends SpatialEntity> {
     };
   }
 }
-

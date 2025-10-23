@@ -1,0 +1,999 @@
+/**
+ * Visual Rendering Constants
+ *
+ * Centralized configuration for all visual rendering parameters in VisualMapRenderer.
+ * Extracted from magic numbers to improve maintainability and tunability.
+ */
+
+// ============================================================================
+// LAYER Z-INDICES
+// ============================================================================
+export const LAYER_INDICES = {
+  MAP_BACKGROUND: 0,
+  PATH: 1,
+  CORPSES: 2,
+  CAMP_ANIMATIONS: 3,
+  FOG: 4,
+} as const;
+
+// ============================================================================
+// COLORS
+// ============================================================================
+export const COLORS = {
+  // Ground colors
+  GROUND_BASE: 0x3a4a2a, // Darker olive green
+  GROUND_DIRT_PATCH: 0x4a5a3a,
+  GROUND_DEAD_GRASS: 0x5a6a4a,
+  GROUND_BARREN_DIRT: 0x6a5a4a,
+  GROUND_ROCK: 0x5a5a5a,
+  GROUND_PEBBLE: 0x6a6a6a,
+  GROUND_CRACK: 0x2a2a1a,
+  GROUND_STAIN: 0x2a3a1a,
+  GROUND_GRASS_TUFT: 0x4a5a3a,
+
+  // UI colors
+  UI_PANEL_BG: 0x2a2a2a,
+  UI_SEPARATOR: 0x654321,
+
+  // Path colors
+  PATH_OUTER: 0x4a3a2a,
+  PATH_INNER: 0x5a4a3a,
+  PATH_TRACK: 0x4a3a2a,
+  PATH_DIRT: 0x4a3a2a,
+  PATH_ROCK: 0x5a5a5a,
+  PATH_FOOTPRINT: 0x3a2a1a,
+  PATH_HIGHLIGHT: 0x7a6a5a,
+
+  // Tree colors
+  TREE_TRUNK: 0x4a3a2a,
+  TREE_TRUNK_OUTLINE: 0x2a1a1a,
+  TREE_BARK: 0x3a2a1a,
+  TREE_BRANCH: 0x4a3a2a,
+  TREE_PINE_TRUNK: 0x5a4a3a,
+  TREE_PINE_FOLIAGE: 0x2a4a2a,
+  TREE_PINE_FOLIAGE_OUTLINE: 0x1a3a1a,
+  TREE_PINE_DETAIL: 0x1a3a1a,
+
+  // Graveyard colors
+  GRAVEYARD_GRASS: 0x2a3a2a,
+  GRAVEYARD_EARTH: 0x4a3a2a,
+  GRAVEYARD_BONE: 0xf5f5dc,
+  GRAVEYARD_STAIN: 0x1a1a1a,
+  GRAVEYARD_FENCE_IRON: 0x6a4513,
+  GRAVEYARD_FENCE_OUTLINE: 0x4a3013,
+  GRAVEYARD_RUST: 0x8b4513,
+  GRAVEYARD_FENCE_POST: 0x5a4321,
+  GRAVEYARD_POST_OUTLINE: 0x3a2a11,
+  GRAVEYARD_WOOD_GRAIN: 0x4a3211,
+  GRAVEYARD_GATE_PILLAR: 0x5a5a5a,
+  GRAVEYARD_GATE_PILLAR_OUTLINE: 0x3a3a3a,
+  GRAVEYARD_GATE_CRACK: 0x2a2a2a,
+  GRAVEYARD_MOSS: 0x2a4a2a,
+  GRAVEYARD_SKULL: 0xe5e5cc,
+  GRAVEYARD_SKULL_OUTLINE: 0xc5c5ac,
+  GRAVEYARD_SKULL_FEATURE: 0x1a1a1a,
+  GRAVEYARD_GATE_METAL: 0x5a4a3a,
+  GRAVEYARD_GATE_OUTLINE: 0x3a2a1a,
+  GRAVEYARD_SIGN: 0x3a2a1a,
+  GRAVEYARD_SIGN_OUTLINE: 0x2a1a0a,
+  GRAVEYARD_CHAIN: 0x5a4a3a,
+  GRAVEYARD_CHAIN_LINK: 0x3a2a1a,
+
+  // Ruined house colors
+  HOUSE_WALL: 0xa0826d,
+  HOUSE_WALL_OUTLINE: 0x654321,
+  HOUSE_ROOF: 0x8b4513,
+  HOUSE_WINDOW: 0x1a1a1a,
+  HOUSE_WINDOW_GLASS: 0x4a4a4a,
+  HOUSE_DOOR_FRAME: 0x4a3a2a,
+  HOUSE_DOOR: 0x654321,
+  HOUSE_RUBBLE: 0x8b7355,
+  HOUSE_BURN_MARK: 0x1a1a1a,
+  HOUSE_SMOKE: 0x808080,
+  HOUSE_CRACK: 0x2a2a2a,
+
+  // Decoration colors
+  DECOR_DEAD_BUSH: 0x4a3a2a,
+  DECOR_ROCK: 0x6a6a6a,
+  DECOR_ROCK_OUTLINE: 0x4a4a4a,
+  DECOR_STUMP: 0x5a4a3a,
+  DECOR_GRASS_PATCH: 0x3a4a2a,
+  DECOR_SKULL: 0xf5f5dc,
+  DECOR_EYE_SOCKET: 0x1a1a1a,
+
+  // Camp colors
+  CAMP_GROUND: 0x4a3a2a,
+  CAMP_FOOTPRINT: 0x3a2a1a,
+  CAMP_FENCE: 0x5a5a5a,
+  CAMP_FENCE_OUTLINE: 0x3a3a3a,
+  CAMP_FENCE_BAR: 0x4a4a4a,
+  CAMP_GATE: 0x7a7a7a,
+  CAMP_GATE_OUTLINE: 0x5a5a5a,
+  CAMP_TENT_BASE: 0x6b7c3a,
+  CAMP_TENT_OUTLINE: 0x4a5a2a,
+  CAMP_TENT_ROOF: 0x5a6a2a,
+  CAMP_TENT_ROOF_OUTLINE: 0x3a4a1a,
+  CAMP_TENT_PATCH: 0x4a4a4a,
+  CAMP_TENT_FLAP: 0x4a5a2a,
+  CAMP_ROPE: 0x654321,
+  CAMP_STAKE: 0x654321,
+  CAMP_MEDICAL_TENT_ROOF: 0xe5e5cc,
+  CAMP_MEDICAL_TENT_OUTLINE: 0xc5c5ac,
+  CAMP_MEDICAL_TENT_WALL: 0xf5f5dc,
+  CAMP_RED_CROSS: 0xcc0000,
+  CAMP_SUPPLY_TENT_ROOF: 0x8b7355,
+  CAMP_SUPPLY_TENT_OUTLINE: 0x654321,
+  CAMP_SUPPLY_TENT_WALL: 0xa0826d,
+  CAMP_SANDBAG: 0x8b7355,
+  CAMP_SANDBAG_OUTLINE: 0x654321,
+  CAMP_CRATE: 0x8b7355,
+  CAMP_CRATE_OUTLINE: 0x654321,
+  CAMP_CRATE_BAND: 0x4a4a4a,
+  CAMP_WATCHTOWER_WOOD: 0x654321,
+  CAMP_WATCHTOWER_PLATFORM: 0x8b7355,
+  CAMP_WATCHTOWER_RAILING: 0x654321,
+  CAMP_RADIO_ANTENNA: 0x4a4a4a,
+  CAMP_RADIO_LIGHT: 0xff0000,
+  CAMP_FIRE_RING_STONE: 0x5a5a5a,
+  CAMP_FIRE_RING_OUTLINE: 0x3a3a3a,
+  CAMP_FIRE_PIT: 0x2a2a2a,
+  CAMP_LOG: 0x654321,
+  CAMP_LOG_OUTLINE: 0x4a3211,
+  CAMP_CLOTHESLINE: 0x3a3a3a,
+  CAMP_CLOTHES_BLUE: 0x4169e1,
+  CAMP_CLOTHES_GREEN: 0x228b22,
+  CAMP_SIGN: 0x8b7355,
+  CAMP_SIGN_OUTLINE: 0x654321,
+  CAMP_SIGN_STRIPE: 0xffcc00,
+  CAMP_SIGN_SAFE_ZONE: 0x00aa00,
+  CAMP_SIGN_SAFE_ZONE_OUTLINE: 0x008800,
+  CAMP_SIGN_NAIL: 0x4a4a4a,
+  CAMP_GENERATOR: 0x6a6a6a,
+  CAMP_GENERATOR_OUTLINE: 0x4a4a4a,
+  CAMP_GENERATOR_EXHAUST: 0x2a2a2a,
+  CAMP_FUEL_CAN: 0xcc0000,
+  CAMP_FUEL_CAN_OUTLINE: 0xaa0000,
+  CAMP_TABLE: 0x8b7355,
+  CAMP_TABLE_LEG: 0x654321,
+  CAMP_CUP: 0x4a6a8a,
+  CAMP_BOOK: 0x8b4513,
+  CAMP_LIGHT_BULB: 0xffaa00,
+  CAMP_BACKPACK: 0x3a4a2a,
+  CAMP_BACKPACK_OUTLINE: 0x2a3a1a,
+  CAMP_BOOTS: 0x4a3a2a,
+  CAMP_GUITAR_BODY: 0x8b7355,
+  CAMP_GUITAR_NECK: 0x654321,
+  CAMP_MEMORIAL_CROSS: 0x8b7355,
+  CAMP_FLOWER_RED: 0xff6666,
+  CAMP_FLOWER_YELLOW: 0xffff66,
+
+  // Fire colors
+  FIRE_OUTER: 0xff4500,
+  FIRE_MIDDLE: 0xffa500,
+  FIRE_INNER: 0xffff00,
+  FIRE_CORE: 0xffffaa,
+
+  // Survivor colors
+  SURVIVOR_SKIN: 0xffdbac,
+  SURVIVOR_BROWN_CLOTHES: 0x654321,
+  SURVIVOR_BLUE_CLOTHES: 0x4169e1,
+  SURVIVOR_GRAY_CLOTHES: 0x4a4a4a,
+  SURVIVOR_WHITE_CLOTHES: 0xf5f5dc,
+  SURVIVOR_WEAPON: 0x4a4a4a,
+  SURVIVOR_RIFLE: 0x2a2a2a,
+  SURVIVOR_ARMBAND: 0xcc0000,
+
+  // Fog colors
+  FOG_UPPER: 0xb0c0b0,
+  FOG_LOWER: 0xa0b0a0,
+} as const;
+
+// ============================================================================
+// GRAVEYARD DIMENSIONS
+// ============================================================================
+export const GRAVEYARD = {
+  X: 20,
+  Y: 250,
+  WIDTH: 140,
+  HEIGHT: 280,
+} as const;
+
+// ============================================================================
+// GROUND TEXTURE PARAMETERS
+// ============================================================================
+export const GROUND_TEXTURE = {
+  // Dirt/mud patches
+  DIRT_PATCH_COUNT: 80,
+  DIRT_PATCH_MIN_SIZE: 30,
+  DIRT_PATCH_MAX_SIZE: 90, // 30 + 60
+  DIRT_PATCH_MIN_POINTS: 6,
+  DIRT_PATCH_MAX_POINTS: 11, // 6 + 5
+  DIRT_PATCH_MIN_RADIUS_FACTOR: 0.6,
+  DIRT_PATCH_MAX_RADIUS_FACTOR: 1.3, // 0.6 + 0.7
+  DIRT_PATCH_MIN_ALPHA: 0.4,
+  DIRT_PATCH_MAX_ALPHA: 0.7, // 0.4 + 0.3
+
+  // Dead grass patches
+  DEAD_GRASS_COUNT: 120,
+  DEAD_GRASS_MIN_SIZE: 15,
+  DEAD_GRASS_MAX_SIZE: 45, // 15 + 30
+  DEAD_GRASS_MIN_POINTS: 5,
+  DEAD_GRASS_MAX_POINTS: 9, // 5 + 4
+  DEAD_GRASS_MIN_RADIUS_FACTOR: 0.7,
+  DEAD_GRASS_MAX_RADIUS_FACTOR: 1.2, // 0.7 + 0.5
+  DEAD_GRASS_MIN_ALPHA: 0.2,
+  DEAD_GRASS_MAX_ALPHA: 0.4, // 0.2 + 0.2
+
+  // Barren dirt patches
+  BARREN_DIRT_COUNT: 70,
+  BARREN_DIRT_MIN_SIZE: 25,
+  BARREN_DIRT_MAX_SIZE: 70, // 25 + 45
+  BARREN_DIRT_MIN_POINTS: 4,
+  BARREN_DIRT_MAX_POINTS: 8, // 4 + 4
+  BARREN_DIRT_MIN_RADIUS_FACTOR: 0.5,
+  BARREN_DIRT_MAX_RADIUS_FACTOR: 1.3, // 0.5 + 0.8
+  BARREN_DIRT_MIN_ALPHA: 0.3,
+  BARREN_DIRT_MAX_ALPHA: 0.6, // 0.3 + 0.3
+
+  // Rocks and debris
+  ROCK_COUNT: 60,
+  ROCK_MIN_SIZE: 3,
+  ROCK_MAX_SIZE: 15, // 3 + 12
+  ROCK_MIN_POINTS: 3,
+  ROCK_MAX_POINTS: 7, // 3 + 4
+  ROCK_MIN_RADIUS_FACTOR: 0.7,
+  ROCK_MAX_RADIUS_FACTOR: 1.2, // 0.7 + 0.5
+  ROCK_MIN_ALPHA: 0.4,
+  ROCK_MAX_ALPHA: 0.8, // 0.4 + 0.4
+
+  // Pebbles
+  PEBBLE_COUNT: 100,
+  PEBBLE_MIN_SIZE: 1,
+  PEBBLE_MAX_SIZE: 4, // 1 + 3
+  PEBBLE_MIN_ALPHA: 0.5,
+  PEBBLE_MAX_ALPHA: 0.8, // 0.5 + 0.3
+
+  // Ground cracks
+  CRACK_COUNT: 35,
+  CRACK_MIN_LENGTH: 40,
+  CRACK_MAX_LENGTH: 110, // 40 + 70
+  CRACK_MIN_SEGMENTS: 4,
+  CRACK_MAX_SEGMENTS: 9, // 4 + 5
+  CRACK_ANGLE_VARIATION: 0.6,
+  CRACK_MIN_WIDTH: 1.5,
+  CRACK_MAX_WIDTH: 2.0, // 1.5 + 0.5
+  CRACK_ALPHA: 0.6,
+  CRACK_BRANCH_PROBABILITY: 0.4, // 1 - 0.6
+  CRACK_BRANCH_MIN_LENGTH_FACTOR: 0.3,
+  CRACK_BRANCH_MAX_LENGTH_FACTOR: 0.7, // 0.3 + 0.4
+  CRACK_BRANCH_WIDTH: 1,
+  CRACK_BRANCH_ALPHA: 0.4,
+
+  // Weathering stains
+  STAIN_COUNT: 40,
+  STAIN_MIN_SIZE: 20,
+  STAIN_MAX_SIZE: 60, // 20 + 40
+  STAIN_MIN_ALPHA: 0.15,
+  STAIN_MAX_ALPHA: 0.3, // 0.15 + 0.15
+
+  // Grass tufts
+  GRASS_TUFT_COUNT: 150,
+  GRASS_TUFT_MIN_SIZE: 2,
+  GRASS_TUFT_MAX_SIZE: 6, // 2 + 4
+  GRASS_TUFT_MIN_POINTS: 3,
+  GRASS_TUFT_MAX_POINTS: 6, // 3 + 3
+  GRASS_TUFT_MIN_RADIUS_FACTOR: 0.8,
+  GRASS_TUFT_MAX_RADIUS_FACTOR: 1.2, // 0.8 + 0.4
+  GRASS_TUFT_MIN_ALPHA: 0.3,
+  GRASS_TUFT_MAX_ALPHA: 0.5, // 0.3 + 0.2
+} as const;
+
+// ============================================================================
+// UI DIMENSIONS
+// ============================================================================
+export const UI_DIMENSIONS = {
+  PLAY_AREA_WIDTH: 1024,
+  PANEL_WIDTH: 256,
+  TOTAL_WIDTH: 1280,
+  HEIGHT: 768,
+  SEPARATOR_WIDTH: 4,
+} as const;
+
+// ============================================================================
+// PATH PARAMETERS
+// ============================================================================
+export const PATH = {
+  WIDTH: 50,
+  CORNER_RADIUS: 30,
+  OUTER_BORDER_WIDTH: 8, // pathWidth + 8
+  INNER_WIDTH_FACTOR: 0.6, // pathWidth * 0.6
+  INNER_ALPHA: 0.7,
+  TRACK_OFFSET_FACTOR: 0.25, // pathWidth * 0.25
+  TRACK_WIDTH: 3,
+  TRACK_ALPHA: 0.6,
+  DIRT_STEP_SIZE: 15,
+  DIRT_PATCH_PROBABILITY: 0.3, // 1 - 0.7
+  DIRT_PATCH_MIN_SIZE: 3,
+  DIRT_PATCH_MAX_SIZE: 8, // 3 + 5
+  DIRT_PATCH_OFFSET_FACTOR: 0.6,
+  DIRT_PATCH_MIN_ALPHA: 0.3,
+  DIRT_PATCH_MAX_ALPHA: 0.6, // 0.3 + 0.3
+  ROCK_PROBABILITY: 0.15, // 1 - 0.85
+  ROCK_MIN_SIZE: 2,
+  ROCK_MAX_SIZE: 5, // 2 + 3
+  ROCK_OFFSET_FACTOR: 0.5,
+  ROCK_MIN_ALPHA: 0.5,
+  ROCK_MAX_ALPHA: 0.8, // 0.5 + 0.3
+  FOOTPRINT_PROBABILITY: 0.2, // 1 - 0.8
+  FOOTPRINT_OFFSET_FACTOR: 0.4,
+  FOOTPRINT_WIDTH: 3,
+  FOOTPRINT_HEIGHT: 5,
+  FOOTPRINT_MIN_ALPHA: 0.2,
+  FOOTPRINT_MAX_ALPHA: 0.4, // 0.2 + 0.2
+  HIGHLIGHT_BORDER_WIDTH: 4, // pathWidth + 4
+  HIGHLIGHT_ALPHA: 0.3,
+} as const;
+
+// ============================================================================
+// TREE PARAMETERS
+// ============================================================================
+export const TREE = {
+  // Dead tree
+  DEAD_TRUNK_WIDTH_FACTOR: 0.15,
+  DEAD_TRUNK_HEIGHT_FACTOR: 0.6,
+  DEAD_BARK_LINES: 4,
+  DEAD_BARK_ALPHA: 0.5,
+  DEAD_MIN_BRANCHES: 5,
+  DEAD_MAX_BRANCHES: 8, // 5 + 3
+  DEAD_BRANCH_START_FACTOR: 0.2,
+  DEAD_BRANCH_END_FACTOR: 0.8, // 0.2 + 0.6
+  DEAD_BRANCH_MIN_LENGTH_FACTOR: 0.3,
+  DEAD_BRANCH_MAX_LENGTH_FACTOR: 0.5, // 0.3 + 0.2
+  DEAD_BRANCH_ANGLE_VARIATION: 0.8,
+  DEAD_BRANCH_Y_FACTOR: 0.5,
+  DEAD_BRANCH_MIN_WIDTH: 2,
+  DEAD_BRANCH_MAX_WIDTH: 3, // 2 + 1
+  DEAD_TWIG_PROBABILITY: 0.5,
+  DEAD_TWIG_LENGTH_FACTOR: 0.3,
+  DEAD_TWIG_ANGLE_VARIATION: 0.5,
+  DEAD_TWIG_Y_FACTOR: 0.5,
+  DEAD_TWIG_WIDTH: 1,
+  DEAD_TWIG_ALPHA: 0.8,
+  DEAD_SHADOW_WIDTH_FACTOR: 1.5,
+  DEAD_SHADOW_HEIGHT_FACTOR: 0.8,
+  DEAD_SHADOW_ALPHA: 0.3,
+
+  // Pine tree
+  PINE_TRUNK_WIDTH_FACTOR: 0.12,
+  PINE_TRUNK_HEIGHT_FACTOR: 0.4,
+  PINE_FOLIAGE_LAYERS: 4,
+  PINE_FOLIAGE_Y_START: 0.15,
+  PINE_FOLIAGE_Y_SPACING: 0.15,
+  PINE_FOLIAGE_WIDTH_BASE: 0.6,
+  PINE_FOLIAGE_WIDTH_DECREASE: 0.1,
+  PINE_FOLIAGE_HEIGHT: 0.2,
+  PINE_FOLIAGE_ALPHA: 0.9,
+  PINE_DETAIL_COUNT: 3,
+  PINE_DETAIL_WIDTH_FACTOR: 0.6,
+  PINE_DETAIL_Y_MIN: 0.3,
+  PINE_DETAIL_Y_MAX: 0.8, // 0.3 + 0.5
+  PINE_DETAIL_SIZE: 2,
+  PINE_DETAIL_ALPHA: 0.6,
+  PINE_SHADOW_WIDTH_FACTOR: 0.4,
+  PINE_SHADOW_HEIGHT_FACTOR: 0.15,
+  PINE_SHADOW_ALPHA: 0.3,
+} as const;
+
+// ============================================================================
+// GRAVEYARD DETAILS
+// ============================================================================
+export const GRAVEYARD_DETAILS = {
+  // Grass patches
+  GRASS_PATCH_COUNT: 30,
+  GRASS_PATCH_MIN_SIZE: 8,
+  GRASS_PATCH_MAX_SIZE: 23, // 8 + 15
+  GRASS_PATCH_MIN_POINTS: 5,
+  GRASS_PATCH_MAX_POINTS: 8, // 5 + 3
+  GRASS_PATCH_MIN_RADIUS_FACTOR: 0.6,
+  GRASS_PATCH_MAX_RADIUS_FACTOR: 1.2, // 0.6 + 0.6
+  GRASS_PATCH_MIN_ALPHA: 0.4,
+  GRASS_PATCH_MAX_ALPHA: 0.7, // 0.4 + 0.3
+
+  // Disturbed earth
+  EARTH_PATCH_COUNT: 20,
+  EARTH_PATCH_MIN_SIZE: 10,
+  EARTH_PATCH_MAX_SIZE: 30, // 10 + 20
+  EARTH_PATCH_MIN_POINTS: 4,
+  EARTH_PATCH_MAX_POINTS: 7, // 4 + 3
+  EARTH_PATCH_MIN_RADIUS_FACTOR: 0.5,
+  EARTH_PATCH_MAX_RADIUS_FACTOR: 1.2, // 0.5 + 0.7
+  EARTH_PATCH_MIN_ALPHA: 0.5,
+  EARTH_PATCH_MAX_ALPHA: 0.8, // 0.5 + 0.3
+
+  // Bones
+  BONE_COUNT: 25,
+  BONE_MIN_SIZE: 2,
+  BONE_MAX_SIZE: 6, // 2 + 4
+  BONE_HEIGHT_FACTOR: 2,
+  BONE_MIN_ALPHA: 0.6,
+  BONE_MAX_ALPHA: 0.9, // 0.6 + 0.3
+
+  // Stains
+  STAIN_COUNT: 15,
+  STAIN_MIN_SIZE: 8,
+  STAIN_MAX_SIZE: 23, // 8 + 15
+  STAIN_MIN_ALPHA: 0.3,
+  STAIN_MAX_ALPHA: 0.5, // 0.3 + 0.2
+
+  // Fence
+  FENCE_TOP_HEIGHT: 5,
+  FENCE_RUST_SPOTS: 8,
+  FENCE_RUST_SIZE: 2,
+  FENCE_RUST_ALPHA: 0.7,
+  FENCE_POST_SPACING: 35,
+  FENCE_POST_WIDTH: 9,
+  FENCE_POST_HEIGHT: 7,
+  FENCE_RUST_STREAK_COUNT: 5,
+  FENCE_RUST_STREAK_LENGTH: 20,
+  FENCE_RUST_STREAK_ALPHA: 0.5,
+
+  // Gate
+  GATE_X_OFFSET: 50,
+  GATE_Y: 360,
+  GATE_WIDTH: 50,
+  GATE_HEIGHT: 60,
+  GATE_POST_WIDTH: 8,
+  GATE_POST_OUTLINE_WIDTH: 2,
+  GATE_CRACK_START_Y: 10,
+  GATE_CRACK_END_Y: 25,
+  GATE_CRACK_ALPHA: 0.7,
+  GATE_MOSS_COUNT: 3,
+  GATE_MOSS_SIZE: 2,
+  GATE_MOSS_SPACING: 15,
+  GATE_MOSS_ALPHA: 0.6,
+  GATE_SKULL_SIZE: 5,
+  GATE_SKULL_Y_OFFSET: 10,
+  GATE_EYE_SIZE: 2,
+  GATE_EYE_Y_OFFSET: 9,
+  GATE_EYE_SPACING: 4,
+  GATE_NOSE_LENGTH: 2,
+  GATE_JAW_WIDTH: 4,
+  GATE_DOOR_Y_START: 5,
+  GATE_DOOR_Y_END: 50,
+  GATE_DOOR_ALPHA: 0.9,
+  GATE_DOOR_OUTLINE_WIDTH: 2,
+  GATE_BAR_COUNT: 4,
+  GATE_BAR_SPACING: 10,
+  GATE_BAR_START_Y: 15,
+  GATE_BAR_WIDTH: 2,
+  GATE_RUST_SPOT_COUNT: 4,
+  GATE_RUST_SPOT_SIZE: 2,
+  GATE_RUST_SPOT_ALPHA: 0.8,
+  GATE_SIGN_WIDTH: 30,
+  GATE_SIGN_HEIGHT: 12,
+  GATE_SIGN_Y_OFFSET: 15,
+  GATE_SIGN_OUTLINE_WIDTH: 2,
+  GATE_CHAIN_COUNT: 3,
+  GATE_CHAIN_LINK_SIZE: 2,
+  GATE_CHAIN_LINK_SPACING: 8,
+  GATE_CHAIN_LINK_OUTLINE_WIDTH: 1,
+} as const;
+
+// ============================================================================
+// FOG PARAMETERS
+// ============================================================================
+export const FOG = {
+  // Upper fog layer
+  UPPER_COUNT: 12,
+  UPPER_Y_BASE: -40,
+  UPPER_Y_RANGE: 30,
+  UPPER_MIN_SIZE: 18,
+  UPPER_MAX_SIZE: 33, // 18 + 15
+  UPPER_MIN_SPEED: 0.3,
+  UPPER_MAX_SPEED: 0.7, // 0.3 + 0.4
+  UPPER_MIN_ALPHA: 0.12,
+  UPPER_MAX_ALPHA: 0.2, // 0.12 + 0.08
+
+  // Lower fog layer
+  LOWER_COUNT: 10,
+  LOWER_Y_BASE: -15,
+  LOWER_Y_RANGE: 10,
+  LOWER_MIN_SIZE: 25,
+  LOWER_MAX_SIZE: 45, // 25 + 20
+  LOWER_MIN_SPEED: 0.2,
+  LOWER_MAX_SPEED: 0.5, // 0.2 + 0.3
+  LOWER_MIN_ALPHA: 0.15,
+  LOWER_MAX_ALPHA: 0.25, // 0.15 + 0.1
+
+  // Animation
+  DRIFT_AMPLITUDE: 15,
+  BOB_AMPLITUDE: 3,
+  BOB_SPEED_FACTOR: 0.5,
+  PULSE_SPEED: 0.5,
+  PULSE_MIN_FACTOR: 0.7,
+  PULSE_MAX_FACTOR: 1.0, // 0.7 + 0.3
+  SIZE_THRESHOLD: 30, // Determines if fog is "lower" type
+} as const;
+
+// ============================================================================
+// CAMP PARAMETERS
+// ============================================================================
+export const CAMP = {
+  // Ground
+  CLEARED_RADIUS: 70,
+  CLEARED_ALPHA: 0.5,
+  FOOTPRINT_COUNT: 15,
+  FOOTPRINT_ANGLE_STEP: 137.5,
+  FOOTPRINT_DIST_STEP: 73,
+  FOOTPRINT_MAX_DIST: 55,
+  FOOTPRINT_WIDTH: 2,
+  FOOTPRINT_HEIGHT: 4,
+  FOOTPRINT_ALPHA: 0.15,
+
+  // Fence
+  FENCE_THICKNESS: 6,
+  FENCE_ALPHA: 0.9,
+  FENCE_OUTLINE_WIDTH: 2,
+  FENCE_BAR_SPACING: 6,
+  FENCE_BAR_ALPHA: 0.5,
+  FENCE_SUPPORT_SPACING: 8,
+  FENCE_LEFT_X: -68,
+  FENCE_RIGHT_X: 62,
+  FENCE_TOP_Y: -60,
+  FENCE_BOTTOM_Y: 54,
+  FENCE_WIDTH: 124,
+  FENCE_HEIGHT: 110,
+
+  // Gate
+  GATE_HEIGHT: 50,
+  GATE_POST_SIZE: 6,
+  GATE_POST_OFFSET: 4,
+  GATE_DOOR_ALPHA: 0.85,
+  GATE_DOOR_OUTLINE_WIDTH: 2,
+  GATE_DOOR_ANGLE: 7,
+  GATE_BAR_WIDTH: 1.5,
+
+  // Tent
+  TENT_BASE_WIDTH: 64,
+  TENT_BASE_HEIGHT: 35,
+  TENT_BASE_X: -32,
+  TENT_BASE_Y: -10,
+  TENT_OUTLINE_WIDTH: 2,
+  TENT_ROOF_WIDTH: 70,
+  TENT_ROOF_HEIGHT: 22,
+  TENT_ROOF_X: -35,
+  TENT_PATCH_WIDTH: 8,
+  TENT_PATCH_HEIGHT: 6,
+  TENT_PATCH_X: -25,
+  TENT_PATCH_Y: -5,
+  TENT_PATCH_ALPHA: 0.6,
+  TENT_FLAP_WIDTH: 20,
+  TENT_FLAP_HEIGHT: 10,
+  TENT_FLAP_X: -10,
+  TENT_FLAP_Y: 15,
+  TENT_ROPE_LENGTH: 10,
+  TENT_STAKE_WIDTH: 3,
+  TENT_STAKE_HEIGHT: 8,
+
+  // Medical tent
+  MEDICAL_TENT_WIDTH: 30,
+  MEDICAL_TENT_HEIGHT: 18,
+  MEDICAL_TENT_X: -52,
+  MEDICAL_TENT_Y: -40,
+  MEDICAL_TENT_ROOF_HEIGHT: 10,
+  MEDICAL_CROSS_WIDTH: 5,
+  MEDICAL_CROSS_HEIGHT: 2,
+  MEDICAL_CROSS_VERTICAL_WIDTH: 2,
+  MEDICAL_CROSS_VERTICAL_HEIGHT: 5,
+
+  // Supply tent
+  SUPPLY_TENT_WIDTH: 28,
+  SUPPLY_TENT_HEIGHT: 18,
+  SUPPLY_TENT_X: 22,
+  SUPPLY_TENT_Y: -40,
+  SUPPLY_TENT_ROOF_HEIGHT: 10,
+
+  // Sandbags
+  SANDBAG_WIDTH: 12,
+  SANDBAG_HEIGHT: 8,
+  SANDBAG_RADIUS: 2,
+  SANDBAG_OUTLINE_WIDTH: 1,
+
+  // Crates
+  CRATE_SIZE: 14,
+  CRATE_OUTLINE_WIDTH: 2,
+  CRATE_BAND_HEIGHT: 2,
+  CRATE_BAND_TOP_OFFSET: 3,
+  CRATE_BAND_BOTTOM_OFFSET: 9,
+  CRATE_BAND_ALPHA: 0.6,
+
+  // Watchtower
+  WATCHTOWER_LEG_WIDTH: 4,
+  WATCHTOWER_LEG_HEIGHT: 45,
+  WATCHTOWER_LEG_SPACING: 14,
+  WATCHTOWER_BRACE_WIDTH: 2,
+  WATCHTOWER_PLATFORM_WIDTH: 26,
+  WATCHTOWER_PLATFORM_HEIGHT: 8,
+  WATCHTOWER_PLATFORM_Y: -40,
+  WATCHTOWER_RAILING_HEIGHT: 2,
+  WATCHTOWER_ANTENNA_WIDTH: 2,
+  WATCHTOWER_ANTENNA_HEIGHT: 18,
+  WATCHTOWER_LIGHT_SIZE: 2,
+
+  // Fire pit
+  FIRE_RING_RADIUS: 12,
+  FIRE_RING_Y_COMPRESSION: 6,
+  FIRE_RING_STONE_COUNT: 8,
+  FIRE_RING_STONE_SIZE: 3,
+  FIRE_RING_OUTLINE_WIDTH: 1,
+  FIRE_PIT_WIDTH: 10,
+  FIRE_PIT_HEIGHT: 5,
+  FIRE_PIT_ALPHA: 0.6,
+
+  // Logs
+  LOG_WIDTH: 12,
+  LOG_HEIGHT: 4,
+  LOG_OUTLINE_WIDTH: 1,
+
+  // Clothesline
+  CLOTHESLINE_WIDTH: 1,
+  CLOTHESLINE_Y: -25,
+  CLOTHESLINE_LENGTH: 40,
+  CLOTHES_WIDTH: 6,
+  CLOTHES_HEIGHT: 8,
+  CLOTHES_ALPHA: 0.7,
+
+  // Warning sign
+  SIGN_WIDTH: 80,
+  SIGN_HEIGHT: 18,
+  SIGN_Y: -60,
+  SIGN_OUTLINE_WIDTH: 3,
+  SIGN_STRIPE_WIDTH: 6,
+  SIGN_STRIPE_HEIGHT: 14,
+  SIGN_STRIPE_ALPHA: 0.8,
+  SIGN_SAFE_ZONE_WIDTH: 70,
+  SIGN_SAFE_ZONE_HEIGHT: 12,
+  SIGN_SAFE_ZONE_ALPHA: 0.7,
+  SIGN_SAFE_ZONE_OUTLINE_WIDTH: 2,
+  SIGN_NAIL_SIZE: 1.5,
+
+  // Generator
+  GENERATOR_WIDTH: 12,
+  GENERATOR_HEIGHT: 10,
+  GENERATOR_OUTLINE_WIDTH: 2,
+  GENERATOR_EXHAUST_WIDTH: 2,
+  GENERATOR_EXHAUST_HEIGHT: 4,
+  FUEL_CAN_WIDTH: 6,
+  FUEL_CAN_HEIGHT: 8,
+  FUEL_CAN_OUTLINE_WIDTH: 1,
+
+  // Table
+  TABLE_WIDTH: 24,
+  TABLE_HEIGHT: 3,
+  TABLE_LEG_WIDTH: 2,
+  TABLE_LEG_HEIGHT: 6,
+  CUP_SIZE: 2,
+  BOOK_WIDTH: 4,
+  BOOK_HEIGHT: 2,
+
+  // String lights
+  LIGHT_BULB_SIZE: 2,
+  LIGHT_BULB_GLOW_SIZE: 3,
+  LIGHT_BULB_SPACING: 20,
+  LIGHT_BULB_RANGE: 40,
+  LIGHT_BULB_ALPHA: 0.6,
+  LIGHT_BULB_GLOW_ALPHA: 0.2,
+
+  // Personal items
+  BACKPACK_WIDTH: 6,
+  BACKPACK_HEIGHT: 8,
+  BACKPACK_OUTLINE_WIDTH: 1,
+  BOOTS_WIDTH: 4,
+  BOOTS_HEIGHT: 6,
+  GUITAR_BODY_WIDTH: 4,
+  GUITAR_BODY_HEIGHT: 6,
+  GUITAR_NECK_WIDTH: 2,
+  GUITAR_NECK_HEIGHT: 12,
+
+  // Memorial
+  MEMORIAL_CROSS_VERTICAL_WIDTH: 2,
+  MEMORIAL_CROSS_VERTICAL_HEIGHT: 10,
+  MEMORIAL_CROSS_HORIZONTAL_WIDTH: 10,
+  MEMORIAL_CROSS_HORIZONTAL_HEIGHT: 2,
+  MEMORIAL_FLOWER_SIZE: 2,
+  MEMORIAL_FLOWER_ALPHA: 0.6,
+} as const;
+
+// ============================================================================
+// FIRE ANIMATION PARAMETERS
+// ============================================================================
+export const FIRE_ANIMATION = {
+  FLICKER_SPEED_1: 8,
+  FLICKER_SPEED_2: 10,
+  FLICKER_SPEED_3: 12,
+  FLICKER_OFFSET_2: 1,
+  FLICKER_OFFSET_3: 2,
+  OUTER_BASE_WIDTH: 8,
+  OUTER_HEIGHT: 4,
+  OUTER_Y_OFFSET: 32,
+  OUTER_ALPHA: 0.9,
+  MIDDLE_BASE_WIDTH: 6,
+  MIDDLE_WIDTH_FACTOR: 0.5,
+  MIDDLE_HEIGHT: 3,
+  MIDDLE_Y_OFFSET: 30,
+  MIDDLE_ALPHA: 0.9,
+  INNER_BASE_WIDTH: 4,
+  INNER_WIDTH_FACTOR: 0.3,
+  INNER_HEIGHT: 2,
+  INNER_Y_OFFSET: 28,
+  INNER_ALPHA: 0.95,
+  CORE_WIDTH: 2,
+  CORE_HEIGHT: 1,
+  CORE_Y_OFFSET: 27,
+  CORE_ALPHA: 1,
+} as const;
+
+// ============================================================================
+// SURVIVOR ANIMATION PARAMETERS
+// ============================================================================
+export const SURVIVOR_ANIMATION = {
+  BREATHE_SPEED: 2,
+  BREATHE_SPEED_2: 2.3,
+  BREATHE_OFFSET_2: 1,
+  BREATHE_AMPLITUDE: 0.3,
+  SWAY_SPEED: 1.5,
+  SWAY_AMPLITUDE: 0.5,
+  HEAD_TURN_SPEED: 0.8,
+  HEAD_TURN_SPEED_2: 0.9,
+  HEAD_TURN_OFFSET_2: 2,
+  HEAD_TURN_AMPLITUDE: 1,
+  WORK_BOB_SPEED: 3,
+  WORK_BOB_AMPLITUDE: 2,
+
+  // Survivor sizes
+  HEAD_SIZE: 4,
+  BODY_WIDTH: 6,
+  BODY_HEIGHT: 8,
+  RIFLE_WIDTH: 1,
+  RIFLE_HEIGHT: 7,
+  WEAPON_WIDTH: 1,
+  WEAPON_HEIGHT: 6,
+  ARMBAND_WIDTH: 4,
+  ARMBAND_HEIGHT: 2,
+
+  // Survivor 1 (watchtower)
+  S1_X: -51,
+  S1_Y: -38,
+  S1_HEAD_TURN_FACTOR: 0.5,
+  S1_BREATHE_FACTOR: 0.1,
+  S1_BODY_Y: -34,
+  S1_RIFLE_Y: -43,
+
+  // Survivor 2 (fire)
+  S2_X: -18,
+  S2_Y: 36,
+  S2_BREATHE_FACTOR: 0.2,
+  S2_BODY_Y: 40,
+  S2_BODY_HEIGHT_EXTRA: 6,
+
+  // Survivor 3 (guard)
+  S3_X: 25,
+  S3_Y: 20,
+  S3_SWAY_FACTOR: 0.3,
+  S3_BODY_X: 22,
+  S3_BODY_Y: 24,
+  S3_WEAPON_Y: 18,
+
+  // Survivor 4 (worker)
+  S4_X: -50,
+  S4_Y: -36,
+  S4_BODY_X: -53,
+  S4_BODY_Y: -32,
+
+  // Survivor 5 (medic)
+  S5_X: -32,
+  S5_Y: -26,
+  S5_HEAD_TURN_FACTOR: 0.3,
+  S5_BREATHE_FACTOR: 0.15,
+  S5_BODY_X: -35,
+  S5_BODY_Y: -22,
+  S5_ARMBAND_Y: -20,
+} as const;
+
+// ============================================================================
+// RUINED HOUSE PARAMETERS
+// ============================================================================
+export const RUINED_HOUSE = {
+  // Wall dimensions
+  WALL_THICKNESS: 4,
+  WALL_HEIGHT_FACTOR: 0.7,
+  WALL_OUTLINE_WIDTH: 1,
+  FRONT_WALL_HEIGHT_FACTOR: 0.9,
+  FRONT_WALL_LEFT_WIDTH_FACTOR: 0.3,
+  FRONT_WALL_RIGHT_START_FACTOR: 0.65,
+  FRONT_WALL_RIGHT_WIDTH_FACTOR: 0.35,
+
+  // Roof
+  ROOF_OUTLINE_WIDTH: 2,
+  ROOF_ALPHA: 0.9,
+  ROOF_PEAK_HEIGHT: 12,
+  ROOF_PEAK_X_FACTOR: 0.4,
+  ROOF_SAG_HEIGHT: 8,
+  ROOF_SAG_X_FACTOR: 0.8,
+
+  // Window
+  WINDOW_X_FACTOR: 0.2,
+  WINDOW_Y_FACTOR: 0.6,
+  WINDOW_WIDTH: 14,
+  WINDOW_HEIGHT: 18,
+  WINDOW_OUTLINE_WIDTH: 2,
+  WINDOW_GLASS_WIDTH: 1,
+
+  // Door
+  DOOR_X_FACTOR: 0.45,
+  DOOR_Y_FACTOR: 0.8,
+  DOOR_WIDTH: 18,
+  DOOR_HEIGHT_FACTOR: 0.7,
+  DOOR_FRAME_THICKNESS: 2,
+  DOOR_TILT_X: 5,
+  DOOR_TILT_Y: 3,
+  DOOR_OUTLINE_WIDTH: 1,
+
+  // Rubble
+  RUBBLE_BASE_COUNT: 8,
+  RUBBLE_DESTROYED_FACTOR: 15,
+  RUBBLE_Y_OFFSET: 8,
+  RUBBLE_Y_RANGE: 12,
+  RUBBLE_MIN_SIZE: 4,
+  RUBBLE_MAX_SIZE: 10, // 4 + 6
+  RUBBLE_MIN_POINTS: 3,
+  RUBBLE_MAX_POINTS: 6, // 3 + 3
+
+  // Burn marks
+  BURN_THRESHOLD: 0.6,
+  BURN_LEFT_X_FACTOR: 0.3,
+  BURN_LEFT_Y_FACTOR: 0.5,
+  BURN_LEFT_COUNT: 5,
+  BURN_LEFT_OFFSET_RANGE: 12,
+  BURN_LEFT_MIN_SIZE: 8,
+  BURN_LEFT_MAX_SIZE: 16, // 8 + 8
+  BURN_LEFT_ALPHA: 0.3,
+  BURN_RIGHT_X_FACTOR: 0.7,
+  BURN_RIGHT_Y_FACTOR: 0.3,
+  BURN_RIGHT_COUNT: 4,
+  BURN_RIGHT_OFFSET_RANGE: 10,
+  BURN_RIGHT_MIN_SIZE: 6,
+  BURN_RIGHT_MAX_SIZE: 12, // 6 + 6
+  BURN_RIGHT_ALPHA: 0.25,
+
+  // Smoke
+  SMOKE_THRESHOLD: 0.7,
+  SMOKE_COUNT: 4,
+  SMOKE_X_OFFSET_RANGE: 25,
+  SMOKE_Y_SPACING: 10,
+  SMOKE_Y_OFFSET: 15,
+  SMOKE_BASE_SIZE: 4,
+  SMOKE_SIZE_GROWTH: 0.5,
+  SMOKE_WIDTH_FACTOR: 1.2,
+  SMOKE_HEIGHT_FACTOR: 0.8,
+  SMOKE_BASE_ALPHA: 0.35,
+  SMOKE_ALPHA_DECAY: 0.08,
+
+  // Cracks
+  CRACK_THRESHOLD: 0.5,
+  CRACK_COUNT: 3,
+  CRACK_X_START_FACTOR: 0.2,
+  CRACK_X_SPACING: 0.3,
+  CRACK_HEIGHT_FACTOR: 0.6,
+  CRACK_X_VARIATION: 8,
+  CRACK_WIDTH: 2,
+  CRACK_ALPHA: 0.6,
+
+  // Bullet holes
+  BULLET_HOLE_THRESHOLD: 0.6,
+  BULLET_HOLE_COUNT: 5,
+  BULLET_HOLE_MIN_SIZE: 2,
+  BULLET_HOLE_MAX_SIZE: 4, // 2 + 2
+  BULLET_HOLE_ALPHA: 0.7,
+  BULLET_HOLE_CRACK_COUNT: 3,
+  BULLET_HOLE_CRACK_MIN_LENGTH: 3,
+  BULLET_HOLE_CRACK_MAX_LENGTH: 6, // 3 + 3
+  BULLET_HOLE_CRACK_WIDTH: 1,
+  BULLET_HOLE_CRACK_ALPHA: 0.5,
+
+  // Destruction levels
+  DESTROYED_LEVEL_ROOF: 0.9,
+  DESTROYED_LEVEL_FRONT_WALL: 0.8,
+  DESTROYED_LEVEL_WINDOW: 0.75,
+  DESTROYED_LEVEL_DOOR: 0.8,
+} as const;
+
+// ============================================================================
+// DECORATION PARAMETERS
+// ============================================================================
+export const DECORATIONS = {
+  COUNT: 25,
+  MIN_Y: 150,
+  PATH_CLEARANCE: 50,
+
+  // Dead bushes
+  BUSH_PROBABILITY: 0.3,
+  BUSH_MIN_SIZE: 10,
+  BUSH_MAX_SIZE: 25, // 10 + 15
+  BUSH_MIN_POINTS: 6,
+  BUSH_MAX_POINTS: 10, // 6 + 4
+  BUSH_MIN_RADIUS_FACTOR: 0.6,
+  BUSH_MAX_RADIUS_FACTOR: 1.2, // 0.6 + 0.6
+  BUSH_ALPHA: 0.7,
+
+  // Rocks
+  ROCK_PROBABILITY: 0.5, // 0.3 + 0.2
+  ROCK_MIN_SIZE: 8,
+  ROCK_MAX_SIZE: 20, // 8 + 12
+  ROCK_MIN_POINTS: 4,
+  ROCK_MAX_POINTS: 7, // 4 + 3
+  ROCK_ANGLE_VARIATION: 0.3,
+  ROCK_MIN_RADIUS_FACTOR: 0.7,
+  ROCK_MAX_RADIUS_FACTOR: 1.2, // 0.7 + 0.5
+  ROCK_OUTLINE_WIDTH: 1,
+
+  // Stumps
+  STUMP_PROBABILITY: 0.7, // 0.5 + 0.2
+  STUMP_MIN_WIDTH: 5,
+  STUMP_MAX_WIDTH: 9, // 5 + 4
+  STUMP_MIN_HEIGHT: 10,
+  STUMP_MAX_HEIGHT: 18, // 10 + 8
+  STUMP_BRANCH_LENGTH: 10,
+  STUMP_BRANCH_Y_FACTOR: 0.4,
+  STUMP_BRANCH_WIDTH: 2,
+
+  // Grass patches
+  GRASS_MIN_SIZE: 12,
+  GRASS_MAX_SIZE: 30, // 12 + 18
+  GRASS_MIN_POINTS: 8,
+  GRASS_MAX_POINTS: 13, // 8 + 5
+  GRASS_MIN_RADIUS_FACTOR: 0.5,
+  GRASS_MAX_RADIUS_FACTOR: 1.2, // 0.5 + 0.7
+  GRASS_ALPHA: 0.6,
+
+  // Skulls
+  SKULL_COUNT: 8,
+  SKULL_SIZE: 4,
+  SKULL_OFFSET: 3,
+  SKULL_EYE_SIZE: 1.5,
+  SKULL_EYE_Y_OFFSET: 1,
+  SKULL_EYE_SPACING: 4,
+} as const;
+
+// ============================================================================
+// DISTANCE THRESHOLDS
+// ============================================================================
+export const DISTANCE = {
+  PATH_CLEARANCE: 50,
+  LINE_SEGMENT_EPSILON: 0.0001,
+} as const;
+
+// ============================================================================
+// TREE POSITIONS (relative to map edges)
+// ============================================================================
+export const TREE_POSITIONS = {
+  // Top-left corner
+  TL1: { x: 80, y: 80, size: 35, type: 'dead' as const },
+  TL2: { x: 120, y: 60, size: 28, type: 'dead' as const },
+  TL3: { x: 50, y: 120, size: 32, type: 'dead' as const },
+
+  // Top-right corner (relative to width)
+  TR1: { xOffset: 80, y: 80, size: 38, type: 'pine' as const },
+  TR2: { xOffset: 120, y: 50, size: 30, type: 'pine' as const },
+  TR3: { xOffset: 50, y: 110, size: 35, type: 'dead' as const },
+
+  // Bottom-left corner (relative to height)
+  BL1: { x: 70, yOffset: 80, size: 40, type: 'dead' as const },
+  BL2: { x: 110, yOffset: 60, size: 32, type: 'pine' as const },
+  BL3: { x: 40, yOffset: 120, size: 36, type: 'dead' as const },
+
+  // Bottom-right corner (relative to width and height)
+  BR1: { xOffset: 90, yOffset: 70, size: 42, type: 'pine' as const },
+  BR2: { xOffset: 60, yOffset: 110, size: 35, type: 'dead' as const },
+  BR3: { xOffset: 130, yOffset: 90, size: 38, type: 'pine' as const },
+} as const;

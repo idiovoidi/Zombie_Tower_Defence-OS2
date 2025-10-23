@@ -1,8 +1,16 @@
 import { Application, Graphics } from 'pixi.js';
+import {
+  COLORS,
+  GRAVEYARD,
+  GROUND_TEXTURE,
+  LAYER_INDICES,
+  PATH,
+  UI_DIMENSIONS,
+} from '../config/visualConstants';
+import { InputManager } from '../managers/InputManager';
 import { MapData, MapManager } from '../managers/MapManager';
 import { Waypoint } from '../managers/PathfindingManager';
 import { ZombieCorpseRenderer } from './zombies/ZombieCorpseRenderer';
-import { InputManager } from '../managers/InputManager';
 
 interface FogParticle {
   x: number;
@@ -26,7 +34,12 @@ export class VisualMapRenderer {
   private fogContainer: Graphics;
   private fogParticles: FogParticle[] = [];
   private fogTime: number = 0;
-  private graveyardBounds = { x: 20, y: 250, width: 140, height: 280 };
+  private graveyardBounds = {
+    x: GRAVEYARD.X,
+    y: GRAVEYARD.Y,
+    width: GRAVEYARD.WIDTH,
+    height: GRAVEYARD.HEIGHT,
+  };
   private corpseContainer: Graphics;
   private corpseRenderer: ZombieCorpseRenderer;
   private campAnimationTime: number = 0;
@@ -45,15 +58,15 @@ export class VisualMapRenderer {
     this.campAnimationContainer = new Graphics();
     this.corpseRenderer = new ZombieCorpseRenderer(this.corpseContainer);
 
-    // Add to stage at the beginning (index 0) so it renders behind everything
-    this.app.stage.addChildAt(this.mapContainer, 0);
-    this.app.stage.addChildAt(this.pathGraphics, 1);
+    // Add to stage at the beginning so it renders behind everything
+    this.app.stage.addChildAt(this.mapContainer, LAYER_INDICES.MAP_BACKGROUND);
+    this.app.stage.addChildAt(this.pathGraphics, LAYER_INDICES.PATH);
     // Corpses render on ground level
-    this.app.stage.addChildAt(this.corpseContainer, 2);
+    this.app.stage.addChildAt(this.corpseContainer, LAYER_INDICES.CORPSES);
     // Camp animations render above corpses
-    this.app.stage.addChildAt(this.campAnimationContainer, 3);
+    this.app.stage.addChildAt(this.campAnimationContainer, LAYER_INDICES.CAMP_ANIMATIONS);
     // Fog renders on top of corpses but behind game objects
-    this.app.stage.addChildAt(this.fogContainer, 4);
+    this.app.stage.addChildAt(this.fogContainer, LAYER_INDICES.FOG);
   }
 
   public setCampClickCallback(callback: () => void): void {
@@ -85,24 +98,42 @@ export class VisualMapRenderer {
     // Draw apocalyptic ground texture for play area
     // Base layer - darker, more desolate ground
     this.mapContainer.rect(0, 0, mapData.width, mapData.height);
-    this.mapContainer.fill({ color: 0x3a4a2a }); // Darker olive green
+    this.mapContainer.fill({ color: COLORS.GROUND_BASE });
 
     // Add varied dirt/mud patches for texture variation
-    for (let i = 0; i < 80; i++) {
+    for (let i = 0; i < GROUND_TEXTURE.DIRT_PATCH_COUNT; i++) {
       const x = Math.random() * mapData.width;
       const y = Math.random() * mapData.height;
-      const size = 30 + Math.random() * 60;
-      const points = 6 + Math.floor(Math.random() * 5);
+      const size =
+        GROUND_TEXTURE.DIRT_PATCH_MIN_SIZE +
+        Math.random() * (GROUND_TEXTURE.DIRT_PATCH_MAX_SIZE - GROUND_TEXTURE.DIRT_PATCH_MIN_SIZE);
+      const points =
+        GROUND_TEXTURE.DIRT_PATCH_MIN_POINTS +
+        Math.floor(
+          Math.random() *
+            (GROUND_TEXTURE.DIRT_PATCH_MAX_POINTS - GROUND_TEXTURE.DIRT_PATCH_MIN_POINTS)
+        );
 
       this.mapContainer.moveTo(x, y);
       for (let j = 0; j < points; j++) {
         const angle = (j / points) * Math.PI * 2;
-        const radius = size * (0.6 + Math.random() * 0.7);
+        const radius =
+          size *
+          (GROUND_TEXTURE.DIRT_PATCH_MIN_RADIUS_FACTOR +
+            Math.random() *
+              (GROUND_TEXTURE.DIRT_PATCH_MAX_RADIUS_FACTOR -
+                GROUND_TEXTURE.DIRT_PATCH_MIN_RADIUS_FACTOR));
         const px = x + Math.cos(angle) * radius;
         const py = y + Math.sin(angle) * radius;
         this.mapContainer.lineTo(px, py);
       }
-      this.mapContainer.fill({ color: 0x4a5a3a, alpha: 0.4 + Math.random() * 0.3 });
+      this.mapContainer.fill({
+        color: COLORS.GROUND_DIRT_PATCH,
+        alpha:
+          GROUND_TEXTURE.DIRT_PATCH_MIN_ALPHA +
+          Math.random() *
+            (GROUND_TEXTURE.DIRT_PATCH_MAX_ALPHA - GROUND_TEXTURE.DIRT_PATCH_MIN_ALPHA),
+      });
     }
 
     // Dead grass patches (lighter, sparse)
@@ -237,12 +268,22 @@ export class VisualMapRenderer {
     }
 
     // Draw UI panel background on the right
-    this.mapContainer.rect(1024, 0, 256, 768);
-    this.mapContainer.fill({ color: 0x2a2a2a });
+    this.mapContainer.rect(
+      UI_DIMENSIONS.PLAY_AREA_WIDTH,
+      0,
+      UI_DIMENSIONS.PANEL_WIDTH,
+      UI_DIMENSIONS.HEIGHT
+    );
+    this.mapContainer.fill({ color: COLORS.UI_PANEL_BG });
 
     // Draw separator line between play area and UI
-    this.mapContainer.rect(1024, 0, 4, 768);
-    this.mapContainer.fill({ color: 0x654321 });
+    this.mapContainer.rect(
+      UI_DIMENSIONS.PLAY_AREA_WIDTH,
+      0,
+      UI_DIMENSIONS.SEPARATOR_WIDTH,
+      UI_DIMENSIONS.HEIGHT
+    );
+    this.mapContainer.fill({ color: COLORS.UI_SEPARATOR });
   }
 
   private renderForegroundElements(mapData: MapData): void {
@@ -392,8 +433,8 @@ export class VisualMapRenderer {
       return;
     }
 
-    const pathWidth = 50;
-    const cornerRadius = 30;
+    const pathWidth = PATH.WIDTH;
+    const cornerRadius = PATH.CORNER_RADIUS;
 
     // Helper function to draw path
     const drawPathLine = (graphics: Graphics, waypoints: Waypoint[]) => {
@@ -439,8 +480,8 @@ export class VisualMapRenderer {
     // Draw dark border first (darker dirt edges)
     drawPathLine(this.mapContainer, mapData.waypoints);
     this.mapContainer.stroke({
-      width: pathWidth + 8,
-      color: 0x4a3a2a,
+      width: pathWidth + PATH.OUTER_BORDER_WIDTH,
+      color: COLORS.PATH_OUTER,
       cap: 'round',
       join: 'round',
     });
@@ -452,11 +493,11 @@ export class VisualMapRenderer {
     // Add center worn track (darker from heavy use)
     drawPathLine(this.mapContainer, mapData.waypoints);
     this.mapContainer.stroke({
-      width: pathWidth * 0.6,
-      color: 0x5a4a3a,
+      width: pathWidth * PATH.INNER_WIDTH_FACTOR,
+      color: COLORS.PATH_INNER,
       cap: 'round',
       join: 'round',
-      alpha: 0.7,
+      alpha: PATH.INNER_ALPHA,
     });
 
     // Add tire/cart tracks (two parallel lines)
