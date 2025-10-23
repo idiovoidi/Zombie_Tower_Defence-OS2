@@ -1,393 +1,149 @@
-# Zombie Types Reference Guide
+---
+inclusion: fileMatch
+fileMatchPattern: ['**/zombies/**/*.ts', '**/Zombie*.ts', '**/WaveManager.ts', '**/Tower*.ts']
+---
+
+# Zombie Types Reference
+
+Complete reference for all zombie types including stats, combat modifiers, and strategic counters.
+
+## Zombie Type Definitions
+
+### 1. Basic Zombie 🧟
+- **Type ID:** `BASIC` | **Color:** `0x00ff00` (green)
+- **Stats:** 100 HP, 50 px/s, $10 reward, 10px size
+- **Combat:** No resistances or weaknesses (100% damage from all towers)
+- **Spawn:** 80% (waves 1-5), 60% (waves 6-10), 50% (waves 11+)
+- **Visual:** Green humanoid, round head, extended arms, shambling gait
+- **Strategy:** Balanced baseline enemy, good for testing tower effectiveness
+
+### 2. Fast Zombie 🏃
+- **Type ID:** `FAST` | **Color:** `0xff6600` (orange)
+- **Stats:** 80 HP, 100 px/s, $15 reward, 10px size
+- **Combat:**
+  - Resistant: Flame (75% - runs through fire quickly)
+  - Weak: Shotgun (125%), Tesla (125% - instant hit, no dodging)
+  - Other: Machine Gun (100%), Sniper (90% - harder to hit)
+- **Spawn:** 20% (waves 1-5), 30% (waves 6+)
+- **Visual:** Orange streamlined body, leaning forward, rapid leg animation
+- **Strategy:** Use area-effect and instant-hit towers. Avoid precision towers.
+
+### 3. Tank Zombie 💪
+- **Type ID:** `TANK` | **Color:** `0xff0000` (red)
+- **Stats:** 300 HP, 25 px/s, $50 reward, 15px size
+- **Combat:**
+  - Resistant: Machine Gun (70% - bullets bounce off), Shotgun (80%)
+  - Weak: Sniper (150% - armor-piercing), Flame (125% - sustained burn)
+  - Other: Tesla (100%)
+- **Spawn:** 10% (waves 6-10), 15% (waves 11+)
+- **Visual:** Large bulky red body, wide shoulders, lumbering gait
+- **Strategy:** Use high-damage single-target (Sniper) or sustained damage (Flame)
+
+### 4. Armored Zombie 🛡️
+- **Type ID:** `ARMORED` | **Color:** `0x888888` (gray)
+- **Stats:** 150 HP, 40 px/s, $30 reward, 11px size
+- **Combat:**
+  - Resistant: Machine Gun (75%), Shotgun (85%), Flame (90% - heat-resistant)
+  - Weak: Sniper (140% - armor-piercing), Tesla (120% - bypasses armor)
+- **Spawn:** 5% (waves 11+)
+- **Visual:** Gray metallic body, helmet, plated armor, rigid stance
+- **Strategy:** Prioritize Sniper and Tesla. Avoid rapid-fire low-damage towers.
+
+### 5. Swarm Zombie 🐝
+- **Type ID:** `SWARM` | **Color:** `0xffff00` (yellow)
+- **Stats:** 30 HP, 60 px/s, $5 reward, 6px size
+- **Combat:**
+  - Resistant: Sniper (60% - overkill, wasted damage)
+  - Weak: Shotgun (150% - spread hits multiple), Flame (140%), Tesla (130% - chain)
+  - Other: Machine Gun (100%)
+- **Spawn:** 10-20 at once (waves 11+)
+- **Visual:** Small yellow body, hunched scurrying posture
+- **Strategy:** Use area-effect towers. Single-target high-damage wastes damage.
+
+### 6. Stealth Zombie 👻
+- **Type ID:** `STEALTH` | **Color:** `0x6600ff` (purple)
+- **Stats:** 70 HP, 70 px/s, $25 reward, 10px size
+- **Combat:**
+  - Resistant: Sniper (80% - hard to target precisely)
+  - Weak: Flame (130% - reveals and burns), Tesla (125%), Shotgun (115% - spread)
+  - Other: Machine Gun (95%)
+- **Spawn:** 10% (waves 11+)
+- **Visual:** Purple semi-transparent (50-70% opacity), crouched posture
+- **Strategy:** Use auto-targeting and area towers. Avoid precision towers.
+
+### 7. Mechanical Zombie 🤖
+- **Type ID:** `MECHANICAL` | **Color:** `0x00ffff` (cyan)
+- **Stats:** 120 HP, 55 px/s, $40 reward, 12px size
+- **Combat:**
+  - Resistant: Machine Gun (80% - metal plating), Shotgun (85%), Flame (50% - heat-resistant)
+  - Weak: Tesla (200% - fries circuits), Sniper (120% - precision weak points)
+- **Spawn:** 5-10% (waves 11+)
+- **Visual:** Cyan metallic body, angular geometric design, glowing parts
+- **Strategy:** Tesla is HIGHLY effective (200%). Flame is nearly useless (50%).
 
 ---
 
-## Complete reference for all zombie types in Z-TD, including stats, characteristics, and visual descriptions.
+## Tower Effectiveness Matrix
 
-## 1. Basic Zombie 🧟
+| Zombie      | Machine Gun | Sniper | Shotgun | Flame | Tesla |
+|-------------|-------------|--------|---------|-------|-------|
+| Basic       | 100%        | 100%   | 100%    | 100%  | 100%  |
+| Fast        | 100%        | 90%    | 125%    | 75%   | 125%  |
+| Tank        | 70%         | 150%   | 80%     | 125%  | 100%  |
+| Armored     | 75%         | 140%   | 85%     | 90%   | 120%  |
+| Swarm       | 100%        | 60%    | 150%    | 140%  | 130%  |
+| Stealth     | 95%         | 80%    | 115%    | 130%  | 125%  |
+| Mechanical  | 80%         | 120%   | 85%     | 50%   | 200%  |
 
-**Type ID:** `BASIC`  
-**Color:** Green (`0x00ff00`)
-
-### Stats
-
-- **Base Health:** 100 HP (scales with wave)
-- **Speed:** 50 pixels/second (Medium)
-- **Reward:** $10
-- **Size:** 10 pixels
-
-### Characteristics
-
-- Standard zombie type
-- Balanced stats
-- Most common in early waves
-- Good for testing tower effectiveness
-
-### Visual Description
-
-- **Body:** Green humanoid shape
-- **Head:** Round green circle
-- **Arms:** Extended forward (classic zombie pose)
-- **Legs:** Simple walking animation
-- **Details:** Basic shambling appearance
-
-### Wave Appearance
-
-- Waves 1-5: 80% of zombies
-- Waves 6-10: 60% of zombies
-- Waves 11+: 50% of zombies
+### Tower Strategy Guide
+- **Tesla:** Most versatile. Excellent vs Mechanical (200%), good vs Fast/Stealth/Armored
+- **Shotgun:** Great vs Fast/Swarm (125-150%), decent vs Stealth
+- **Sniper:** Essential vs Tank/Armored (140-150%), poor vs Swarm (60%)
+- **Flame:** Good vs Tank/Stealth/Swarm, nearly useless vs Mechanical (50%)
+- **Machine Gun:** Balanced but weak vs armored types (70-80%)
 
 ---
 
-## 2. Fast Zombie 🏃
+## Game Mechanics
 
-**Type ID:** `FAST`  
-**Color:** Orange (`0xff6600`)
-
-### Stats
-
-- **Base Health:** 80 HP (scales with wave)
-- **Speed:** 100 pixels/second (Fast)
-- **Reward:** $15
-- **Size:** 10 pixels
-
-### Characteristics
-
-- Quick runner
-- Lower health than basic
-- Harder to hit with slow-firing towers
-- Dangerous in groups
-
-### Visual Description
-
-- **Body:** Orange/red humanoid shape
-- **Head:** Smaller, streamlined
-- **Posture:** Leaning forward (running pose)
-- **Legs:** Rapid movement animation
-- **Details:** Athletic, aggressive appearance
-
-### Wave Appearance
-
-- Waves 1-5: 20% of zombies
-- Waves 6-10: 30% of zombies
-- Waves 11+: 30% of zombies
-
----
-
-## 3. Tank Zombie 💪
-
-**Type ID:** `TANK`  
-**Color:** Red (`0xff0000`)
-
-### Stats
-
-- **Base Health:** 300 HP (scales with wave)
-- **Speed:** 25 pixels/second (Slow)
-- **Reward:** $50
-- **Size:** 15 pixels (Large)
-
-### Characteristics
-
-- Extremely high health
-- Very slow movement
-- Requires sustained fire to eliminate
-- High reward for killing
-
-### Visual Description
-
-- **Body:** Large, bulky red shape
-- **Head:** Big, muscular
-- **Build:** Wide shoulders, thick limbs
-- **Posture:** Heavy, lumbering
-- **Details:** Intimidating, powerful appearance
-
-### Wave Appearance
-
-- Waves 6-10: 10% of zombies
-- Waves 11+: 15% of zombies
-
----
-
-## 4. Armored Zombie 🛡️
-
-**Type ID:** `ARMORED`  
-**Color:** Gray (`0x888888`)
-
-### Stats
-
-- **Base Health:** 150 HP (scales with wave)
-- **Speed:** 40 pixels/second (Medium-Slow)
-- **Reward:** $30
-- **Size:** 11 pixels
-
-### Characteristics
-
-- Moderate health with armor
-- Damage resistance (future feature)
-- Slower than basic zombies
-- Requires armor-piercing damage
-
-### Visual Description
-
-- **Body:** Gray metallic appearance
-- **Head:** Helmet or armored head
-- **Armor:** Plated chest and limbs
-- **Posture:** Rigid, protected stance
-- **Details:** Military/tactical look
-
-### Wave Appearance
-
-- Waves 11+: 5% of zombies
-
----
-
-## 5. Swarm Zombie 🐝
-
-**Type ID:** `SWARM`  
-**Color:** Yellow (`0xffff00`)
-
-### Stats
-
-- **Base Health:** 30 HP (scales with wave)
-- **Speed:** 60 pixels/second (Fast)
-- **Reward:** $5
-- **Size:** 6 pixels (Small)
-
-### Characteristics
-
-- Very low health
-- Fast movement
-- Appears in large numbers
-- Overwhelming through quantity
-
-### Visual Description
-
-- **Body:** Small yellow shape
-- **Head:** Tiny, quick-moving
-- **Build:** Thin, agile
-- **Posture:** Hunched, scurrying
-- **Details:** Swarm-like, numerous
-
-### Wave Appearance
-
-- Waves 11+: Multiple spawns per wave
-- Often 10-20 at once
-
----
-
-## 6. Stealth Zombie 👻
-
-**Type ID:** `STEALTH`  
-**Color:** Purple (`0x6600ff`)
-
-### Stats
-
-- **Base Health:** 70 HP (scales with wave)
-- **Speed:** 70 pixels/second (Fast)
-- **Reward:** $25
-- **Size:** 10 pixels
-
-### Characteristics
-
-- Semi-transparent appearance
-- Fast movement
-- Harder to target (future feature)
-- Sneaky and evasive
-
-### Visual Description
-
-- **Body:** Purple, semi-transparent
-- **Head:** Ghostly appearance
-- **Opacity:** 50-70% visible
-- **Posture:** Crouched, stealthy
-- **Details:** Shadowy, ethereal look
-
-### Wave Appearance
-
-- Waves 11+: 10% of zombies
-- Often mixed with other types
-
----
-
-## 7. Mechanical Zombie 🤖
-
-**Type ID:** `MECHANICAL`  
-**Color:** Cyan (`0x00ffff`)
-
-### Stats
-
-- **Base Health:** 120 HP (scales with wave)
-- **Speed:** 55 pixels/second (Medium)
-- **Reward:** $40
-- **Size:** 12 pixels
-
-### Characteristics
-
-- Robot/cyborg zombie
-- Consistent movement pattern
-- Immune to certain effects (future)
-- High-tech threat
-
-### Visual Description
-
-- **Body:** Cyan metallic/robotic
-- **Head:** Mechanical, angular
-- **Build:** Geometric, artificial
-- **Posture:** Rigid, mechanical gait
-- **Details:** Glowing parts, tech aesthetic
-
-### Wave Appearance
-
-- Waves 11+: 5-10% of zombies
-- Late-game threat
-
----
-
-## Health Scaling Formula
-
-Zombie health scales with wave number:
-
+### Health Scaling
 ```typescript
-baseHealth * (1 + (wave - 1) * 0.15);
+baseHealth * (1 + (wave - 1) * 0.15)
 ```
+Wave 1: 100% | Wave 5: 160% | Wave 10: 235% | Wave 20: 385%
 
-**Examples:**
-
-- Wave 1: 100% base health
-- Wave 5: 160% base health
-- Wave 10: 235% base health
-- Wave 20: 385% base health
-
----
-
-## Speed Comparison Chart
-
-```
-Fastest: Fast Zombie (100 px/s)
-         ↓
-         Stealth Zombie (70 px/s)
-         ↓
-         Swarm Zombie (60 px/s)
-         ↓
-         Mechanical Zombie (55 px/s)
-         ↓
-         Basic Zombie (50 px/s)
-         ↓
-         Armored Zombie (40 px/s)
-         ↓
-Slowest: Tank Zombie (25 px/s)
-```
-
----
-
-## Reward Comparison Chart
-
-```
-Highest: Tank Zombie ($50)
-         ↓
-         Mechanical Zombie ($40)
-         ↓
-         Armored Zombie ($30)
-         ↓
-         Stealth Zombie ($25)
-         ↓
-         Fast Zombie ($15)
-         ↓
-         Basic Zombie ($10)
-         ↓
-Lowest:  Swarm Zombie ($5)
-```
-
----
-
-## Strategy Tips
-
-### Early Waves (1-5)
-
-- Focus on Basic and Fast zombies
-- Machine Gun towers are effective
-- Build economy with consistent kills
-
-### Mid Waves (6-10)
-
-- Tank zombies appear - need sustained damage
-- Mix of all basic types
-- Upgrade towers for better DPS
-
-### Late Waves (11+)
-
-- All zombie types active
-- Swarm zombies can overwhelm
-- Stealth and Mechanical add complexity
-- Need diverse tower types
-
----
-
-## Visual Color Reference
-
-```
-🟢 Basic:      Green    (0x00ff00)
-🟠 Fast:       Orange   (0xff6600)
-🔴 Tank:       Red      (0xff0000)
-⚫ Armored:    Gray     (0x888888)
-🟡 Swarm:      Yellow   (0xffff00)
-🟣 Stealth:    Purple   (0x6600ff)
-🔵 Mechanical: Cyan     (0x00ffff)
-```
-
----
-
-## Implementation Files
-
-- **Base Class:** `src/objects/Zombie.ts`
-- **Factory:** `src/objects/ZombieFactory.ts`
-- **Individual Types:** `src/objects/zombies/`
-  - `BasicZombie.ts`
-  - `FastZombie.ts`
-  - `TankZombie.ts`
-  - `ArmoredZombie.ts`
-  - `SwarmZombie.ts`
-  - `StealthZombie.ts`
-  - `MechanicalZombie.ts`
-
----
-
-## Debug Testing
-
-To test specific zombie types, use the debug constants:
-
+### Damage Calculation
 ```typescript
-// In src/config/debugConstants.ts
-ZOMBIE_HEALTH_MULTIPLIER: 0.1,  // Make zombies weak
-ZOMBIE_SPEED_MULTIPLIER: 0.5,   // Make zombies slow
+finalDamage = baseDamage * damageModifier * (1 + upgrades)
 ```
 
-Or spawn specific types in wave configuration:
+### Wave Composition Strategy
+- **Waves 1-5:** Basic (80%), Fast (20%) → Machine Gun, Shotgun effective
+- **Waves 6-10:** Basic (60%), Fast (30%), Tank (10%) → Add Sniper towers
+- **Waves 11+:** All types active → Diverse tower composition required
 
+### Speed Rankings
+Fast (100) > Stealth (70) > Swarm (60) > Mechanical (55) > Basic (50) > Armored (40) > Tank (25)
+
+### Reward Rankings
+Tank ($50) > Mechanical ($40) > Armored ($30) > Stealth ($25) > Fast ($15) > Basic ($10) > Swarm ($5)
+
+---
+
+## Implementation Reference
+
+### File Locations
+- Base: `src/objects/Zombie.ts`
+- Factory: `src/objects/ZombieFactory.ts`
+- Types: `src/objects/zombies/*.ts`
+
+### Debug Testing
 ```typescript
-// In src/managers/WaveManager.ts
-// Modify waveData to test specific zombie types
+// src/config/debugConstants.ts
+ZOMBIE_HEALTH_MULTIPLIER: 0.1  // Weak zombies
+ZOMBIE_SPEED_MULTIPLIER: 0.5   // Slow zombies
 ```
 
----
-
-## Future Enhancements
-
-Planned features for zombie types:
-
-1. **Armored** - Actual damage resistance mechanic
-2. **Stealth** - Reduced tower targeting priority
-3. **Mechanical** - Immunity to slow effects
-4. **Swarm** - Split into smaller zombies on death
-5. **Tank** - Area damage on death
-6. **Fast** - Dodge chance for projectiles
-7. **All** - Unique death animations and effects
-
----
-
-_Last Updated: Current Build_  
-_For gameplay balance changes, see: `src/config/gameConfig.ts`_
-
-<!------------------------------------------------------------------------------------
-   Add Rules to this file or a short description and have Kiro refine them for you:
-------------------------------------------------------------------------------------->
+### Color Constants
+Basic: `0x00ff00` | Fast: `0xff6600` | Tank: `0xff0000` | Armored: `0x888888`
+Swarm: `0xffff00` | Stealth: `0x6600ff` | Mechanical: `0x00ffff`

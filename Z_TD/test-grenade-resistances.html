@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Grenade Damage Resistances Test</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 20px;
+            font-family: Arial, sans-serif;
+            background: #1a1a1a;
+            color: #fff;
+        }
+        #info {
+            margin-bottom: 20px;
+            padding: 10px;
+            background: #2a2a2a;
+            border-radius: 5px;
+        }
+        #pixi-container {
+            border: 2px solid #444;
+        }
+        .resistance-table {
+            margin: 15px 0;
+            background: #3a3a3a;
+            border-radius: 5px;
+            padding: 15px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            padding: 8px;
+            text-align: left;
+            border-bottom: 1px solid #555;
+        }
+        th {
+            background: #4a4a4a;
+            color: #ffaa00;
+            font-weight: bold;
+        }
+        .effective {
+            color: #00ff00;
+            font-weight: bold;
+        }
+        .normal {
+            color: #ffffff;
+        }
+        .resisted {
+            color: #ff6666;
+            font-weight: bold;
+        }
+        .zombie-label {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 3px;
+            font-size: 11px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div id="info">
+        <h2>💥 Grenade Tower Damage Resistances</h2>
+        <p>Testing explosive damage modifiers against different zombie types</p>
+        
+        <div class="resistance-table">
+            <h3>Damage Modifier Table</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Zombie Type</th>
+                        <th>Modifier</th>
+                        <th>Effectiveness</th>
+                        <th>Reason</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>🧟 Basic</td>
+                        <td class="normal">1.0x</td>
+                        <td class="normal">Normal</td>
+                        <td>No special resistances</td>
+                    </tr>
+                    <tr>
+                        <td>🏃 Fast</td>
+                        <td class="effective">1.15x</td>
+                        <td class="effective">Slightly Effective</td>
+                        <td>Area damage catches fast targets</td>
+                    </tr>
+                    <tr>
+                        <td>💪 Tank</td>
+                        <td class="effective">1.3x</td>
+                        <td class="effective">Effective</td>
+                        <td>High explosive damage effective</td>
+                    </tr>
+                    <tr>
+                        <td>🛡️ Armored</td>
+                        <td class="effective">1.5x</td>
+                        <td class="effective">Very Effective</td>
+                        <td>Explosives shred armor</td>
+                    </tr>
+                    <tr>
+                        <td>🐝 Swarm</td>
+                        <td class="effective">1.6x</td>
+                        <td class="effective">Very Effective</td>
+                        <td>Area damage devastating to swarms</td>
+                    </tr>
+                    <tr>
+                        <td>👻 Stealth</td>
+                        <td class="effective">1.2x</td>
+                        <td class="effective">Effective</td>
+                        <td>Area damage doesn't need precision</td>
+                    </tr>
+                    <tr>
+                        <td>🤖 Mechanical</td>
+                        <td class="resisted">0.9x</td>
+                        <td class="resisted">Slightly Resisted</td>
+                        <td>Metal frame absorbs some blast</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        
+        <div id="status">Ready! Watch the grenade tower shoot different zombie types.</div>
+    </div>
+    <div id="pixi-container"></div>
+
+    <script type="module">
+        import { Application, Graphics, Text } from 'pixi.js';
+        import { TowerFactory } from './src/objects/TowerFactory';
+        import { ZombieFactory } from './src/objects/ZombieFactory';
+        import { GameConfig } from './src/config/gameConfig';
+        import { ProjectileManager } from './src/managers/ProjectileManager';
+        import { TowerCombatManager } from './src/managers/TowerCombatManager';
+
+        const statusDiv = document.getElementById('status');
+
+        async function init() {
+            try {
+                // Create PixiJS application
+                const app = new Application();
+                await app.init({
+                    width: 1200,
+                    height: 700,
+                    backgroundColor: 0x1a1a1a,
+                });
+
+                document.getElementById('pixi-container').appendChild(app.canvas);
+
+                // Create background
+                const bg = new Graphics();
+                bg.rect(0, 0, 1200, 700).fill(0x2a2a2a);
+                app.stage.addChild(bg);
+
+                // Create grenade tower
+                const grenadeTower = TowerFactory.createTower(
+                    GameConfig.TOWER_TYPES.GRENADE,
+                    200,
+                    350
+                );
+
+                if (!grenadeTower) {
+                    throw new Error('Failed to create grenade tower');
+                }
+
+                app.stage.addChild(grenadeTower);
+
+                // Show range circle
+                const rangeCircle = new Graphics();
+                rangeCircle.circle(200, 350, 180).stroke({ width: 2, color: 0x6b8e23, alpha: 0.5 });
+                app.stage.addChild(rangeCircle);
+
+                // Create different zombie types
+                const zombieTypes = [
+                    { type: GameConfig.ZOMBIE_TYPES.BASIC, x: 350, y: 200, label: 'Basic (1.0x)', color: 0x00ff00 },
+                    { type: GameConfig.ZOMBIE_TYPES.FAST, x: 350, y: 260, label: 'Fast (1.15x)', color: 0xff6600 },
+                    { type: GameConfig.ZOMBIE_TYPES.TANK, x: 350, y: 320, label: 'Tank (1.3x)', color: 0xff0000 },
+                    { type: GameConfig.ZOMBIE_TYPES.ARMORED, x: 350, y: 380, label: 'Armored (1.5x)', color: 0x888888 },
+                    { type: GameConfig.ZOMBIE_TYPES.SWARM, x: 350, y: 440, label: 'Swarm (1.6x)', color: 0xffff00 },
+                    { type: GameConfig.ZOMBIE_TYPES.STEALTH, x: 350, y: 500, label: 'Stealth (1.2x)', color: 0x6600ff },
+                    { type: GameConfig.ZOMBIE_TYPES.MECHANICAL, x: 350, y: 560, label: 'Mechanical (0.9x)', color: 0x00ffff },
+                ];
+
+                const zombies = [];
+                for (const zombieData of zombieTypes) {
+                    const zombie = ZombieFactory.createZombie(
+                        zombieData.type,
+                        zombieData.x,
+                        zombieData.y,
+                        1
+                    );
+                    zombies.push(zombie);
+                    app.stage.addChild(zombie);
+
+                    // Add health bar
+                    const healthBar = new Graphics();
+                    healthBar.rect(-15, -25, 30, 4).fill(0x333333);
+                    healthBar.rect(-15, -25, 30, 4).fill(0x00ff00);
+                    zombie.addChild(healthBar);
+                    zombie['healthBar'] = healthBar;
+
+                    // Add label
+                    const label = new Text({
+                        text: zombieData.label,
+                        style: {
+                            fontFamily: 'Arial',
+                            fontSize: 12,
+                            fill: zombieData.color,
+                        }
+                    });
+                    label.anchor.set(0, 0.5);
+                    label.position.set(zombieData.x + 25, zombieData.y);
+                    app.stage.addChild(label);
+                }
+
+                // Setup combat system
+                const projectileManager = new ProjectileManager(app.stage);
+                const combatManager = new TowerCombatManager();
+                combatManager.setProjectileManager(projectileManager);
+                combatManager.setTowers([grenadeTower]);
+                combatManager.setZombies(zombies);
+
+                // Track damage
+                let totalShots = 0;
+                combatManager.setOnDamageCallback((damage, towerType, killed) => {
+                    totalShots++;
+                    statusDiv.innerHTML = `<strong style="color: #00ff00;">✓ Active!</strong> Shots fired: ${totalShots} | Last damage: ${Math.floor(damage)}`;
+                });
+
+                // Add tower label
+                const towerLabel = new Text({
+                    text: 'Grenade Tower\nExplosive Damage',
+                    style: {
+                        fontFamily: 'Arial',
+                        fontSize: 14,
+                        fill: 0xffffff,
+                        align: 'center',
+                    }
+                });
+                towerLabel.anchor.set(0.5, 0.5);
+                towerLabel.position.set(200, 450);
+                app.stage.addChild(towerLabel);
+
+                // Add info panel
+                const infoBg = new Graphics();
+                infoBg.rect(700, 50, 480, 600).fill({ color: 0x2a2a2a, alpha: 0.9 });
+                infoBg.rect(700, 50, 480, 600).stroke({ width: 2, color: 0x6b8e23 });
+                app.stage.addChild(infoBg);
+
+                const infoTitle = new Text({
+                    text: 'Grenade Tower Strategy',
+                    style: {
+                        fontFamily: 'Arial',
+                        fontSize: 18,
+                        fill: 0xffaa00,
+                        fontWeight: 'bold',
+                    }
+                });
+                infoTitle.position.set(720, 70);
+                app.stage.addChild(infoTitle);
+
+                const strategyInfo = new Text({
+                    text: 
+`BEST AGAINST:
+• Swarm Zombies (1.6x damage)
+  - Area damage hits multiple targets
+  - Devastating against groups
+
+• Armored Zombies (1.5x damage)
+  - Explosives shred armor
+  - High burst damage
+
+• Tank Zombies (1.3x damage)
+  - High damage per shot
+  - Good against high HP targets
+
+GOOD AGAINST:
+• Stealth Zombies (1.2x damage)
+  - No precision needed
+  - Area coverage
+
+• Fast Zombies (1.15x damage)
+  - Area catches moving targets
+
+WEAK AGAINST:
+• Mechanical Zombies (0.9x damage)
+  - Metal frame resists blast
+  - Use Tesla towers instead
+
+TACTICAL TIPS:
+✓ Place near choke points
+✓ Upgrade for larger radius
+✓ Combine with slowing towers
+✓ Best for grouped enemies`,
+                    style: {
+                        fontFamily: 'Courier New',
+                        fontSize: 12,
+                        fill: 0xcccccc,
+                        lineHeight: 22,
+                    }
+                });
+                strategyInfo.position.set(720, 110);
+                app.stage.addChild(strategyInfo);
+
+                statusDiv.innerHTML = '<strong style="color: #00ff00;">✓ Ready!</strong> Watch how grenade damage varies by zombie type.';
+
+                // Game loop
+                let lastTime = performance.now();
+                app.ticker.add(() => {
+                    const currentTime = performance.now();
+                    const deltaTime = currentTime - lastTime;
+                    lastTime = currentTime;
+
+                    // Update combat
+                    combatManager.update(deltaTime);
+
+                    // Update zombie health bars
+                    for (const zombie of zombies) {
+                        if (zombie.parent && zombie['healthBar']) {
+                            const healthPercent = zombie.getHealthPercentage();
+                            const healthBar = zombie['healthBar'];
+                            healthBar.clear();
+                            healthBar.rect(-15, -25, 30, 4).fill(0x333333);
+                            healthBar.rect(-15, -25, 30 * healthPercent, 4).fill(0x00ff00);
+                        }
+                    }
+                });
+
+            } catch (error) {
+                statusDiv.innerHTML = `<strong style="color: #ff0000;">✗ Error!</strong><br>${error.message}`;
+                console.error('Error:', error);
+            }
+        }
+
+        init();
+    </script>
+</body>
+</html>

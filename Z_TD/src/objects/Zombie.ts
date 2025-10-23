@@ -4,7 +4,12 @@ import { HealthComponent } from '../components/HealthComponent';
 import { GameConfig } from '../config/gameConfig';
 import { WaveManager } from '../managers/WaveManager';
 import { Container, Graphics } from 'pixi.js';
-import { type TowerType, type ZombieType, getDamageModifier } from '../config/zombieResistances';
+import {
+  type TowerType,
+  type ZombieType,
+  getDamageModifier,
+  convertToTowerType,
+} from '../config/zombieResistances';
 
 export class Zombie extends GameObject {
   private type: string;
@@ -643,10 +648,12 @@ export class Zombie extends GameObject {
 
   /**
    * Get damage modifier for this zombie type against a specific tower type
-   * @param towerType - The type of tower dealing damage
+   * @param towerType - The type of tower dealing damage (can be string or TowerType)
    * @returns Damage multiplier (e.g., 1.5 = 150% damage, 0.75 = 75% damage)
    */
-  public getDamageModifier(towerType: TowerType): number {
-    return getDamageModifier(this.type.toUpperCase() as ZombieType, towerType);
+  public getDamageModifier(towerType: TowerType | string): number {
+    const convertedTowerType =
+      typeof towerType === 'string' ? convertToTowerType(towerType) : towerType;
+    return getDamageModifier(this.type.toUpperCase() as ZombieType, convertedTowerType);
   }
 }

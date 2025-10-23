@@ -67,10 +67,10 @@ export const TowerConstants = {
 
   // Grenade Tower - Explosive area damage with arc trajectory
   GRENADE: {
-    cost: 600,
-    damage: 100, // Splash damage
+    cost: 1250,
+    damage: 90, // Splash damage
     range: 180,
-    fireRate: 0.6, // 0.6 shots per second (slower than flame)
+    fireRate: 0.3,
     specialAbility: 'Explosive area damage, arc trajectory',
     upgradeCostMultiplier: 0.75,
   } as TowerStats,
@@ -111,6 +111,12 @@ export function calculateTowerDamage(type: string, upgradeLevel: number): number
   if (type === 'MachineGun') {
     // +25% damage per level instead of +50%
     return Math.floor(stats.damage * (1 + upgradeLevel * 0.25));
+  }
+
+  // Grenade has lower damage scaling (focuses on explosion radius)
+  if (type === 'Grenade') {
+    // +20% damage per level instead of +50%
+    return Math.floor(stats.damage * (1 + upgradeLevel * 0.2));
   }
 
   // Other towers: +50% per upgrade level

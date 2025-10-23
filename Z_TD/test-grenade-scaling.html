@@ -225,12 +225,12 @@
                 app.stage.addChild(levelInfoTitle);
 
                 const scalingInfo = new Text({
-                    text: 'Level 1: 40px radius\nLevel 2: 48px radius\nLevel 3: 56px radius\nLevel 4: 64px radius\nLevel 5: 72px radius\n\n+8px per level\n\nMore debris & smoke\nat higher levels',
+                    text: 'Level 1: 45px radius\nLevel 2: 56px radius\nLevel 3: 67px radius\nLevel 4: 78px radius\nLevel 5: 90px radius\n\n+11px per level\n+24% per level\n\nLevel 5 = 2x Level 1!\nFocus: Area Control',
                     style: {
                         fontFamily: 'Courier New',
-                        fontSize: 13,
+                        fontSize: 12,
                         fill: 0xcccccc,
-                        lineHeight: 20,
+                        lineHeight: 18,
                     }
                 });
                 scalingInfo.position.set(720, 95);
@@ -281,17 +281,18 @@
 
             // Update UI
             document.getElementById('currentLevel').textContent = level;
-            const radius = 40 + (level - 1) * 8;
-            document.getElementById('explosionRadius').textContent = `${radius}px`;
+            const radius = 45 + (level - 1) * 11;
+            const percentIncrease = Math.round(((radius - 45) / 45) * 100);
+            document.getElementById('explosionRadius').textContent = `${radius}px (+${percentIncrease}%)`;
             
             updateExplosionRadius(level);
             radiusLabel.text = `Explosion Radius (Level ${level})`;
 
-            statusDiv.innerHTML = `<strong style="color: #00ff00;">✓ Upgraded!</strong> Tower is now Level ${level} with ${radius}px explosion radius.`;
+            statusDiv.innerHTML = `<strong style="color: #00ff00;">✓ Upgraded!</strong> Tower is now Level ${level} with ${radius}px explosion radius (+${percentIncrease}% from Level 1).`;
         }
 
         function updateExplosionRadius(level) {
-            const radius = 40 + (level - 1) * 8;
+            const radius = 45 + (level - 1) * 11;
             explosionRadiusCircle.clear();
             explosionRadiusCircle.circle(450, 300, radius).stroke({ width: 2, color: 0xff6600, alpha: 0.5 });
             explosionRadiusCircle.circle(450, 300, radius).fill({ color: 0xff6600, alpha: 0.1 });

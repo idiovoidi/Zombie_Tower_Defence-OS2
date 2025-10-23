@@ -40,12 +40,18 @@ Multi-layered explosion effect with:
 - **Animation:** Expands from 0.5x to 1.5x scale over 400ms while fading out
 
 ### 5. Splash Damage Mechanics
-- **Radius Scaling:** Increases with tower upgrade level
-  - Level 1: 40px radius
-  - Level 2: 48px radius (+8px)
-  - Level 3: 56px radius (+8px)
-  - Level 4: 64px radius (+8px)
-  - Level 5: 72px radius (+8px)
+- **Radius Scaling:** Increases significantly with tower upgrade level
+  - Level 1: 45px radius (base)
+  - Level 2: 56px radius (+11px, +24%)
+  - Level 3: 67px radius (+11px, +49%)
+  - Level 4: 78px radius (+11px, +73%)
+  - Level 5: 90px radius (+11px, +100%)
+- **Damage Scaling:** Modest increase with upgrades (+20% per level)
+  - Level 1: 90 damage
+  - Level 2: 108 damage
+  - Level 3: 126 damage
+  - Level 4: 144 damage
+  - Level 5: 162 damage
 - **Damage Falloff:** Linear from 100% at center to 30% at edge
   - Formula: `damage * (1 - (distance / radius) * 0.7)`
 - **Multi-Target:** Hits all zombies within explosion radius
@@ -196,10 +202,13 @@ smokeCount = 10 + upgradeLevel * 2
 - Slower projectile speed (350 px/s)
 
 ### Upgrade Scaling
-- Damage: +50% per level
+- Damage: +20% per level (lower than other towers)
+- Explosion Radius: +11px per level (+24% per level)
 - Range: +20% per level
 - Fire Rate: +10% per level
 - Upgrade Cost: Base cost × (level + 1) × 0.75
+
+**Design Philosophy:** Grenade tower focuses on area control rather than raw damage. Upgrades dramatically increase the explosion radius, making it more effective against groups.
 
 ## Future Enhancements (Optional)
 

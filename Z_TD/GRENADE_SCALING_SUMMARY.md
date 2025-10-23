@@ -5,21 +5,28 @@ The grenade tower's explosion radius now scales with upgrade level, making upgra
 
 ## Scaling Values
 
-| Level | Explosion Radius | Debris Count | Smoke Count | Visual Impact |
-|-------|-----------------|--------------|-------------|---------------|
-| 1     | 40px            | 18 particles | 12 puffs    | Small blast   |
-| 2     | 48px (+20%)     | 21 particles | 14 puffs    | Medium blast  |
-| 3     | 56px (+40%)     | 24 particles | 16 puffs    | Large blast   |
-| 4     | 64px (+60%)     | 27 particles | 18 puffs    | Huge blast    |
-| 5     | 72px (+80%)     | 30 particles | 20 puffs    | Massive blast |
+| Level | Explosion Radius | Damage | Debris Count | Smoke Count | Visual Impact |
+|-------|-----------------|--------|--------------|-------------|---------------|
+| 1     | 45px            | 90     | 18 particles | 12 puffs    | Small blast   |
+| 2     | 56px (+24%)     | 108    | 21 particles | 14 puffs    | Medium blast  |
+| 3     | 67px (+49%)     | 126    | 24 particles | 16 puffs    | Large blast   |
+| 4     | 78px (+73%)     | 144    | 27 particles | 18 puffs    | Huge blast    |
+| 5     | 90px (+100%)    | 162    | 30 particles | 20 puffs    | Massive blast |
+
+**Key Change:** Level 5 now has **DOUBLE** the explosion radius of Level 1!
 
 ## Formula
 
 ```typescript
-// Explosion radius
-baseRadius = 40
-radiusPerLevel = 8
+// Explosion radius - AGGRESSIVE SCALING
+baseRadius = 45
+radiusPerLevel = 11  // +24% per level
 explosionRadius = baseRadius + (upgradeLevel - 1) * radiusPerLevel
+
+// Damage - MODEST SCALING
+baseDamage = 90
+damagePerLevel = 0.2  // +20% per level
+damage = baseDamage * (1 + upgradeLevel * 0.2)
 
 // Particle counts
 debrisCount = 15 + upgradeLevel * 3
@@ -33,52 +40,57 @@ scaledLayerRadius = originalRadius * radiusScale
 ## Visual Comparison
 
 ```
-Level 1: ●        (40px)  - Starter grenade
-Level 2: ◉        (48px)  - Improved explosive
-Level 3: ⬤        (56px)  - Military grade
-Level 4: ⚫       (64px)  - Heavy ordnance
-Level 5: ⬛       (72px)  - Devastating blast
+Level 1: ●        (45px)  - Starter grenade
+Level 2: ◉        (56px)  - Improved explosive
+Level 3: ⬤        (67px)  - Military grade
+Level 4: ⚫       (78px)  - Heavy ordnance
+Level 5: ⬛       (90px)  - Devastating blast (2x Level 1!)
 ```
 
 ## Gameplay Impact
 
 ### Early Game (Level 1-2)
-- **Radius:** 40-48px
+- **Radius:** 45-56px
+- **Damage:** 90-108
 - **Coverage:** Small groups (2-3 zombies)
 - **Strategy:** Precise targeting needed
 - **Cost:** Affordable upgrades
 
 ### Mid Game (Level 3)
-- **Radius:** 56px
-- **Coverage:** Medium groups (3-5 zombies)
+- **Radius:** 67px
+- **Damage:** 126
+- **Coverage:** Medium groups (4-6 zombies)
 - **Strategy:** Good for clustered enemies
 - **Cost:** Moderate investment
 
 ### Late Game (Level 4-5)
-- **Radius:** 64-72px
-- **Coverage:** Large groups (5-8 zombies)
+- **Radius:** 78-90px
+- **Damage:** 144-162
+- **Coverage:** Large groups (6-10+ zombies)
 - **Strategy:** Devastating area denial
 - **Cost:** Expensive but powerful
 
+**Note:** Level 5 has 100% more radius than Level 1, but only 80% more damage. This makes it excel at crowd control rather than single-target damage.
+
 ## Damage Effectiveness
 
-### Level 1 Example
+### Level 1 Example (45px radius, 90 damage)
 ```
-Zombie at center:  100 damage (100%)
-Zombie at 20px:    65 damage (65%)
-Zombie at 40px:    30 damage (30%)
-Zombie at 41px:    0 damage (outside radius)
-```
-
-### Level 5 Example
-```
-Zombie at center:  100 damage (100%)
-Zombie at 36px:    65 damage (65%)
-Zombie at 72px:    30 damage (30%)
-Zombie at 73px:    0 damage (outside radius)
+Zombie at center:  90 damage (100%)
+Zombie at 22px:    59 damage (65%)
+Zombie at 45px:    27 damage (30%)
+Zombie at 46px:    0 damage (outside radius)
 ```
 
-**Note:** Level 5 has 80% more coverage area than Level 1!
+### Level 5 Example (90px radius, 162 damage)
+```
+Zombie at center:  162 damage (100%)
+Zombie at 45px:    105 damage (65%)
+Zombie at 90px:    49 damage (30%)
+Zombie at 91px:    0 damage (outside radius)
+```
+
+**Key Insight:** Level 5 has 100% more radius (4x the area!) but only 80% more damage. This makes it devastating against groups while keeping single-target damage balanced.
 
 ## Implementation Details
 
@@ -178,4 +190,4 @@ if (projectileType === 'grenade') {
 
 The explosion radius scaling makes the grenade tower feel progressively more powerful as it's upgraded. The visual and mechanical improvements create a satisfying progression that rewards player investment.
 
-**Key Takeaway:** Level 5 grenade tower has 80% more area coverage than Level 1, making it a devastating late-game option against zombie hordes.
+**Key Takeaway:** Level 5 grenade tower has **4x the area coverage** of Level 1 (100% radius increase = 4x area), making it a devastating late-game option against zombie hordes. The modest damage scaling (+20% per level) keeps it balanced while the massive radius increase rewards strategic placement.

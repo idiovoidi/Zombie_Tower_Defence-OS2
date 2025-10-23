@@ -205,8 +205,7 @@ export class Projectile extends Container {
     // Apply damage to target if it still exists
     if (this.target && this.target.parent) {
       // Apply damage modifier based on zombie type
-      const towerType = this.towerType as TowerType;
-      const modifier = this.target.getDamageModifier(towerType);
+      const modifier = this.target.getDamageModifier(this.towerType);
       const modifiedDamage = this.damage * modifier;
 
       const healthBefore = this.target.getHealth();
@@ -270,9 +269,9 @@ export class Projectile extends Container {
     const explosion = new Graphics();
 
     // Scale explosion radius with upgrade level
-    // Level 1: 40px, Level 2: 48px, Level 3: 56px, Level 4: 64px, Level 5: 72px
-    const baseRadius = 40;
-    const radiusPerLevel = 8;
+    // Level 1: 45px, Level 2: 56px, Level 3: 67px, Level 4: 78px, Level 5: 90px
+    const baseRadius = 45;
+    const radiusPerLevel = 11;
     const explosionRadius = baseRadius + (this.upgradeLevel - 1) * radiusPerLevel;
 
     // Apply splash damage to all zombies in radius
@@ -291,8 +290,7 @@ export class Projectile extends Container {
         const splashDamage = this.damage * damageFalloff;
 
         // Apply damage modifier based on zombie type
-        const towerType = this.towerType as TowerType;
-        const modifier = zombie.getDamageModifier(towerType);
+        const modifier = zombie.getDamageModifier(this.towerType);
         const modifiedDamage = splashDamage * modifier;
 
         const healthBefore = zombie.getHealth();

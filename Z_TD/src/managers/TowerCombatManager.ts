@@ -245,8 +245,7 @@ export class TowerCombatManager {
     // Chain through multiple targets
     for (let jump = 0; jump < maxJumps && currentTarget; jump++) {
       // Apply damage modifier based on zombie type
-      const towerType = tower.getType() as TowerType;
-      const modifier = currentTarget.getDamageModifier(towerType);
+      const modifier = currentTarget.getDamageModifier(tower.getType());
       const modifiedDamage = currentDamage * modifier;
 
       // Apply damage instantly
@@ -445,8 +444,7 @@ export class TowerCombatManager {
     damage: number
   ): void {
     // Apply damage modifier based on zombie type
-    const towerType = tower.getType() as TowerType;
-    const modifier = target.getDamageModifier(towerType);
+    const modifier = target.getDamageModifier(tower.getType());
     const modifiedDamage = damage * modifier;
 
     // Apply damage instantly

@@ -8,7 +8,7 @@
  */
 
 export type ZombieType = 'BASIC' | 'FAST' | 'TANK' | 'ARMORED' | 'SWARM' | 'STEALTH' | 'MECHANICAL';
-export type TowerType = 'MACHINE_GUN' | 'SNIPER' | 'SHOTGUN' | 'FLAME' | 'TESLA';
+export type TowerType = 'MACHINE_GUN' | 'SNIPER' | 'SHOTGUN' | 'FLAME' | 'TESLA' | 'GRENADE';
 
 export type DamageModifierMap = {
   [key in ZombieType]: {
@@ -28,6 +28,7 @@ export const DAMAGE_MODIFIERS: DamageModifierMap = {
     SHOTGUN: 1.0,
     FLAME: 1.0,
     TESLA: 1.0,
+    GRENADE: 1.0, // Normal explosive damage
   },
 
   // Fast Zombie - Weak to spread/instant, resistant to sustained
@@ -37,6 +38,7 @@ export const DAMAGE_MODIFIERS: DamageModifierMap = {
     SHOTGUN: 1.25, // Spread catches fast targets
     FLAME: 0.75, // Runs through fire quickly
     TESLA: 1.25, // Instant hit, no dodging
+    GRENADE: 1.15, // Area damage catches fast targets
   },
 
   // Tank Zombie - Weak to high damage/sustained, resistant to rapid fire
@@ -46,6 +48,7 @@ export const DAMAGE_MODIFIERS: DamageModifierMap = {
     SHOTGUN: 0.8, // Pellets less effective
     FLAME: 1.25, // Sustained burn damage
     TESLA: 1.0, // Normal effectiveness
+    GRENADE: 1.3, // High explosive damage effective
   },
 
   // Armored Zombie - Weak to armor-piercing/electricity, resistant to bullets/fire
@@ -55,6 +58,7 @@ export const DAMAGE_MODIFIERS: DamageModifierMap = {
     SHOTGUN: 0.85, // Armor absorbs pellets
     FLAME: 0.25, // Heat-resistant armor
     TESLA: 1.2, // Electricity bypasses armor
+    GRENADE: 1.5, // Explosives shred armor
   },
 
   // Swarm Zombie - Weak to area damage, resistant to single-target
@@ -64,6 +68,7 @@ export const DAMAGE_MODIFIERS: DamageModifierMap = {
     SHOTGUN: 1.5, // Spread hits multiple
     FLAME: 1.4, // Area damage
     TESLA: 1.3, // Chain lightning
+    GRENADE: 1.6, // Explosive area damage devastating to swarms
   },
 
   // Stealth Zombie - Weak to auto-targeting, resistant to precision
@@ -73,6 +78,7 @@ export const DAMAGE_MODIFIERS: DamageModifierMap = {
     SHOTGUN: 1.15, // Spread coverage
     FLAME: 1.3, // Reveals and burns
     TESLA: 1.25, // Auto-targeting
+    GRENADE: 1.2, // Area damage doesn't need precision
   },
 
   // Mechanical Zombie - VERY weak to electricity, VERY resistant to fire
@@ -82,8 +88,22 @@ export const DAMAGE_MODIFIERS: DamageModifierMap = {
     SHOTGUN: 0.85, // Armor plating
     FLAME: 0.5, // Heat-resistant metal
     TESLA: 2.0, // Electricity fries circuits
+    GRENADE: 0.9, // Metal frame absorbs some blast
   },
 };
+
+/**
+ * Convert tower type string to TowerType enum
+ * Handles conversion from GameConfig format (e.g., 'MachineGun') to resistance format (e.g., 'MACHINE_GUN')
+ */
+export function convertToTowerType(towerTypeString: string): TowerType {
+  // Convert camelCase to UPPER_SNAKE_CASE
+  const converted = towerTypeString
+    .replace(/([A-Z])/g, '_$1')
+    .toUpperCase()
+    .replace(/^_/, '') as TowerType;
+  return converted;
+}
 
 /**
  * Get damage modifier for a zombie type against a tower type
