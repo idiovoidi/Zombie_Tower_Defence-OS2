@@ -132,6 +132,15 @@ export class GameManager {
   public startGame(): void {
     this.currentState = GameConfig.GAME_STATES.PLAYING;
     this.zombieManager.startWave();
+
+    // Mark arrays as dirty to ensure initial population
+    if (this.towerPlacementManager.getPlacedTowers().length > 0) {
+      this.towerCombatManager.setTowers(this.towerPlacementManager.getPlacedTowers());
+    }
+    if (this.zombieManager.getZombies().length > 0) {
+      this.towerCombatManager.setZombies(this.zombieManager.getZombies());
+    }
+
     console.log('Game started');
   }
 
@@ -524,11 +533,19 @@ export class GameManager {
       // Update zombie manager
       this.zombieManager.update(deltaTime);
 
-      // Update tower combat
-      const towers = this.towerPlacementManager.getPlacedTowers();
-      const zombies = this.zombieManager.getZombies();
-      this.towerCombatManager.setTowers(towers);
-      this.towerCombatManager.setZombies(zombies);
+      // Update tower combat - only update arrays when they change (dirty flag optimization)
+      if (this.towerPlacementManager.areTowersDirty()) {
+        const towers = this.towerPlacementManager.getPlacedTowers();
+        this.towerCombatManager.setTowers(towers);
+        this.towerPlacementManager.clearTowersDirty();
+      }
+
+      if (this.zombieManager.areZombiesDirty()) {
+        const zombies = this.zombieManager.getZombies();
+        this.towerCombatManager.setZombies(zombies);
+        this.zombieManager.clearZombiesDirty();
+      }
+
       this.towerCombatManager.update(deltaTime);
 
       // Check if wave is complete
@@ -537,6 +554,8 @@ export class GameManager {
       }
 
       // Check for dead zombies and zombies that reached the end
+      // Cache reference to avoid repeated getter calls
+      const zombies = this.zombieManager.getZombies();
       for (let i = zombies.length - 1; i >= 0; i--) {
         const zombie = zombies[i];
 

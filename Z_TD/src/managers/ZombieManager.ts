@@ -18,6 +18,7 @@ export class ZombieManager {
   private isSpawning: boolean = false;
   private bloodParticleSystem: BloodParticleSystem;
   private corpseManager: CorpseManager;
+  private zombiesDirty: boolean = false; // Track when zombie array changes
 
   constructor(container: Container, waveManager: WaveManager, mapManager: MapManager) {
     this.container = container;
@@ -159,6 +160,7 @@ export class ZombieManager {
       });
 
       this.zombies.push(zombie);
+      this.zombiesDirty = true; // Mark zombies as changed
       this.container.addChild(zombie);
       console.log(`✓ Zombie spawned successfully. Total zombies: ${this.zombies.length}`);
     } else {
@@ -181,12 +183,23 @@ export class ZombieManager {
     const zombie = this.zombies[index];
     this.container.removeChild(zombie);
     this.zombies.splice(index, 1);
+    this.zombiesDirty = true; // Mark zombies as changed
     return zombie;
   }
 
   // Get all active zombies
   public getZombies(): Zombie[] {
     return this.zombies;
+  }
+
+  // Check if zombies array has changed since last check
+  public areZombiesDirty(): boolean {
+    return this.zombiesDirty;
+  }
+
+  // Reset dirty flag after consuming the change
+  public clearZombiesDirty(): void {
+    this.zombiesDirty = false;
   }
 
   // Check if wave is complete (all zombies spawned and cleared)
@@ -200,6 +213,7 @@ export class ZombieManager {
       this.container.removeChild(zombie);
     }
     this.zombies = [];
+    this.zombiesDirty = true; // Mark zombies as changed
     this.spawnQueue = [];
     this.isSpawning = false;
     this.bloodParticleSystem.clear();

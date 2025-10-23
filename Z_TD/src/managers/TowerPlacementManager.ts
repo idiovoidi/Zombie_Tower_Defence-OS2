@@ -17,6 +17,7 @@ export class TowerPlacementManager {
   private onTowerPlacedCallback: ((tower: Tower) => void) | null = null;
   private onTowerSelectedCallback: ((tower: Tower | null) => void) | null = null;
   private canAffordTower: boolean = true;
+  private towersDirty: boolean = false; // Track when tower array changes
 
   constructor(container: Container, towerManager: TowerManager, mapManager: MapManager) {
     this.container = container;
@@ -210,6 +211,7 @@ export class TowerPlacementManager {
     const tower = TowerFactory.createTower(this.selectedTowerType, x, y);
     if (tower) {
       this.placedTowers.push(tower);
+      this.towersDirty = true; // Mark towers as changed
       this.container.addChild(tower);
 
       // Make tower interactive for selection
@@ -276,6 +278,7 @@ export class TowerPlacementManager {
       this.selectedTower.hideRange();
       this.selectedTower.destroy();
       this.placedTowers.splice(index, 1);
+      this.towersDirty = true; // Mark towers as changed
       this.selectedTower = null;
 
       if (this.onTowerSelectedCallback) {
@@ -325,6 +328,16 @@ export class TowerPlacementManager {
     return this.placedTowers;
   }
 
+  // Check if towers array has changed since last check
+  public areTowersDirty(): boolean {
+    return this.towersDirty;
+  }
+
+  // Reset dirty flag after consuming the change
+  public clearTowersDirty(): void {
+    this.towersDirty = false;
+  }
+
   // Callbacks
   public setTowerPlacedCallback(callback: (tower: Tower) => void): void {
     this.onTowerPlacedCallback = callback;
@@ -341,6 +354,7 @@ export class TowerPlacementManager {
       tower.destroy();
     }
     this.placedTowers = [];
+    this.towersDirty = true; // Mark towers as changed
     this.selectedTower = null;
     this.cancelPlacement();
   }
