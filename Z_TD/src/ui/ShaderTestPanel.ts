@@ -2,7 +2,6 @@ import { UIComponent } from './UIComponent';
 import { ColorMatrixFilter, Container, Graphics, Text } from 'pixi.js';
 import { SimpleRetroFilter } from './shaders/filters/SimpleRetroFilter';
 import { VisualPresets } from '../utils/VisualPresets';
-import { ResolutionPixelationFilter } from './shaders/filters/ResolutionPixelationFilter';
 
 export class ShaderTestPanel extends UIComponent {
   private background!: Graphics;

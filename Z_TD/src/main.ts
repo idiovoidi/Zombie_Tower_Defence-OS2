@@ -1,4 +1,4 @@
-import { Application, FederatedPointerEvent, Texture } from 'pixi.js';
+import { Application } from 'pixi.js';
 import { GameManager } from './managers/GameManager';
 import { Tower } from './objects/Tower';
 import { UIManager } from './ui/UIManager';
@@ -365,7 +365,7 @@ import { VisualEffects } from './utils/VisualEffects';
   });
 
   // Track mouse movement for ghost tower
-  inputManager.onPointerMove((coords, event) => {
+  inputManager.onPointerMove(coords => {
     const currentState = gameManager.getCurrentState();
     if (
       currentState === GameConfig.GAME_STATES.PLAYING ||
@@ -380,7 +380,7 @@ import { VisualEffects } from './utils/VisualEffects';
   });
 
   // Cancel placement on right click
-  inputManager.onRightClick((coords, event) => {
+  inputManager.onRightClick(() => {
     const placementManager = gameManager.getTowerPlacementManager();
     if (placementManager.isInPlacementMode()) {
       placementManager.cancelPlacement();
@@ -417,7 +417,6 @@ import { VisualEffects } from './utils/VisualEffects';
 
       // N - Skip to next wave
       if (key === 'n') {
-        const waveManager = gameManager.getWaveManager();
         if (gameManager.getState() === GameConfig.GAME_STATES.WAVE_COMPLETE) {
           gameManager.startNextWave();
           console.log('🌊 Started next wave');
@@ -482,9 +481,6 @@ import { VisualEffects } from './utils/VisualEffects';
 
   // Listen for animate update
   let lastTime = performance.now();
-  let frameCount = 0;
-  let fpsUpdateTime = performance.now();
-  let currentFPS = 60;
 
   app.ticker.add(() => {
     const currentTime = performance.now();
@@ -497,14 +493,6 @@ import { VisualEffects } from './utils/VisualEffects';
     if (deltaTime > maxDeltaTime) {
       console.warn(`⚠️ Delta time capped from ${deltaTime.toFixed(1)}ms to ${maxDeltaTime}ms`);
       deltaTime = maxDeltaTime;
-    }
-
-    // Calculate FPS
-    frameCount++;
-    if (currentTime - fpsUpdateTime >= 1000) {
-      currentFPS = frameCount;
-      frameCount = 0;
-      fpsUpdateTime = currentTime;
     }
 
     // Update game manager (handles zombies, waves, etc.)
@@ -584,7 +572,7 @@ import { VisualEffects } from './utils/VisualEffects';
   console.log('  LogExporter.clearAllLogs() - Clear all stored logs');
 
   // Expose balance tracking controls to console
-  (window as any).balanceTracking = {
+  (window as unknown).balanceTracking = {
     enable: () => gameManager.enableBalanceTracking(),
     disable: () => gameManager.disableBalanceTracking(),
     isEnabled: () => gameManager.isBalanceTrackingEnabled(),

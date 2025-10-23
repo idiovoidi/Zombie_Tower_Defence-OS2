@@ -26,6 +26,7 @@ import {
   InscryptionScanlinesFilter,
   InscryptionVignetteFilter,
 } from '../ui/shaders/filters/InscryptionFilters';
+import { DebugUtils } from './DebugUtils';
 
 /**
  * Visual preset manager for layered filter effects
@@ -120,7 +121,7 @@ export class VisualPresets {
         this.applyInscryptionPreset();
         break;
       default:
-        console.warn(`Unknown preset: ${presetName}`);
+        DebugUtils.warn(`Unknown preset: ${presetName}`);
     }
   }
 
@@ -134,7 +135,7 @@ export class VisualPresets {
 
     this.activeFilters = [contrast, bloom];
     this.container.filters = this.activeFilters;
-    console.log('🌟 Neon preset applied');
+    DebugUtils.debug('🌟 Neon preset applied');
   }
 
   /**
@@ -149,24 +150,17 @@ export class VisualPresets {
 
     this.activeFilters = [color, vignette, grain];
     this.container.filters = this.activeFilters;
-    console.log('🎬 Cinematic preset applied');
+    DebugUtils.debug('🎬 Cinematic preset applied');
   }
 
   /**
    * Retro Arcade - Pixelation + scanlines (simplified to single filter)
    */
   private applyRetroArcadePreset(): void {
-    console.log('🕹️ Creating SimpleRetroFilter...');
     const retro = new SimpleRetroFilter({ pixelSize: 3, scanlineIntensity: 0.4 });
-    console.log('✅ SimpleRetroFilter created:', retro);
-
     this.activeFilters = [retro];
-    console.log('✅ Active filters array:', this.activeFilters);
-
     this.container.filters = this.activeFilters;
-    console.log('✅ Filters applied to container');
-    console.log('✅ Container.filters:', this.container.filters);
-    console.log('🕹️ Retro Arcade preset applied (single filter)');
+    DebugUtils.debug('🕹️ Retro Arcade preset applied');
   }
 
   /**
@@ -182,7 +176,7 @@ export class VisualPresets {
 
     this.activeFilters = [color, vignette, chromatic];
     this.container.filters = this.activeFilters;
-    console.log('👻 Horror preset applied');
+    DebugUtils.debug('👻 Horror preset applied');
   }
 
   /**
@@ -200,7 +194,7 @@ export class VisualPresets {
 
     this.activeFilters = [color, vignette];
     this.container.filters = this.activeFilters;
-    console.log('🌙 Dark Mode preset applied (mild, readable)');
+    DebugUtils.debug('🌙 Dark Mode preset applied');
   }
 
   /**
@@ -214,7 +208,7 @@ export class VisualPresets {
 
     this.activeFilters = [color, bloom];
     this.container.filters = this.activeFilters;
-    console.log('✨ Dreamy preset applied');
+    DebugUtils.debug('✨ Dreamy preset applied');
   }
 
   /**
@@ -226,7 +220,7 @@ export class VisualPresets {
 
     this.activeFilters = [chromatic, grain];
     this.container.filters = this.activeFilters;
-    console.log('⚡ Glitch preset applied');
+    DebugUtils.debug('⚡ Glitch preset applied');
   }
 
   /**
@@ -239,24 +233,17 @@ export class VisualPresets {
 
     this.activeFilters = [oil, color];
     this.container.filters = this.activeFilters;
-    console.log('🎨 Oil Painting preset applied');
+    DebugUtils.debug('🎨 Oil Painting preset applied');
   }
 
   /**
    * Comic Book - Just edge detection (simplified to single filter)
    */
   private applyComicBookPreset(): void {
-    console.log('💥 Creating SimpleEdgeDetectionFilter...');
     const edge = new SimpleEdgeDetectionFilter({ thickness: 1.5 });
-    console.log('✅ SimpleEdgeDetectionFilter created:', edge);
-
     this.activeFilters = [edge];
-    console.log('✅ Active filters array:', this.activeFilters);
-
     this.container.filters = this.activeFilters;
-    console.log('✅ Filters applied to container');
-    console.log('✅ Container.filters:', this.container.filters);
-    console.log('💥 Comic Book preset applied (edge detection only)');
+    DebugUtils.debug('💥 Comic Book preset applied');
   }
 
   /**
@@ -268,7 +255,7 @@ export class VisualPresets {
 
     this.activeFilters = [colorShift, bloom];
     this.container.filters = this.activeFilters;
-    console.log('🌈 Psychedelic preset applied');
+    DebugUtils.debug('🌈 Psychedelic preset applied');
   }
 
   /**
@@ -282,7 +269,7 @@ export class VisualPresets {
 
     this.activeFilters = [wave, color];
     this.container.filters = this.activeFilters;
-    console.log('🌊 Underwater preset applied');
+    DebugUtils.debug('🌊 Underwater preset applied');
   }
 
   /**
@@ -294,7 +281,7 @@ export class VisualPresets {
 
     this.activeFilters = [kaleidoscope, bloom];
     this.container.filters = this.activeFilters;
-    console.log('🔮 Kaleidoscope preset applied');
+    DebugUtils.debug('🔮 Kaleidoscope preset applied');
   }
 
   /**
@@ -308,7 +295,7 @@ export class VisualPresets {
 
     this.activeFilters = [wave, colorShift, chromatic, bloom];
     this.container.filters = this.activeFilters;
-    console.log('🎪 Trippy preset applied');
+    DebugUtils.debug('🎪 Trippy preset applied');
   }
 
   /**
@@ -320,7 +307,7 @@ export class VisualPresets {
 
     this.activeFilters = [gameboy];
     this.container.filters = this.activeFilters;
-    console.log('🎮 Game Boy preset applied');
+    DebugUtils.debug('🎮 Game Boy preset applied');
   }
 
   /**
@@ -331,7 +318,7 @@ export class VisualPresets {
 
     this.activeFilters = [vhs];
     this.container.filters = this.activeFilters;
-    console.log('📼 VHS preset applied');
+    DebugUtils.debug('📼 VHS preset applied');
   }
 
   /**
@@ -343,7 +330,7 @@ export class VisualPresets {
 
     this.activeFilters = [pixel];
     this.container.filters = this.activeFilters;
-    console.log('🔲 Pixel Perfect preset applied');
+    DebugUtils.debug('🔲 Pixel Perfect preset applied');
   }
 
   /**
@@ -356,7 +343,7 @@ export class VisualPresets {
 
     this.activeFilters = [pixel, grayscale];
     this.container.filters = this.activeFilters;
-    console.log('⬛ Dithered preset applied (simplified)');
+    DebugUtils.debug('⬛ Dithered preset applied');
   }
 
   /**
@@ -369,7 +356,7 @@ export class VisualPresets {
 
     this.activeFilters = [pixel, bloom];
     this.container.filters = this.activeFilters;
-    console.log('📺 CRT Monitor preset applied (simplified)');
+    DebugUtils.debug('📺 CRT Monitor preset applied');
   }
 
   /**
@@ -379,7 +366,7 @@ export class VisualPresets {
     const passthrough = new PassThroughFilter();
     this.activeFilters = [passthrough];
     this.container.filters = this.activeFilters;
-    console.log('✅ TEST: Pass Through applied (should see no change)');
+    DebugUtils.debug('✅ TEST: Pass Through applied');
   }
 
   /**
@@ -389,7 +376,7 @@ export class VisualPresets {
     const redtint = new RedTintFilter();
     this.activeFilters = [redtint];
     this.container.filters = this.activeFilters;
-    console.log('🔴 TEST: Red Tint applied (should see red tint)');
+    DebugUtils.debug('🔴 TEST: Red Tint applied');
   }
 
   /**
@@ -399,7 +386,7 @@ export class VisualPresets {
     const grayscale = new SimpleGrayscaleFilter();
     this.activeFilters = [grayscale];
     this.container.filters = this.activeFilters;
-    console.log('⚫ TEST: Grayscale applied (should be black & white)');
+    DebugUtils.debug('⚫ TEST: Grayscale applied');
   }
 
   /**
@@ -409,7 +396,7 @@ export class VisualPresets {
     const pixel = new SuperSimplePixelationFilter();
     this.activeFilters = [pixel];
     this.container.filters = this.activeFilters;
-    console.log('🔲 TEST: Pixelation applied (should be pixelated)');
+    DebugUtils.debug('🔲 TEST: Pixelation applied');
   }
 
   /**
@@ -419,7 +406,7 @@ export class VisualPresets {
     const gameboy = new FixedGameBoyFilter();
     this.activeFilters = [gameboy];
     this.container.filters = this.activeFilters;
-    console.log('🎮 TEST: Game Boy applied (should be green)');
+    DebugUtils.debug('🎮 TEST: Game Boy applied');
   }
 
   /**
@@ -434,7 +421,7 @@ export class VisualPresets {
 
     this.activeFilters = [colorGrading, vignette, chromatic, grain, scanlines];
     this.container.filters = this.activeFilters;
-    console.log('🃏 Inscryption preset applied (dark, eerie aesthetic)');
+    DebugUtils.debug('🃏 Inscryption preset applied');
   }
 
   /**
