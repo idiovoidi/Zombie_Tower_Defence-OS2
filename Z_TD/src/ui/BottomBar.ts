@@ -6,9 +6,6 @@ export class BottomBar extends UIComponent {
   private moneyValue!: Text;
   private livesValue!: Text;
   private waveValue!: Text;
-  private woodValue!: Text;
-  private metalValue!: Text;
-  private energyValue!: Text;
   private nextWaveButton!: Container;
   private nextWaveCallback: (() => void) | null = null;
 
@@ -44,7 +41,7 @@ export class BottomBar extends UIComponent {
     // Calculate responsive panel widths
     const availableWidth = width - 200; // Reserve space for next wave button
     const panelSpacing = 10;
-    const numPanels = 4; // money, lives, wave, resources
+    const numPanels = 3; // money, lives, wave
     const totalSpacing = panelSpacing * (numPanels + 1);
     const panelWidth = Math.floor((availableWidth - totalSpacing) / numPanels);
     let xPos = panelSpacing;
@@ -68,15 +65,6 @@ export class BottomBar extends UIComponent {
     wavePanel.position.set(xPos, 10);
     this.addChild(wavePanel);
     this.waveValue = wavePanel.getChildByName('value') as Text;
-    xPos += panelWidth + panelSpacing;
-
-    // Resources panel
-    const resourcesPanel = this.createResourcesPanel(panelWidth);
-    resourcesPanel.position.set(xPos, 10);
-    this.addChild(resourcesPanel);
-    this.woodValue = resourcesPanel.getChildByName('wood') as Text;
-    this.metalValue = resourcesPanel.getChildByName('metal') as Text;
-    this.energyValue = resourcesPanel.getChildByName('energy') as Text;
     xPos += panelWidth + panelSpacing;
 
     // Next wave button (right side)
@@ -173,127 +161,7 @@ export class BottomBar extends UIComponent {
     return panel;
   }
 
-  private createResourcesPanel(width: number): Container {
-    const panel = new Container();
 
-    // Panel background - concrete
-    const concreteBg = TextureGenerator.createConcrete(width, 60);
-    concreteBg.alpha = 0.8;
-    panel.addChild(concreteBg);
-
-    // Metal frame
-    const frame = new Graphics();
-    frame.rect(0, 0, width, 60).stroke({ width: 2, color: 0x3a3a3a });
-    panel.addChild(frame);
-
-    // Inner border
-    const innerBorder = new Graphics();
-    innerBorder.rect(2, 2, width - 4, 56).stroke({ width: 1, color: 0x5a5a5a });
-    panel.addChild(innerBorder);
-
-    // Label background
-    const labelBg = new Graphics();
-    labelBg.rect(5, 5, width - 10, 18).fill(0x2a2a2a);
-    panel.addChild(labelBg);
-
-    // Label text
-    const labelText = new Text({
-      text: 'RESOURCES',
-      style: {
-        fontFamily: 'Impact, Arial Black, sans-serif',
-        fontSize: 11,
-        fill: 0xcccccc,
-        fontWeight: 'bold',
-        letterSpacing: 1,
-      },
-    });
-    labelText.anchor.set(0.5, 0.5);
-    labelText.position.set(width / 2, 14);
-    panel.addChild(labelText);
-
-    // Resource icons and values
-    const resourceWidth = width / 3;
-
-    // Wood
-    const woodIcon = this.createResourceIcon('W', 0x8b4513);
-    woodIcon.position.set(resourceWidth / 2 - 20, 38);
-    panel.addChild(woodIcon);
-
-    const woodValue = new Text({
-      text: '0',
-      style: {
-        fontFamily: 'Courier New, monospace',
-        fontSize: 16,
-        fill: 0x8b4513,
-        fontWeight: 'bold',
-      },
-    });
-    woodValue.name = 'wood';
-    woodValue.anchor.set(0, 0.5);
-    woodValue.position.set(resourceWidth / 2, 38);
-    panel.addChild(woodValue);
-
-    // Metal
-    const metalIcon = this.createResourceIcon('M', 0x888888);
-    metalIcon.position.set(resourceWidth + resourceWidth / 2 - 20, 38);
-    panel.addChild(metalIcon);
-
-    const metalValue = new Text({
-      text: '0',
-      style: {
-        fontFamily: 'Courier New, monospace',
-        fontSize: 16,
-        fill: 0x888888,
-        fontWeight: 'bold',
-      },
-    });
-    metalValue.name = 'metal';
-    metalValue.anchor.set(0, 0.5);
-    metalValue.position.set(resourceWidth + resourceWidth / 2, 38);
-    panel.addChild(metalValue);
-
-    // Energy
-    const energyIcon = this.createResourceIcon('E', 0x00ced1);
-    energyIcon.position.set(resourceWidth * 2 + resourceWidth / 2 - 20, 38);
-    panel.addChild(energyIcon);
-
-    const energyValue = new Text({
-      text: '0',
-      style: {
-        fontFamily: 'Courier New, monospace',
-        fontSize: 16,
-        fill: 0x00ced1,
-        fontWeight: 'bold',
-      },
-    });
-    energyValue.name = 'energy';
-    energyValue.anchor.set(0, 0.5);
-    energyValue.position.set(resourceWidth * 2 + resourceWidth / 2, 38);
-    panel.addChild(energyValue);
-
-    return panel;
-  }
-
-  private createResourceIcon(letter: string, color: number): Graphics {
-    const icon = new Graphics();
-    icon.circle(0, 0, 8).fill(0x2a2a2a);
-    icon.circle(0, 0, 7).fill(color);
-    icon.circle(0, 0, 7).stroke({ width: 1, color: 0x1a1a1a });
-
-    const text = new Text({
-      text: letter,
-      style: {
-        fontFamily: 'Impact, Arial Black, sans-serif',
-        fontSize: 10,
-        fill: 0xffffff,
-        fontWeight: 'bold',
-      },
-    });
-    text.anchor.set(0.5, 0.5);
-    icon.addChild(text);
-
-    return icon;
-  }
 
   private createNextWaveButton(): Container {
     const button = new Container();
@@ -342,7 +210,7 @@ export class BottomBar extends UIComponent {
 
     // Store references for hover effects
     (button as any).frame = frame;
-    (button as any).text = text;
+    (button as unknown).text = text;
 
     // Hover effects
     button.on('pointerover', () => {
@@ -380,11 +248,7 @@ export class BottomBar extends UIComponent {
     this.waveValue.text = `${wave}`;
   }
 
-  public updateResources(wood: number, metal: number, energy: number): void {
-    this.woodValue.text = `${Math.floor(wood)}`;
-    this.metalValue.text = `${Math.floor(metal)}`;
-    this.energyValue.text = `${Math.floor(energy)}`;
-  }
+
 
   public showNextWaveButton(): void {
     this.nextWaveButton.visible = true;

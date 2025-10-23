@@ -27,11 +27,6 @@ export class GameManager {
   private lives: number;
   private wave: number;
   private score: number;
-  private resources: {
-    wood: number;
-    metal: number;
-    energy: number;
-  };
   private towerManager: TowerManager;
   private towerPlacementManager: TowerPlacementManager;
   private waveManager: WaveManager;
@@ -60,11 +55,6 @@ export class GameManager {
     this.lives = DebugConstants.ENABLED ? DebugConstants.STARTING_LIVES : GameConfig.STARTING_LIVES;
     this.wave = DebugConstants.ENABLED ? DebugConstants.START_AT_WAVE : 1;
     this.score = 0;
-    this.resources = {
-      wood: DebugConstants.ENABLED ? DebugConstants.STARTING_WOOD : 0,
-      metal: DebugConstants.ENABLED ? DebugConstants.STARTING_METAL : 0,
-      energy: DebugConstants.ENABLED ? DebugConstants.STARTING_ENERGY : 100,
-    };
 
     if (DebugConstants.ENABLED) {
       console.log('🔧 Debug Mode Enabled');
@@ -118,16 +108,6 @@ export class GameManager {
   public init(): void {
     console.log('Initializing game...');
     // Initialize game systems here
-
-    // Set up resource generation
-    this.setupResourceGeneration();
-  }
-
-  // Set up passive resource generation
-  private setupResourceGeneration(): void {
-    // In a real implementation, this would set up a timer or system
-    // that periodically generates resources
-    console.log('Setting up resource generation...');
   }
 
   // Set up tower placement callbacks
@@ -197,7 +177,7 @@ export class GameManager {
         this.spawnStarterTower();
 
         // Spawn test towers for debugging (if enabled)
-        if ((DevConfig as any).TESTING?.SPAWN_TEST_TOWERS) {
+        if ((DevConfig as unknown).TESTING?.SPAWN_TEST_TOWERS) {
           this.spawnTestTowers();
         }
 
@@ -378,30 +358,6 @@ export class GameManager {
     return false;
   }
 
-  // Resource management
-  public addResources(wood: number, metal: number, energy: number): void {
-    this.resources.wood += wood;
-    this.resources.metal += metal;
-    this.resources.energy += energy;
-
-    // Clamp energy between 0 and 100
-    this.resources.energy = Math.max(0, Math.min(100, this.resources.energy));
-  }
-
-  public spendResources(wood: number, metal: number, energy: number): boolean {
-    if (
-      this.resources.wood >= wood &&
-      this.resources.metal >= metal &&
-      this.resources.energy >= energy
-    ) {
-      this.resources.wood -= wood;
-      this.resources.metal -= metal;
-      this.resources.energy -= energy;
-      return true;
-    }
-    return false;
-  }
-
   // Lives management
   public addLives(amount: number): void {
     this.lives += amount;
@@ -415,10 +371,7 @@ export class GameManager {
     }
   }
 
-  // Get resource amounts
-  public getResources(): { wood: number; metal: number; energy: number } {
-    return { ...this.resources };
-  }
+
 
   public loseLife(amount: number = 1): void {
     this.lives -= amount;

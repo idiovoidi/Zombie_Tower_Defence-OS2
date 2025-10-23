@@ -1,6 +1,5 @@
 import { Application, FederatedPointerEvent, Texture } from 'pixi.js';
 import { GameManager } from './managers/GameManager';
-import { CampUpgradeManager } from './managers/CampUpgradeManager';
 import { Tower } from './objects/Tower';
 import { UIManager } from './ui/UIManager';
 import { HUD } from './ui/HUD';
@@ -12,6 +11,7 @@ import { TowerInfoPanel } from './ui/TowerInfoPanel';
 import { DebugInfoPanel } from './ui/DebugInfoPanel';
 import { CampUpgradePanel } from './ui/CampUpgradePanel';
 import { DebugTestUIManager } from './managers/DebugTestUIManager';
+import { CampUpgradeManager } from './managers/CampUpgradeManager';
 import { MoneyAnimation } from './ui/MoneyAnimation';
 import { LogExporter } from './utils/LogExporter';
 import { GameConfig } from './config/gameConfig';
@@ -180,8 +180,6 @@ import { ScaleManager } from './utils/ScaleManager';
   const campUpgradePanel = new CampUpgradePanel();
   campUpgradePanel.setCampUpgradeManager(campUpgradeManager);
   uiManager.registerComponent('campUpgradePanel', campUpgradePanel);
-  // Add the content panel separately to the stage so it appears on top
-  app.stage.addChild(campUpgradePanel.getContentContainer());
   campUpgradePanel.hide(); // Hidden by default
 
   // Set up camp upgrade callback
@@ -411,27 +409,6 @@ import { ScaleManager } from './utils/ScaleManager';
         console.log(`❤️ Added ${amount} lives (Total: ${gameManager.getLives()})`);
       }
 
-      // W - Add wood
-      if (key === 'w') {
-        const amount = event.shiftKey ? 1000 : 100;
-        gameManager.addResources(amount, 0, 0);
-        console.log(`🪵 Added ${amount} wood`);
-      }
-
-      // E - Add metal
-      if (key === 'e') {
-        const amount = event.shiftKey ? 1000 : 100;
-        gameManager.addResources(0, amount, 0);
-        console.log(`⚙️ Added ${amount} metal`);
-      }
-
-      // R - Add energy
-      if (key === 'r') {
-        const amount = event.shiftKey ? 1000 : 100;
-        gameManager.addResources(0, 0, amount);
-        console.log(`⚡ Added ${amount} energy`);
-      }
-
       // N - Skip to next wave
       if (key === 'n') {
         const waveManager = gameManager.getWaveManager();
@@ -476,9 +453,6 @@ import { ScaleManager } from './utils/ScaleManager';
         console.log('🔧 Debug Hotkeys:');
         console.log('  M - Add $1000 (Shift+M for $10000)');
         console.log('  L - Add 10 lives (Shift+L for 100)');
-        console.log('  W - Add 100 wood (Shift+W for 1000)');
-        console.log('  E - Add 100 metal (Shift+E for 1000)');
-        console.log('  R - Add 100 energy (Shift+R for 1000)');
         console.log('  N - Skip to next wave');
         console.log('  K - Kill all zombies');
         console.log('  U - Upgrade all towers to max');
@@ -533,12 +507,6 @@ import { ScaleManager } from './utils/ScaleManager';
     // Update money animations
     moneyAnimation.update(deltaTime);
 
-    // Update game systems based on current state
-    if (gameManager.getCurrentState() === GameConfig.GAME_STATES.PLAYING) {
-      // Generate resources over time (convert to seconds)
-      gameManager.getResourceManager().generateResources(deltaTime / 1000);
-    }
-
     // Update UI (convert to seconds)
     uiManager.update(deltaTime / 1000);
 
@@ -547,24 +515,16 @@ import { ScaleManager } from './utils/ScaleManager';
     hud.updateLives(gameManager.getLives());
     hud.updateWave(gameManager.getWave());
 
-    // Update resource display in HUD
-    const resources = gameManager.getResources();
-    hud.updateResources(resources.wood, resources.metal, resources.energy);
-
     // Update bottom bar with current game state
     bottomBar.updateMoney(gameManager.getMoney());
     bottomBar.updateLives(gameManager.getLives());
     bottomBar.updateWave(gameManager.getWave());
-    bottomBar.updateResources(resources.wood, resources.metal, resources.energy);
 
     // Update debug test UI manager (wave info, shader test, bestiary)
     if (DebugConstants.ENABLED) {
       debugTestUIManager.update(deltaTime);
       debugTestUIManager.updateWaveInfo(gameManager.getWave());
     }
-
-    // Update camp upgrade panel money
-    campUpgradePanel.setMoneyAvailable(gameManager.getMoney());
 
     // Update tower shop affordability
     towerShop.updateAffordability(gameManager.getMoney());
@@ -578,6 +538,9 @@ import { ScaleManager } from './utils/ScaleManager';
         placementManager.setCanAfford(gameManager.getMoney() >= cost);
       }
     }
+
+    // Update camp upgrade panel money
+    campUpgradePanel.setMoneyAvailable(gameManager.getMoney());
 
     // Show next wave button when wave is complete
     if (gameManager.getCurrentState() === GameConfig.GAME_STATES.WAVE_COMPLETE) {
@@ -632,10 +595,10 @@ import { ScaleManager } from './utils/ScaleManager';
 
   // Expose wave balancing tools to console for testing
   if (DevConfig.DEBUG.ENABLED) {
-    (window as any).waveBalance = async () => {
+    (window as unknown).waveBalance = async () => {
       const { WaveBalancing, printWaveBalance } = await import('./config/waveBalancing');
-      (window as any).WaveBalancing = WaveBalancing;
-      (window as any).printWaveBalance = printWaveBalance;
+      (window as unknown).WaveBalancing = WaveBalancing;
+      (window as unknown).printWaveBalance = printWaveBalance;
       console.log('Wave balancing tools loaded!');
       console.log('Usage:');
       console.log('  printWaveBalance(1, 10) - Print balance report for waves 1-10');
