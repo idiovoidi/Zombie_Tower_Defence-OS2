@@ -85,7 +85,10 @@ export class GameManager {
     this.resourceManager = new ResourceManager();
     this.upgradeSystem = new UpgradeSystem(this.resourceManager);
     this.projectileManager = new ProjectileManager(this.gameContainer);
-    this.towerCombatManager = new TowerCombatManager();
+    // Initialize TowerCombatManager with world dimensions for spatial partitioning
+    const worldWidth = 1024; // Play area width (excluding UI)
+    const worldHeight = 768; // Full height
+    this.towerCombatManager = new TowerCombatManager(worldWidth, worldHeight);
     this.towerCombatManager.setProjectileManager(this.projectileManager);
     this.statTracker = new StatTracker(this);
     this.aiPlayerManager = new AIPlayerManager(this);

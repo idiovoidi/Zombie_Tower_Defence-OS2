@@ -2,6 +2,7 @@ import { Tower } from '../objects/Tower';
 import { Zombie } from '../objects/Zombie';
 import { ProjectileManager } from './ProjectileManager';
 import { Graphics } from 'pixi.js';
+import { SpatialGrid } from '../utils/SpatialGrid';
 
 export class TowerCombatManager {
   private towers: Tower[] = [];
@@ -10,6 +11,12 @@ export class TowerCombatManager {
   private onDamageCallback:
     | ((damage: number, towerType: string, killed: boolean, overkill: number) => void)
     | null = null;
+  private zombieGrid: SpatialGrid<Zombie>;
+
+  constructor(worldWidth: number = 1024, worldHeight: number = 768) {
+    // Create spatial grid with 128px cells (optimal for typical tower ranges of 150-300px)
+    this.zombieGrid = new SpatialGrid<Zombie>(worldWidth, worldHeight, 128);
+  }
 
   public setProjectileManager(projectileManager: ProjectileManager): void {
     this.projectileManager = projectileManager;
@@ -21,6 +28,16 @@ export class TowerCombatManager {
 
   public setZombies(zombies: Zombie[]): void {
     this.zombies = zombies;
+
+    // Rebuild spatial grid with new zombie list
+    this.zombieGrid.clear();
+    for (const zombie of zombies) {
+      if (zombie.parent) {
+        // Only add zombies that are active in the scene
+        this.zombieGrid.insert(zombie);
+      }
+    }
+
     // Also update projectile manager with zombie list for collision detection
     if (this.projectileManager) {
       this.projectileManager.setZombies(zombies);
@@ -40,11 +57,18 @@ export class TowerCombatManager {
   public update(deltaTime: number): void {
     const currentTime = performance.now();
 
+    // Update zombie positions in spatial grid
+    for (const zombie of this.zombies) {
+      if (zombie.parent) {
+        this.zombieGrid.update(zombie);
+      }
+    }
+
     for (const tower of this.towers) {
       // Update tower
       tower.update(deltaTime);
 
-      // Find target
+      // Find target using spatial grid (O(k) instead of O(n))
       const target = this.findTarget(tower);
 
       if (target) {
@@ -68,26 +92,16 @@ export class TowerCombatManager {
     const towerPos = tower.position;
     const range = tower.getRange();
 
-    let closestZombie: Zombie | null = null;
-    let closestDistance = Infinity;
+    // Use spatial grid to query only nearby zombies (O(k) instead of O(n))
+    // This reduces from checking ALL zombies to only zombies in nearby grid cells
+    const closest = this.zombieGrid.queryClosest(
+      towerPos.x,
+      towerPos.y,
+      range,
+      (zombie) => zombie.parent !== null // Filter out destroyed zombies
+    );
 
-    for (const zombie of this.zombies) {
-      if (!zombie.parent) {
-        continue;
-      } // Skip destroyed zombies
-
-      const zombiePos = zombie.position;
-      const distance = Math.sqrt(
-        Math.pow(towerPos.x - zombiePos.x, 2) + Math.pow(towerPos.y - zombiePos.y, 2)
-      );
-
-      if (distance <= range && distance < closestDistance) {
-        closestDistance = distance;
-        closestZombie = zombie;
-      }
-    }
-
-    return closestZombie;
+    return closest;
   }
 
   private shootAtTarget(tower: Tower, target: Zombie): void {
