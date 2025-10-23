@@ -11,6 +11,8 @@ Refactor src\objects\Tower.ts to no longer have tower specific code and to handl
 Also refactor  
 src\managers\TowerCombatManager.ts as it also handles some tower animations meaning our code is divided between files as Tower.ts also handles some animations
 
+src\managers\TowerPlacementManager.ts refactor so I can simplify imports for tower previews? (depends how many towers I add really)
+
 Shotgun uses a double barrel with two quick shots and a small delay for reload
 
 ---

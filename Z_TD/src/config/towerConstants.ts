@@ -35,13 +35,13 @@ export const TowerConstants = {
     upgradeCostMultiplier: 0.75,
   } as TowerStats,
 
-  // Shotgun Tower - Short range area denial, shoots in all directions
+  // Shotgun Tower - Short range area denial, double barrel burst fire
   SHOTGUN: {
     cost: 400,
     damage: 60, // Higher damage per shot since it's split among many pellets
     range: 120, // Short range
-    fireRate: 0.8, // Slower fire rate (0.8 shots per second = ~1.25s between shots)
-    specialAbility: 'Shoots in all 4 directions with spread, excellent area denial',
+    fireRate: 0.8, // Base fire rate (modified by burst mechanic)
+    specialAbility: 'Double barrel: 2 quick shots then reload, cone spread',
     upgradeCostMultiplier: 0.75,
   } as TowerStats,
 
