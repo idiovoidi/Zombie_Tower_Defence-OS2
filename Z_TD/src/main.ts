@@ -119,7 +119,7 @@ import { ScaleManager } from './utils/ScaleManager';
 
   // Create tower info panel (positioned below tower shop)
   const towerInfoPanel = new TowerInfoPanel();
-  towerInfoPanel.position.set(screenWidth - shopWidth, 550);
+  towerInfoPanel.position.set(screenWidth - shopWidth, 420); // Raised from 550 to 420
   uiManager.registerComponent('towerInfoPanel', towerInfoPanel);
 
   // Create debug test UI manager (handles shader test, wave info, bestiary)
