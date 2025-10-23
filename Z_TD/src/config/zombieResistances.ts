@@ -33,7 +33,7 @@ export const DAMAGE_MODIFIERS: DamageModifierMap = {
 
   // Fast Zombie - Weak to spread/instant, resistant to sustained
   FAST: {
-    MACHINE_GUN: 1.0,
+    MACHINE_GUN: 0.6, // Harder to hit moving target
     SNIPER: 0.9, // Harder to hit moving target
     SHOTGUN: 1.25, // Spread catches fast targets
     FLAME: 0.75, // Runs through fire quickly
@@ -53,7 +53,7 @@ export const DAMAGE_MODIFIERS: DamageModifierMap = {
 
   // Armored Zombie - Weak to armor-piercing/electricity, resistant to bullets/fire
   ARMORED: {
-    MACHINE_GUN: 0.75, // Armor deflects bullets
+    MACHINE_GUN: 0.5, // Armor deflects bullets
     SNIPER: 1.4, // Armor-piercing
     SHOTGUN: 0.85, // Armor absorbs pellets
     FLAME: 0.25, // Heat-resistant armor
@@ -63,7 +63,7 @@ export const DAMAGE_MODIFIERS: DamageModifierMap = {
 
   // Swarm Zombie - Weak to area damage, resistant to single-target
   SWARM: {
-    MACHINE_GUN: 1.0, // Normal effectiveness
+    MACHINE_GUN: 0.5, // Normal effectiveness
     SNIPER: 0.6, // Overkill, wasted damage
     SHOTGUN: 1.5, // Spread hits multiple
     FLAME: 1.4, // Area damage

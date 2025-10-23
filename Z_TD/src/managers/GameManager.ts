@@ -73,6 +73,7 @@ export class GameManager {
 
     // Create game container for all game objects
     this.gameContainer = new Container();
+    this.gameContainer.sortableChildren = true; // Enable z-index sorting
     app.stage.addChild(this.gameContainer);
     console.log('Game container created and added to stage');
 

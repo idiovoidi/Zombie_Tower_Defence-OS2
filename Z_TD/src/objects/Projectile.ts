@@ -86,6 +86,15 @@ export class Projectile extends Container {
         this.visual.rect(-1, -5, 2, 3).fill(0x8b8b8b);
         this.visual.circle(0, -6, 1.5).fill(0xff0000);
         break;
+      case 'sludge':
+        // Toxic barrel
+        this.visual.rect(-3, -4, 6, 8).fill(0x228b22);
+        this.visual.rect(-3, -2, 6, 2).fill(0x1a6b1a); // Band
+        // Biohazard symbol
+        this.visual.circle(0, 0, 2).fill({ color: 0x00ff00, alpha: 0.8 });
+        // Toxic glow
+        this.visual.circle(0, 0, 4).fill({ color: 0x32cd32, alpha: 0.4 });
+        break;
       default:
         this.visual.circle(0, 0, 3).fill(0xffffff);
     }
@@ -116,8 +125,8 @@ export class Projectile extends Container {
       }
     }
 
-    // Grenade uses arc trajectory
-    if (this.projectileType === 'grenade') {
+    // Grenade and Sludge use arc trajectory
+    if (this.projectileType === 'grenade' || this.projectileType === 'sludge') {
       this.updateArcTrajectory(deltaTime);
       return;
     }
@@ -249,6 +258,9 @@ export class Projectile extends Container {
         break;
       case 'grenade':
         this.createExplosion();
+        break;
+      case 'sludge':
+        this.createSludgePool();
         break;
       case 'tesla':
         this.visual.circle(0, 0, 10).fill({ color: 0x00bfff, alpha: 0.6 });
@@ -449,6 +461,131 @@ export class Projectile extends Container {
         } else {
           // Fade out
           firePool.alpha = 1 - progress;
+        }
+      }, 50);
+    }
+
+    // Destroy the projectile immediately
+    this.destroy();
+  }
+
+  private createSludgePool(): void {
+    // Create toxic sludge pool that slows zombies
+    const sludgePool = new Graphics();
+
+    // Scale pool radius with upgrade level - SMALL pools for path coverage
+    // Level 1: 35px, Level 2: 40px, Level 3: 45px, Level 4: 50px, Level 5: 55px
+    const baseRadius = 35;
+    const radiusPerLevel = 5;
+    const poolRadius = baseRadius + (this.upgradeLevel - 1) * radiusPerLevel;
+
+    // Calculate slow percentage based on upgrade level
+    // Level 1: 30%, Level 2: 40%, Level 3: 50%, Level 4: 60%, Level 5: 70%
+    const slowPercent = 0.3 + (this.upgradeLevel - 1) * 0.1;
+
+    // Calculate pool duration based on upgrade level
+    // Level 1: 4s, Level 2: 5s, Level 3: 5s, Level 4: 6s, Level 5: 7s
+    const baseDuration = 4000;
+    const durationPerLevel = [0, 1000, 1000, 2000, 3000]; // Cumulative
+    const poolDuration = baseDuration + (durationPerLevel[this.upgradeLevel - 1] || 0);
+
+    // Draw toxic pool with bubbling effect
+    // Outer edge - darker green
+    sludgePool.circle(0, 0, poolRadius).fill({ color: 0x1a6b1a, alpha: 0.6 });
+
+    // Middle layer - toxic green
+    sludgePool.circle(0, 0, poolRadius * 0.8).fill({ color: 0x228b22, alpha: 0.7 });
+
+    // Inner layer - bright toxic
+    sludgePool.circle(0, 0, poolRadius * 0.6).fill({ color: 0x32cd32, alpha: 0.8 });
+
+    // Bubbles and toxic particles - fewer for smaller pool
+    const bubbleCount = 8 + this.upgradeLevel * 2;
+    for (let i = 0; i < bubbleCount; i++) {
+      const angle = Math.random() * Math.PI * 2;
+      const dist = Math.random() * poolRadius * 0.9;
+      const x = Math.cos(angle) * dist;
+      const y = Math.sin(angle) * dist;
+      const size = 1 + Math.random() * 2;
+      const color = Math.random() > 0.5 ? 0x00ff00 : 0x32cd32;
+      sludgePool.circle(x, y, size).fill({ color, alpha: 0.6 + Math.random() * 0.4 });
+    }
+
+    // Toxic glow effect
+    sludgePool.circle(0, 0, poolRadius * 0.4).fill({ color: 0x00ff00, alpha: 0.3 });
+
+    // Add sludge pool to parent at current position
+    if (this.parent) {
+      sludgePool.position.set(this.position.x, this.position.y);
+      // Set z-index low so zombies appear on top
+      sludgePool.zIndex = -100;
+      this.parent.addChild(sludgePool);
+
+      // Store pool data for zombie slow effect
+      const poolData = {
+        x: this.position.x,
+        y: this.position.y,
+        radius: poolRadius,
+        slowPercent: slowPercent,
+        affectedZombies: new Set<Zombie>(),
+      };
+
+      // Apply slow effect to zombies in pool
+      const slowInterval = setInterval(() => {
+        for (const zombie of this.zombies) {
+          if (!zombie.parent) {
+            continue;
+          }
+
+          const dx = zombie.position.x - poolData.x;
+          const dy = zombie.position.y - poolData.y;
+          const distance = Math.sqrt(dx * dx + dy * dy);
+
+          if (distance <= poolData.radius) {
+            // Zombie is in pool - apply slow
+            if (!poolData.affectedZombies.has(zombie)) {
+              poolData.affectedZombies.add(zombie);
+              // Apply slow effect (reduce speed)
+              const currentSpeed = zombie.getSpeed();
+              zombie.setSpeed(currentSpeed * (1 - poolData.slowPercent));
+            }
+          } else {
+            // Zombie left pool - remove slow
+            if (poolData.affectedZombies.has(zombie)) {
+              poolData.affectedZombies.delete(zombie);
+              // Restore original speed
+              const currentSpeed = zombie.getSpeed();
+              zombie.setSpeed(currentSpeed / (1 - poolData.slowPercent));
+            }
+          }
+        }
+      }, 100); // Check every 100ms
+
+      // Animate sludge pool fading out
+      let elapsed = 0;
+      const fadeInterval = setInterval(() => {
+        elapsed += 50;
+        const progress = elapsed / poolDuration;
+
+        if (progress >= 1) {
+          clearInterval(fadeInterval);
+          clearInterval(slowInterval);
+
+          // Remove slow from all affected zombies
+          for (const zombie of poolData.affectedZombies) {
+            if (zombie.parent) {
+              const currentSpeed = zombie.getSpeed();
+              zombie.setSpeed(currentSpeed / (1 - poolData.slowPercent));
+            }
+          }
+
+          if (sludgePool.parent) {
+            sludgePool.parent.removeChild(sludgePool);
+          }
+          sludgePool.destroy();
+        } else {
+          // Fade out gradually
+          sludgePool.alpha = 1 - progress * 0.5; // Fade to 50% then disappear
         }
       }, 50);
     }

@@ -80,9 +80,9 @@ export const TowerConstants = {
     cost: 800,
     damage: 0, // No direct damage
     range: 150, // 3 tiles (50px per tile)
-    fireRate: 0.83, // ~1.2 seconds between shots
+    fireRate: 0.25, // 2 seconds between shots (slow fire rate)
     specialAbility: 'Creates toxic pools that slow zombies',
-    upgradeCostMultiplier: 0.75,
+    upgradeCostMultiplier: 0.6,
   } as TowerStats,
 };
 

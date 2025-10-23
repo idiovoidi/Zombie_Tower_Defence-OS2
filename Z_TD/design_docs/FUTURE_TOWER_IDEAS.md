@@ -756,8 +756,8 @@ _This section reserved for player suggestions and community feedback_
 - Cost: $800 (mid-tier support tower)
 - Damage: 0 (crowd control only)
 - Range: 150px (3 tiles)
-- Fire Rate: 0.83 shots/sec (~1.2s between shots)
-- Special: Area slow effect, stacking pools
+- Fire Rate: 0.5 shots/sec (2s between shots - slow and deliberate)
+- Special: Small area slow pools (35-55px radius), renders behind zombies
 
 **Strategic Use:**
 

@@ -153,6 +153,27 @@ export class TowerCombatManager {
       return;
     }
 
+    // Sludge tower shoots toxic barrel with arc trajectory
+    if (projectileType === 'sludge') {
+      const speed = 300; // Similar to grenade but slightly slower
+      const projectile = this.projectileManager.createProjectile(
+        spawnPos.x,
+        spawnPos.y,
+        target.position.x,
+        target.position.y,
+        damage, // 0 damage - pure crowd control
+        speed,
+        projectileType,
+        target
+      );
+      projectile.setTowerType(tower.getType());
+      projectile.setUpgradeLevel(tower.getUpgradeLevel()); // Pass upgrade level for pool scaling
+      if (this.onDamageCallback) {
+        projectile.setOnDamageCallback(this.onDamageCallback);
+      }
+      return;
+    }
+
     // Different projectile speeds based on tower type
     let speed = 500; // Default speed
     switch (projectileType) {

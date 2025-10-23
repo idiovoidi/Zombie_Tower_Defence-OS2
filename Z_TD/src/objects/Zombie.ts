@@ -642,6 +642,10 @@ export class Zombie extends GameObject {
     return this.speed;
   }
 
+  public setSpeed(speed: number): void {
+    this.speed = speed;
+  }
+
   public getDamage(): number {
     return this.damage;
   }

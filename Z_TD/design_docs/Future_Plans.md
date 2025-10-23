@@ -16,6 +16,8 @@ src\managers\TowerPlacementManager.ts refactor so I can simplify imports for tow
 Some zombies should be immune to slows
 
 
+Remove old lasersight and bullet casing code from tower.ts around line 1500
+
 ---
 
 Implemented design plans

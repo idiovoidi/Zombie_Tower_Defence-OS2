@@ -1356,6 +1356,8 @@ export class Tower extends GameObject implements ITower {
         return 'tesla';
       case GameConfig.TOWER_TYPES.GRENADE:
         return 'grenade';
+      case GameConfig.TOWER_TYPES.SLUDGE:
+        return 'sludge';
       default:
         return 'bullet';
     }
