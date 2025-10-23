@@ -117,9 +117,10 @@ import { ScaleManager } from './utils/ScaleManager';
   towerShop.position.set(screenWidth - shopWidth, 0);
   uiManager.registerComponent('towerShop', towerShop);
 
-  // Create tower info panel (positioned below tower shop)
+  // Create tower info panel (positioned below tower shop, aligned to bottom of screen)
   const towerInfoPanel = new TowerInfoPanel();
-  towerInfoPanel.position.set(screenWidth - shopWidth, 420); // Raised from 550 to 420
+  const towerInfoPanelHeight = 300; // Panel height from TowerInfoPanel.ts
+  towerInfoPanel.position.set(screenWidth - shopWidth, screenHeight - towerInfoPanelHeight);
   uiManager.registerComponent('towerInfoPanel', towerInfoPanel);
 
   // Create debug test UI manager (handles shader test, wave info, bestiary)
