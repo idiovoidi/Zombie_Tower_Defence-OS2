@@ -7,12 +7,26 @@ export class DebugInfoPanel extends UIComponent {
   private contentContainer!: Container;
   private isExpanded: boolean = false;
   private toggleButton!: Container;
-  private zombieInfoTexts: Map<string, Text> = new Map();
-  private gameStatsTexts: Map<string, Text> = new Map();
+  private onOpenShaderTest?: () => void;
+  private onOpenWaveInfo?: () => void;
+  private onOpenBestiary?: () => void;
 
   constructor() {
     super();
     this.createPanel();
+  }
+
+  // Set callbacks for opening debug panels
+  public setShaderTestCallback(callback: () => void): void {
+    this.onOpenShaderTest = callback;
+  }
+
+  public setWaveInfoCallback(callback: () => void): void {
+    this.onOpenWaveInfo = callback;
+  }
+
+  public setBestiaryCallback(callback: () => void): void {
+    this.onOpenBestiary = callback;
   }
 
   private createPanel(): void {
@@ -61,7 +75,7 @@ export class DebugInfoPanel extends UIComponent {
   private createPanelContent(): void {
     // Position at absolute screen coordinates (centered)
     const panelWidth = 280;
-    const panelHeight = 580;
+    const panelHeight = 420;
     this.contentContainer.position.set(640 - panelWidth / 2, 384 - panelHeight / 2);
 
     // Background - simple positioning from (0,0)
@@ -75,7 +89,6 @@ export class DebugInfoPanel extends UIComponent {
     this.contentContainer.addChild(this.background);
 
     // Title
-
     this.titleText = new Text({
       text: 'Debug Information',
       style: {
@@ -88,49 +101,11 @@ export class DebugInfoPanel extends UIComponent {
     this.titleText.position.set(panelLeft + 10, panelTop + 10);
     this.contentContainer.addChild(this.titleText);
 
-    // Zombie Types Section
-    const zombieTitle = new Text({
-      text: '🧟 Zombie Types:',
-      style: {
-        fontFamily: 'Arial',
-        fontSize: 13,
-        fill: 0xffff00,
-        fontWeight: 'bold',
-      },
-    });
-    zombieTitle.position.set(panelLeft + 10, panelTop + 40);
-    this.contentContainer.addChild(zombieTitle);
+    let yPos = panelTop + 45;
 
-    // Create text for each zombie type
-    const zombieTypes = [
-      { type: 'Basic', color: 0x00ff00, desc: 'Standard' },
-      { type: 'Fast', color: 0xff6600, desc: 'Runner' },
-      { type: 'Tank', color: 0xff0000, desc: 'High HP' },
-      { type: 'Armored', color: 0x888888, desc: 'Armored' },
-      { type: 'Swarm', color: 0xffff00, desc: 'Numerous' },
-      { type: 'Stealth', color: 0x6600ff, desc: 'Sneaky' },
-      { type: 'Mechanical', color: 0x00ffff, desc: 'Robot' },
-    ];
-
-    let yPos = panelTop + 63;
-    zombieTypes.forEach(zombie => {
-      const text = new Text({
-        text: `${zombie.type}: ${zombie.desc}`,
-        style: {
-          fontFamily: 'Arial',
-          fontSize: 10,
-          fill: zombie.color,
-        },
-      });
-      text.position.set(panelLeft + 20, yPos);
-      this.contentContainer.addChild(text);
-      this.zombieInfoTexts.set(zombie.type, text);
-      yPos += 16;
-    });
-
-    // Game Stats Section
-    const statsTitle = new Text({
-      text: '📊 Game Stats:',
+    // Debug Panels Section
+    const panelsTitle = new Text({
+      text: '🔧 Debug Panels:',
       style: {
         fontFamily: 'Arial',
         fontSize: 14,
@@ -138,34 +113,39 @@ export class DebugInfoPanel extends UIComponent {
         fontWeight: 'bold',
       },
     });
-    statsTitle.position.set(panelLeft + 10, yPos + 20);
-    this.contentContainer.addChild(statsTitle);
+    panelsTitle.position.set(panelLeft + 10, yPos);
+    this.contentContainer.addChild(panelsTitle);
+    yPos += 30;
 
-    // Create stat text fields
-    const statFields = [
-      'Active Zombies',
-      'Zombies Killed',
-      'Active Towers',
-      'Total Damage Dealt',
-      'Wave Progress',
-      'FPS',
-    ];
-
-    yPos += 45;
-    statFields.forEach(field => {
-      const text = new Text({
-        text: `${field}: 0`,
-        style: {
-          fontFamily: 'Arial',
-          fontSize: 12,
-          fill: 0xffffff,
-        },
-      });
-      text.position.set(panelLeft + 20, yPos);
-      this.contentContainer.addChild(text);
-      this.gameStatsTexts.set(field, text);
-      yPos += 20;
+    // Shader Test Button
+    const shaderButton = this.createPanelButton('🎨 Shader Test', 0x9966ff, () => {
+      if (this.onOpenShaderTest) {
+        this.onOpenShaderTest();
+      }
     });
+    shaderButton.position.set(panelLeft + 20, yPos);
+    this.contentContainer.addChild(shaderButton);
+    yPos += 40;
+
+    // Wave Info Button
+    const waveButton = this.createPanelButton('📊 Wave Info', 0xffcc00, () => {
+      if (this.onOpenWaveInfo) {
+        this.onOpenWaveInfo();
+      }
+    });
+    waveButton.position.set(panelLeft + 20, yPos);
+    this.contentContainer.addChild(waveButton);
+    yPos += 40;
+
+    // Bestiary Button
+    const bestiaryButton = this.createPanelButton('📖 Bestiary', 0xff0000, () => {
+      if (this.onOpenBestiary) {
+        this.onOpenBestiary();
+      }
+    });
+    bestiaryButton.position.set(panelLeft + 20, yPos);
+    this.contentContainer.addChild(bestiaryButton);
+    yPos += 50;
 
     // Controls Section
     const controlsTitle = new Text({
@@ -232,60 +212,37 @@ export class DebugInfoPanel extends UIComponent {
     this.addChild(this.contentContainer);
   }
 
+  private createPanelButton(label: string, color: number, onClick: () => void): Container {
+    const button = new Container();
+    button.eventMode = 'static';
+    button.cursor = 'pointer';
+
+    const bg = new Graphics();
+    bg.roundRect(0, 0, 240, 30, 5).fill({ color: 0x2a2a2a, alpha: 0.9 });
+    bg.stroke({ width: 2, color: color });
+    button.addChild(bg);
+
+    const text = new Text({
+      text: label,
+      style: {
+        fontFamily: 'Arial',
+        fontSize: 13,
+        fill: color,
+        fontWeight: 'bold',
+      },
+    });
+    text.anchor.set(0.5);
+    text.position.set(120, 15);
+    button.addChild(text);
+
+    button.on('pointerdown', onClick);
+
+    return button;
+  }
+
   private togglePanel(): void {
     this.isExpanded = !this.isExpanded;
     this.contentContainer.visible = this.isExpanded;
-  }
-
-  public updateStats(stats: {
-    activeZombies?: number;
-    zombiesKilled?: number;
-    activeTowers?: number;
-    totalDamage?: number;
-    waveProgress?: string;
-    fps?: number;
-  }): void {
-    if (stats.activeZombies !== undefined) {
-      const text = this.gameStatsTexts.get('Active Zombies');
-      if (text) {
-        text.text = `Active Zombies: ${stats.activeZombies}`;
-      }
-    }
-
-    if (stats.zombiesKilled !== undefined) {
-      const text = this.gameStatsTexts.get('Zombies Killed');
-      if (text) {
-        text.text = `Zombies Killed: ${stats.zombiesKilled}`;
-      }
-    }
-
-    if (stats.activeTowers !== undefined) {
-      const text = this.gameStatsTexts.get('Active Towers');
-      if (text) {
-        text.text = `Active Towers: ${stats.activeTowers}`;
-      }
-    }
-
-    if (stats.totalDamage !== undefined) {
-      const text = this.gameStatsTexts.get('Total Damage Dealt');
-      if (text) {
-        text.text = `Total Damage Dealt: ${Math.floor(stats.totalDamage)}`;
-      }
-    }
-
-    if (stats.waveProgress !== undefined) {
-      const text = this.gameStatsTexts.get('Wave Progress');
-      if (text) {
-        text.text = `Wave Progress: ${stats.waveProgress}`;
-      }
-    }
-
-    if (stats.fps !== undefined) {
-      const text = this.gameStatsTexts.get('FPS');
-      if (text) {
-        text.text = `FPS: ${Math.round(stats.fps)}`;
-      }
-    }
   }
 
   public show(): void {

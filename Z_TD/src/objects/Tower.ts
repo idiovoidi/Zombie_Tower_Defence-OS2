@@ -103,6 +103,9 @@ export class Tower extends GameObject implements ITower {
       case GameConfig.TOWER_TYPES.TESLA:
         towerHealth = 110;
         break;
+      case GameConfig.TOWER_TYPES.GRENADE:
+        towerHealth = 95;
+        break;
     }
 
     const healthComponent = new HealthComponent(towerHealth);
@@ -156,7 +159,20 @@ export class Tower extends GameObject implements ITower {
       case GameConfig.TOWER_TYPES.TESLA:
         this.idleAnimationTesla(deltaTime);
         break;
+      case GameConfig.TOWER_TYPES.GRENADE:
+        this.idleAnimationGrenade(deltaTime);
+        break;
     }
+  }
+
+  // Grenade: Subtle loading animation
+  private idleAnimationGrenade(_deltaTime: number): void {
+    // Subtle bob up and down
+    const bobSpeed = 0.002;
+    const bobAmount = 0.3;
+
+    const bobOffset = Math.sin(this.idleTime * bobSpeed) * bobAmount;
+    this.barrel.y = bobOffset;
   }
 
   // Machine Gun: Scans left and right slowly
@@ -360,6 +376,17 @@ export class Tower extends GameObject implements ITower {
             .lineTo(endX, endY)
             .stroke({ width: 2, color: 0xffffff, alpha: 0.8 });
         }
+        break;
+      }
+      case GameConfig.TOWER_TYPES.GRENADE: {
+        // Grenade launcher - launch flash
+        const launchTip = -8;
+        // Bright orange/yellow launch flash
+        flash.circle(0, launchTip, 5).fill({ color: 0xffaa00, alpha: 0.9 });
+        flash.circle(0, launchTip, 8).fill({ color: 0xff8800, alpha: 0.6 });
+        flash.circle(0, launchTip, 12).fill({ color: 0xff6600, alpha: 0.3 });
+        // Smoke puff
+        flash.circle(0, launchTip + 5, 8).fill({ color: 0x6a6a6a, alpha: 0.5 });
         break;
       }
       default:
@@ -757,6 +784,85 @@ export class Tower extends GameObject implements ITower {
     }
   }
 
+  // Grenade Tower Visual
+  private createGrenadeVisual(): void {
+    const towerSize = 20 + this.upgradeLevel * 2;
+
+    if (this.upgradeLevel <= 2) {
+      // Level 1-2: Makeshift mortar/launcher
+      this.visual.rect(-towerSize, -5, towerSize * 2, 25).fill(0x6b8e23); // Olive drab
+      this.visual.stroke({ width: 2, color: 0x556b2f });
+      // Ammo crates
+      this.visual.rect(-12, 2, 10, 8).fill(0x8b7355);
+      this.visual.rect(2, 2, 10, 8).fill(0x8b7355);
+      // Grenade symbols
+      this.visual.circle(-7, 6, 2).fill(0x2f4f2f);
+      this.visual.circle(7, 6, 2).fill(0x2f4f2f);
+    } else if (this.upgradeLevel <= 4) {
+      // Level 3-4: Reinforced launcher platform
+      this.visual.rect(-towerSize, -5, towerSize * 2, 25).fill(0x556b2f); // Dark olive
+      this.visual.stroke({ width: 2, color: 0x3a4a1f });
+      // Metal ammo boxes
+      this.visual.rect(-14, 0, 12, 10).fill(0x4a4a4a);
+      this.visual.rect(2, 0, 12, 10).fill(0x4a4a4a);
+      // Warning stripes
+      for (let i = 0; i < 3; i++) {
+        const x = -towerSize + 5 + i * 10;
+        this.visual.rect(x, -3, 4, 23).fill({ color: 0xffcc00, alpha: 0.3 });
+      }
+    } else {
+      // Level 5: Military grenade launcher
+      this.visual.rect(-towerSize, -5, towerSize * 2, 25).fill(0x3a4a1f); // Military green
+      this.visual.stroke({ width: 3, color: 0x2a3a0f });
+      // Armored ammo storage
+      this.visual.rect(-14, -2, 12, 12).fill(0x2a2a2a);
+      this.visual.rect(2, -2, 12, 12).fill(0x2a2a2a);
+      // Caution markings
+      this.visual.rect(-towerSize, -5, 6, 25).fill({ color: 0xffcc00, alpha: 0.4 });
+      this.visual.rect(towerSize - 6, -5, 6, 25).fill({ color: 0xffcc00, alpha: 0.4 });
+      // Explosive warning
+      this.visual.circle(0, 5, 6).fill({ color: 0xff6600, alpha: 0.5 });
+    }
+
+    this.addUpgradeStars();
+
+    // Little man with grenade launcher (rotates)
+    this.barrel.clear();
+    // Body - tactical gear
+    let bodyColor = 0x6b8e23; // Olive
+    if (this.upgradeLevel >= 3) {
+      bodyColor = 0x556b2f;
+    } // Dark olive
+    if (this.upgradeLevel >= 5) {
+      bodyColor = 0x3a4a1f;
+    } // Military green
+    this.barrel.rect(-3, -13, 6, 8).fill(bodyColor);
+    // Arms
+    const armColor = this.upgradeLevel >= 3 ? 0x556b2f : 0xffdbac;
+    this.barrel.rect(-4, -11, 2, 4).fill(armColor);
+    this.barrel.rect(2, -11, 2, 4).fill(armColor);
+    // Grenade launcher - tube style
+    const launcherSize = 3 + this.upgradeLevel * 0.3;
+    this.barrel.rect(-launcherSize, -10, launcherSize * 2, 8).fill(0x2f4f2f);
+    this.barrel.rect(-launcherSize - 1, -11, launcherSize * 2 + 2, 2).fill(0x1a1a1a);
+    // Head
+    this.barrel.circle(0, -18, 5).fill(0xffdbac);
+    this.barrel.stroke({ width: 1, color: 0x000000 });
+    // Headgear
+    if (this.upgradeLevel <= 2) {
+      // Basic helmet
+      this.barrel.rect(-5, -21, 10, 3).fill(0x6b8e23);
+    } else if (this.upgradeLevel <= 4) {
+      // Tactical helmet
+      this.barrel.circle(0, -20, 5).fill(0x556b2f);
+      this.barrel.rect(-4, -21, 8, 2).fill(0x3a4a1f);
+    } else {
+      // Full combat helmet
+      this.barrel.circle(0, -20, 5).fill(0x2a2a2a);
+      this.barrel.rect(-3, -21, 6, 2).fill(0x1a1a1a);
+    }
+  }
+
   // Tesla Tower Visual
   private createTeslaVisual(): void {
     const towerWidth = 32 + this.upgradeLevel * 3;
@@ -1040,6 +1146,9 @@ export class Tower extends GameObject implements ITower {
       case GameConfig.TOWER_TYPES.TESLA:
         this.createTeslaVisual();
         break;
+      case GameConfig.TOWER_TYPES.GRENADE:
+        this.createGrenadeVisual();
+        break;
       default:
         this.visual.circle(0, 0, 20).fill(0x0000ff);
         this.visual.stroke({ width: 2, color: 0xffffff });
@@ -1106,6 +1215,8 @@ export class Tower extends GameObject implements ITower {
         return 'flame';
       case GameConfig.TOWER_TYPES.TESLA:
         return 'tesla';
+      case GameConfig.TOWER_TYPES.GRENADE:
+        return 'grenade';
       default:
         return 'bullet';
     }
@@ -1418,7 +1529,7 @@ export class Tower extends GameObject implements ITower {
 
     // Clean up muzzle flashes
     if ((this as any).muzzleFlashes) {
-      for (const flash of (this as any).muzzleFlashes) {
+      for (const flash of (this as unknown).muzzleFlashes) {
         if (flash && !flash.destroyed && flash.parent) {
           flash.parent.removeChild(flash);
           flash.destroy();

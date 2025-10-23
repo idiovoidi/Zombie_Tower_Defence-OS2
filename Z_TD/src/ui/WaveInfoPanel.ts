@@ -118,6 +118,17 @@ export class WaveInfoPanel extends UIComponent {
     }
   }
 
+  public open(): void {
+    this.isExpanded = true;
+    this.contentContainer.visible = true;
+    this.updateWaveInfo();
+  }
+
+  public close(): void {
+    this.isExpanded = false;
+    this.contentContainer.visible = false;
+  }
+
   public updateCurrentWave(wave: number): void {
     this.currentWave = wave;
     if (this.isExpanded) {

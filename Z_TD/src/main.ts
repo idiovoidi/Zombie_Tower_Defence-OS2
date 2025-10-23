@@ -10,10 +10,8 @@ import { LevelSelectMenu } from './ui/LevelSelectMenu';
 import { TowerShop } from './ui/TowerShop';
 import { TowerInfoPanel } from './ui/TowerInfoPanel';
 import { DebugInfoPanel } from './ui/DebugInfoPanel';
-import { ZombieBestiary } from './ui/ZombieBestiary';
-import { WaveInfoPanel } from './ui/WaveInfoPanel';
-import { ShaderTestPanel } from './ui/ShaderTestPanel';
 import { CampUpgradePanel } from './ui/CampUpgradePanel';
+import { DebugTestUIManager } from './managers/DebugTestUIManager';
 import { AIControlPanel } from './ui/AIControlPanel';
 import { StatsPanel } from './ui/StatsPanel';
 import { MoneyAnimation } from './ui/MoneyAnimation';
@@ -126,35 +124,15 @@ import { ScaleManager } from './utils/ScaleManager';
   towerInfoPanel.position.set(screenWidth - shopWidth, 550);
   uiManager.registerComponent('towerInfoPanel', towerInfoPanel);
 
-  // Create wave info panel (right side, top position)
-  const waveInfoPanel = new WaveInfoPanel();
-  waveInfoPanel.position.set(screenWidth - 20, screenHeight - 94);
-  uiManager.registerComponent('waveInfoPanel', waveInfoPanel);
-  // Add the content panel separately to the stage so it appears on top
-  app.stage.addChild(waveInfoPanel.getContentContainer());
-  // Set wave manager reference
-  waveInfoPanel.setWaveManager(gameManager.getWaveManager());
-  if (DebugConstants.ENABLED) {
-    waveInfoPanel.show();
-  } else {
-    waveInfoPanel.hide();
-  }
+  // Create debug test UI manager (handles shader test, wave info, bestiary)
+  const debugTestUIManager = new DebugTestUIManager(app);
+  debugTestUIManager.initialize(gameManager, gameManager.getWaveManager(), pixelArtRenderer);
 
-  // Create shader test panel (left side, top position)
-  const shaderTestPanel = new ShaderTestPanel();
-  shaderTestPanel.position.set(20, screenHeight - 140);
-  uiManager.registerComponent('shaderTestPanel', shaderTestPanel);
-  // Add the content panel separately to the stage so it appears on top
-  app.stage.addChild(shaderTestPanel.getContentContainer());
-  // Set game manager and stage reference for applying filters
-  shaderTestPanel.setGameManager(gameManager);
-  shaderTestPanel.setGameStage(app.stage);
-  shaderTestPanel.setPixelArtRenderer(pixelArtRenderer);
-  if (DebugConstants.ENABLED) {
-    shaderTestPanel.show();
-  } else {
-    shaderTestPanel.hide();
-  }
+  // Set up spawn callback for testing zombie types from bestiary
+  debugTestUIManager.setZombieSpawnCallback((type: string) => {
+    console.log(`🧟 Spawning test zombie: ${type}`);
+    gameManager.getZombieManager().spawnZombieType(type);
+  });
 
   // Create debug info panel (right side, below wave info panel)
   const debugInfoPanel = new DebugInfoPanel();
@@ -162,24 +140,23 @@ import { ScaleManager } from './utils/ScaleManager';
   uiManager.registerComponent('debugInfoPanel', debugInfoPanel);
   // Add the content panel separately to the stage so it appears on top
   app.stage.addChild(debugInfoPanel.getContentContainer());
+
+  // Set up callbacks to open debug test panels
+  debugInfoPanel.setShaderTestCallback(() => {
+    debugTestUIManager.openShaderTestPanel();
+  });
+  debugInfoPanel.setWaveInfoCallback(() => {
+    debugTestUIManager.openWaveInfoPanel();
+  });
+  debugInfoPanel.setBestiaryCallback(() => {
+    debugTestUIManager.openBestiaryPanel();
+  });
+
   if (DebugConstants.ENABLED) {
     debugInfoPanel.show();
   } else {
     debugInfoPanel.hide();
   }
-
-  // Create zombie bestiary (right side, below debug panel)
-  const zombieBestiary = new ZombieBestiary();
-  zombieBestiary.position.set(screenWidth - 20, screenHeight - 2);
-  uiManager.registerComponent('zombieBestiary', zombieBestiary);
-  // Add the content panel separately to the stage so it appears on top
-  app.stage.addChild(zombieBestiary.getContentContainer());
-
-  // Set up spawn callback for testing zombie types
-  zombieBestiary.setSpawnCallback((type: string) => {
-    console.log(`🧟 Spawning test zombie: ${type}`);
-    gameManager.getZombieManager().spawnZombieType(type);
-  });
 
   // Create AI control panel (left side, below wave info)
   const aiControlPanel = new AIControlPanel();
@@ -584,22 +561,10 @@ import { ScaleManager } from './utils/ScaleManager';
     bottomBar.updateWave(gameManager.getWave());
     bottomBar.updateResources(resources.wood, resources.metal, resources.energy);
 
-    // Update debug info panel
-    if (DebugConstants.ENABLED && debugInfoPanel.visible) {
-      const zombies = gameManager.getZombieManager().getZombies();
-      const towers = gameManager.getTowerPlacementManager().getPlacedTowers();
-
-      debugInfoPanel.updateStats({
-        activeZombies: zombies.length,
-        activeTowers: towers.length,
-        waveProgress: `${gameManager.getWave()}`,
-        fps: currentFPS,
-      });
-    }
-
-    // Update wave info panel
-    if (DebugConstants.ENABLED && waveInfoPanel.visible) {
-      waveInfoPanel.updateCurrentWave(gameManager.getWave());
+    // Update debug test UI manager (wave info, shader test, bestiary)
+    if (DebugConstants.ENABLED) {
+      debugTestUIManager.update(deltaTime);
+      debugTestUIManager.updateWaveInfo(gameManager.getWave());
     }
 
     // Update camp upgrade panel money

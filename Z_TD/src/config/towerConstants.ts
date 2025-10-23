@@ -64,6 +64,16 @@ export const TowerConstants = {
     specialAbility: 'Chain lightning, affects multiple targets',
     upgradeCostMultiplier: 0.75,
   } as TowerStats,
+
+  // Grenade Tower - Explosive area damage with arc trajectory
+  GRENADE: {
+    cost: 600,
+    damage: 100, // Splash damage
+    range: 180,
+    fireRate: 0.6, // 0.6 shots per second (slower than flame)
+    specialAbility: 'Explosive area damage, arc trajectory',
+    upgradeCostMultiplier: 0.75,
+  } as TowerStats,
 };
 
 /**
@@ -81,6 +91,8 @@ export function getTowerStats(type: string): TowerStats | undefined {
       return TowerConstants.FLAME;
     case 'Tesla':
       return TowerConstants.TESLA;
+    case 'Grenade':
+      return TowerConstants.GRENADE;
     default:
       return undefined;
   }
