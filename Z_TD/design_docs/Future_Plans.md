@@ -5,3 +5,8 @@ NPCs that go chop wood or scavenge that can be sent out
 Change flame tower to grenade
 
 Lower machine gun damage, weight upgrades towards fire rate
+
+---
+
+Implemented design plans
+Lower machine gun damage, weight upgrades towards fire rate

@@ -926,6 +926,7 @@ export class Tower extends GameObject implements ITower {
     const towerManager = new TowerManager();
     this.damage = towerManager.calculateTowerDamage(this.type, this.upgradeLevel);
     this.range = towerManager.calculateTowerRange(this.type, this.upgradeLevel);
+    this.fireRate = towerManager.calculateTowerFireRate(this.type, this.upgradeLevel);
 
     // When upgrading, also increase health
     const healthComponent = this.getComponent<HealthComponent>('Health');

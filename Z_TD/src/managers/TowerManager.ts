@@ -51,6 +51,24 @@ export class TowerManager {
     return Math.floor(baseStats.range * (1 + upgradeLevel * 0.2));
   }
 
+  // Calculate tower fire rate with upgrades
+  public calculateTowerFireRate(type: string, upgradeLevel: number): number {
+    const baseStats = this.towerData.get(type);
+    if (!baseStats) {
+      return 0;
+    }
+
+    // Machine gun gets significant fire rate boost with upgrades
+    if (type === 'MachineGun') {
+      // +30% fire rate per level
+      return baseStats.fireRate * (1 + upgradeLevel * 0.3);
+    }
+
+    // Other towers get minor fire rate boost
+    // +10% fire rate per level
+    return baseStats.fireRate * (1 + upgradeLevel * 0.1);
+  }
+
   // Calculate upgrade cost based on design formula
   public calculateUpgradeCost(type: string, upgradeLevel: number): number {
     const baseStats = this.towerData.get(type);
