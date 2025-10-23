@@ -16,4 +16,3 @@ export interface Waypoint {
 export interface HasWaypoints {
   waypoints: Waypoint[];
 }
-

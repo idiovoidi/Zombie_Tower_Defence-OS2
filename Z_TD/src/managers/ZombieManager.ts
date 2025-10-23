@@ -88,8 +88,10 @@ export class ZombieManager {
 
       // Spawn zombies from queue
       while (this.spawnQueue.length > 0 && this.spawnQueue[0].delay <= this.spawnTimer) {
-        const spawnData = this.spawnQueue.shift()!;
-        this.spawnZombie(spawnData.type);
+        const spawnData = this.spawnQueue.shift();
+        if (spawnData) {
+          this.spawnZombie(spawnData.type);
+        }
       }
 
       // Check if wave is complete

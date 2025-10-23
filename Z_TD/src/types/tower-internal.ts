@@ -33,4 +33,3 @@ export interface TowerEffects {
   shellCasings?: ShellCasing[];
   muzzleFlashes?: MuzzleFlash[];
 }
-
