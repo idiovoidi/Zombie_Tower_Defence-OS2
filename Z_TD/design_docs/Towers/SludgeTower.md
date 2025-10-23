@@ -7,50 +7,51 @@ The Sludge Tower is a crowd control tower that flings barrels of radioactive slu
 
 ### Base Stats
 - **Damage**: 0 (pure crowd control)
-- **Fire Rate**: 0.5 shots/sec (2 seconds between shots - slow and deliberate)
-- **Range**: 150 pixels (3 tiles @ 50px/tile)
+- **Fire Rate**: 0.25 shots/sec (4 seconds between shots - very slow and deliberate)
+- **Range**: 100 pixels (2 tiles @ 50px/tile) - short range requires strategic placement
 - **Projectile Speed**: 300 px/s (slower than grenades for arc trajectory)
 - **Cost**: $800 (mid-tier support tower)
 
 ### Sludge Pool Mechanics
 - **Duration**: 4 seconds
 - **Radius**: 35 pixels (~0.7 tiles - small, path-focused)
-- **Slow Effect**: 30% movement speed reduction
-- **Stacking**: Pools do not stack (multiple pools = same slow)
+- **Slow Effect**: 10% movement speed reduction (base)
+- **Stacking**: Pools do NOT stack - zombie takes strongest slow effect only
 - **Visual**: Small green/toxic puddle with particle effects, renders behind zombies
 
 ## Upgrade Path
 
 ### Level 1 → 2: "Sticky Sludge"
-- **Cost**: $1,200 (800 × 2 × 0.75)
-- **Effect**: Slow increased to 40%
+- **Cost**: $960 (800 × 2 × 0.6)
+- **Effect**: Slow increased to 15%
 - **Pool Duration**: 5 seconds
 - **Pool Radius**: 40px
-- **Fire Rate**: 0.55 shots/sec
+- **Fire Rate**: 0.275 shots/sec
+- **Range**: 110px
 
 ### Level 2 → 3: "Toxic Compound"
-- **Cost**: $1,800 (800 × 3 × 0.75)
-- **Effect**: Slow increased to 50%
+- **Cost**: $1,440 (800 × 3 × 0.6)
+- **Effect**: Slow increased to 20%
 - **Pool Radius**: 45px (~0.9 tiles)
 - **Pool Duration**: 5 seconds
-- **Fire Rate**: 0.6 shots/sec
-- **Range**: 180px
+- **Fire Rate**: 0.3 shots/sec
+- **Range**: 120px
 
 ### Level 3 → 4: "Hazardous Waste"
-- **Cost**: $2,400 (800 × 4 × 0.75)
-- **Effect**: Slow increased to 60%
+- **Cost**: $1,920 (800 × 4 × 0.6)
+- **Effect**: Slow increased to 25%
 - **Pool Radius**: 50px (1 tile)
 - **Pool Duration**: 6 seconds
-- **Fire Rate**: 0.65 shots/sec
-- **Range**: 216px
+- **Fire Rate**: 0.325 shots/sec
+- **Range**: 130px
 
 ### Level 4 → 5: "Radioactive Compound"
-- **Cost**: $3,000 (800 × 5 × 0.75)
-- **Effect**: Slow increased to 70%
+- **Cost**: $2,400 (800 × 5 × 0.6)
+- **Effect**: Slow increased to 30% (max)
 - **Pool Radius**: 55px (~1.1 tiles)
 - **Pool Duration**: 7 seconds
-- **Fire Rate**: 0.7 shots/sec
-- **Range**: 259px
+- **Fire Rate**: 0.35 shots/sec
+- **Range**: 140px
 
 ## Balance Considerations
 
@@ -101,16 +102,17 @@ The Sludge Tower is a crowd control tower that flings barrels of radioactive slu
 ### Sludge Pool Mechanics
 - Pools are temporary area effects created on impact
 - Pool radius scales with upgrade level (35px → 55px) - small, path-focused
-- Slow percentage scales with upgrade level (30% → 70%)
+- Slow percentage scales with upgrade level (10% → 30%)
 - Duration scales with upgrade level (4s → 7s)
 - Pools check for zombies every 100ms and apply/remove slow effect
-- Multiple pools do NOT stack (zombie takes highest slow effect)
+- Multiple pools do NOT stack (zombie takes strongest slow effect only)
 - Pools render behind zombies (z-index: -100)
 
 ### Slow Effect Implementation
-- Slow is applied by reducing zombie speed: `newSpeed = currentSpeed × (1 - slowPercent)`
-- Effect is removed when zombie leaves pool: `newSpeed = currentSpeed / (1 - slowPercent)`
-- Zombies are tracked per pool to prevent duplicate slow applications
+- Slow is applied based on zombie's base speed: `newSpeed = baseSpeed × speedVariation × (1 - slowPercent)`
+- If zombie is already slowed, only applies new slow if it's stronger
+- Effect is removed when zombie leaves all pools
+- Zombies track their slow state to prevent stacking from multiple pools
 - All affected zombies have slow removed when pool expires
 
 ### Visual Effects

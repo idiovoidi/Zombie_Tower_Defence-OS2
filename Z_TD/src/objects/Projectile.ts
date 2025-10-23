@@ -480,8 +480,8 @@ export class Projectile extends Container {
     const poolRadius = baseRadius + (this.upgradeLevel - 1) * radiusPerLevel;
 
     // Calculate slow percentage based on upgrade level
-    // Level 1: 30%, Level 2: 40%, Level 3: 50%, Level 4: 60%, Level 5: 70%
-    const slowPercent = 0.3 + (this.upgradeLevel - 1) * 0.1;
+    // Level 1: 10%, Level 2: 15%, Level 3: 20%, Level 4: 25%, Level 5: 30%
+    const slowPercent = 0.1 + (this.upgradeLevel - 1) * 0.05;
 
     // Calculate pool duration based on upgrade level
     // Level 1: 4s, Level 2: 5s, Level 3: 5s, Level 4: 6s, Level 5: 7s
@@ -542,20 +542,17 @@ export class Projectile extends Container {
           const distance = Math.sqrt(dx * dx + dy * dy);
 
           if (distance <= poolData.radius) {
-            // Zombie is in pool - apply slow
+            // Zombie is in pool - apply slow (won't stack if already slowed by stronger effect)
             if (!poolData.affectedZombies.has(zombie)) {
               poolData.affectedZombies.add(zombie);
-              // Apply slow effect (reduce speed)
-              const currentSpeed = zombie.getSpeed();
-              zombie.setSpeed(currentSpeed * (1 - poolData.slowPercent));
             }
+            zombie.applySlow(poolData.slowPercent);
           } else {
-            // Zombie left pool - remove slow
+            // Zombie left pool - only remove slow if this pool was affecting it
             if (poolData.affectedZombies.has(zombie)) {
               poolData.affectedZombies.delete(zombie);
-              // Restore original speed
-              const currentSpeed = zombie.getSpeed();
-              zombie.setSpeed(currentSpeed / (1 - poolData.slowPercent));
+              // Remove the slow - if they're in another pool, it will reapply on next check
+              zombie.removeSlow();
             }
           }
         }
@@ -574,8 +571,7 @@ export class Projectile extends Container {
           // Remove slow from all affected zombies
           for (const zombie of poolData.affectedZombies) {
             if (zombie.parent) {
-              const currentSpeed = zombie.getSpeed();
-              zombie.setSpeed(currentSpeed / (1 - poolData.slowPercent));
+              zombie.removeSlow();
             }
           }
 

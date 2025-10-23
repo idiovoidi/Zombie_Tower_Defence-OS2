@@ -28,6 +28,8 @@ export class Zombie extends GameObject {
   private swayTime: number = 0; // Time accumulator for sway animation
   private swayOffset: number = 0; // Random offset for varied sway timing
   private speedVariation: number = 1.0; // Random speed multiplier for variation
+  private isSlowed: boolean = false; // Track if zombie is currently slowed
+  private currentSlowPercent: number = 0; // Current slow percentage applied
 
   constructor(type: string, x: number, y: number, wave: number) {
     super();
@@ -644,6 +646,33 @@ export class Zombie extends GameObject {
 
   public setSpeed(speed: number): void {
     this.speed = speed;
+  }
+
+  public applySlow(slowPercent: number): void {
+    // Only apply if not already slowed, or if new slow is stronger
+    if (!this.isSlowed || slowPercent > this.currentSlowPercent) {
+      // Remove old slow if exists
+      if (this.isSlowed) {
+        this.removeSlow();
+      }
+      // Apply new slow based on base speed
+      this.isSlowed = true;
+      this.currentSlowPercent = slowPercent;
+      this.speed = this.baseSpeed * this.speedVariation * (1 - slowPercent);
+    }
+  }
+
+  public removeSlow(): void {
+    if (this.isSlowed) {
+      this.isSlowed = false;
+      this.currentSlowPercent = 0;
+      // Restore speed to base speed with variation
+      this.speed = this.baseSpeed * this.speedVariation;
+    }
+  }
+
+  public isCurrentlySlowed(): boolean {
+    return this.isSlowed;
   }
 
   public getDamage(): number {

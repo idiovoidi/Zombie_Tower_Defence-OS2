@@ -79,7 +79,7 @@ export const TowerConstants = {
   SLUDGE: {
     cost: 800,
     damage: 0, // No direct damage
-    range: 150, // 3 tiles (50px per tile)
+    range: 100, // 2 tiles (50px per tile) - short range for strategic placement
     fireRate: 0.25, // 2 seconds between shots (slow fire rate)
     specialAbility: 'Creates toxic pools that slow zombies',
     upgradeCostMultiplier: 0.6,
