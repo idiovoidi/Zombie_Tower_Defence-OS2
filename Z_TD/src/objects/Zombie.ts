@@ -40,6 +40,7 @@ export class Zombie extends GameObject {
   private currentSlowPercent: number = 0; // Current slow percentage applied
   private renderer: IZombieRenderer | null = null; // New modular renderer
   private useNewRenderer: boolean = true; // Toggle for new renderer system
+  private damageFlashTimeout: NodeJS.Timeout | null = null; // Track timeout for cleanup
 
   constructor(type: string, x: number, y: number, wave: number) {
     super();
@@ -634,11 +635,17 @@ export class Zombie extends GameObject {
       // Flash red to indicate damage
       this.visual.tint = 0xff0000;
 
+      // Clear any existing timeout to prevent memory leak
+      if (this.damageFlashTimeout) {
+        clearTimeout(this.damageFlashTimeout);
+      }
+
       // Reset color after a short delay
-      setTimeout(() => {
+      this.damageFlashTimeout = setTimeout(() => {
         if (this.visual) {
           this.visual.tint = 0xffffff; // Reset to default
         }
+        this.damageFlashTimeout = null;
       }, 100);
     }
 
@@ -757,5 +764,25 @@ export class Zombie extends GameObject {
     const convertedTowerType =
       typeof towerType === 'string' ? convertToTowerType(towerType) : towerType;
     return getDamageModifier(this.type.toUpperCase() as ZombieType, convertedTowerType);
+  }
+
+  /**
+   * Override destroy to clean up timers and prevent memory leaks
+   */
+  public override destroy(): void {
+    // Clear any pending damage flash timeout
+    if (this.damageFlashTimeout) {
+      clearTimeout(this.damageFlashTimeout);
+      this.damageFlashTimeout = null;
+    }
+
+    // Destroy renderer if it exists
+    if (this.renderer) {
+      this.renderer.destroy();
+      this.renderer = null;
+    }
+
+    // Call parent destroy to clean up components and PixiJS objects
+    super.destroy();
   }
 }

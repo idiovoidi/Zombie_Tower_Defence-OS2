@@ -182,6 +182,7 @@ export class ZombieManager {
   public removeZombie(index: number): Zombie {
     const zombie = this.zombies[index];
     this.container.removeChild(zombie);
+    zombie.destroy(); // CRITICAL: Destroy zombie to free memory and clean up event listeners
     this.zombies.splice(index, 1);
     this.zombiesDirty = true; // Mark zombies as changed
     return zombie;
@@ -211,6 +212,7 @@ export class ZombieManager {
   public clear(): void {
     for (const zombie of this.zombies) {
       this.container.removeChild(zombie);
+      zombie.destroy(); // CRITICAL: Destroy zombie to free memory and clean up event listeners
     }
     this.zombies = [];
     this.zombiesDirty = true; // Mark zombies as changed
