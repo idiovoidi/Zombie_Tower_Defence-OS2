@@ -24,6 +24,59 @@ export class VisualEffects {
     }, 1000);
   }
 
+  // Create a screen damage flash effect (red corners)
+  public static createDamageFlash(
+    container: Container,
+    screenWidth: number,
+    screenHeight: number
+  ): void {
+    const cornerSize = 150;
+    const flashDuration = 500; // milliseconds
+
+    // Create corner overlays
+    const corners = [
+      { x: 0, y: 0 }, // Top-left
+      { x: screenWidth - cornerSize, y: 0 }, // Top-right
+      { x: 0, y: screenHeight - cornerSize }, // Bottom-left
+      { x: screenWidth - cornerSize, y: screenHeight - cornerSize }, // Bottom-right
+    ];
+
+    const flashGraphics = corners.map(corner => {
+      const graphic = new Graphics();
+      graphic.rect(0, 0, cornerSize, cornerSize).fill({ color: 0xff0000, alpha: 0.5 });
+      graphic.position.set(corner.x, corner.y);
+      graphic.zIndex = 10000; // Ensure it's on top
+      container.addChild(graphic);
+      return graphic;
+    });
+
+    // Animate the flash
+    const startTime = performance.now();
+    const animate = () => {
+      const elapsed = performance.now() - startTime;
+      const progress = Math.min(elapsed / flashDuration, 1);
+
+      // Fade out using easing
+      const alpha = 0.5 * (1 - progress);
+
+      flashGraphics.forEach(graphic => {
+        graphic.alpha = alpha;
+      });
+
+      if (progress < 1) {
+        requestAnimationFrame(animate);
+      } else {
+        // Clean up
+        flashGraphics.forEach(graphic => {
+          container.removeChild(graphic);
+          graphic.destroy();
+        });
+      }
+    };
+
+    animate();
+  }
+
   // Create a health bar for a game object
   public static createHealthBar(
     container: Container,

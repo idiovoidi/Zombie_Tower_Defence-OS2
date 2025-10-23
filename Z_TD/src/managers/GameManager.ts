@@ -44,6 +44,7 @@ export class GameManager {
   private gameContainer: Container;
   private inputManager: InputManager | null = null;
   private onMoneyGainCallback: ((amount: number) => void) | null = null;
+  private onDamageFlashCallback: (() => void) | null = null;
   private waveStartLives: number = 0;
 
   constructor(app: Application) {
@@ -350,6 +351,11 @@ export class GameManager {
     this.onMoneyGainCallback = callback;
   }
 
+  // Set callback for damage flash effect
+  public setDamageFlashCallback(callback: () => void): void {
+    this.onDamageFlashCallback = callback;
+  }
+
   public spendMoney(amount: number): boolean {
     if (this.money >= amount) {
       this.money -= amount;
@@ -365,6 +371,12 @@ export class GameManager {
 
   public removeLives(amount: number): void {
     this.lives -= amount;
+
+    // Trigger damage flash effect
+    if (this.onDamageFlashCallback) {
+      this.onDamageFlashCallback();
+    }
+
     if (this.lives <= 0) {
       this.lives = 0;
       this.gameOver();
@@ -373,6 +385,12 @@ export class GameManager {
 
   public loseLife(amount: number = 1): void {
     this.lives -= amount;
+
+    // Trigger damage flash effect
+    if (this.onDamageFlashCallback) {
+      this.onDamageFlashCallback();
+    }
+
     if (this.lives <= 0) {
       this.lives = 0;
       this.gameOver();

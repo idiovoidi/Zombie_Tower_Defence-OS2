@@ -1567,33 +1567,66 @@ export class VisualMapRenderer {
       this.pathGraphics.ellipse(x, y, 2, 4).fill({ color: 0x3a2a1a, alpha: 0.15 });
     }
 
-    // === PERIMETER FENCE ===
-    // Simplified fence - cleaner look
-    // Left fence
-    for (let i = 0; i < 5; i++) {
-      const y = campY - 50 + i * 22;
-      this.pathGraphics.rect(campX - 65, y, 6, 18).fill(0x5a5a5a);
-      this.pathGraphics.stroke({ width: 2, color: 0x3a3a3a });
-      // Rivets only
-      this.pathGraphics.circle(campX - 63, y + 4, 1.5).fill(0x6a6a6a);
-      this.pathGraphics.circle(campX - 63, y + 14, 1.5).fill(0x6a6a6a);
-    }
+    // === METAL FENCE ===
+    const gateHeight = 40;
+
+    // Top fence
+    this.pathGraphics.rect(campX - 60, campY - 55, 120, 6).fill(0x6a6a6a);
+    this.pathGraphics.stroke({ width: 1, color: 0x4a4a4a });
+
+    // Bottom fence
+    this.pathGraphics.rect(campX - 60, campY + 52, 120, 6).fill(0x6a6a6a);
+    this.pathGraphics.stroke({ width: 1, color: 0x4a4a4a });
 
     // Right fence
-    for (let i = 0; i < 5; i++) {
-      const y = campY - 50 + i * 22;
-      this.pathGraphics.rect(campX + 59, y, 6, 18).fill(0x5a5a5a);
-      this.pathGraphics.stroke({ width: 2, color: 0x3a3a3a });
-      // Rivets only
-      this.pathGraphics.circle(campX + 61, y + 4, 1.5).fill(0x6a6a6a);
-      this.pathGraphics.circle(campX + 61, y + 14, 1.5).fill(0x6a6a6a);
-    }
+    this.pathGraphics.rect(campX + 57, campY - 55, 6, 113).fill(0x6a6a6a);
+    this.pathGraphics.stroke({ width: 1, color: 0x4a4a4a });
 
-    // Back fence
-    for (let x = -55; x < 55; x += 15) {
-      this.pathGraphics.rect(campX + x, campY - 58, 12, 5).fill(0x5a5a5a);
-      this.pathGraphics.stroke({ width: 1, color: 0x3a3a3a });
-    }
+    // Left fence with gate opening
+    // Top section (above gate)
+    this.pathGraphics.rect(campX - 60, campY - 55, 6, 35 - gateHeight / 2).fill(0x6a6a6a);
+    this.pathGraphics.stroke({ width: 1, color: 0x4a4a4a });
+
+    // Bottom section (below gate)
+    this.pathGraphics
+      .rect(campX - 60, campY + gateHeight / 2, 6, 38 - gateHeight / 2)
+      .fill(0x6a6a6a);
+    this.pathGraphics.stroke({ width: 1, color: 0x4a4a4a });
+
+    // Gate posts
+    this.pathGraphics.rect(campX - 63, campY - gateHeight / 2 - 4, 6, 6).fill(0x5a5a5a);
+    this.pathGraphics.stroke({ width: 1, color: 0x3a3a3a });
+    this.pathGraphics.rect(campX - 63, campY + gateHeight / 2 - 2, 6, 6).fill(0x5a5a5a);
+    this.pathGraphics.stroke({ width: 1, color: 0x3a3a3a });
+
+    // Gate doors (opening outward)
+    // Top door
+    this.pathGraphics
+      .moveTo(campX - 60, campY - gateHeight / 2)
+      .lineTo(campX - 75, campY - gateHeight / 2 - 7)
+      .lineTo(campX - 75, campY - 2)
+      .lineTo(campX - 60, campY + 2)
+      .fill({ color: 0x7a7a7a, alpha: 0.85 });
+    this.pathGraphics.stroke({ width: 2, color: 0x5a5a5a });
+    // Horizontal bar
+    this.pathGraphics
+      .moveTo(campX - 73, campY - gateHeight / 2 - 3)
+      .lineTo(campX - 62, campY)
+      .stroke({ width: 1.5, color: 0x5a5a5a });
+
+    // Bottom door
+    this.pathGraphics
+      .moveTo(campX - 60, campY + gateHeight / 2)
+      .lineTo(campX - 75, campY + gateHeight / 2 + 7)
+      .lineTo(campX - 75, campY + 2)
+      .lineTo(campX - 60, campY - 2)
+      .fill({ color: 0x7a7a7a, alpha: 0.85 });
+    this.pathGraphics.stroke({ width: 2, color: 0x5a5a5a });
+    // Horizontal bar
+    this.pathGraphics
+      .moveTo(campX - 73, campY + gateHeight / 2 + 3)
+      .lineTo(campX - 62, campY)
+      .stroke({ width: 1.5, color: 0x5a5a5a });
 
     // === MAIN COMMAND TENT ===
     // Tent base

@@ -20,6 +20,7 @@ import { DebugUtils } from './utils/DebugUtils';
 import { DevConfig } from './config/devConfig';
 import { DebugConstants } from './config/debugConstants';
 import { ScaleManager } from './utils/ScaleManager';
+import { VisualEffects } from './utils/VisualEffects';
 
 (async () => {
   // Initialize debug utilities
@@ -86,6 +87,11 @@ import { ScaleManager } from './utils/ScaleManager';
   // Set up money gain callback
   gameManager.setMoneyGainCallback((amount: number) => {
     moneyAnimation.showMoneyGain(amount);
+  });
+
+  // Set up damage flash callback
+  gameManager.setDamageFlashCallback(() => {
+    VisualEffects.createDamageFlash(app.stage, GameConfig.SCREEN_WIDTH, GameConfig.SCREEN_HEIGHT);
   });
 
   // Create UI manager
