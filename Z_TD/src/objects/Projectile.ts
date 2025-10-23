@@ -17,6 +17,12 @@ export class Projectile extends Container {
     | null = null;
   private zombies: Zombie[] = [];
 
+  // Arc trajectory for grenades
+  private startX: number;
+  private startY: number;
+  private travelProgress: number = 0;
+  private arcHeight: number = 80; // Height of the arc
+
   constructor(
     x: number,
     y: number,
@@ -29,6 +35,8 @@ export class Projectile extends Container {
   ) {
     super();
     this.position.set(x, y);
+    this.startX = x;
+    this.startY = y;
     this.targetX = targetX;
     this.targetY = targetY;
     this.damage = damage;
@@ -69,6 +77,14 @@ export class Projectile extends Container {
         this.visual.circle(0, 0, 3).fill(0x00bfff);
         this.visual.circle(0, 0, 5).stroke({ width: 1, color: 0x7fffd4, alpha: 0.5 });
         break;
+      case 'grenade':
+        // Olive drab grenade with pin
+        this.visual.circle(0, 0, 4).fill(0x6b8e23);
+        this.visual.circle(0, 0, 3).fill(0x556b2f);
+        // Pin/lever
+        this.visual.rect(-1, -5, 2, 3).fill(0x8b8b8b);
+        this.visual.circle(0, -6, 1.5).fill(0xff0000);
+        break;
       default:
         this.visual.circle(0, 0, 3).fill(0xffffff);
     }
@@ -99,6 +115,12 @@ export class Projectile extends Container {
       }
     }
 
+    // Grenade uses arc trajectory
+    if (this.projectileType === 'grenade') {
+      this.updateArcTrajectory(deltaTime);
+      return;
+    }
+
     // Calculate direction to target
     const dx = this.targetX - this.position.x;
     const dy = this.targetY - this.position.y;
@@ -120,6 +142,40 @@ export class Projectile extends Container {
 
     // Rotate projectile to face direction of travel
     this.rotation = Math.atan2(dy, dx);
+  }
+
+  private updateArcTrajectory(deltaTime: number): void {
+    // Calculate total distance
+    const totalDx = this.targetX - this.startX;
+    const totalDy = this.targetY - this.startY;
+    const totalDistance = Math.sqrt(totalDx * totalDx + totalDy * totalDy);
+
+    // Update progress based on speed
+    const progressIncrement = (this.speed * (deltaTime / 1000)) / totalDistance;
+    this.travelProgress += progressIncrement;
+
+    // Check if reached target
+    if (this.travelProgress >= 1) {
+      this.position.x = this.targetX;
+      this.position.y = this.targetY;
+      this.onHitTarget();
+      return;
+    }
+
+    // Calculate position along arc
+    // Linear interpolation for x and y
+    const linearX = this.startX + totalDx * this.travelProgress;
+    const linearY = this.startY + totalDy * this.travelProgress;
+
+    // Parabolic arc for height (peaks at 0.5 progress)
+    const arcProgress = Math.sin(this.travelProgress * Math.PI);
+    const heightOffset = -this.arcHeight * arcProgress;
+
+    this.position.x = linearX;
+    this.position.y = linearY + heightOffset;
+
+    // Rotate grenade to tumble through the air
+    this.rotation += deltaTime * 0.01;
   }
 
   private checkZombieCollision(): Zombie | null {
@@ -187,6 +243,9 @@ export class Projectile extends Container {
       case 'flame':
         this.createFirePool();
         break;
+      case 'grenade':
+        this.createExplosion();
+        break;
       case 'tesla':
         this.visual.circle(0, 0, 10).fill({ color: 0x00bfff, alpha: 0.6 });
         setTimeout(() => {
@@ -199,6 +258,121 @@ export class Projectile extends Container {
           this.destroy();
         }, 100);
     }
+  }
+
+  private createExplosion(): void {
+    // Create explosion effect with splash damage
+    const explosion = new Graphics();
+    const explosionRadius = 60; // Splash damage radius
+
+    // Apply splash damage to all zombies in radius
+    for (const zombie of this.zombies) {
+      if (!zombie.parent) {
+        continue;
+      }
+
+      const dx = zombie.position.x - this.position.x;
+      const dy = zombie.position.y - this.position.y;
+      const distance = Math.sqrt(dx * dx + dy * dy);
+
+      if (distance <= explosionRadius) {
+        // Damage falls off with distance (100% at center, 30% at edge)
+        const damageFalloff = 1 - (distance / explosionRadius) * 0.7;
+        const splashDamage = this.damage * damageFalloff;
+
+        // Apply damage modifier based on zombie type
+        const towerType = this.towerType as TowerType;
+        const modifier = zombie.getDamageModifier(towerType);
+        const modifiedDamage = splashDamage * modifier;
+
+        const healthBefore = zombie.getHealth();
+        zombie.takeDamage(modifiedDamage);
+        const healthAfter = zombie.getHealth();
+        const actualDamage = healthBefore - healthAfter;
+        const killed = healthAfter <= 0;
+        const overkill = killed ? Math.abs(healthAfter) : 0;
+
+        // Notify callback for each zombie hit
+        if (this.onDamageCallback) {
+          this.onDamageCallback(actualDamage, this.towerType, killed, overkill);
+        }
+      }
+    }
+
+    // Create visual explosion effect
+    // Outer shockwave ring
+    explosion.circle(0, 0, explosionRadius).stroke({ width: 4, color: 0xff6600, alpha: 0.8 });
+    explosion.circle(0, 0, explosionRadius - 5).stroke({ width: 3, color: 0xff8800, alpha: 0.6 });
+
+    // Multiple explosion layers
+    const layers = [
+      { radius: 50, color: 0xff4500, alpha: 0.7 },
+      { radius: 40, color: 0xff6600, alpha: 0.8 },
+      { radius: 30, color: 0xff8800, alpha: 0.85 },
+      { radius: 20, color: 0xffaa00, alpha: 0.9 },
+      { radius: 12, color: 0xffff00, alpha: 0.95 },
+      { radius: 6, color: 0xffffff, alpha: 1.0 },
+    ];
+
+    for (const layer of layers) {
+      explosion.circle(0, 0, layer.radius).fill({ color: layer.color, alpha: layer.alpha });
+    }
+
+    // Explosion debris/particles
+    const debrisCount = 20;
+    for (let i = 0; i < debrisCount; i++) {
+      const angle = (i / debrisCount) * Math.PI * 2;
+      const distance = 35 + Math.random() * 25;
+      const x = Math.cos(angle) * distance;
+      const y = Math.sin(angle) * distance;
+      const size = 2 + Math.random() * 4;
+      const color = Math.random() > 0.5 ? 0xff6600 : 0x8b4513;
+      explosion.circle(x, y, size).fill({ color, alpha: 0.8 });
+    }
+
+    // Smoke puffs
+    const smokeCount = 12;
+    for (let i = 0; i < smokeCount; i++) {
+      const angle = (i / smokeCount) * Math.PI * 2;
+      const distance = 40 + Math.random() * 15;
+      const x = Math.cos(angle) * distance;
+      const y = Math.sin(angle) * distance;
+      const size = 8 + Math.random() * 8;
+      explosion.circle(x, y, size).fill({ color: 0x4a4a4a, alpha: 0.5 });
+    }
+
+    // Add explosion to parent at current position
+    if (this.parent) {
+      explosion.position.set(this.position.x, this.position.y);
+      this.parent.addChild(explosion);
+
+      // Animate explosion expanding and fading
+      let elapsed = 0;
+      const duration = 400; // Explosion lasts 400ms
+      const initialScale = 0.5;
+      explosion.scale.set(initialScale);
+
+      const animateInterval = setInterval(() => {
+        elapsed += 16;
+        const progress = elapsed / duration;
+
+        if (progress >= 1) {
+          clearInterval(animateInterval);
+          if (explosion.parent) {
+            explosion.parent.removeChild(explosion);
+          }
+          explosion.destroy();
+        } else {
+          // Expand and fade out
+          const scale = initialScale + (1.5 - initialScale) * progress;
+          explosion.scale.set(scale);
+          explosion.alpha = 1 - progress;
+        }
+      }, 16);
+    }
+
+    // Destroy the projectile immediately
+    this.destroy();
   }
 
   private createFirePool(): void {

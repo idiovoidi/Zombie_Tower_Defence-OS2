@@ -132,6 +132,26 @@ export class TowerCombatManager {
       return;
     }
 
+    // Grenade tower shoots explosive projectile with arc trajectory
+    if (projectileType === 'grenade') {
+      const speed = 350; // Slower than bullets
+      const projectile = this.projectileManager.createProjectile(
+        spawnPos.x,
+        spawnPos.y,
+        target.position.x,
+        target.position.y,
+        damage,
+        speed,
+        projectileType,
+        target
+      );
+      projectile.setTowerType(tower.getType());
+      if (this.onDamageCallback) {
+        projectile.setOnDamageCallback(this.onDamageCallback);
+      }
+      return;
+    }
+
     // Different projectile speeds based on tower type
     let speed = 500; // Default speed
     switch (projectileType) {

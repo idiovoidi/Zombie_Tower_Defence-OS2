@@ -439,6 +439,29 @@ export class TowerShop extends UIComponent {
         icon.rect(-4 * scale, -19 * scale, 8 * scale, 2 * scale).fill(0x4a4a4a); // Goggles
         break;
       }
+
+      case GameConfig.TOWER_TYPES.GRENADE: {
+        // Level 1 Grenade - Makeshift launcher
+        const grenadeWidth = 20;
+        icon
+          .rect(-grenadeWidth * scale, -5 * scale, grenadeWidth * 2 * scale, 25 * scale)
+          .fill(0x6b8e23);
+        icon.stroke({ width: 1, color: 0x556b2f });
+        // Ammo crates
+        icon.rect(-12 * scale, 2 * scale, 10 * scale, 8 * scale).fill(0x8b7355);
+        icon.rect(2 * scale, 2 * scale, 10 * scale, 8 * scale).fill(0x8b7355);
+        // Grenade symbols
+        icon.circle(-7 * scale, 6 * scale, 2 * scale).fill(0x2f4f2f);
+        icon.circle(7 * scale, 6 * scale, 2 * scale).fill(0x2f4f2f);
+        // Little man
+        icon.rect(-3 * scale, -13 * scale, 6 * scale, 8 * scale).fill(0x6b8e23);
+        icon.rect(-4 * scale, -11 * scale, 2 * scale, 4 * scale).fill(0xffdbac);
+        icon.rect(2 * scale, -11 * scale, 2 * scale, 4 * scale).fill(0xffdbac);
+        icon.rect(-2 * scale, -10 * scale, 4 * scale, 8 * scale).fill(0x556b2f);
+        icon.circle(0, -18 * scale, 5 * scale).fill(0xffdbac);
+        icon.rect(-5 * scale, -21 * scale, 10 * scale, 3 * scale).fill(0x6b8e23); // Helmet
+        break;
+      }
     }
 
     return icon;
@@ -456,6 +479,8 @@ export class TowerShop extends UIComponent {
         return 'Flame';
       case GameConfig.TOWER_TYPES.TESLA:
         return 'Tesla';
+      case GameConfig.TOWER_TYPES.GRENADE:
+        return 'Grenade';
       default:
         return type;
     }
@@ -532,7 +557,7 @@ export class TowerShop extends UIComponent {
       }
 
       const canAfford = currentMoney >= stats.cost;
-      const led = (button as any).led;
+      const led = (button as unknown).led;
       const costText = (button as unknown).costText;
 
       if (canAfford) {
