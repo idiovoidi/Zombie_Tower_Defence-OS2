@@ -18,8 +18,8 @@ Some zombies should be immune to slows
 Remove old lasersight and bullet casing code from tower.ts around line 1500
 
 Remove obsolete code
-Move input functions from src\renderers\VisualMapRenderer.ts to src\managers\InputManager.ts
-src\managers\CampUpgradeManager.ts to handle all camp upgrade functionality
+
+Corners of the screen should flash red when the survivor camp is damaged
 
 ---
 
