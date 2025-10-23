@@ -2,6 +2,79 @@ import { Application } from 'pixi.js';
 import { UIComponent } from './UIComponent';
 import { GameConfig } from '../config/gameConfig';
 
+/**
+ * Configuration map defining which UI components should be visible for each game state.
+ * This data-driven approach eliminates the need for a large switch statement.
+ */
+type ComponentVisibilityMap = Record<string, boolean>;
+type StateVisibilityConfig = Record<string, ComponentVisibilityMap>;
+
+const UI_STATE_CONFIG: StateVisibilityConfig = {
+  [GameConfig.GAME_STATES.MAIN_MENU]: {
+    mainMenu: true,
+    levelSelectMenu: false,
+    hud: false,
+    bottomBar: false,
+    towerShop: false,
+    towerInfoPanel: false,
+    statsPanel: false,
+  },
+  [GameConfig.GAME_STATES.LEVEL_SELECT]: {
+    mainMenu: false,
+    levelSelectMenu: true,
+    hud: false,
+    bottomBar: false,
+    towerShop: false,
+    towerInfoPanel: false,
+    statsPanel: false,
+  },
+  [GameConfig.GAME_STATES.PLAYING]: {
+    mainMenu: false,
+    levelSelectMenu: false,
+    hud: true,
+    bottomBar: true,
+    towerShop: true,
+    towerInfoPanel: false,
+    statsPanel: true,
+  },
+  [GameConfig.GAME_STATES.WAVE_COMPLETE]: {
+    mainMenu: false,
+    levelSelectMenu: false,
+    hud: true,
+    bottomBar: true,
+    towerShop: true,
+    towerInfoPanel: false,
+    statsPanel: true,
+  },
+  [GameConfig.GAME_STATES.PAUSED]: {
+    mainMenu: false,
+    levelSelectMenu: false,
+    hud: true,
+    bottomBar: true,
+    towerShop: false,
+    towerInfoPanel: false,
+    statsPanel: false,
+  },
+  [GameConfig.GAME_STATES.GAME_OVER]: {
+    mainMenu: false,
+    levelSelectMenu: false,
+    hud: false,
+    bottomBar: false,
+    towerShop: false,
+    towerInfoPanel: false,
+    statsPanel: false,
+  },
+  [GameConfig.GAME_STATES.VICTORY]: {
+    mainMenu: false,
+    levelSelectMenu: false,
+    hud: false,
+    bottomBar: false,
+    towerShop: false,
+    towerInfoPanel: false,
+    statsPanel: false,
+  },
+};
+
 export class UIManager {
   private app: Application;
   private components: Map<string, UIComponent>;
@@ -48,67 +121,24 @@ export class UIManager {
     this.updateComponentVisibility();
   }
 
+  /**
+   * Updates component visibility based on the current game state.
+   * Uses a data-driven approach with the UI_STATE_CONFIG map.
+   *
+   * Complexity: O(n) where n is the number of components
+   * Cyclomatic Complexity: 1 (no branching logic)
+   */
   private updateComponentVisibility(): void {
-    // Show/hide UI components based on the current game state
-    switch (this.currentState) {
-      case GameConfig.GAME_STATES.MAIN_MENU:
-        // Show main menu components, hide game UI
-        this.setComponentVisibility('mainMenu', true);
-        this.setComponentVisibility('levelSelectMenu', false);
-        this.setComponentVisibility('hud', false);
-        this.setComponentVisibility('bottomBar', false);
-        this.setComponentVisibility('towerShop', false);
-        this.setComponentVisibility('towerInfoPanel', false);
-        this.setComponentVisibility('statsPanel', false);
-        break;
-      case GameConfig.GAME_STATES.LEVEL_SELECT:
-        // Show level select menu, hide other components
-        this.setComponentVisibility('mainMenu', false);
-        this.setComponentVisibility('levelSelectMenu', true);
-        this.setComponentVisibility('hud', false);
-        this.setComponentVisibility('bottomBar', false);
-        this.setComponentVisibility('towerShop', false);
-        this.setComponentVisibility('towerInfoPanel', false);
-        this.setComponentVisibility('statsPanel', false);
-        break;
-      case GameConfig.GAME_STATES.PLAYING:
-      case GameConfig.GAME_STATES.WAVE_COMPLETE:
-        // Show game UI components, hide menu
-        this.setComponentVisibility('mainMenu', false);
-        this.setComponentVisibility('levelSelectMenu', false);
-        this.setComponentVisibility('hud', true);
-        this.setComponentVisibility('bottomBar', true);
-        this.setComponentVisibility('towerShop', true);
-        this.setComponentVisibility('towerInfoPanel', false);
-        this.setComponentVisibility('statsPanel', true);
-        break;
-      case GameConfig.GAME_STATES.PAUSED:
-        // Show pause menu
-        this.setComponentVisibility('mainMenu', false);
-        this.setComponentVisibility('levelSelectMenu', false);
-        this.setComponentVisibility('hud', true);
-        this.setComponentVisibility('bottomBar', true);
-        this.setComponentVisibility('towerShop', false);
-        this.setComponentVisibility('towerInfoPanel', false);
-        break;
-      case GameConfig.GAME_STATES.GAME_OVER:
-        // Show game over screen
-        this.setComponentVisibility('mainMenu', false);
-        this.setComponentVisibility('levelSelectMenu', false);
-        this.setComponentVisibility('hud', false);
-        this.setComponentVisibility('bottomBar', false);
-        this.setComponentVisibility('towerShop', false);
-        this.setComponentVisibility('towerInfoPanel', false);
-        break;
-      case GameConfig.GAME_STATES.VICTORY:
-        // Show victory screen
-        this.setComponentVisibility('mainMenu', false);
-        this.setComponentVisibility('levelSelectMenu', false);
-        this.setComponentVisibility('hud', false);
-        this.setComponentVisibility('bottomBar', false);
-        this.setComponentVisibility('towerShop', false);
-        this.setComponentVisibility('towerInfoPanel', false);
-        break;
+    const visibilityConfig = UI_STATE_CONFIG[this.currentState];
+
+    if (!visibilityConfig) {
+      console.warn(`No UI configuration found for state: ${this.currentState}`);
+      return;
+    }
+
+    // Apply visibility settings from configuration
+    for (const [componentName, shouldBeVisible] of Object.entries(visibilityConfig)) {
+      this.setComponentVisibility(componentName, shouldBeVisible);
     }
   }
 
