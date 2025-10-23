@@ -146,6 +146,7 @@ export class TowerCombatManager {
         target
       );
       projectile.setTowerType(tower.getType());
+      projectile.setUpgradeLevel(tower.getUpgradeLevel()); // Pass upgrade level for explosion scaling
       if (this.onDamageCallback) {
         projectile.setOnDamageCallback(this.onDamageCallback);
       }

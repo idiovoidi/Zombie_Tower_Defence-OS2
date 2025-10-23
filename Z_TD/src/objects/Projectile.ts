@@ -22,6 +22,7 @@ export class Projectile extends Container {
   private startY: number;
   private travelProgress: number = 0;
   private arcHeight: number = 80; // Height of the arc
+  private upgradeLevel: number = 1; // Tower upgrade level for scaling effects
 
   constructor(
     x: number,
@@ -235,6 +236,10 @@ export class Projectile extends Container {
     this.onDamageCallback = callback;
   }
 
+  public setUpgradeLevel(level: number): void {
+    this.upgradeLevel = level;
+  }
+
   private createHitEffect(): void {
     // Visual feedback for hit
     this.visual.clear();
@@ -263,7 +268,12 @@ export class Projectile extends Container {
   private createExplosion(): void {
     // Create explosion effect with splash damage
     const explosion = new Graphics();
-    const explosionRadius = 60; // Splash damage radius
+
+    // Scale explosion radius with upgrade level
+    // Level 1: 40px, Level 2: 48px, Level 3: 56px, Level 4: 64px, Level 5: 72px
+    const baseRadius = 40;
+    const radiusPerLevel = 8;
+    const explosionRadius = baseRadius + (this.upgradeLevel - 1) * radiusPerLevel;
 
     // Apply splash damage to all zombies in radius
     for (const zombie of this.zombies) {
@@ -304,40 +314,41 @@ export class Projectile extends Container {
     explosion.circle(0, 0, explosionRadius).stroke({ width: 4, color: 0xff6600, alpha: 0.8 });
     explosion.circle(0, 0, explosionRadius - 5).stroke({ width: 3, color: 0xff8800, alpha: 0.6 });
 
-    // Multiple explosion layers
+    // Multiple explosion layers - scale with explosion radius
+    const radiusScale = explosionRadius / 60; // Normalize to original 60px radius
     const layers = [
-      { radius: 50, color: 0xff4500, alpha: 0.7 },
-      { radius: 40, color: 0xff6600, alpha: 0.8 },
-      { radius: 30, color: 0xff8800, alpha: 0.85 },
-      { radius: 20, color: 0xffaa00, alpha: 0.9 },
-      { radius: 12, color: 0xffff00, alpha: 0.95 },
-      { radius: 6, color: 0xffffff, alpha: 1.0 },
+      { radius: 50 * radiusScale, color: 0xff4500, alpha: 0.7 },
+      { radius: 40 * radiusScale, color: 0xff6600, alpha: 0.8 },
+      { radius: 30 * radiusScale, color: 0xff8800, alpha: 0.85 },
+      { radius: 20 * radiusScale, color: 0xffaa00, alpha: 0.9 },
+      { radius: 12 * radiusScale, color: 0xffff00, alpha: 0.95 },
+      { radius: 6 * radiusScale, color: 0xffffff, alpha: 1.0 },
     ];
 
     for (const layer of layers) {
       explosion.circle(0, 0, layer.radius).fill({ color: layer.color, alpha: layer.alpha });
     }
 
-    // Explosion debris/particles
-    const debrisCount = 20;
+    // Explosion debris/particles - more debris for higher levels
+    const debrisCount = 15 + this.upgradeLevel * 3;
     for (let i = 0; i < debrisCount; i++) {
       const angle = (i / debrisCount) * Math.PI * 2;
-      const distance = 35 + Math.random() * 25;
+      const distance = (25 + Math.random() * 20) * radiusScale;
       const x = Math.cos(angle) * distance;
       const y = Math.sin(angle) * distance;
-      const size = 2 + Math.random() * 4;
+      const size = (2 + Math.random() * 4) * radiusScale;
       const color = Math.random() > 0.5 ? 0xff6600 : 0x8b4513;
       explosion.circle(x, y, size).fill({ color, alpha: 0.8 });
     }
 
-    // Smoke puffs
-    const smokeCount = 12;
+    // Smoke puffs - more smoke for higher levels
+    const smokeCount = 10 + this.upgradeLevel * 2;
     for (let i = 0; i < smokeCount; i++) {
       const angle = (i / smokeCount) * Math.PI * 2;
-      const distance = 40 + Math.random() * 15;
+      const distance = (30 + Math.random() * 15) * radiusScale;
       const x = Math.cos(angle) * distance;
       const y = Math.sin(angle) * distance;
-      const size = 8 + Math.random() * 8;
+      const size = (8 + Math.random() * 8) * radiusScale;
       explosion.circle(x, y, size).fill({ color: 0x4a4a4a, alpha: 0.5 });
     }
 

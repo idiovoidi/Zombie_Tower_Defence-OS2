@@ -40,11 +40,17 @@ Multi-layered explosion effect with:
 - **Animation:** Expands from 0.5x to 1.5x scale over 400ms while fading out
 
 ### 5. Splash Damage Mechanics
-- **Radius:** 60 pixels from impact point
+- **Radius Scaling:** Increases with tower upgrade level
+  - Level 1: 40px radius
+  - Level 2: 48px radius (+8px)
+  - Level 3: 56px radius (+8px)
+  - Level 4: 64px radius (+8px)
+  - Level 5: 72px radius (+8px)
 - **Damage Falloff:** Linear from 100% at center to 30% at edge
   - Formula: `damage * (1 - (distance / radius) * 0.7)`
 - **Multi-Target:** Hits all zombies within explosion radius
 - **Damage Modifiers:** Respects zombie type resistances
+- **Visual Scaling:** Explosion effects scale proportionally with radius
 
 ## Files Modified
 
@@ -86,6 +92,11 @@ Multi-layered explosion effect with:
    - Displays explosion radius indicator
    - Tracks zombies hit, total damage, and explosions
    - Real-time health bars on zombies
+3. **test-grenade-scaling.html** - Explosion radius scaling demonstration
+   - Interactive level buttons (1-5)
+   - Visual explosion radius indicator
+   - Shows scaling formula and values
+   - Real-time upgrade testing
 
 ### How to Test
 1. Start dev server: `npm run dev`
@@ -96,6 +107,13 @@ Multi-layered explosion effect with:
    - Explosion animation on impact
    - Multiple zombies taking damage from splash
    - Damage falloff based on distance
+
+**Test Explosion Scaling:**
+1. Open http://localhost:8081/test-grenade-scaling.html
+2. Click level buttons (1-5) to upgrade the tower
+3. Watch the explosion radius indicator grow
+4. See more debris and smoke at higher levels
+5. Observe increased splash damage area
 
 ## Technical Details
 
@@ -129,6 +147,22 @@ if (distance <= explosionRadius) {
 - **Scale:** 0.5x → 1.5x
 - **Alpha:** 1.0 → 0.0
 - **Frame Rate:** ~60fps (16ms intervals)
+
+### Explosion Scaling Formula
+```typescript
+// Base radius scales with upgrade level
+baseRadius = 40
+radiusPerLevel = 8
+explosionRadius = baseRadius + (upgradeLevel - 1) * radiusPerLevel
+
+// Visual elements scale proportionally
+radiusScale = explosionRadius / 60  // Normalize to original design
+layerRadius = originalRadius * radiusScale
+
+// Particle counts increase with level
+debrisCount = 15 + upgradeLevel * 3
+smokeCount = 10 + upgradeLevel * 2
+```
 
 ## Integration with Game Systems
 
@@ -182,4 +216,5 @@ if (distance <= explosionRadius) {
 ## Dev Server
 Running at: http://localhost:8081/
 - Main game: http://localhost:8081/
-- Grenade test: http://localhost:8081/test-grenade-explosion.html
+- Grenade explosion test: http://localhost:8081/test-grenade-explosion.html
+- Grenade scaling test: http://localhost:8081/test-grenade-scaling.html
