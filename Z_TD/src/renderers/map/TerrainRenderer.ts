@@ -88,8 +88,7 @@ export class TerrainRenderer {
       const y = Math.random() * mapData.height;
       const size =
         GROUND_TEXTURE.DEAD_GRASS_MIN_SIZE +
-        Math.random() *
-          (GROUND_TEXTURE.DEAD_GRASS_MAX_SIZE - GROUND_TEXTURE.DEAD_GRASS_MIN_SIZE);
+        Math.random() * (GROUND_TEXTURE.DEAD_GRASS_MAX_SIZE - GROUND_TEXTURE.DEAD_GRASS_MIN_SIZE);
       const points =
         GROUND_TEXTURE.DEAD_GRASS_MIN_POINTS +
         Math.floor(
@@ -127,8 +126,7 @@ export class TerrainRenderer {
       const y = Math.random() * mapData.height;
       const size =
         GROUND_TEXTURE.BARREN_DIRT_MIN_SIZE +
-        Math.random() *
-          (GROUND_TEXTURE.BARREN_DIRT_MAX_SIZE - GROUND_TEXTURE.BARREN_DIRT_MIN_SIZE);
+        Math.random() * (GROUND_TEXTURE.BARREN_DIRT_MAX_SIZE - GROUND_TEXTURE.BARREN_DIRT_MIN_SIZE);
       const points =
         GROUND_TEXTURE.BARREN_DIRT_MIN_POINTS +
         Math.floor(
@@ -232,8 +230,7 @@ export class TerrainRenderer {
 
       for (let j = 0; j < segments; j++) {
         const segmentLength = mainLength / segments;
-        const segmentAngle =
-          angle + (Math.random() - 0.5) * GROUND_TEXTURE.CRACK_ANGLE_VARIATION;
+        const segmentAngle = angle + (Math.random() - 0.5) * GROUND_TEXTURE.CRACK_ANGLE_VARIATION;
         const nextX = currentX + Math.cos(segmentAngle) * segmentLength;
         const nextY = currentY + Math.sin(segmentAngle) * segmentLength;
 
@@ -260,14 +257,11 @@ export class TerrainRenderer {
                   GROUND_TEXTURE.CRACK_BRANCH_MIN_LENGTH_FACTOR));
           const branchX = currentX + Math.cos(branchAngle) * branchLength;
           const branchY = currentY + Math.sin(branchAngle) * branchLength;
-          this.graphics
-            .moveTo(currentX, currentY)
-            .lineTo(branchX, branchY)
-            .stroke({
-              width: GROUND_TEXTURE.CRACK_BRANCH_WIDTH,
-              color: COLORS.GROUND_CRACK,
-              alpha: GROUND_TEXTURE.CRACK_BRANCH_ALPHA,
-            });
+          this.graphics.moveTo(currentX, currentY).lineTo(branchX, branchY).stroke({
+            width: GROUND_TEXTURE.CRACK_BRANCH_WIDTH,
+            color: COLORS.GROUND_CRACK,
+            alpha: GROUND_TEXTURE.CRACK_BRANCH_ALPHA,
+          });
         }
 
         currentX = nextX;
@@ -300,8 +294,7 @@ export class TerrainRenderer {
       const y = Math.random() * mapData.height;
       const size =
         GROUND_TEXTURE.GRASS_TUFT_MIN_SIZE +
-        Math.random() *
-          (GROUND_TEXTURE.GRASS_TUFT_MAX_SIZE - GROUND_TEXTURE.GRASS_TUFT_MIN_SIZE);
+        Math.random() * (GROUND_TEXTURE.GRASS_TUFT_MAX_SIZE - GROUND_TEXTURE.GRASS_TUFT_MIN_SIZE);
       // Small irregular shapes for grass
       const points =
         GROUND_TEXTURE.GRASS_TUFT_MIN_POINTS +
@@ -350,4 +343,3 @@ export class TerrainRenderer {
     this.graphics.fill({ color: COLORS.UI_SEPARATOR });
   }
 }
-

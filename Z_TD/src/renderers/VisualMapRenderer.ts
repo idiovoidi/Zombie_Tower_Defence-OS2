@@ -1,15 +1,10 @@
 import { Application, Graphics } from 'pixi.js';
-import {
-  COLORS,
-  GRAVEYARD,
-  GROUND_TEXTURE,
-  LAYER_INDICES,
-  PATH,
-  UI_DIMENSIONS,
-} from '../config/visualConstants';
+import { GRAVEYARD, LAYER_INDICES } from '../config/visualConstants';
 import { InputManager } from '../managers/InputManager';
 import { MapData, MapManager } from '../managers/MapManager';
 import { Waypoint } from '../managers/PathfindingManager';
+import { PathRenderer } from './map/PathRenderer';
+import { TerrainRenderer } from './map/TerrainRenderer';
 import { ZombieCorpseRenderer } from './zombies/ZombieCorpseRenderer';
 
 interface FogParticle {
@@ -47,6 +42,10 @@ export class VisualMapRenderer {
   private campY: number = 0;
   private campAnimationContainer: Graphics;
 
+  // Sub-renderers
+  private terrainRenderer: TerrainRenderer;
+  private pathRenderer: PathRenderer;
+
   constructor(app: Application, mapManager: MapManager, inputManager: InputManager) {
     this.app = app;
     this.mapManager = mapManager;
@@ -57,6 +56,10 @@ export class VisualMapRenderer {
     this.corpseContainer = new Graphics();
     this.campAnimationContainer = new Graphics();
     this.corpseRenderer = new ZombieCorpseRenderer(this.corpseContainer);
+
+    // Initialize sub-renderers
+    this.terrainRenderer = new TerrainRenderer(this.mapContainer);
+    this.pathRenderer = new PathRenderer(this.mapContainer);
 
     // Add to stage at the beginning so it renders behind everything
     this.app.stage.addChildAt(this.mapContainer, LAYER_INDICES.MAP_BACKGROUND);
@@ -84,207 +87,18 @@ export class VisualMapRenderer {
       return;
     }
 
-    // Render map background first
-    this.renderMapBackground(mapData);
+    // Render terrain (ground texture, UI panel)
+    this.terrainRenderer.render(mapData);
 
     // Render path on mapContainer (so it appears under graveyard)
-    this.renderPath(mapData);
+    this.pathRenderer.render(mapData);
 
     // Render graveyard and other foreground elements
     this.renderForegroundElements(mapData);
   }
 
-  private renderMapBackground(mapData: MapData): void {
-    // Draw apocalyptic ground texture for play area
-    // Base layer - darker, more desolate ground
-    this.mapContainer.rect(0, 0, mapData.width, mapData.height);
-    this.mapContainer.fill({ color: COLORS.GROUND_BASE });
-
-    // Add varied dirt/mud patches for texture variation
-    for (let i = 0; i < GROUND_TEXTURE.DIRT_PATCH_COUNT; i++) {
-      const x = Math.random() * mapData.width;
-      const y = Math.random() * mapData.height;
-      const size =
-        GROUND_TEXTURE.DIRT_PATCH_MIN_SIZE +
-        Math.random() * (GROUND_TEXTURE.DIRT_PATCH_MAX_SIZE - GROUND_TEXTURE.DIRT_PATCH_MIN_SIZE);
-      const points =
-        GROUND_TEXTURE.DIRT_PATCH_MIN_POINTS +
-        Math.floor(
-          Math.random() *
-            (GROUND_TEXTURE.DIRT_PATCH_MAX_POINTS - GROUND_TEXTURE.DIRT_PATCH_MIN_POINTS)
-        );
-
-      this.mapContainer.moveTo(x, y);
-      for (let j = 0; j < points; j++) {
-        const angle = (j / points) * Math.PI * 2;
-        const radius =
-          size *
-          (GROUND_TEXTURE.DIRT_PATCH_MIN_RADIUS_FACTOR +
-            Math.random() *
-              (GROUND_TEXTURE.DIRT_PATCH_MAX_RADIUS_FACTOR -
-                GROUND_TEXTURE.DIRT_PATCH_MIN_RADIUS_FACTOR));
-        const px = x + Math.cos(angle) * radius;
-        const py = y + Math.sin(angle) * radius;
-        this.mapContainer.lineTo(px, py);
-      }
-      this.mapContainer.fill({
-        color: COLORS.GROUND_DIRT_PATCH,
-        alpha:
-          GROUND_TEXTURE.DIRT_PATCH_MIN_ALPHA +
-          Math.random() *
-            (GROUND_TEXTURE.DIRT_PATCH_MAX_ALPHA - GROUND_TEXTURE.DIRT_PATCH_MIN_ALPHA),
-      });
-    }
-
-    // Dead grass patches (lighter, sparse)
-    for (let i = 0; i < 120; i++) {
-      const x = Math.random() * mapData.width;
-      const y = Math.random() * mapData.height;
-      const size = 15 + Math.random() * 30;
-      const points = 5 + Math.floor(Math.random() * 4);
-
-      this.mapContainer.moveTo(x, y);
-      for (let j = 0; j < points; j++) {
-        const angle = (j / points) * Math.PI * 2;
-        const radius = size * (0.7 + Math.random() * 0.5);
-        const px = x + Math.cos(angle) * radius;
-        const py = y + Math.sin(angle) * radius;
-        this.mapContainer.lineTo(px, py);
-      }
-      this.mapContainer.fill({ color: 0x5a6a4a, alpha: 0.2 + Math.random() * 0.2 });
-    }
-
-    // Barren dirt patches (brown/tan)
-    for (let i = 0; i < 70; i++) {
-      const x = Math.random() * mapData.width;
-      const y = Math.random() * mapData.height;
-      const size = 25 + Math.random() * 45;
-      const points = 4 + Math.floor(Math.random() * 4);
-
-      this.mapContainer.moveTo(x, y);
-      for (let j = 0; j < points; j++) {
-        const angle = (j / points) * Math.PI * 2 + Math.random() * 0.5;
-        const radius = size * (0.5 + Math.random() * 0.8);
-        const px = x + Math.cos(angle) * radius;
-        const py = y + Math.sin(angle) * radius;
-        this.mapContainer.lineTo(px, py);
-      }
-      this.mapContainer.fill({ color: 0x6a5a4a, alpha: 0.3 + Math.random() * 0.3 });
-    }
-
-    // Scattered rocks and debris
-    for (let i = 0; i < 60; i++) {
-      const x = Math.random() * mapData.width;
-      const y = Math.random() * mapData.height;
-      const size = 3 + Math.random() * 12;
-      const points = 3 + Math.floor(Math.random() * 4);
-
-      this.mapContainer.moveTo(x, y);
-      for (let j = 0; j < points; j++) {
-        const angle = (j / points) * Math.PI * 2;
-        const radius = size * (0.7 + Math.random() * 0.5);
-        const px = x + Math.cos(angle) * radius;
-        const py = y + Math.sin(angle) * radius;
-        this.mapContainer.lineTo(px, py);
-      }
-      this.mapContainer.fill({ color: 0x5a5a5a, alpha: 0.4 + Math.random() * 0.4 });
-    }
-
-    // Small pebbles scattered around
-    for (let i = 0; i < 100; i++) {
-      const x = Math.random() * mapData.width;
-      const y = Math.random() * mapData.height;
-      const size = 1 + Math.random() * 3;
-      this.mapContainer
-        .circle(x, y, size)
-        .fill({ color: 0x6a6a6a, alpha: 0.5 + Math.random() * 0.3 });
-    }
-
-    // Add organic ground cracks (branching) - more prominent
-    for (let i = 0; i < 35; i++) {
-      const x = Math.random() * mapData.width;
-      const y = Math.random() * mapData.height;
-      const mainLength = 40 + Math.random() * 70;
-      const angle = Math.random() * Math.PI * 2;
-
-      // Main crack
-      let currentX = x;
-      let currentY = y;
-      const segments = 4 + Math.floor(Math.random() * 5);
-
-      for (let j = 0; j < segments; j++) {
-        const segmentLength = mainLength / segments;
-        const segmentAngle = angle + (Math.random() - 0.5) * 0.6;
-        const nextX = currentX + Math.cos(segmentAngle) * segmentLength;
-        const nextY = currentY + Math.sin(segmentAngle) * segmentLength;
-
-        // Main crack line (darker, thicker)
-        this.mapContainer
-          .moveTo(currentX, currentY)
-          .lineTo(nextX, nextY)
-          .stroke({ width: 1.5 + Math.random() * 0.5, color: 0x2a2a1a, alpha: 0.6 });
-
-        // Add small branch cracks
-        if (Math.random() > 0.6) {
-          const branchAngle = segmentAngle + (Math.random() - 0.5) * Math.PI;
-          const branchLength = segmentLength * (0.3 + Math.random() * 0.4);
-          const branchX = currentX + Math.cos(branchAngle) * branchLength;
-          const branchY = currentY + Math.sin(branchAngle) * branchLength;
-          this.mapContainer
-            .moveTo(currentX, currentY)
-            .lineTo(branchX, branchY)
-            .stroke({ width: 1, color: 0x2a2a1a, alpha: 0.4 });
-        }
-
-        currentX = nextX;
-        currentY = nextY;
-      }
-    }
-
-    // Add weathering stains and discoloration
-    for (let i = 0; i < 40; i++) {
-      const x = Math.random() * mapData.width;
-      const y = Math.random() * mapData.height;
-      const size = 20 + Math.random() * 40;
-      this.mapContainer
-        .circle(x, y, size)
-        .fill({ color: 0x2a3a1a, alpha: 0.15 + Math.random() * 0.15 });
-    }
-
-    // Add subtle grass tufts (small details)
-    for (let i = 0; i < 150; i++) {
-      const x = Math.random() * mapData.width;
-      const y = Math.random() * mapData.height;
-      const size = 2 + Math.random() * 4;
-      // Small irregular shapes for grass
-      const points = 3 + Math.floor(Math.random() * 3);
-      this.mapContainer.moveTo(x, y);
-      for (let j = 0; j < points; j++) {
-        const angle = (j / points) * Math.PI * 2;
-        const radius = size * (0.8 + Math.random() * 0.4);
-        this.mapContainer.lineTo(x + Math.cos(angle) * radius, y + Math.sin(angle) * radius);
-      }
-      this.mapContainer.fill({ color: 0x4a5a3a, alpha: 0.3 + Math.random() * 0.2 });
-    }
-
-    // Draw UI panel background on the right
-    this.mapContainer.rect(
-      UI_DIMENSIONS.PLAY_AREA_WIDTH,
-      0,
-      UI_DIMENSIONS.PANEL_WIDTH,
-      UI_DIMENSIONS.HEIGHT
-    );
-    this.mapContainer.fill({ color: COLORS.UI_PANEL_BG });
-
-    // Draw separator line between play area and UI
-    this.mapContainer.rect(
-      UI_DIMENSIONS.PLAY_AREA_WIDTH,
-      0,
-      UI_DIMENSIONS.SEPARATOR_WIDTH,
-      UI_DIMENSIONS.HEIGHT
-    );
-    this.mapContainer.fill({ color: COLORS.UI_SEPARATOR });
-  }
+  // Note: renderMapBackground() has been replaced by TerrainRenderer
+  // Note: renderPath() has been replaced by PathRenderer
 
   private renderForegroundElements(mapData: MapData): void {
     // Add graveyard on the left (zombie spawn area)
@@ -426,164 +240,6 @@ export class VisualMapRenderer {
         .ellipse(x, y + trunkHeight, height * 0.4, height * 0.15)
         .fill({ color: 0x1a1a1a, alpha: 0.3 });
     }
-  }
-
-  private renderPath(mapData: MapData): void {
-    if (mapData.waypoints.length < 2) {
-      return;
-    }
-
-    const pathWidth = PATH.WIDTH;
-    const cornerRadius = PATH.CORNER_RADIUS;
-
-    // Helper function to draw path
-    const drawPathLine = (graphics: Graphics, waypoints: Waypoint[]) => {
-      graphics.moveTo(waypoints[0].x, waypoints[0].y);
-
-      for (let i = 0; i < waypoints.length; i++) {
-        const prev = i > 0 ? waypoints[i - 1] : null;
-        const curr = waypoints[i];
-        const next = i < waypoints.length - 1 ? waypoints[i + 1] : null;
-
-        if (!prev) {
-          graphics.moveTo(curr.x, curr.y);
-        } else if (!next) {
-          graphics.lineTo(curr.x, curr.y);
-        } else {
-          const v1x = curr.x - prev.x;
-          const v1y = curr.y - prev.y;
-          const v2x = next.x - curr.x;
-          const v2y = next.y - curr.y;
-
-          const len1 = Math.sqrt(v1x * v1x + v1y * v1y);
-          const len2 = Math.sqrt(v2x * v2x + v2y * v2y);
-
-          const n1x = v1x / len1;
-          const n1y = v1y / len1;
-          const n2x = v2x / len2;
-          const n2y = v2y / len2;
-
-          const curveStart = Math.min(cornerRadius, len1 / 2);
-          const curveEnd = Math.min(cornerRadius, len2 / 2);
-
-          const startX = curr.x - n1x * curveStart;
-          const startY = curr.y - n1y * curveStart;
-          const endX = curr.x + n2x * curveEnd;
-          const endY = curr.y + n2y * curveEnd;
-
-          graphics.lineTo(startX, startY);
-          graphics.quadraticCurveTo(curr.x, curr.y, endX, endY);
-        }
-      }
-    };
-
-    // Draw dark border first (darker dirt edges)
-    drawPathLine(this.mapContainer, mapData.waypoints);
-    this.mapContainer.stroke({
-      width: pathWidth + PATH.OUTER_BORDER_WIDTH,
-      color: COLORS.PATH_OUTER,
-      cap: 'round',
-      join: 'round',
-    });
-
-    // Draw main path (worn dirt)
-    drawPathLine(this.mapContainer, mapData.waypoints);
-    this.mapContainer.stroke({ width: pathWidth, color: 0x6a5a4a, cap: 'round', join: 'round' });
-
-    // Add center worn track (darker from heavy use)
-    drawPathLine(this.mapContainer, mapData.waypoints);
-    this.mapContainer.stroke({
-      width: pathWidth * PATH.INNER_WIDTH_FACTOR,
-      color: COLORS.PATH_INNER,
-      cap: 'round',
-      join: 'round',
-      alpha: PATH.INNER_ALPHA,
-    });
-
-    // Add tire/cart tracks (two parallel lines)
-    const trackOffset = pathWidth * 0.25;
-
-    // Calculate perpendicular offsets for tracks
-    for (let i = 0; i < mapData.waypoints.length - 1; i++) {
-      const curr = mapData.waypoints[i];
-      const next = mapData.waypoints[i + 1];
-
-      const dx = next.x - curr.x;
-      const dy = next.y - curr.y;
-      const len = Math.sqrt(dx * dx + dy * dy);
-      const nx = -dy / len;
-      const ny = dx / len;
-
-      // Left track
-      this.mapContainer.moveTo(curr.x + nx * trackOffset, curr.y + ny * trackOffset);
-      this.mapContainer.lineTo(next.x + nx * trackOffset, next.y + ny * trackOffset);
-      this.mapContainer.stroke({ width: 3, color: 0x4a3a2a, alpha: 0.6 });
-
-      // Right track
-      this.mapContainer.moveTo(curr.x - nx * trackOffset, curr.y - ny * trackOffset);
-      this.mapContainer.lineTo(next.x - nx * trackOffset, next.y - ny * trackOffset);
-      this.mapContainer.stroke({ width: 3, color: 0x4a3a2a, alpha: 0.6 });
-    }
-
-    // Add dirt texture - random small patches along path
-    for (let i = 0; i < mapData.waypoints.length - 1; i++) {
-      const curr = mapData.waypoints[i];
-      const next = mapData.waypoints[i + 1];
-
-      const dx = next.x - curr.x;
-      const dy = next.y - curr.y;
-      const len = Math.sqrt(dx * dx + dy * dy);
-      const steps = Math.floor(len / 15);
-
-      for (let j = 0; j < steps; j++) {
-        const t = j / steps;
-        const x = curr.x + dx * t;
-        const y = curr.y + dy * t;
-
-        // Random dirt patches
-        if (Math.random() > 0.7) {
-          const size = 3 + Math.random() * 5;
-          const offsetX = (Math.random() - 0.5) * pathWidth * 0.6;
-          const offsetY = (Math.random() - 0.5) * pathWidth * 0.6;
-          this.mapContainer.circle(x + offsetX, y + offsetY, size).fill({
-            color: 0x4a3a2a,
-            alpha: 0.3 + Math.random() * 0.3,
-          });
-        }
-
-        // Random small rocks
-        if (Math.random() > 0.85) {
-          const size = 2 + Math.random() * 3;
-          const offsetX = (Math.random() - 0.5) * pathWidth * 0.5;
-          const offsetY = (Math.random() - 0.5) * pathWidth * 0.5;
-          this.mapContainer.circle(x + offsetX, y + offsetY, size).fill({
-            color: 0x5a5a5a,
-            alpha: 0.5 + Math.random() * 0.3,
-          });
-        }
-
-        // Footprints (small ovals)
-        if (Math.random() > 0.8) {
-          const offsetX = (Math.random() - 0.5) * pathWidth * 0.4;
-          const offsetY = (Math.random() - 0.5) * pathWidth * 0.4;
-          const _angle = Math.random() * Math.PI * 2;
-          this.mapContainer.ellipse(x + offsetX, y + offsetY, 3, 5).fill({
-            color: 0x3a2a1a,
-            alpha: 0.2 + Math.random() * 0.2,
-          });
-        }
-      }
-    }
-
-    // Add edge wear - lighter dirt at edges
-    drawPathLine(this.mapContainer, mapData.waypoints);
-    this.mapContainer.stroke({
-      width: pathWidth + 4,
-      color: 0x7a6a5a,
-      cap: 'round',
-      join: 'round',
-      alpha: 0.3,
-    });
   }
 
   private renderGraveyard(_mapData: MapData): void {
