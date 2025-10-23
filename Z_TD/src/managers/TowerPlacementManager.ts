@@ -89,6 +89,17 @@ export class TowerPlacementManager {
         graphics.circle(0, 0, 20).fill(0x00ced1);
         graphics.circle(0, 0, 10).fill(0x7fffd4);
         break;
+      case 'Grenade':
+        // Olive drab military platform
+        graphics.rect(-20, -5, 40, 25).fill(0x6b8e23);
+        graphics.rect(-20, -5, 40, 25).stroke({ width: 2, color: 0x556b2f });
+        // Ammo crates
+        graphics.rect(-12, 2, 10, 8).fill(0x8b7355);
+        graphics.rect(2, 2, 10, 8).fill(0x8b7355);
+        // Grenade symbols
+        graphics.circle(-7, 6, 2).fill(0x2f4f2f);
+        graphics.circle(7, 6, 2).fill(0x2f4f2f);
+        break;
     }
   }
 
