@@ -87,9 +87,6 @@ export class VisualMapRenderer {
     this.renderForegroundElements(mapData);
   }
 
-  // Note: renderMapBackground() has been replaced by TerrainRenderer
-  // Note: renderPath() has been replaced by PathRenderer
-
   private renderForegroundElements(mapData: MapData): void {
     // Add graveyard on the left (zombie spawn area)
     this.graveyardRenderer.render();
@@ -105,13 +102,6 @@ export class VisualMapRenderer {
     const campPos = this.campRenderer.getCampPosition();
     this.inputManager.createCampClickArea(campPos.x, campPos.y);
   }
-
-  // Note: addCornerTrees(), renderTree(), renderDestroyedHouses(), renderDestroyedHouse()
-  // have been replaced by StructureRenderer
-  // Note: addDecorativeElements(), isAwayFromPath(), distanceToLineSegment()
-  // have been replaced by StructureRenderer
-  // Note: initializeFogParticles(), updateFog(), renderFog()
-  // have been replaced by FogRenderer
 
   public clear(): void {
     this.mapContainer.clear();
