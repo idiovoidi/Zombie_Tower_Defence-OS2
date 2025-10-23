@@ -651,10 +651,9 @@ export class Zombie extends GameObject {
   }
 
   // Method to show damage effect (for testing)
-  public showDamageEffect(damage: number): void {
-    // In a real implementation, this would show a visual effect
-    // For now, it's just a placeholder for testing
-    console.log(`Zombie took ${damage} damage`);
+  public showDamageEffect(_damage: number): void {
+    // Visual damage effects are handled by the renderer
+    // This method is kept for potential future enhancements
   }
 
   // Method to show death effect (for testing)

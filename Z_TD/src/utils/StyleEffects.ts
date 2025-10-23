@@ -1,4 +1,5 @@
 import { Application, Container, RenderTexture, Sprite, Texture } from 'pixi.js';
+import { DebugUtils } from './DebugUtils';
 
 /**
  * Simple approach: Just disable texture smoothing on all textures
@@ -13,7 +14,7 @@ export class PixelPerfectMode {
   static enable(): void {
     // Set default scale mode for new textures
     Texture.defaultOptions.scaleMode = 'nearest';
-    console.log('🎮 Pixel-Perfect Mode enabled (nearest-neighbor filtering)');
+    DebugUtils.debug('Pixel-Perfect Mode enabled (nearest-neighbor filtering)');
   }
 
   /**
@@ -21,7 +22,7 @@ export class PixelPerfectMode {
    */
   static disable(): void {
     Texture.defaultOptions.scaleMode = 'linear';
-    console.log('🎮 Pixel-Perfect Mode disabled (linear filtering)');
+    DebugUtils.debug('Pixel-Perfect Mode disabled (linear filtering)');
   }
 }
 
@@ -78,7 +79,7 @@ export class TruePixelEffect {
 
     this.enabled = true;
 
-    console.log(`🎮 True Pixel Effect enabled: ${width}x${height} (${this.pixelScale}x scale)`);
+    DebugUtils.debug(`True Pixel Effect enabled: ${width}x${height} (${this.pixelScale}x scale)`);
   }
 
   /**
@@ -94,7 +95,7 @@ export class TruePixelEffect {
       this.sprite = null;
     }
     this.enabled = false;
-    console.log('🎮 True Pixel Effect disabled');
+    DebugUtils.debug('True Pixel Effect disabled');
   }
 
   /**

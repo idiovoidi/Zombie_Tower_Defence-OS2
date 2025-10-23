@@ -126,19 +126,6 @@ export class VisualPresets {
   }
 
   /**
-   * Neon - Bright bloom with high contrast
-   */
-  private applyNeonPreset(): void {
-    const bloom = new BloomFilter({ intensity: 2.0, threshold: 0.4 });
-    const contrast = new ColorMatrixFilter();
-    contrast.contrast(1.5, true);
-
-    this.activeFilters = [contrast, bloom];
-    this.container.filters = this.activeFilters;
-    DebugUtils.debug('🌟 Neon preset applied');
-  }
-
-  /**
    * Cinematic - Vignette + film grain + slight desaturation
    */
   private applyCinematicPreset(): void {
@@ -195,20 +182,6 @@ export class VisualPresets {
     this.activeFilters = [color, vignette];
     this.container.filters = this.activeFilters;
     DebugUtils.debug('🌙 Dark Mode preset applied');
-  }
-
-  /**
-   * Dreamy - Bloom + slight blur effect via low contrast
-   */
-  private applyDreamyPreset(): void {
-    const bloom = new BloomFilter({ intensity: 1.8, threshold: 0.3 });
-    const color = new ColorMatrixFilter();
-    color.contrast(0.8, false);
-    color.saturate(1.2, false);
-
-    this.activeFilters = [color, bloom];
-    this.container.filters = this.activeFilters;
-    DebugUtils.debug('✨ Dreamy preset applied');
   }
 
   /**

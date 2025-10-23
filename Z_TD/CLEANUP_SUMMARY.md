@@ -74,25 +74,38 @@ npm run lint
 
 ---
 
-## Next Steps (Optional - Medium Priority)
+## Medium Priority - COMPLETED ✅
+
+### Additional Debug Logging Cleanup
+
+**Files Updated:**
+1. ✅ src/utils/StatisticalAnalyzer.ts - 3 console.warn → DebugUtils.warn
+2. ✅ src/utils/StyleEffects.ts - 2 console.log → DebugUtils.debug
+3. ✅ src/utils/PixelArtRenderer.ts - 3 console.log → DebugUtils.debug
+4. ✅ src/utils/ScaleManager.ts - 1 verbose console.log → concise DebugUtils.debug
+5. ✅ src/utils/StatTracker.ts - 1 console.log → DebugUtils.debug
+6. ✅ src/objects/Zombie.ts - Removed placeholder console.log, fixed unused param
+
+**Lines Changed:** ~15 lines modified
+
+---
+
+## Next Steps (Optional - Low Priority)
 
 If you want to continue cleanup:
 
 1. **Test Utility Files** (~600 lines)
-   - Move `BalanceAnalysisPerformanceTest.ts` to `/tests` or `/benchmarks`
-   - Move `BalanceAnalysisEdgeCaseTests.ts` to `/tests` or `/benchmarks`
+   - Consider moving `BalanceAnalysisPerformanceTest.ts` to `/tests` or `/benchmarks`
+   - Consider moving `BalanceAnalysisEdgeCaseTests.ts` to `/tests` or `/benchmarks`
+   - These are functional and used for manual testing via window functions
 
-2. **Debug Logs in Other Files**
-   - Replace console.log with DebugUtils in:
-     - src/utils/StyleEffects.ts
-     - src/utils/ScaleManager.ts
-     - src/utils/PixelArtRenderer.ts
-     - src/utils/StatTracker.ts
-     - src/objects/Zombie.ts
-
-3. **Unused Preset Methods**
-   - Add `neon` and `dreamy` to preset switch statement
+2. **Unused Preset Methods**
+   - Add `neon` and `dreamy` to preset switch statement in VisualPresets.ts
    - Or remove the unused methods
+
+3. **Pre-existing Issues**
+   - Fix PixelPerfectMode class in StyleEffects.ts (uses deprecated PixiJS v8 API)
+   - This class is not currently used anywhere in the codebase
 
 ---
 
@@ -103,5 +116,10 @@ If you want to continue cleanup:
 3. ✅ src/utils/VisualPresets.ts
 4. ✅ OBSOLETE_CODE_AUDIT.md (updated)
 
-**Total Files:** 4  
-**Total Lines Changed:** ~46 lines
+**Total Files Modified:** 10
+- High Priority: 3 files
+- Medium Priority: 7 files
+
+**Total Lines Changed:** ~61 lines
+- High Priority: ~46 lines
+- Medium Priority: ~15 lines

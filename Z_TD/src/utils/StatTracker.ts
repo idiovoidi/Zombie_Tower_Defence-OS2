@@ -1,5 +1,6 @@
 import type { GameManager } from '@managers/GameManager';
 import { type GameLogEntry, LogExporter } from './LogExporter';
+import { DebugUtils } from './DebugUtils';
 
 export interface StatTrackerData {
   startTime: number;
@@ -591,7 +592,7 @@ export class StatTracker {
     const balanceTrackingManager = this.gameManager.getBalanceTrackingManager();
     if (balanceTrackingManager && balanceTrackingManager.isEnabled()) {
       balanceData = balanceTrackingManager.generateReportData() as Record<string, unknown>;
-      console.log('📊 Including balance analysis in stat tracker report');
+      DebugUtils.debug('Including balance analysis in stat tracker report');
     }
 
     LogExporter.exportLog(logEntry, balanceData);

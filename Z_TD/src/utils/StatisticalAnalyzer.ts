@@ -10,6 +10,8 @@
  * - mathjs: Mathematical operations (currently minimal usage)
  */
 
+import { DebugUtils } from './DebugUtils';
+
 // Library imports with graceful degradation
 let statisticsAvailable = false;
 let regressionAvailable = false;
@@ -26,7 +28,7 @@ let regression: any = null;
     ss = await import('simple-statistics');
     statisticsAvailable = true;
   } catch {
-    console.warn('⚠️ simple-statistics not available. Statistical analysis disabled.');
+    DebugUtils.warn('simple-statistics not available. Statistical analysis disabled.');
   }
 
   try {
@@ -34,14 +36,14 @@ let regression: any = null;
     regression = regressionModule.default;
     regressionAvailable = true;
   } catch {
-    console.warn('⚠️ regression library not available. Predictive modeling disabled.');
+    DebugUtils.warn('regression library not available. Predictive modeling disabled.');
   }
 
   try {
     await import('mathjs');
     mathAvailable = true;
   } catch {
-    console.warn('⚠️ mathjs not available. Advanced math operations disabled.');
+    DebugUtils.warn('mathjs not available. Advanced math operations disabled.');
   }
 })();
 

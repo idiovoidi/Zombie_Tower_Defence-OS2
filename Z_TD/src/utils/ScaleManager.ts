@@ -1,5 +1,6 @@
 import { Application } from 'pixi.js';
 import { GameConfig } from '@config/gameConfig';
+import { DebugUtils } from './DebugUtils';
 
 export class ScaleManager {
   private app: Application;
@@ -43,13 +44,9 @@ export class ScaleManager {
     // Resize the renderer to fill the window
     this.app.renderer.resize(windowWidth, windowHeight);
 
-    console.log(`🎮 Scale updated:
-      Window: ${windowWidth}x${windowHeight}
-      Base: ${this.baseWidth}x${this.baseHeight}
-      Scale: ${this.scale.toFixed(3)}
-      Offset: (${this.offsetX.toFixed(1)}, ${this.offsetY.toFixed(1)})
-      Stage scale: (${this.app.stage.scale.x.toFixed(3)}, ${this.app.stage.scale.y.toFixed(3)})
-      Stage position: (${this.app.stage.position.x.toFixed(1)}, ${this.app.stage.position.y.toFixed(1)})`);
+    DebugUtils.debug(
+      `Scale updated: Window ${windowWidth}x${windowHeight}, Scale ${this.scale.toFixed(3)}, Offset (${this.offsetX.toFixed(1)}, ${this.offsetY.toFixed(1)})`
+    );
   }
 
   // Simple and reliable coordinate conversion

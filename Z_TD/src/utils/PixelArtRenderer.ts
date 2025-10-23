@@ -1,4 +1,5 @@
 import { Application, Container, RenderTexture, Sprite } from 'pixi.js';
+import { DebugUtils } from './DebugUtils';
 
 /**
  * True pixel art renderer that renders at lower resolution and scales up
@@ -35,7 +36,7 @@ export class PixelArtRenderer {
     this.renderWidth = Math.floor(this.app.screen.width / this.pixelScale);
     this.renderHeight = Math.floor(this.app.screen.height / this.pixelScale);
 
-    console.log(`🎮 Creating render texture: ${this.renderWidth}x${this.renderHeight}`);
+    DebugUtils.debug(`Creating render texture: ${this.renderWidth}x${this.renderHeight}`);
 
     // Create render texture at lower resolution
     this.renderTexture = RenderTexture.create({
@@ -68,8 +69,8 @@ export class PixelArtRenderer {
 
     this.enabled = true;
 
-    console.log(
-      `🎮 Pixel Art Renderer enabled: ${this.renderWidth}x${this.renderHeight} → ${this.app.screen.width}x${this.app.screen.height} (${this.pixelScale}x scale)`
+    DebugUtils.debug(
+      `Pixel Art Renderer enabled: ${this.renderWidth}x${this.renderHeight} → ${this.app.screen.width}x${this.app.screen.height} (${this.pixelScale}x scale)`
     );
   }
 
@@ -100,7 +101,7 @@ export class PixelArtRenderer {
     this.gameContainer.visible = true;
 
     this.enabled = false;
-    console.log('🎮 Pixel Art Renderer disabled');
+    DebugUtils.debug('Pixel Art Renderer disabled');
   }
 
   /**
