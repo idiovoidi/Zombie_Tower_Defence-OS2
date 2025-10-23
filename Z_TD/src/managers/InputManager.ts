@@ -1,4 +1,4 @@
-import { Application, FederatedPointerEvent } from 'pixi.js';
+import { Application, Container, FederatedPointerEvent, Graphics } from 'pixi.js';
 import { ScaleManager } from '../utils/ScaleManager';
 
 export interface InputCoordinates {
@@ -16,6 +16,8 @@ export class InputManager {
     onRightClick: ((coords: InputCoordinates, event: FederatedPointerEvent) => void)[];
   };
   private debugMode: boolean = false; // Disable debug by default
+  private campClickArea: Container | null = null;
+  private onCampClickCallback: (() => void) | null = null;
 
   constructor(app: Application, scaleManager: ScaleManager) {
     this.app = app;
@@ -131,5 +133,82 @@ export class InputManager {
 
   public getDebugInfo(): string {
     return this.scaleManager.getDebugInfo();
+  }
+
+  // Camp click area management
+  public setCampClickCallback(callback: () => void): void {
+    console.log('🏕️ setCampClickCallback called, callback is:', typeof callback);
+    this.onCampClickCallback = callback;
+    console.log('🏕️ Callback stored, onCampClickCallback is now:', typeof this.onCampClickCallback);
+  }
+
+  public createCampClickArea(campX: number, campY: number): void {
+    // Remove old click area if it exists
+    if (this.campClickArea) {
+      this.app.stage.removeChild(this.campClickArea);
+      this.campClickArea.destroy();
+    }
+
+    console.log('🏕️ Creating camp click area at', campX, campY);
+
+    // Create new clickable container
+    this.campClickArea = new Container();
+    this.campClickArea.eventMode = 'static';
+    this.campClickArea.cursor = 'pointer';
+
+    // Create invisible hitbox covering the camp area
+    const hitbox = new Graphics();
+    hitbox.rect(campX - 65, campY - 60, 130, 110).fill({ color: 0x000000, alpha: 0.001 });
+    hitbox.eventMode = 'static';
+    this.campClickArea.addChild(hitbox);
+
+    // Add hover effect - highlight border
+    const hoverBorder = new Graphics();
+    hoverBorder.visible = false;
+    this.campClickArea.addChild(hoverBorder);
+
+    // Hover events
+    this.campClickArea.on('pointerover', () => {
+      console.log('🏕️ Camp hover');
+      hoverBorder.clear();
+      hoverBorder.rect(campX - 65, campY - 60, 130, 110).stroke({ width: 3, color: 0xffcc00 });
+      hoverBorder.visible = true;
+    });
+
+    this.campClickArea.on('pointerout', () => {
+      console.log('🏕️ Camp hover out');
+      hoverBorder.visible = false;
+    });
+
+    // Click event
+    this.campClickArea.on('pointerdown', event => {
+      console.log('🏕️ Camp pointerdown event fired!');
+      event.stopPropagation();
+      event.preventDefault();
+      if (this.onCampClickCallback) {
+        console.log('🏕️ Calling camp click callback');
+        this.onCampClickCallback();
+      } else {
+        console.log('⚠️ No camp click callback set!');
+      }
+    });
+
+    // Add to stage at a high z-index to ensure it's on top
+    const stageChildCount = this.app.stage.children.length;
+    console.log('🏕️ Stage has', stageChildCount, 'children, adding camp click area');
+    this.app.stage.addChild(this.campClickArea);
+    console.log(
+      '🏕️ Camp click area added, now stage has',
+      this.app.stage.children.length,
+      'children'
+    );
+  }
+
+  public clearCampClickArea(): void {
+    if (this.campClickArea) {
+      this.app.stage.removeChild(this.campClickArea);
+      this.campClickArea.destroy();
+      this.campClickArea = null;
+    }
   }
 }

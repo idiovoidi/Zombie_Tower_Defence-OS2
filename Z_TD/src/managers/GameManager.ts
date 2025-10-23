@@ -13,6 +13,7 @@ import { TowerCombatManager } from './TowerCombatManager';
 import { ProjectileManager } from './ProjectileManager';
 import { AIPlayerManager } from './AIPlayerManager';
 import { BalanceTrackingManager } from './BalanceTrackingManager';
+import { InputManager } from './InputManager';
 import { Tower } from '../objects/Tower';
 import { DevConfig } from '../config/devConfig';
 import { DebugConstants } from '../config/debugConstants';
@@ -37,7 +38,7 @@ export class GameManager {
   private zombieManager: ZombieManager;
   private mapManager: MapManager;
   private levelManager: LevelManager;
-  private visualMapRenderer: VisualMapRenderer;
+  private visualMapRenderer: VisualMapRenderer | null = null;
   private resourceManager: ResourceManager;
   private upgradeSystem: UpgradeSystem;
   private towerCombatManager: TowerCombatManager;
@@ -46,6 +47,7 @@ export class GameManager {
   private balanceTrackingManager: BalanceTrackingManager;
   private statTracker: StatTracker;
   private gameContainer: Container;
+  private inputManager: InputManager | null = null;
   private onMoneyGainCallback: ((amount: number) => void) | null = null;
   private waveStartLives: number = 0;
 
@@ -88,7 +90,7 @@ export class GameManager {
       this.mapManager
     );
     this.levelManager = new LevelManager(this.mapManager);
-    this.visualMapRenderer = new VisualMapRenderer(app, this.mapManager);
+    // VisualMapRenderer will be initialized after InputManager is set
     this.resourceManager = new ResourceManager();
     this.upgradeSystem = new UpgradeSystem(this.resourceManager);
     this.projectileManager = new ProjectileManager(this.gameContainer);
@@ -178,8 +180,12 @@ export class GameManager {
 
         // Render the map for this level
         console.log(`Rendering map: ${level.map}`);
-        this.visualMapRenderer.renderMap(level.map);
-        console.log('Map rendered');
+        if (this.visualMapRenderer) {
+          this.visualMapRenderer.renderMap(level.map);
+          console.log('Map rendered');
+        } else {
+          console.error('VisualMapRenderer not initialized');
+        }
 
         this.currentState = GameConfig.GAME_STATES.PLAYING;
 
@@ -488,8 +494,16 @@ export class GameManager {
     return this.towerPlacementManager;
   }
 
-  public getMapRenderer(): VisualMapRenderer {
+  public getMapRenderer(): VisualMapRenderer | null {
     return this.visualMapRenderer;
+  }
+
+  public setInputManager(inputManager: InputManager): void {
+    this.inputManager = inputManager;
+    // Initialize VisualMapRenderer now that we have InputManager
+    if (!this.visualMapRenderer) {
+      this.visualMapRenderer = new VisualMapRenderer(this.app, this.mapManager, inputManager);
+    }
   }
 
   public getAIPlayerManager(): AIPlayerManager {
@@ -524,7 +538,9 @@ export class GameManager {
   // Update game state
   public update(deltaTime: number): void {
     // Update animated fog effects
-    this.visualMapRenderer.updateFog(deltaTime);
+    if (this.visualMapRenderer) {
+      this.visualMapRenderer.updateFog(deltaTime);
+    }
 
     // Update AI player (needs to run in all states to detect wave complete)
     this.aiPlayerManager.update(deltaTime);

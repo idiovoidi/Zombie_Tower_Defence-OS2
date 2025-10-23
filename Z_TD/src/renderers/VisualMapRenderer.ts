@@ -1,7 +1,8 @@
-import { Application, Container, Graphics } from 'pixi.js';
+import { Application, Graphics } from 'pixi.js';
 import { MapData, MapManager } from '../managers/MapManager';
 import { Waypoint } from '../managers/PathfindingManager';
 import { ZombieCorpseRenderer } from './zombies/ZombieCorpseRenderer';
+import { InputManager } from '../managers/InputManager';
 
 interface FogParticle {
   x: number;
@@ -19,10 +20,9 @@ interface FogParticle {
 export class VisualMapRenderer {
   private app: Application;
   private mapManager: MapManager;
+  private inputManager: InputManager;
   private mapContainer: Graphics;
   private pathGraphics: Graphics;
-  private campClickArea: Container | null = null;
-  private onCampClickCallback: (() => void) | null = null;
   private fogContainer: Graphics;
   private fogParticles: FogParticle[] = [];
   private fogTime: number = 0;
@@ -30,9 +30,10 @@ export class VisualMapRenderer {
   private corpseContainer: Graphics;
   private corpseRenderer: ZombieCorpseRenderer;
 
-  constructor(app: Application, mapManager: MapManager) {
+  constructor(app: Application, mapManager: MapManager, inputManager: InputManager) {
     this.app = app;
     this.mapManager = mapManager;
+    this.inputManager = inputManager;
     this.mapContainer = new Graphics();
     this.pathGraphics = new Graphics();
     this.fogContainer = new Graphics();
@@ -49,9 +50,7 @@ export class VisualMapRenderer {
   }
 
   public setCampClickCallback(callback: () => void): void {
-    console.log('🏕️ setCampClickCallback called, callback is:', typeof callback);
-    this.onCampClickCallback = callback;
-    console.log('🏕️ Callback stored, onCampClickCallback is now:', typeof this.onCampClickCallback);
+    this.inputManager.setCampClickCallback(callback);
   }
 
   public renderMap(_mapName: string): void {
@@ -1774,70 +1773,8 @@ export class VisualMapRenderer {
     this.pathGraphics.circle(campX - 36, campY - 44, 1.5).fill(0x4a4a4a);
     this.pathGraphics.circle(campX + 36, campY - 44, 1.5).fill(0x4a4a4a);
 
-    // Create clickable area for camp
-    this.createCampClickArea(campX, campY);
-  }
-
-  private createCampClickArea(campX: number, campY: number): void {
-    // Remove old click area if it exists
-    if (this.campClickArea) {
-      this.app.stage.removeChild(this.campClickArea);
-      this.campClickArea.destroy();
-    }
-
-    console.log('🏕️ Creating camp click area at', campX, campY);
-
-    // Create new clickable container
-    this.campClickArea = new Container();
-    this.campClickArea.eventMode = 'static';
-    this.campClickArea.cursor = 'pointer';
-
-    // Create invisible hitbox covering the camp area
-    const hitbox = new Graphics();
-    hitbox.rect(campX - 65, campY - 60, 130, 110).fill({ color: 0x000000, alpha: 0.001 });
-    hitbox.eventMode = 'static';
-    this.campClickArea.addChild(hitbox);
-
-    // Add hover effect - highlight border
-    const hoverBorder = new Graphics();
-    hoverBorder.visible = false;
-    this.campClickArea.addChild(hoverBorder);
-
-    // Hover events
-    this.campClickArea.on('pointerover', () => {
-      console.log('🏕️ Camp hover');
-      hoverBorder.clear();
-      hoverBorder.rect(campX - 65, campY - 60, 130, 110).stroke({ width: 3, color: 0xffcc00 });
-      hoverBorder.visible = true;
-    });
-
-    this.campClickArea.on('pointerout', () => {
-      console.log('🏕️ Camp hover out');
-      hoverBorder.visible = false;
-    });
-
-    // Click event
-    this.campClickArea.on('pointerdown', event => {
-      console.log('🏕️ Camp pointerdown event fired!');
-      event.stopPropagation();
-      event.preventDefault();
-      if (this.onCampClickCallback) {
-        console.log('🏕️ Calling camp click callback');
-        this.onCampClickCallback();
-      } else {
-        console.log('⚠️ No camp click callback set!');
-      }
-    });
-
-    // Add to stage at a high z-index to ensure it's on top
-    const stageChildCount = this.app.stage.children.length;
-    console.log('🏕️ Stage has', stageChildCount, 'children, adding camp click area');
-    this.app.stage.addChild(this.campClickArea);
-    console.log(
-      '🏕️ Camp click area added, now stage has',
-      this.app.stage.children.length,
-      'children'
-    );
+    // Create clickable area for camp via InputManager
+    this.inputManager.createCampClickArea(campX, campY);
   }
 
   public clear(): void {
@@ -1848,12 +1785,8 @@ export class VisualMapRenderer {
     this.fogParticles = [];
     this.corpseRenderer.clear();
 
-    // Clean up click area
-    if (this.campClickArea) {
-      this.app.stage.removeChild(this.campClickArea);
-      this.campClickArea.destroy();
-      this.campClickArea = null;
-    }
+    // Clean up click area via InputManager
+    this.inputManager.clearCampClickArea();
   }
 
   private initializeFogParticles(

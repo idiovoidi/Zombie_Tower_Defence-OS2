@@ -61,6 +61,9 @@ import { ScaleManager } from './utils/ScaleManager';
   // Create input manager for robust input handling
   const inputManager = new InputManager(app, scaleManager);
 
+  // Set input manager in game manager (this will initialize VisualMapRenderer)
+  gameManager.setInputManager(inputManager);
+
   // Add debug info to console
   console.log('🎮 Game initialized:', scaleManager.getDebugInfo());
 
@@ -631,8 +634,8 @@ import { ScaleManager } from './utils/ScaleManager';
   if (DevConfig.DEBUG.ENABLED) {
     (window as any).waveBalance = async () => {
       const { WaveBalancing, printWaveBalance } = await import('./config/waveBalancing');
-      (window as unknown).WaveBalancing = WaveBalancing;
-      (window as unknown).printWaveBalance = printWaveBalance;
+      (window as any).WaveBalancing = WaveBalancing;
+      (window as any).printWaveBalance = printWaveBalance;
       console.log('Wave balancing tools loaded!');
       console.log('Usage:');
       console.log('  printWaveBalance(1, 10) - Print balance report for waves 1-10');
