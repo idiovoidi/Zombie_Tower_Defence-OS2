@@ -4,5 +4,8 @@ export { type ParticleConfig, ParticleType, ZombieParticleSystem } from './Zombi
 export { ArmoredZombieRenderer } from './types/ArmoredZombieRenderer';
 export { BasicZombieRenderer } from './types/BasicZombieRenderer';
 export { FastZombieRenderer } from './types/FastZombieRenderer';
+export { MechanicalZombieRenderer } from './types/MechanicalZombieRenderer';
+export { StealthZombieRenderer } from './types/StealthZombieRenderer';
+export { SwarmZombieRenderer } from './types/SwarmZombieRenderer';
 export { TankZombieRenderer } from './types/TankZombieRenderer';
 export { GlowEffect, OutlineEffect, ShadowEffect } from './components/ZombieEffects';

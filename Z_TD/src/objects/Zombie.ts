@@ -14,6 +14,9 @@ import { IZombieRenderer, ZombieRenderState } from '../renderers/zombies/ZombieR
 import { ArmoredZombieRenderer } from '../renderers/zombies/types/ArmoredZombieRenderer';
 import { BasicZombieRenderer } from '../renderers/zombies/types/BasicZombieRenderer';
 import { FastZombieRenderer } from '../renderers/zombies/types/FastZombieRenderer';
+import { MechanicalZombieRenderer } from '../renderers/zombies/types/MechanicalZombieRenderer';
+import { StealthZombieRenderer } from '../renderers/zombies/types/StealthZombieRenderer';
+import { SwarmZombieRenderer } from '../renderers/zombies/types/SwarmZombieRenderer';
 import { TankZombieRenderer } from '../renderers/zombies/types/TankZombieRenderer';
 
 export class Zombie extends GameObject {
@@ -137,6 +140,15 @@ export class Zombie extends GameObject {
         return;
       } else if (this.type === GameConfig.ZOMBIE_TYPES.ARMORED) {
         this.renderer = new ArmoredZombieRenderer();
+        return;
+      } else if (this.type === GameConfig.ZOMBIE_TYPES.SWARM) {
+        this.renderer = new SwarmZombieRenderer();
+        return;
+      } else if (this.type === GameConfig.ZOMBIE_TYPES.STEALTH) {
+        this.renderer = new StealthZombieRenderer();
+        return;
+      } else if (this.type === GameConfig.ZOMBIE_TYPES.MECHANICAL) {
+        this.renderer = new MechanicalZombieRenderer();
         return;
       }
     }

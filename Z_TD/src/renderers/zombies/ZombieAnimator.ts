@@ -62,6 +62,10 @@ export class ZombieAnimator {
     switch (this.zombieType) {
       case 'FAST':
         return 1.5; // 50% faster
+      case 'SWARM':
+        return 1.3; // 30% faster (scurrying)
+      case 'STEALTH':
+        return 1.2; // 20% faster (quick and sneaky)
       case 'TANK':
         return 0.7; // 30% slower (lumbering)
       default:
