@@ -162,6 +162,9 @@ export class Tower extends GameObject implements ITower {
       case GameConfig.TOWER_TYPES.GRENADE:
         this.idleAnimationGrenade(deltaTime);
         break;
+      case GameConfig.TOWER_TYPES.SLUDGE:
+        this.idleAnimationSludge(deltaTime);
+        break;
     }
   }
 
@@ -245,6 +248,21 @@ export class Tower extends GameObject implements ITower {
     }
 
     this.barrel.rotation = this.currentRotation + this.idleScanAngle;
+  }
+
+  // Sludge: Bubbling/dripping animation
+  private idleAnimationSludge(_deltaTime: number): void {
+    // Subtle drip animation
+    const dripSpeed = 0.003;
+    const dripAmount = 0.5;
+
+    const dripOffset = Math.sin(this.idleTime * dripSpeed) * dripAmount;
+    this.barrel.y = dripOffset;
+
+    // Add slight wobble to simulate liquid sloshing
+    const wobbleAmount = 0.05;
+    const wobble = Math.sin(this.idleTime * dripSpeed * 1.5) * wobbleAmount;
+    this.barrel.rotation = this.currentRotation + wobble;
   }
 
   // Check if tower can shoot (based on fire rate)
@@ -387,6 +405,23 @@ export class Tower extends GameObject implements ITower {
         flash.circle(0, launchTip, 12).fill({ color: 0xff6600, alpha: 0.3 });
         // Smoke puff
         flash.circle(0, launchTip + 5, 8).fill({ color: 0x6a6a6a, alpha: 0.5 });
+        break;
+      }
+      case GameConfig.TOWER_TYPES.SLUDGE: {
+        // Sludge launcher - toxic splash
+        const sludgeTip = -8;
+        // Toxic green splash
+        flash.circle(0, sludgeTip, 4).fill({ color: 0x32cd32, alpha: 0.9 });
+        flash.circle(0, sludgeTip, 6).fill({ color: 0x00ff00, alpha: 0.7 });
+        flash.circle(0, sludgeTip, 9).fill({ color: 0x228b22, alpha: 0.5 });
+        // Toxic drips
+        for (let i = 0; i < 3; i++) {
+          const angle = (i / 3) * Math.PI * 2;
+          const dist = 5 + Math.random() * 3;
+          const dropX = Math.cos(angle) * dist;
+          const dropY = sludgeTip + Math.sin(angle) * dist;
+          flash.circle(dropX, dropY, 1.5).fill({ color: 0x32cd32, alpha: 0.8 });
+        }
         break;
       }
       default:
@@ -974,6 +1009,107 @@ export class Tower extends GameObject implements ITower {
     }
   }
 
+  // Sludge Tower Visual
+  private createSludgeVisual(): void {
+    const towerSize = 18 + this.upgradeLevel * 2;
+
+    if (this.upgradeLevel <= 2) {
+      // Level 1-2: Makeshift toxic barrel platform
+      this.visual.rect(-towerSize, -5, towerSize * 2, 25).fill(0x4a5a3a); // Dirty green
+      this.visual.stroke({ width: 2, color: 0x3a4a2a });
+      // Toxic barrels
+      this.visual.rect(-10, 0, 8, 12).fill(0x228b22);
+      this.visual.rect(2, 0, 8, 12).fill(0x228b22);
+      // Barrel bands
+      this.visual.rect(-10, 3, 8, 2).fill(0x1a6b1a);
+      this.visual.rect(2, 3, 8, 2).fill(0x1a6b1a);
+      // Toxic symbols
+      this.visual.circle(-6, 6, 2).fill({ color: 0x00ff00, alpha: 0.7 });
+      this.visual.circle(6, 6, 2).fill({ color: 0x00ff00, alpha: 0.7 });
+      // Drips
+      this.visual.circle(-6, 13, 1.5).fill({ color: 0x32cd32, alpha: 0.6 });
+      this.visual.circle(6, 13, 1.5).fill({ color: 0x32cd32, alpha: 0.6 });
+    } else if (this.upgradeLevel <= 4) {
+      // Level 3-4: Industrial toxic storage
+      this.visual.rect(-towerSize, -5, towerSize * 2, 25).fill(0x3a4a2a); // Dark green
+      this.visual.stroke({ width: 2, color: 0x2a3a1a });
+      // Reinforced tanks
+      this.visual.circle(-6, 5, 8).fill(0x228b22);
+      this.visual.circle(6, 5, 8).fill(0x228b22);
+      // Hazard stripes
+      for (let i = 0; i < 3; i++) {
+        const x = -towerSize + 5 + i * 12;
+        this.visual.rect(x, -3, 4, 23).fill({ color: 0xffff00, alpha: 0.4 });
+      }
+      // Biohazard symbols
+      this.visual.circle(-6, 5, 4).fill({ color: 0x00ff00, alpha: 0.8 });
+      this.visual.circle(6, 5, 4).fill({ color: 0x00ff00, alpha: 0.8 });
+      // Toxic glow
+      this.visual.circle(-6, 5, 6).fill({ color: 0x32cd32, alpha: 0.3 });
+      this.visual.circle(6, 5, 6).fill({ color: 0x32cd32, alpha: 0.3 });
+    } else {
+      // Level 5: Military hazmat facility
+      this.visual.rect(-towerSize, -5, towerSize * 2, 25).fill(0x2a3a1a); // Military green
+      this.visual.stroke({ width: 3, color: 0x1a2a0a });
+      // Armored containment
+      this.visual.circle(-6, 5, 9).fill(0x1a6b1a);
+      this.visual.circle(6, 5, 9).fill(0x1a6b1a);
+      // Heavy hazard markings
+      this.visual.rect(-towerSize, -5, 6, 25).fill({ color: 0xffff00, alpha: 0.5 });
+      this.visual.rect(towerSize - 6, -5, 6, 25).fill({ color: 0xffff00, alpha: 0.5 });
+      // Biohazard warning
+      this.visual.circle(0, 5, 8).fill({ color: 0x00ff00, alpha: 0.6 });
+      this.visual.circle(0, 5, 5).fill({ color: 0x32cd32, alpha: 0.8 });
+      // Toxic glow effect
+      this.visual.circle(-6, 5, 10).fill({ color: 0x32cd32, alpha: 0.2 });
+      this.visual.circle(6, 5, 10).fill({ color: 0x32cd32, alpha: 0.2 });
+    }
+
+    this.addUpgradeStars();
+
+    // Little man with sludge launcher (rotates)
+    this.barrel.clear();
+    // Body - hazmat suit improves
+    let suitColor = 0x654321; // Brown clothes
+    if (this.upgradeLevel >= 3) {
+      suitColor = 0xffff00;
+    } // Yellow hazmat
+    if (this.upgradeLevel >= 5) {
+      suitColor = 0x32cd32;
+    } // Advanced hazmat
+    this.barrel.rect(-3, -13, 6, 8).fill(suitColor);
+    // Arms
+    const armColor = this.upgradeLevel >= 3 ? suitColor : 0xffdbac;
+    this.barrel.rect(-4, -11, 2, 4).fill(armColor);
+    this.barrel.rect(2, -11, 2, 4).fill(armColor);
+    // Sludge launcher - barrel style
+    const barrelSize = 4 + this.upgradeLevel * 0.4;
+    this.barrel.rect(-barrelSize / 2, -10, barrelSize, 10).fill(0x228b22);
+    this.barrel.rect(-barrelSize / 2 - 1, -11, barrelSize + 2, 2).fill(0x1a6b1a);
+    // Toxic drip
+    this.barrel.circle(0, 1, 1.5).fill({ color: 0x32cd32, alpha: 0.7 });
+    // Head
+    this.barrel.circle(0, -18, 5).fill(0xffdbac);
+    this.barrel.stroke({ width: 1, color: 0x000000 });
+    // Protective gear
+    if (this.upgradeLevel <= 2) {
+      // Gas mask
+      this.barrel.circle(0, -18, 4).fill(0x4a4a4a);
+      this.barrel.circle(-2, -19, 1.5).fill(0x1a1a1a);
+      this.barrel.circle(2, -19, 1.5).fill(0x1a1a1a);
+    } else if (this.upgradeLevel <= 4) {
+      // Full hazmat hood
+      this.barrel.circle(0, -18, 5).fill(0xffff00);
+      this.barrel.rect(-3, -19, 6, 3).fill({ color: 0x1a1a1a, alpha: 0.4 }); // Visor
+    } else {
+      // Advanced sealed helmet
+      this.barrel.circle(0, -18, 5).fill(0x32cd32);
+      this.barrel.rect(-3, -19, 6, 3).fill({ color: 0x00ff00, alpha: 0.5 }); // Glowing visor
+      this.barrel.circle(-3, -20, 1).fill(0x00ff00); // Indicator lights
+      this.barrel.circle(3, -20, 1).fill(0x00ff00);
+    }
+  }
+
   /**
    * Get the tower type
    * @returns The tower type
@@ -1148,6 +1284,9 @@ export class Tower extends GameObject implements ITower {
         break;
       case GameConfig.TOWER_TYPES.GRENADE:
         this.createGrenadeVisual();
+        break;
+      case GameConfig.TOWER_TYPES.SLUDGE:
+        this.createSludgeVisual();
         break;
       default:
         this.visual.circle(0, 0, 20).fill(0x0000ff);
@@ -1528,7 +1667,7 @@ export class Tower extends GameObject implements ITower {
     }
 
     // Clean up muzzle flashes
-    if ((this as any).muzzleFlashes) {
+    if ((this as unknown).muzzleFlashes) {
       for (const flash of (this as unknown).muzzleFlashes) {
         if (flash && !flash.destroyed && flash.parent) {
           flash.parent.removeChild(flash);

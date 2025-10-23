@@ -7,10 +7,10 @@ The Sludge Tower is a crowd control tower that flings barrels of radioactive slu
 
 ### Base Stats
 - **Damage**: 0 (pure crowd control)
-- **Fire Rate**: 1.2 seconds (modest to prevent overwhelming slow coverage)
-- **Range**: 3 tiles
+- **Fire Rate**: 0.83 shots/sec (~1.2 seconds between shots)
+- **Range**: 150 pixels (3 tiles @ 50px/tile)
 - **Projectile Speed**: Medium (slower than bullets, faster than grenades)
-- **Cost**: 150 money, 50 metal, 25 energy
+- **Cost**: $800 (mid-tier support tower)
 
 ### Sludge Pool Mechanics
 - **Duration**: 4 seconds
@@ -22,21 +22,31 @@ The Sludge Tower is a crowd control tower that flings barrels of radioactive slu
 ## Upgrade Path
 
 ### Level 1 → 2: "Sticky Sludge"
-- **Cost**: 100 money, 30 metal, 15 energy
+- **Cost**: $1,200 (800 × 2 × 0.75)
 - **Effect**: Slow increased to 40%
 - **Pool Duration**: 5 seconds
+- **Fire Rate**: 0.91 shots/sec
 
 ### Level 2 → 3: "Toxic Compound"
-- **Cost**: 150 money, 50 metal, 25 energy
+- **Cost**: $1,800 (800 × 3 × 0.75)
 - **Effect**: Slow increased to 50%
-- **Pool Radius**: 2 tiles
-- **Fire Rate**: 1.0 seconds
+- **Pool Radius**: 2 tiles (100px)
+- **Fire Rate**: 1.0 shots/sec
+- **Range**: 180px
 
 ### Level 3 → 4: "Hazardous Waste"
-- **Cost**: 200 money, 75 metal, 40 energy
+- **Cost**: $2,400 (800 × 4 × 0.75)
 - **Effect**: Slow increased to 60%
 - **Pool Duration**: 6 seconds
-- **Range**: 4 tiles
+- **Fire Rate**: 1.08 shots/sec
+- **Range**: 216px
+
+### Level 4 → 5: "Radioactive Compound"
+- **Cost**: $3,000 (800 × 5 × 0.75)
+- **Effect**: Slow increased to 70%
+- **Pool Duration**: 7 seconds
+- **Fire Rate**: 1.16 shots/sec
+- **Range**: 259px
 
 ## Balance Considerations
 

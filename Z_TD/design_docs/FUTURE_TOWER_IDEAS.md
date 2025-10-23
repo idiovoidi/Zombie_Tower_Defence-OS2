@@ -736,6 +736,38 @@ _This section reserved for player suggestions and community feedback_
 
 ---
 
+## Recently Implemented
+
+### ☢️ Sludge Tower (IMPLEMENTED)
+
+**Concept:** Radioactive sludge launcher that creates slowing pools
+
+**Status:** ✅ Fully implemented - See `design_docs/Towers/SludgeTower.md`
+
+**Mechanics:**
+
+- Flings barrels of toxic sludge in arc trajectory
+- Creates temporary pools that slow zombie movement
+- No direct damage (pure crowd control)
+- Upgrades increase slow percentage and pool duration
+
+**Stats:**
+
+- Cost: $800 (mid-tier support tower)
+- Damage: 0 (crowd control only)
+- Range: 150px (3 tiles)
+- Fire Rate: 0.83 shots/sec (~1.2s between shots)
+- Special: Area slow effect, stacking pools
+
+**Strategic Use:**
+
+- Excellent area denial and crowd control
+- Synergizes with high-damage towers
+- Place near chokepoints or path curves
+- Effective against fast zombie types
+
+---
+
 ## Status
 
 📝 **Document Status:** Brainstorming Phase  

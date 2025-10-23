@@ -74,6 +74,16 @@ export const TowerConstants = {
     specialAbility: 'Explosive area damage, arc trajectory',
     upgradeCostMultiplier: 0.75,
   } as TowerStats,
+
+  // Sludge Tower - Crowd control, creates slowing pools
+  SLUDGE: {
+    cost: 800,
+    damage: 0, // No direct damage
+    range: 150, // 3 tiles (50px per tile)
+    fireRate: 0.83, // ~1.2 seconds between shots
+    specialAbility: 'Creates toxic pools that slow zombies',
+    upgradeCostMultiplier: 0.75,
+  } as TowerStats,
 };
 
 /**
@@ -93,6 +103,8 @@ export function getTowerStats(type: string): TowerStats | undefined {
       return TowerConstants.TESLA;
     case 'Grenade':
       return TowerConstants.GRENADE;
+    case 'Sludge':
+      return TowerConstants.SLUDGE;
     default:
       return undefined;
   }

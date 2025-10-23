@@ -18,6 +18,7 @@ export class TowerManager {
     this.towerData.set(GameConfig.TOWER_TYPES.FLAME, TowerConstants.FLAME);
     this.towerData.set(GameConfig.TOWER_TYPES.TESLA, TowerConstants.TESLA);
     this.towerData.set(GameConfig.TOWER_TYPES.GRENADE, TowerConstants.GRENADE);
+    this.towerData.set(GameConfig.TOWER_TYPES.SLUDGE, TowerConstants.SLUDGE);
   }
 
   // Get tower stats by type

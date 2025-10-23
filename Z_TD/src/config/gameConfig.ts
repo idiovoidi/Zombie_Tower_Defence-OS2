@@ -39,6 +39,7 @@ export const GameConfig = {
     FLAME: 'Flame',
     TESLA: 'Tesla',
     GRENADE: 'Grenade',
+    SLUDGE: 'Sludge',
   },
 
   // Zombie types

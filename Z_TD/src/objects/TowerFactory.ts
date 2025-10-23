@@ -5,6 +5,7 @@ import { ShotgunTower } from './towers/ShotgunTower';
 import { FlameTower } from './towers/FlameTower';
 import { TeslaTower } from './towers/TeslaTower';
 import { GrenadeTower } from './towers/GrenadeTower';
+import { SludgeTower } from './towers/SludgeTower';
 import { GameConfig } from '../config/gameConfig';
 
 export class TowerFactory {
@@ -22,6 +23,8 @@ export class TowerFactory {
         return new TeslaTower(x, y);
       case GameConfig.TOWER_TYPES.GRENADE:
         return new GrenadeTower(x, y);
+      case GameConfig.TOWER_TYPES.SLUDGE:
+        return new SludgeTower(x, y);
       default:
         console.warn(`Unknown tower type: ${type}`);
         return null;

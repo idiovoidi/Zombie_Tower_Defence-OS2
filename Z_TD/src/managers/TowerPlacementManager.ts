@@ -100,6 +100,20 @@ export class TowerPlacementManager {
         graphics.circle(-7, 6, 2).fill(0x2f4f2f);
         graphics.circle(7, 6, 2).fill(0x2f4f2f);
         break;
+      case 'Sludge':
+        // Toxic barrel platform
+        graphics.rect(-18, -5, 36, 25).fill(0x4a5a3a);
+        graphics.rect(-18, -5, 36, 25).stroke({ width: 2, color: 0x3a4a2a });
+        // Toxic barrels
+        graphics.rect(-10, 0, 8, 12).fill(0x228b22);
+        graphics.rect(2, 0, 8, 12).fill(0x228b22);
+        // Toxic symbols with glow
+        graphics.circle(-6, 6, 3).fill({ color: 0x00ff00, alpha: 0.7 });
+        graphics.circle(6, 6, 3).fill({ color: 0x00ff00, alpha: 0.7 });
+        // Toxic glow effect
+        graphics.circle(-6, 6, 5).fill({ color: 0x32cd32, alpha: 0.3 });
+        graphics.circle(6, 6, 5).fill({ color: 0x32cd32, alpha: 0.3 });
+        break;
     }
   }
 

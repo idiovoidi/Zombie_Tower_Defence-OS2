@@ -13,9 +13,15 @@ src\managers\TowerCombatManager.ts as it also handles some tower animations mean
 
 src\managers\TowerPlacementManager.ts refactor so I can simplify imports for tower previews? (depends how many towers I add really)
 
-Shotgun uses a double barrel with two quick shots and a small delay for reload
+Some zombies should be immune to slows
+
 
 ---
 
 Implemented design plans
+
+
+
+Tower:
 Lower machine gun damage, weight upgrades towards fire rate
+Shotgun uses a double barrel with two quick shots and a small delay for reload

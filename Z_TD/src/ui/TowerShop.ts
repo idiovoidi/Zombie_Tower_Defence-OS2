@@ -462,6 +462,29 @@ export class TowerShop extends UIComponent {
         icon.rect(-5 * scale, -21 * scale, 10 * scale, 3 * scale).fill(0x6b8e23); // Helmet
         break;
       }
+
+      case GameConfig.TOWER_TYPES.SLUDGE: {
+        // Level 1 Sludge - Toxic barrel platform
+        const sludgeWidth = 18;
+        icon
+          .rect(-sludgeWidth * scale, -5 * scale, sludgeWidth * 2 * scale, 25 * scale)
+          .fill(0x4a5a3a);
+        icon.stroke({ width: 1, color: 0x3a4a2a });
+        // Toxic barrels
+        icon.rect(-10 * scale, 0 * scale, 8 * scale, 12 * scale).fill(0x228b22);
+        icon.rect(2 * scale, 0 * scale, 8 * scale, 12 * scale).fill(0x228b22);
+        // Toxic symbols
+        icon.circle(-6 * scale, 6 * scale, 2 * scale).fill({ color: 0x00ff00, alpha: 0.7 });
+        icon.circle(6 * scale, 6 * scale, 2 * scale).fill({ color: 0x00ff00, alpha: 0.7 });
+        // Little man with gas mask
+        icon.rect(-3 * scale, -13 * scale, 6 * scale, 8 * scale).fill(0x654321);
+        icon.rect(-4 * scale, -11 * scale, 2 * scale, 4 * scale).fill(0xffdbac);
+        icon.rect(2 * scale, -11 * scale, 2 * scale, 4 * scale).fill(0xffdbac);
+        icon.rect(-2 * scale, -10 * scale, 4 * scale, 10 * scale).fill(0x228b22);
+        icon.circle(0, -18 * scale, 5 * scale).fill(0xffdbac);
+        icon.circle(0, -18 * scale, 4 * scale).fill(0x4a4a4a); // Gas mask
+        break;
+      }
     }
 
     return icon;
@@ -481,6 +504,8 @@ export class TowerShop extends UIComponent {
         return 'Tesla';
       case GameConfig.TOWER_TYPES.GRENADE:
         return 'Grenade';
+      case GameConfig.TOWER_TYPES.SLUDGE:
+        return 'Sludge';
       default:
         return type;
     }
@@ -534,7 +559,7 @@ export class TowerShop extends UIComponent {
       if (button) {
         const frame = button.getChildAt(1) as Graphics;
         const led = (button as any).led as Graphics;
-        const bgGraphics = (button as any).bgGraphics as Graphics;
+        const bgGraphics = (button as unknown).bgGraphics as Graphics;
         frame.clear();
         frame.rect(0, 0, 184, 82).stroke({ width: 2, color: 0x3a3a3a });
         led.alpha = 0.5;
