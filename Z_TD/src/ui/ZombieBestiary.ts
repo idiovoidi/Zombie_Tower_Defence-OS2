@@ -162,8 +162,8 @@ export class ZombieBestiary extends UIComponent {
     this.contentContainer.position.set(20, 20);
 
     // Background panel - simple positioning from (0,0)
-    const panelWidth = 870;
-    const panelHeight = 620;
+    const panelWidth = 900;
+    const panelHeight = 580;
     const panelLeft = 0;
     const panelTop = 0;
 
@@ -202,12 +202,12 @@ export class ZombieBestiary extends UIComponent {
     subtitle.position.set(panelLeft + panelWidth / 2, panelTop + 47);
     this.contentContainer.addChild(subtitle);
 
-    // Create zombie cards
-    let xPos = panelLeft + 20;
-    let yPos = panelTop + 80;
-    const cardWidth = 270;
-    const cardHeight = 235;
-    const spacing = 15;
+    // Create zombie cards - adjusted for 7 cards (3 rows)
+    let xPos = panelLeft + 15;
+    let yPos = panelTop + 75;
+    const cardWidth = 280;
+    const cardHeight = 160;
+    const spacing = 12;
 
     this.zombieData.forEach((zombie, index) => {
       const card = this.createZombieCard(zombie, cardWidth, cardHeight);
@@ -254,11 +254,11 @@ export class ZombieBestiary extends UIComponent {
 
   private createZombieCard(zombie: ZombieInfo, width: number, height: number): Container {
     const card = new Container();
-    const padding = 10;
+    const padding = 8;
 
     // Card background
     const bg = new Graphics();
-    bg.roundRect(0, 0, width, height, 8).fill({ color: 0x2a2a2a, alpha: 0.95 });
+    bg.roundRect(0, 0, width, height, 6).fill({ color: 0x2a2a2a, alpha: 0.95 });
     bg.stroke({ width: 2, color: zombie.color });
     card.addChild(bg);
 
@@ -267,21 +267,22 @@ export class ZombieBestiary extends UIComponent {
       text: zombie.name,
       style: {
         fontFamily: 'Arial',
-        fontSize: 15,
+        fontSize: 12,
         fill: zombie.color,
         fontWeight: 'bold',
       },
     });
-    nameText.position.set(padding, 8);
+    nameText.position.set(padding, 5);
     card.addChild(nameText);
 
-    // Visual representation (simplified zombie model)
+    // Visual representation
     const visual = this.createZombieVisual(zombie.type, zombie.color);
-    visual.position.set(width / 2, 55);
+    visual.position.set(width / 2, 45);
+    visual.scale.set(1.0);
     card.addChild(visual);
 
     // Stats section
-    let statY = 105;
+    let statY = 80;
     const stats = [
       `❤️ HP: ${zombie.health}`,
       `⚡ Speed: ${zombie.speed}`,
@@ -300,7 +301,7 @@ export class ZombieBestiary extends UIComponent {
       });
       statText.position.set(padding, statY);
       card.addChild(statText);
-      statY += 16;
+      statY += 13;
     });
 
     // Description
@@ -319,7 +320,7 @@ export class ZombieBestiary extends UIComponent {
     card.addChild(descText);
 
     // Characteristics
-    const charY = statY + 28;
+    const charY = statY + 20;
     zombie.characteristics.forEach((char, index) => {
       const charText = new Text({
         text: `• ${char}`,
@@ -331,7 +332,7 @@ export class ZombieBestiary extends UIComponent {
           wordWrapWidth: width - padding * 2,
         },
       });
-      charText.position.set(padding, charY + index * 13);
+      charText.position.set(padding, charY + index * 10);
       card.addChild(charText);
     });
 
@@ -358,7 +359,7 @@ export class ZombieBestiary extends UIComponent {
     spawnText.position.set((width - padding * 2) / 2, 12.5);
     spawnButton.addChild(spawnText);
 
-    spawnButton.position.set(padding, height - 30);
+    spawnButton.position.set(padding, height - 28);
     spawnButton.on('pointerdown', () => {
       if (this.onSpawnZombie) {
         this.onSpawnZombie(zombie.type);

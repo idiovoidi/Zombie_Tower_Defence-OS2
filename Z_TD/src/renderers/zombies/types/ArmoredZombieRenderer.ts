@@ -179,20 +179,6 @@ export class ArmoredZombieRenderer implements IZombieRenderer {
   update(deltaTime: number, state: ZombieRenderState): void {
     this.animator.update(deltaTime, state);
     this.particles.update(deltaTime);
-
-    const healthPercent = state.health / state.maxHealth;
-
-    // Blood seeping through armor when damaged
-    if (healthPercent < 0.6 && Math.random() < 0.02) {
-      this.particles.emit(ParticleType.BLOOD_DRIP, 0, 5, {
-        count: 1,
-        velocity: 12,
-        lifetime: 1000,
-        size: 1.5,
-      });
-    }
-
-    // Metal clanking sound effect could trigger here
   }
 
   private drawArm(x: number, y: number, angle: number, alpha: number): void {

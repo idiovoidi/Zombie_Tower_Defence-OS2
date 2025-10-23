@@ -117,28 +117,6 @@ export class FastZombieRenderer implements IZombieRenderer {
   update(deltaTime: number, state: ZombieRenderState): void {
     this.animator.update(deltaTime, state);
     this.particles.update(deltaTime);
-
-    const healthPercent = state.health / state.maxHealth;
-
-    // Emit drip particles when damaged
-    if (healthPercent < 0.7 && Math.random() < 0.03) {
-      this.particles.emit(ParticleType.BLOOD_DRIP, 0, 5, {
-        count: 1,
-        velocity: 15,
-        lifetime: 1000,
-        size: 1.5,
-      });
-    }
-
-    // Motion blur effect when moving fast (dust particles)
-    if (state.isMoving && Math.random() < 0.05) {
-      this.particles.emit(ParticleType.SMOKE, -3, 12, {
-        count: 1,
-        velocity: 5,
-        lifetime: 400,
-        size: 2,
-      });
-    }
   }
 
   private drawArm(x: number, y: number, angle: number, alpha: number): void {

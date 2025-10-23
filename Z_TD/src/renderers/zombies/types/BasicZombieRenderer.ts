@@ -116,18 +116,6 @@ export class BasicZombieRenderer implements IZombieRenderer {
   update(deltaTime: number, state: ZombieRenderState): void {
     this.animator.update(deltaTime, state);
     this.particles.update(deltaTime);
-
-    const healthPercent = state.health / state.maxHealth;
-
-    // Emit drip particles occasionally when damaged
-    if (healthPercent < 0.7 && Math.random() < 0.03) {
-      this.particles.emit(ParticleType.BLOOD_DRIP, 0, 5, {
-        count: 1,
-        velocity: 15,
-        lifetime: 1000,
-        size: 1.5,
-      });
-    }
   }
 
   private drawArm(x: number, y: number, angle: number, alpha: number): void {

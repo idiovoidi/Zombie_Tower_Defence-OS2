@@ -123,28 +123,6 @@ export class SwarmZombieRenderer implements IZombieRenderer {
   update(deltaTime: number, state: ZombieRenderState): void {
     this.animator.update(deltaTime, state);
     this.particles.update(deltaTime);
-
-    const healthPercent = state.health / state.maxHealth;
-
-    // Small blood drips when damaged
-    if (healthPercent < 0.7 && Math.random() < 0.02) {
-      this.particles.emit(ParticleType.BLOOD_DRIP, 0, 4, {
-        count: 1,
-        velocity: 10,
-        lifetime: 800,
-        size: 1,
-      });
-    }
-
-    // Scurrying dust particles
-    if (state.isMoving && Math.random() < 0.06) {
-      this.particles.emit(ParticleType.SMOKE, 0, 9, {
-        count: 1,
-        velocity: 5,
-        lifetime: 400,
-        size: 1.5,
-      });
-    }
   }
 
   private drawArm(x: number, y: number, angle: number, alpha: number): void {

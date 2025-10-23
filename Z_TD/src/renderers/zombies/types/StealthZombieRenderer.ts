@@ -149,28 +149,6 @@ export class StealthZombieRenderer implements IZombieRenderer {
 
     // Update fade phase for pulsing effect
     this.fadePhase += deltaTime * 0.002;
-
-    const healthPercent = state.health / state.maxHealth;
-
-    // Minimal blood (mostly shadowy)
-    if (healthPercent < 0.6 && Math.random() < 0.015) {
-      this.particles.emit(ParticleType.BLOOD_DRIP, 0, 5, {
-        count: 1,
-        velocity: 12,
-        lifetime: 800,
-        size: 1.2,
-      });
-    }
-
-    // Shadow wisps when moving
-    if (state.isMoving && Math.random() < 0.08) {
-      this.particles.emit(ParticleType.SMOKE, 0, 8, {
-        count: 1,
-        velocity: 8,
-        lifetime: 800,
-        size: 2.5,
-      });
-    }
   }
 
   private drawArm(x: number, y: number, angle: number, alpha: number): void {

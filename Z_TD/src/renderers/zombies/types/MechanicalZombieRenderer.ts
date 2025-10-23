@@ -168,30 +168,7 @@ export class MechanicalZombieRenderer implements IZombieRenderer {
   update(deltaTime: number, state: ZombieRenderState): void {
     this.animator.update(deltaTime, state);
     this.particles.update(deltaTime);
-
-    const healthPercent = state.health / state.maxHealth;
     this.sparkTimer += deltaTime;
-
-    // Oil leaks when damaged
-    if (healthPercent < 0.6 && Math.random() < 0.03) {
-      this.particles.emit(ParticleType.SMOKE, 0, 6, {
-        count: 1,
-        velocity: 8,
-        lifetime: 1000,
-        size: 1.5,
-      });
-    }
-
-    // Electrical sparks when heavily damaged
-    if (healthPercent < 0.4 && this.sparkTimer > 500 && Math.random() < 0.1) {
-      this.particles.emit(ParticleType.SPARKS, 0, 3, {
-        count: 2,
-        velocity: 25,
-        lifetime: 400,
-        size: 1.2,
-      });
-      this.sparkTimer = 0;
-    }
   }
 
   private drawArm(x: number, y: number, angle: number, alpha: number): void {

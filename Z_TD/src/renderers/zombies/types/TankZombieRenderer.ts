@@ -137,28 +137,6 @@ export class TankZombieRenderer implements IZombieRenderer {
   update(deltaTime: number, state: ZombieRenderState): void {
     this.animator.update(deltaTime, state);
     this.particles.update(deltaTime);
-
-    const healthPercent = state.health / state.maxHealth;
-
-    // Heavy bleeding when damaged
-    if (healthPercent < 0.7 && Math.random() < 0.05) {
-      this.particles.emit(ParticleType.BLOOD_DRIP, 0, 8, {
-        count: 1,
-        velocity: 20,
-        lifetime: 1200,
-        size: 2,
-      });
-    }
-
-    // Ground shake effect when moving (dust)
-    if (state.isMoving && Math.random() < 0.08) {
-      this.particles.emit(ParticleType.SMOKE, 0, 15, {
-        count: 1,
-        velocity: 8,
-        lifetime: 600,
-        size: 3,
-      });
-    }
   }
 
   private drawArm(x: number, y: number, angle: number, alpha: number): void {
