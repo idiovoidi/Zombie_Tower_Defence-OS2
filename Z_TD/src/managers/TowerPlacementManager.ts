@@ -3,6 +3,7 @@ import { Tower } from '../objects/Tower';
 import { TowerFactory } from '../objects/TowerFactory';
 import { TowerManager } from './TowerManager';
 import { MapManager } from './MapManager';
+import type { TransformComponent } from '../components/TransformComponent';
 
 export class TowerPlacementManager {
   private container: Container;
@@ -153,9 +154,9 @@ export class TowerPlacementManager {
 
     // Check if too close to other towers
     for (const tower of this.placedTowers) {
-      const transform = tower.getComponent('Transform');
+      const transform = tower.getComponent<TransformComponent>('Transform');
       if (transform) {
-        const pos = (transform as any).position;
+        const pos = transform.position;
         const distance = Math.sqrt(Math.pow(x - pos.x, 2) + Math.pow(y - pos.y, 2));
         if (distance < 60) {
           return false;

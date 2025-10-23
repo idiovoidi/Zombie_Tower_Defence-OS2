@@ -5,6 +5,8 @@ import { WaveManager } from './WaveManager';
 import { MapManager } from './MapManager';
 import { BloodParticleSystem } from '../utils/BloodParticleSystem';
 import { CorpseManager } from './CorpseManager';
+import type { HealthComponent } from '../components/HealthComponent';
+import type { HasWaypoints } from '../types/zombie-waypoints';
 
 export class ZombieManager {
   private zombies: Zombie[] = [];
@@ -102,8 +104,8 @@ export class ZombieManager {
       zombie.update(deltaTime);
 
       // Remove dead zombies
-      const healthComponent = zombie.getComponent('Health');
-      if (healthComponent && !(healthComponent as any).isAlive()) {
+      const healthComponent = zombie.getComponent<HealthComponent>('Health');
+      if (healthComponent && !healthComponent.isAlive()) {
         this.removeZombie(i);
       }
     }
@@ -145,7 +147,7 @@ export class ZombieManager {
     if (zombie) {
       // Set waypoints for zombie path
       if (waypoints.length > 0) {
-        (zombie as any).waypoints = waypoints;
+        (zombie as HasWaypoints).waypoints = waypoints;
         console.log(`Zombie waypoints set: ${waypoints.length} waypoints`);
       }
 

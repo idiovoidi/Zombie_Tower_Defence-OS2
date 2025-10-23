@@ -7,8 +7,9 @@ import { GameConfig } from '../config/gameConfig';
 import { TowerRangeVisualizer } from '../utils/TowerRangeVisualizer';
 import { TowerManager } from '../managers/TowerManager';
 import { BarrelHeatGlow } from '../effects/BarrelHeatGlow';
+import type { MuzzleFlash, ShellCasing, TowerEffects } from '../types/tower-internal';
 
-export class Tower extends GameObject implements ITower {
+export class Tower extends GameObject implements ITower, TowerEffects {
   private type: string;
   private damage: number = 0;
   private range: number = 0;
@@ -34,8 +35,14 @@ export class Tower extends GameObject implements ITower {
   private effectManager: Container | null = null; // Reference to effect manager container
 
   // Sniper effects
-  private laserSight: any | null = null; // LaserSight instance
+  private laserSight: { destroy(): void; destroyed: boolean } | null = null; // LaserSight instance
   private currentTarget: { x: number; y: number } | null = null;
+
+  // Dynamic effect properties (from TowerEffects interface)
+  public selectionHighlight?: Graphics;
+  public pulseInterval?: NodeJS.Timeout;
+  public shellCasings?: ShellCasing[];
+  public muzzleFlashes?: MuzzleFlash[];
 
   constructor(type: string, x: number, y: number) {
     super();
@@ -1390,7 +1397,7 @@ export class Tower extends GameObject implements ITower {
     this.addChildAt(highlight, 0);
 
     // Store reference to remove later
-    (this as any).selectionHighlight = highlight;
+    this.selectionHighlight = highlight;
 
     // Pulsing animation effect
     let scale = 1;
@@ -1398,9 +1405,9 @@ export class Tower extends GameObject implements ITower {
     const pulse = () => {
       // Check if highlight still exists before animating
       if (!highlight || highlight.destroyed) {
-        if ((this as any).pulseInterval) {
-          clearInterval((this as any).pulseInterval);
-          delete (this as any).pulseInterval;
+        if (this.pulseInterval) {
+          clearInterval(this.pulseInterval);
+          delete this.pulseInterval;
         }
         return;
       }
@@ -1420,25 +1427,25 @@ export class Tower extends GameObject implements ITower {
     };
 
     // Store interval ID to clear later
-    (this as any).pulseInterval = setInterval(pulse, 50);
+    this.pulseInterval = setInterval(pulse, 50);
   }
 
   // Hide selection visual effects
   public hideSelectionEffect(): void {
     // Clear pulse animation first
-    if ((this as any).pulseInterval) {
-      clearInterval((this as any).pulseInterval);
-      delete (this as any).pulseInterval;
+    if (this.pulseInterval) {
+      clearInterval(this.pulseInterval);
+      delete this.pulseInterval;
     }
 
     // Remove highlight if it exists
-    if ((this as any).selectionHighlight) {
-      const highlight = (this as unknown).selectionHighlight;
+    if (this.selectionHighlight) {
+      const highlight = this.selectionHighlight;
       if (highlight && !highlight.destroyed && highlight.parent) {
         this.removeChild(highlight);
         highlight.destroy();
       }
-      delete (this as unknown).selectionHighlight;
+      delete this.selectionHighlight;
     }
   }
 
@@ -1474,10 +1481,10 @@ export class Tower extends GameObject implements ITower {
         this.effectManager.addChild(casing);
 
         // Store reference for cleanup
-        if (!(this as any).shellCasings) {
-          (this as any).shellCasings = [];
+        if (!this.shellCasings) {
+          this.shellCasings = [];
         }
-        (this as any).shellCasings.push(casing);
+        this.shellCasings.push(casing);
       })
       .catch(() => {
         // Silently fail if import fails
@@ -1506,10 +1513,10 @@ export class Tower extends GameObject implements ITower {
         this.effectManager.addChild(flash);
 
         // Store reference for cleanup
-        if (!(this as any).muzzleFlashes) {
-          (this as any).muzzleFlashes = [];
+        if (!this.muzzleFlashes) {
+          this.muzzleFlashes = [];
         }
-        (this as any).muzzleFlashes.push(flash);
+        this.muzzleFlashes.push(flash);
       })
       .catch(() => {
         // Silently fail if import fails
@@ -1658,25 +1665,25 @@ export class Tower extends GameObject implements ITower {
     }
 
     // Clean up shell casings
-    if ((this as any).shellCasings) {
-      for (const casing of (this as any).shellCasings) {
+    if (this.shellCasings) {
+      for (const casing of this.shellCasings) {
         if (casing && !casing.destroyed && casing.parent) {
           casing.parent.removeChild(casing);
           casing.destroy();
         }
       }
-      delete (this as any).shellCasings;
+      delete this.shellCasings;
     }
 
     // Clean up muzzle flashes
-    if ((this as unknown).muzzleFlashes) {
-      for (const flash of (this as unknown).muzzleFlashes) {
+    if (this.muzzleFlashes) {
+      for (const flash of this.muzzleFlashes) {
         if (flash && !flash.destroyed && flash.parent) {
           flash.parent.removeChild(flash);
           flash.destroy();
         }
       }
-      delete (this as unknown).muzzleFlashes;
+      delete this.muzzleFlashes;
     }
 
     super.destroy();

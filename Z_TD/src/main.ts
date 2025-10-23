@@ -554,7 +554,7 @@ import { VisualEffects } from './utils/VisualEffects';
   DebugUtils.info('Game initialized successfully');
 
   // Expose LogExporter to console for easy access
-  (window as any).LogExporter = LogExporter;
+  window.LogExporter = LogExporter;
 
   // Check if we're in production (GitHub Pages) and warn about server features
   if (process.env.NODE_ENV === 'production') {
@@ -572,7 +572,7 @@ import { VisualEffects } from './utils/VisualEffects';
   console.log('  LogExporter.clearAllLogs() - Clear all stored logs');
 
   // Expose balance tracking controls to console
-  (window as unknown).balanceTracking = {
+  window.balanceTracking = {
     enable: () => gameManager.enableBalanceTracking(),
     disable: () => gameManager.disableBalanceTracking(),
     isEnabled: () => gameManager.isBalanceTrackingEnabled(),
@@ -589,10 +589,10 @@ import { VisualEffects } from './utils/VisualEffects';
 
   // Expose wave balancing tools to console for testing
   if (DevConfig.DEBUG.ENABLED) {
-    (window as unknown).waveBalance = async () => {
+    window.waveBalance = async () => {
       const { WaveBalancing, printWaveBalance } = await import('./config/waveBalancing');
-      (window as unknown).WaveBalancing = WaveBalancing;
-      (window as unknown).printWaveBalance = printWaveBalance;
+      window.WaveBalancing = WaveBalancing;
+      window.printWaveBalance = printWaveBalance;
       console.log('Wave balancing tools loaded!');
       console.log('Usage:');
       console.log('  printWaveBalance(1, 10) - Print balance report for waves 1-10');
@@ -605,15 +605,12 @@ import { VisualEffects } from './utils/VisualEffects';
   }
 
   // Expose performance testing tools to console
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  (window as any).performanceTest = async () => {
+  window.performanceTest = async () => {
     const { runBalancePerformanceTests, runFrameRateTest } = await import(
       './utils/BalanceAnalysisPerformanceTest'
     );
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    (window as any).runBalancePerformanceTests = runBalancePerformanceTests;
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    (window as any).runFrameRateTest = runFrameRateTest;
+    window.runBalancePerformanceTests = runBalancePerformanceTests;
+    window.runFrameRateTest = runFrameRateTest;
     console.log('🔬 Performance testing tools loaded!');
     console.log('Usage:');
     console.log('  runBalancePerformanceTests() - Run all performance tests');
