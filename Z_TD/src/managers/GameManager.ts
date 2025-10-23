@@ -19,6 +19,7 @@ import { DevConfig } from '../config/devConfig';
 import { DebugConstants } from '../config/debugConstants';
 import { type GameLogEntry, LogExporter } from '../utils/LogExporter';
 import { StatTracker } from '../utils/StatTracker';
+import { EffectCleanupManager } from '../utils/EffectCleanupManager';
 
 export class GameManager {
   private app: Application;
@@ -152,6 +153,9 @@ export class GameManager {
     if (this.levelManager.loadLevel(levelId)) {
       const level = this.levelManager.getCurrentLevel();
       if (level) {
+        // Clear any orphaned effect intervals from previous game
+        EffectCleanupManager.clearAll();
+
         // Generate new session ID for this game
         LogExporter.newSession();
 

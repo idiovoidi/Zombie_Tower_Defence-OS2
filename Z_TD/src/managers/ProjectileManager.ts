@@ -1,6 +1,7 @@
 import { Container } from 'pixi.js';
 import { Projectile } from '../objects/Projectile';
 import { Zombie } from '../objects/Zombie';
+import { EffectCleanupManager } from '../utils/EffectCleanupManager';
 
 export class ProjectileManager {
   private projectiles: Projectile[] = [];
@@ -57,6 +58,9 @@ export class ProjectileManager {
   }
 
   public clear(): void {
+    // Clear all projectile effect intervals (explosions, fire pools, sludge pools)
+    EffectCleanupManager.clearAll();
+
     for (const projectile of this.projectiles) {
       this.container.removeChild(projectile);
       projectile.destroy();

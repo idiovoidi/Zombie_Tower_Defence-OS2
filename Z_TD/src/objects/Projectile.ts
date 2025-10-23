@@ -1,5 +1,6 @@
 import { Container, Graphics } from 'pixi.js';
 import { Zombie } from './Zombie';
+import { EffectCleanupManager } from '../utils/EffectCleanupManager';
 
 export class Projectile extends Container {
   private visual: Graphics;
@@ -372,23 +373,25 @@ export class Projectile extends Container {
       const initialScale = 0.5;
       explosion.scale.set(initialScale);
 
-      const animateInterval = setInterval(() => {
-        elapsed += 16;
-        const progress = elapsed / duration;
+      const animateInterval = EffectCleanupManager.registerInterval(
+        setInterval(() => {
+          elapsed += 16;
+          const progress = elapsed / duration;
 
-        if (progress >= 1) {
-          clearInterval(animateInterval);
-          if (explosion.parent) {
-            explosion.parent.removeChild(explosion);
+          if (progress >= 1) {
+            EffectCleanupManager.clearInterval(animateInterval);
+            if (explosion.parent) {
+              explosion.parent.removeChild(explosion);
+            }
+            explosion.destroy();
+          } else {
+            // Expand and fade out
+            const scale = initialScale + (1.5 - initialScale) * progress;
+            explosion.scale.set(scale);
+            explosion.alpha = 1 - progress;
           }
-          explosion.destroy();
-        } else {
-          // Expand and fade out
-          const scale = initialScale + (1.5 - initialScale) * progress;
-          explosion.scale.set(scale);
-          explosion.alpha = 1 - progress;
-        }
-      }, 16);
+        }, 16)
+      );
     }
 
     // Destroy the projectile immediately
@@ -447,21 +450,23 @@ export class Projectile extends Container {
       // Animate fire pool fading out
       let elapsed = 0;
       const duration = 2000; // Fire lasts 2 seconds
-      const fadeInterval = setInterval(() => {
-        elapsed += 50;
-        const progress = elapsed / duration;
+      const fadeInterval = EffectCleanupManager.registerInterval(
+        setInterval(() => {
+          elapsed += 50;
+          const progress = elapsed / duration;
 
-        if (progress >= 1) {
-          clearInterval(fadeInterval);
-          if (firePool.parent) {
-            firePool.parent.removeChild(firePool);
+          if (progress >= 1) {
+            EffectCleanupManager.clearInterval(fadeInterval);
+            if (firePool.parent) {
+              firePool.parent.removeChild(firePool);
+            }
+            firePool.destroy();
+          } else {
+            // Fade out
+            firePool.alpha = 1 - progress;
           }
-          firePool.destroy();
-        } else {
-          // Fade out
-          firePool.alpha = 1 - progress;
-        }
-      }, 50);
+        }, 50)
+      );
     }
 
     // Destroy the projectile immediately
@@ -530,59 +535,63 @@ export class Projectile extends Container {
       };
 
       // Apply slow effect to zombies in pool
-      const slowInterval = setInterval(() => {
-        for (const zombie of this.zombies) {
-          if (!zombie.parent) {
-            continue;
-          }
-
-          const dx = zombie.position.x - poolData.x;
-          const dy = zombie.position.y - poolData.y;
-          const distance = Math.sqrt(dx * dx + dy * dy);
-
-          if (distance <= poolData.radius) {
-            // Zombie is in pool - apply slow (won't stack if already slowed by stronger effect)
-            if (!poolData.affectedZombies.has(zombie)) {
-              poolData.affectedZombies.add(zombie);
+      const slowInterval = EffectCleanupManager.registerInterval(
+        setInterval(() => {
+          for (const zombie of this.zombies) {
+            if (!zombie.parent) {
+              continue;
             }
-            zombie.applySlow(poolData.slowPercent);
-          } else {
-            // Zombie left pool - only remove slow if this pool was affecting it
-            if (poolData.affectedZombies.has(zombie)) {
-              poolData.affectedZombies.delete(zombie);
-              // Remove the slow - if they're in another pool, it will reapply on next check
-              zombie.removeSlow();
+
+            const dx = zombie.position.x - poolData.x;
+            const dy = zombie.position.y - poolData.y;
+            const distance = Math.sqrt(dx * dx + dy * dy);
+
+            if (distance <= poolData.radius) {
+              // Zombie is in pool - apply slow (won't stack if already slowed by stronger effect)
+              if (!poolData.affectedZombies.has(zombie)) {
+                poolData.affectedZombies.add(zombie);
+              }
+              zombie.applySlow(poolData.slowPercent);
+            } else {
+              // Zombie left pool - only remove slow if this pool was affecting it
+              if (poolData.affectedZombies.has(zombie)) {
+                poolData.affectedZombies.delete(zombie);
+                // Remove the slow - if they're in another pool, it will reapply on next check
+                zombie.removeSlow();
+              }
             }
           }
-        }
-      }, 100); // Check every 100ms
+        }, 100) // Check every 100ms
+      );
 
       // Animate sludge pool fading out
       let elapsed = 0;
-      const fadeInterval = setInterval(() => {
-        elapsed += 50;
-        const progress = elapsed / poolDuration;
+      const fadeInterval = EffectCleanupManager.registerInterval(
+        setInterval(() => {
+          elapsed += 50;
+          const progress = elapsed / poolDuration;
 
-        if (progress >= 1) {
-          clearInterval(fadeInterval);
-          clearInterval(slowInterval);
+          if (progress >= 1) {
+            EffectCleanupManager.clearInterval(fadeInterval);
+            EffectCleanupManager.clearInterval(slowInterval);
 
-          // Remove slow from all affected zombies
-          for (const zombie of poolData.affectedZombies) {
-            if (zombie.parent) {
-              zombie.removeSlow();
+            // Remove slow from all affected zombies
+            for (const zombie of poolData.affectedZombies) {
+              if (zombie.parent) {
+                zombie.removeSlow();
+              }
             }
-          }
 
-          if (sludgePool.parent) {
-            sludgePool.parent.removeChild(sludgePool);
+            if (sludgePool.parent) {
+              sludgePool.parent.removeChild(sludgePool);
+            }
+            sludgePool.destroy();
+          } else {
+            // Fade out gradually
+            sludgePool.alpha = 1 - progress * 0.5; // Fade to 50% then disappear
           }
-          sludgePool.destroy();
-        } else {
-          // Fade out gradually
-          sludgePool.alpha = 1 - progress * 0.5; // Fade to 50% then disappear
-        }
-      }, 50);
+        }, 50)
+      );
     }
 
     // Destroy the projectile immediately

@@ -3,6 +3,7 @@ import { Zombie } from '../objects/Zombie';
 import { ProjectileManager } from './ProjectileManager';
 import { Graphics } from 'pixi.js';
 import { SpatialGrid } from '../utils/SpatialGrid';
+import { EffectCleanupManager } from '../utils/EffectCleanupManager';
 
 export class TowerCombatManager {
   private towers: Tower[] = [];
@@ -704,20 +705,22 @@ export class TowerCombatManager {
     // Animate particles fading out (no scaling to prevent flying away)
     let elapsed = 0;
     const duration = isPrimary ? 250 : 180;
-    const fadeInterval = setInterval(() => {
-      elapsed += 16; // ~60fps
-      const progress = elapsed / duration;
+    const fadeInterval = EffectCleanupManager.registerInterval(
+      setInterval(() => {
+        elapsed += 16; // ~60fps
+        const progress = elapsed / duration;
 
-      if (progress >= 1) {
-        clearInterval(fadeInterval);
-        if (particleContainer.parent) {
-          particleContainer.parent.removeChild(particleContainer);
+        if (progress >= 1) {
+          EffectCleanupManager.clearInterval(fadeInterval);
+          if (particleContainer.parent) {
+            particleContainer.parent.removeChild(particleContainer);
+          }
+          particleContainer.destroy();
+        } else {
+          // Just fade out, no scaling
+          particleContainer.alpha = 1 - progress;
         }
-        particleContainer.destroy();
-      } else {
-        // Just fade out, no scaling
-        particleContainer.alpha = 1 - progress;
-      }
-    }, 16);
+      }, 16)
+    );
   }
 }
