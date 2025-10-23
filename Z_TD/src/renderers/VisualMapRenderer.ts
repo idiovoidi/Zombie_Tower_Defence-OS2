@@ -1688,39 +1688,37 @@ export class VisualMapRenderer {
     drawCrate(campX - 56, campY - 32);
     drawCrate(campX - 40, campY - 48);
 
-    // === WATCHTOWER ===
+    // === WATCHTOWER (LEFT SIDE - facing zombie spawn) ===
     // Tower legs
-    this.pathGraphics.rect(campX + 42, campY - 35, 4, 45).fill(0x654321);
-    this.pathGraphics.rect(campX + 56, campY - 35, 4, 45).fill(0x654321);
+    this.pathGraphics.rect(campX - 60, campY - 35, 4, 45).fill(0x654321);
+    this.pathGraphics.rect(campX - 46, campY - 35, 4, 45).fill(0x654321);
 
     // Cross braces
     this.pathGraphics
-      .moveTo(campX + 44, campY - 30)
-      .lineTo(campX + 58, campY - 20)
+      .moveTo(campX - 58, campY - 30)
+      .lineTo(campX - 48, campY - 20)
       .stroke({ width: 2, color: 0x654321 });
     this.pathGraphics
-      .moveTo(campX + 58, campY - 30)
-      .lineTo(campX + 44, campY - 20)
+      .moveTo(campX - 48, campY - 30)
+      .lineTo(campX - 58, campY - 20)
       .stroke({ width: 2, color: 0x654321 });
 
     // Platform
-    this.pathGraphics.rect(campX + 38, campY - 40, 26, 8).fill(0x8b7355);
+    this.pathGraphics.rect(campX - 64, campY - 40, 26, 8).fill(0x8b7355);
     this.pathGraphics.stroke({ width: 2, color: 0x654321 });
 
     // Railing
-    this.pathGraphics.rect(campX + 38, campY - 42, 26, 2).fill(0x654321);
+    this.pathGraphics.rect(campX - 64, campY - 42, 26, 2).fill(0x654321);
 
-    // Guard
-    this.pathGraphics.circle(campX + 51, campY - 38, 4).fill(0xffdbac);
-    this.pathGraphics.rect(campX + 48, campY - 34, 6, 8).fill(0x654321);
-    this.pathGraphics.rect(campX + 51, campY - 43, 1, 7).fill(0x4a4a4a); // Rifle
+    // Guard (static - will be animated separately)
+    // Note: Guard animation is in campAnimationContainer
 
     // Radio antenna
     this.pathGraphics
-      .moveTo(campX + 60, campY - 40)
-      .lineTo(campX + 60, campY - 58)
+      .moveTo(campX - 66, campY - 40)
+      .lineTo(campX - 66, campY - 58)
       .stroke({ width: 2, color: 0x4a4a4a });
-    this.pathGraphics.circle(campX + 60, campY - 58, 2).fill(0xff0000);
+    this.pathGraphics.circle(campX - 66, campY - 58, 2).fill(0xff0000);
 
     // === CAMPFIRE (STATIC ELEMENTS - PROPER PERSPECTIVE) ===
     // Stone ring (elliptical for top-down perspective)
@@ -1969,31 +1967,53 @@ export class VisualMapRenderer {
       .ellipse(campX, campY + 27, 2, 1)
       .fill({ color: 0xffffaa, alpha: 1 });
 
-    // === ANIMATED SURVIVORS ===
+    // === ANIMATED SURVIVORS (5 total) ===
     // Animation values
     const breathe = Math.sin(this.campAnimationTime * 2) * 0.3;
+    const breathe2 = Math.sin(this.campAnimationTime * 2.3 + 1) * 0.3; // Offset breathing
     const sway = Math.sin(this.campAnimationTime * 1.5) * 0.5;
     const headTurn = Math.sin(this.campAnimationTime * 0.8) * 1;
+    const headTurn2 = Math.sin(this.campAnimationTime * 0.9 + 2) * 1; // Different timing
 
-    // Survivor 1 - sitting by fire (breathing animation)
+    // Survivor 1 - Watchtower guard (scanning, breathing)
+    this.campAnimationContainer
+      .circle(campX - 51 + headTurn2 * 0.5, campY - 38 + breathe * 0.1, 4)
+      .fill(0xffdbac);
+    this.campAnimationContainer
+      .rect(campX - 54 + headTurn2 * 0.5, campY - 34 + breathe * 0.1, 6, 8)
+      .fill(0x654321);
+    // Rifle
+    this.campAnimationContainer
+      .rect(campX - 51 + headTurn2 * 0.5, campY - 43 + breathe * 0.1, 1, 7)
+      .fill(0x4a4a4a);
+
+    // Survivor 2 - sitting by fire (breathing, slight sway)
     this.campAnimationContainer.circle(campX - 18, campY + 36 + breathe * 0.2, 4).fill(0xffdbac);
     this.campAnimationContainer.rect(campX - 21, campY + 40, 6, 6 + breathe * 0.5).fill(0x4169e1);
 
-    // Survivor 2 - standing with weapon (swaying, head turning)
+    // Survivor 3 - standing guard with weapon (swaying, head turning)
     this.campAnimationContainer
       .circle(campX + 25 + headTurn, campY + 20 + sway * 0.3, 4)
       .fill(0xffdbac);
     this.campAnimationContainer.rect(campX + 22 + sway * 0.5, campY + 24, 6, 8).fill(0x654321);
     this.campAnimationContainer.rect(campX + 25 + sway * 0.5, campY + 18, 1, 6).fill(0x2a2a2a);
 
-    // Survivor 3 - working on crate (bobbing up and down) - adjusted position
+    // Survivor 4 - working on crate (bobbing up and down)
     const workBob = Math.abs(Math.sin(this.campAnimationTime * 3)) * 2;
     this.campAnimationContainer.circle(campX - 50, campY - 36 - workBob, 4).fill(0xffdbac);
     this.campAnimationContainer.rect(campX - 53, campY - 32 - workBob, 6, 8).fill(0x4a4a4a);
 
-    // Survivor 4 - near medical tent (subtle breathing) - adjusted position
-    this.campAnimationContainer.circle(campX - 32, campY - 26 + breathe * 0.15, 4).fill(0xffdbac);
-    this.campAnimationContainer.rect(campX - 35, campY - 22 + breathe * 0.15, 6, 8).fill(0xf5f5dc);
+    // Survivor 5 - medic near medical tent (breathing, slight head turn)
+    this.campAnimationContainer
+      .circle(campX - 32 + headTurn * 0.3, campY - 26 + breathe2 * 0.15, 4)
+      .fill(0xffdbac);
+    this.campAnimationContainer
+      .rect(campX - 35 + headTurn * 0.3, campY - 22 + breathe2 * 0.15, 6, 8)
+      .fill(0xf5f5dc);
+    // Red cross armband
+    this.campAnimationContainer
+      .rect(campX - 34 + headTurn * 0.3, campY - 20 + breathe2 * 0.15, 4, 2)
+      .fill(0xcc0000);
   }
 
   public addCorpse(x: number, y: number, type: string): void {
