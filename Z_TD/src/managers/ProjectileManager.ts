@@ -7,6 +7,7 @@ export class ProjectileManager {
   private projectiles: Projectile[] = [];
   private container: Container;
   private zombies: Zombie[] = [];
+  private projectilesDirty: boolean = false; // Track when projectile array changes
 
   constructor(container: Container) {
     this.container = container;
@@ -38,6 +39,7 @@ export class ProjectileManager {
     );
     projectile.setZombies(this.zombies); // Pass zombie list for collision detection
     this.projectiles.push(projectile);
+    this.projectilesDirty = true; // Mark projectiles as changed
     this.container.addChild(projectile);
     return projectile;
   }
@@ -53,6 +55,7 @@ export class ProjectileManager {
         this.container.removeChild(projectile);
         projectile.destroy();
         this.projectiles.splice(i, 1);
+        this.projectilesDirty = true; // Mark projectiles as changed
       }
     }
   }
@@ -66,9 +69,20 @@ export class ProjectileManager {
       projectile.destroy();
     }
     this.projectiles = [];
+    this.projectilesDirty = true; // Mark projectiles as changed
   }
 
   public getProjectiles(): Projectile[] {
     return this.projectiles;
+  }
+
+  // Check if projectiles array has changed since last check
+  public areProjectilesDirty(): boolean {
+    return this.projectilesDirty;
+  }
+
+  // Reset dirty flag after consuming the change
+  public clearProjectilesDirty(): void {
+    this.projectilesDirty = false;
   }
 }

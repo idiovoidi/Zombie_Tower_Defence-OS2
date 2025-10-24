@@ -51,4 +51,19 @@ export class MuzzleFlashLight extends Graphics {
 
     return true;
   }
+
+  /**
+   * Reset the muzzle flash for reuse in object pool
+   */
+  public reset(x: number, y: number, radius: number = 30): void {
+    this.position.set(x, y);
+    this.radius = radius;
+    this.lifetime = 0;
+    this.alpha = 1;
+    this.scale.set(1);
+
+    // Clear and recreate graphics
+    this.clear();
+    this.createLightEffect();
+  }
 }

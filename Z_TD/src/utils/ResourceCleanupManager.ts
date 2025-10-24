@@ -393,4 +393,3 @@ export class ResourceCleanupManager {
     EffectCleanupManager.clearAll();
   }
 }
-

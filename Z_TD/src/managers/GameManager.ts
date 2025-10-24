@@ -208,7 +208,7 @@ export class GameManager {
         this.spawnStarterTower();
 
         // Spawn test towers for debugging (if enabled)
-        if ((DevConfig as unknown).TESTING?.SPAWN_TEST_TOWERS) {
+        if (DevConfig.TESTING?.SPAWN_TEST_TOWERS) {
           this.spawnTestTowers();
         }
 
@@ -599,16 +599,32 @@ export class GameManager {
       this.zombieManager.update(deltaTime);
 
       // Update tower combat - only update arrays when they change (dirty flag optimization)
-      if (this.towerPlacementManager.areTowersDirty()) {
+      const towersDirty = this.towerPlacementManager.areTowersDirty();
+      const zombiesDirty = this.zombieManager.areZombiesDirty();
+
+      if (DevConfig.PERFORMANCE.LOG_DIRTY_FLAGS) {
+        if (!towersDirty && !zombiesDirty) {
+          console.log('⚡ Dirty flags prevented array rebuilds this frame');
+        }
+      }
+
+      if (towersDirty) {
         const towers = this.towerPlacementManager.getPlacedTowers();
         this.towerCombatManager.setTowers(towers);
         this.towerPlacementManager.clearTowersDirty();
+        if (DevConfig.PERFORMANCE.LOG_DIRTY_FLAGS) {
+          console.log(`🔄 Towers array rebuilt (${towers.length} towers)`);
+        }
       }
 
-      if (this.zombieManager.areZombiesDirty()) {
+      if (zombiesDirty) {
         const zombies = this.zombieManager.getZombies();
         this.towerCombatManager.setZombies(zombies);
+        this.projectileManager.setZombies(zombies); // Update projectile manager with zombie list
         this.zombieManager.clearZombiesDirty();
+        if (DevConfig.PERFORMANCE.LOG_DIRTY_FLAGS) {
+          console.log(`🔄 Zombies array rebuilt (${zombies.length} zombies)`);
+        }
       }
 
       this.towerCombatManager.update(deltaTime);

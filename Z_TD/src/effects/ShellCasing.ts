@@ -90,4 +90,38 @@ export class ShellCasing extends Graphics {
       }
     }, 100);
   }
+
+  /**
+   * Reset the shell casing for reuse in object pool
+   */
+  public reset(x: number, y: number, ejectAngle: number = 0): void {
+    // Reset position
+    this.position.set(x, y);
+
+    // Reset velocity
+    const speed = 0.15 + Math.random() * 0.1;
+    this.velocity = {
+      x: Math.cos(ejectAngle) * speed + (Math.random() - 0.5) * 0.05,
+      y: Math.sin(ejectAngle) * speed - 0.1,
+    };
+
+    // Reset rotation
+    this.rotationSpeed = (Math.random() - 0.5) * 0.01;
+    this.rotation = Math.random() * Math.PI * 2;
+
+    // Reset state
+    this.lifetime = 0;
+    this.bounced = false;
+    this.alpha = 1;
+    this.scale.set(1);
+
+    // Clear any child graphics (reflections)
+    while (this.children.length > 0) {
+      const child = this.children[0];
+      this.removeChild(child);
+      if (child instanceof Graphics) {
+        child.destroy();
+      }
+    }
+  }
 }

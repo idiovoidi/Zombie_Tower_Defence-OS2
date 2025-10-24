@@ -17,6 +17,7 @@ export const DevConfig = {
     TARGET_FPS: 60,
     MAX_DELTA_TIME: 0.1, // 100ms
     ENABLE_FRAME_SKIPPING: true,
+    LOG_DIRTY_FLAGS: false, // Log when dirty flags prevent unnecessary rebuilds
   },
 
   // Development features

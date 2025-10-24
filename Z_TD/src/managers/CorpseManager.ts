@@ -25,6 +25,17 @@ export class CorpseManager {
 
   // Create a corpse at the given position with zombie type styling
   public createCorpse(x: number, y: number, zombieType: string, _size: number = 10): void {
+    // Remove oldest corpse BEFORE adding new one if at limit
+    // This ensures we never exceed maxCorpses
+    if (this.corpses.length >= this.maxCorpses) {
+      const oldCorpse = this.corpses.shift();
+      if (oldCorpse) {
+        this.container.removeChild(oldCorpse.container);
+        // Destroy with children: true to ensure all Graphics objects are destroyed
+        oldCorpse.container.destroy({ children: true });
+      }
+    }
+
     // Create a container for the corpse
     const corpseContainer = new Container();
     corpseContainer.position.set(x, y);
@@ -43,15 +54,6 @@ export class CorpseManager {
 
     this.corpses.push(corpse);
     this.container.addChild(corpseContainer);
-
-    // Remove oldest corpse if we exceed max
-    if (this.corpses.length > this.maxCorpses) {
-      const oldCorpse = this.corpses.shift();
-      if (oldCorpse) {
-        this.container.removeChild(oldCorpse.container);
-        oldCorpse.container.destroy({ children: true });
-      }
-    }
   }
 
   private renderDeadZombie(container: Container, zombieType: string, deathPose: number): void {
@@ -226,6 +228,7 @@ export class CorpseManager {
   public clear(): void {
     for (const corpse of this.corpses) {
       this.container.removeChild(corpse.container);
+      // Destroy with children: true to ensure all Graphics objects are destroyed
       corpse.container.destroy({ children: true });
     }
     this.corpses = [];

@@ -51,4 +51,17 @@ export class ScopeGlint extends Graphics {
 
     return true;
   }
+
+  /**
+   * Reset the scope glint for reuse in object pool
+   */
+  public reset(x: number, y: number): void {
+    this.position.set(x, y);
+    this.lifetime = 0;
+    this.alpha = 1;
+
+    // Clear and recreate graphics
+    this.clear();
+    this.createGlintEffect();
+  }
 }

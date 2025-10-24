@@ -103,6 +103,7 @@ export class VisualEffects {
   }
 
   // Create a health bar for a game object
+  // NOTE: Caller is responsible for destroying the returned Container and its Graphics children
   public static createHealthBar(
     container: Container,
     x: number,

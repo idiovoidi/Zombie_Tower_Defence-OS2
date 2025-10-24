@@ -93,4 +93,27 @@ export class ImpactFlash extends Graphics {
     this.burstParticles = [];
     super.destroy();
   }
+
+  /**
+   * Reset the impact flash for reuse in object pool
+   */
+  public reset(x: number, y: number, isHeadshot: boolean = false): void {
+    this.position.set(x, y);
+    this.lifetime = 0;
+    this.alpha = 1;
+    this.scale.set(1);
+
+    // Clean up old particles
+    for (const particle of this.burstParticles) {
+      if (particle && !particle.destroyed) {
+        this.removeChild(particle);
+        particle.destroy();
+      }
+    }
+    this.burstParticles = [];
+
+    // Clear and recreate graphics
+    this.clear();
+    this.createImpactEffect(isHeadshot);
+  }
 }

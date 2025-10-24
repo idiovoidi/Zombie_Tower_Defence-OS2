@@ -112,11 +112,13 @@
     - Add missing destroy() calls where needed
     - _Requirements: 4.1, 4.2, 4.3_
 
-  - [ ] 7.2 Verify persistent effect cleanup
+  - [x] 7.2 Verify persistent effect cleanup
+
     - Ensure all persistent effects are registered with ResourceCleanupManager
     - Verify effects are unregistered when they expire naturally
     - Test cleanup during wave transitions
     - _Requirements: 4.2, 4.3_
+
   - [ ] 7.3 Optimize corpse cleanup
     - Verify corpse limit (50) is enforced
     - Ensure oldest corpses are removed when limit reached
