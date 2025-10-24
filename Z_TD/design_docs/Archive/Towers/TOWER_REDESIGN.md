@@ -103,3 +103,7 @@ Place different tower types to see each unique design with its little man operat
 
 - [Tower Architecture](../../Features/Towers/README.md)
 - [Tower Upgrades Visual](./TOWER_UPGRADES_VISUAL.md)
+
+---
+
+**Status**: ✅ Complete

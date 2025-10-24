@@ -169,49 +169,53 @@
   - Move remaining summaries to appropriate Archive locations
   - _Requirements: 5.2, 5.4_
 
-- [-] 5. Create deprecation area and flag outdated documentation
-
-
+- [x] 5. Create deprecation area and flag outdated documentation
   - Create deprecation directory structure
   - Identify potentially outdated documentation
   - Move flagged docs to deprecation area
   - Create deprecation info files
   - _Requirements: 2.1, 2.2, 2.3_
 
-- [ ] 5.1 Create deprecation infrastructure
+- [x] 5.1 Create deprecation infrastructure
   - Create .kiro/specs/documentation-cleanup/deprecated/ directory
   - Write .kiro/specs/documentation-cleanup/deprecated/README.md explaining deprecation process
   - Create DEPRECATION_INFO template
   - _Requirements: 2.2, 2.3_
 
-- [ ] 5.2 Identify and flag potentially outdated documentation
+- [x] 5.2 Identify and flag potentially outdated documentation
   - Review design_docs for files with "complete" or "summary" in name
 
   - Check for docs that conflict with current codebase
   - Check for docs with very old last-modified dates
+
   - Create list of candidates for deprecation
   - _Requirements: 2.1_
 
-- [ ] 5.3 Move flagged documentation to deprecation area
+-
+
+- [x] 5.3 Move flagged documentation to deprecation area
   - Move identified outdated docs to deprecated/ directory
   - Create DEPRECATION_INFO.md for each flagged doc explaining why and what to verify
   - Update any references to flagged docs
   - _Requirements: 2.2, 2.3_
 
-- [ ] 6. Create documentation index and contribution guide
+- [x] 6. Create documentation index and contribution guide
   - Generate topic-based documentation index
   - Write contribution guidelines
   - Create search guide
   - Document when to use each documentation type
   - _Requirements: 1.3, 6.1, 6.2, 6.3, 6.4_
 
-- [ ] 6.1 Create documentation index
+- [x] 6.1 Create documentation index
+
+
+
   - Write design_docs/INDEX.md mapping topics to documentation locations
   - Include sections for: Core Systems, Features, Archive, Steering Rules
   - Add quick links to most commonly referenced docs
   - _Requirements: 1.3_
 
-- [ ] 6.2 Write contribution guidelines
+- [x] 6.2 Write contribution guidelines
   - Document when to create steering rules vs design docs vs archive entries
   - Document naming conventions for each documentation type
   - Document frontmatter requirements for steering rules
@@ -219,46 +223,68 @@
   - Add to design_docs/README.md
   - _Requirements: 6.2, 6.3_
 
-- [ ] 6.3 Create documentation search guide
+- [x] 6.3 Create documentation search guide
   - Document how to find information by topic
   - Document how to search within documentation
   - Document common documentation patterns
   - Add to design_docs/README.md
   - _Requirements: 6.1_
 
-- [ ] 6.4 Document documentation types and usage
+- [x] 6.4 Document documentation types and usage
   - Explain when to use steering rules (AI guidance, <200 lines, patterns only)
+
   - Explain when to use design docs (detailed architecture, no size limit)
   - Explain when to create archive entries (completed implementations)
   - Provide examples of each type
   - Add to design_docs/README.md
   - _Requirements: 6.2, 6.4_
 
-- [ ] 7. Validate and test documentation structure
+- [x] 7. Validate and test documentation structure
+
+
+
+
   - Run validation checks on all documentation
   - Test with AI assistant
   - Test with developer onboarding scenario
   - Fix any issues found
   - _Requirements: 1.1, 1.2, 1.3, 1.4, 4.4_
 
-- [ ] 7.1 Validate steering rules
+- [x] 7.1 Validate steering rules
+
+
   - Check all steering rules are <200 lines
   - Verify all have proper frontmatter
   - Verify no implementation details (only patterns)
   - Verify all code examples are minimal
   - _Requirements: 3.1, 3.2_
 
-- [ ] 7.2 Validate design documentation
+
+
+
+
+- [x] 7.2 Validate design documentation
+
+
   - Check all design docs follow standard structure
+
+
+
+
   - Verify all have Overview section
   - Verify all cross-references are valid
   - Check for duplicate content
   - _Requirements: 4.2, 4.4_
 
+
+
 - [ ] 7.3 Validate archive entries
+
   - Check all have completion dates
   - Check all have verification status
   - Verify all link to current docs
+
+
   - _Requirements: 5.3_
 
 - [ ] 7.4 Validate links and references

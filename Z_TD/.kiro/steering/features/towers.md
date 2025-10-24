@@ -165,10 +165,6 @@ EffectCleanupManager.registerTimeout(setTimeout(() => {}, 100));
 
 ## See Also
 
-- [Tower Architecture](../../design_docs/Features/Towers/README.md) - Detailed tower system design
-- [Tower Improvements](../../design_docs/TOWER_DESIGN_IMPROVEMENTS.md) - Enhancement proposals
-- [Tower Progression](../../design_docs/TOWER_PROGRESSION_DESIGN.md) - Upgrade system design
-- [Grenade Tower](../../design_docs/Towers/GRENADE_TOWER_IMPLEMENTATION.md) - Grenade tower specifics
-- [Tesla Chain Lightning](../../design_docs/Towers/TESLA_CHAIN_LIGHTNING.md) - Tesla mechanics
-- [Shotgun Burst Fire](../../design_docs/Towers/SHOTGUN_BURST_FIRE.md) - Shotgun mechanics
-- [Sludge Tower](../../design_docs/Towers/SludgeTower.md) - Sludge tower mechanics
+- [Tower Architecture](../../../design_docs/Features/Towers/README.md) - Detailed tower system design
+- [Tower Improvements](../../../design_docs/Features/Towers/IMPROVEMENTS.md) - Enhancement proposals
+- [Tower Progression](../../../design_docs/Features/Towers/PROGRESSION_DESIGN.md) - Upgrade system design

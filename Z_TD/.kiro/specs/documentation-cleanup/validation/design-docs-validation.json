@@ -1,0 +1,642 @@
+{
+  "totalDocs": 83,
+  "passed": 43,
+  "failed": 40,
+  "issues": [
+    {
+      "file": "design_docs\\Archive\\Core_Systems\\HEALTH_COMPONENT.md",
+      "issues": [
+        "2 invalid reference(s)"
+      ]
+    },
+    {
+      "file": "design_docs\\Archive\\Core_Systems\\HOTKEY_SYSTEM.md",
+      "issues": [
+        "1 invalid reference(s)"
+      ]
+    },
+    {
+      "file": "design_docs\\Archive\\Core_Systems\\PROJECTILE_SYSTEM.md",
+      "issues": [
+        "1 invalid reference(s)"
+      ]
+    },
+    {
+      "file": "design_docs\\Archive\\Towers\\TOWER_SELECTION_FIX.md",
+      "issues": [
+        "Missing Overview section"
+      ]
+    },
+    {
+      "file": "design_docs\\Archive\\UI\\AI_CONTROL_INTEGRATION.md",
+      "issues": [
+        "Missing Overview section",
+        "No standard structure sections found"
+      ]
+    },
+    {
+      "file": "design_docs\\Archive\\UI\\DEBUG_INFO_AUTO_CLOSE.md",
+      "issues": [
+        "Missing Overview section"
+      ]
+    },
+    {
+      "file": "design_docs\\Archive\\UI\\DEBUG_INFO_PANEL_SHORTCUTS.md",
+      "issues": [
+        "Missing Overview section"
+      ]
+    },
+    {
+      "file": "design_docs\\Archive\\UI\\DEBUG_TEST_UI_MANAGER_IMPLEMENTATION.md",
+      "issues": [
+        "Missing Overview section"
+      ]
+    },
+    {
+      "file": "design_docs\\Archive\\UI\\PANEL_CLOSE_BUTTONS.md",
+      "issues": [
+        "Missing Overview section"
+      ]
+    },
+    {
+      "file": "design_docs\\Archive\\UI\\STATS_PANEL_INTEGRATION.md",
+      "issues": [
+        "Missing Overview section"
+      ]
+    },
+    {
+      "file": "design_docs\\Archive\\Zombies\\ZOMBIE_SPAWNING.md",
+      "issues": [
+        "1 invalid reference(s)"
+      ]
+    },
+    {
+      "file": "design_docs\\Archive\\Zombies\\ZOMBIE_VISUALS.md",
+      "issues": [
+        "Missing Overview section",
+        "No standard structure sections found"
+      ]
+    },
+    {
+      "file": "design_docs\\Core_Systems\\Memory_Management\\MEMORY_OPTIMIZATION_GUIDE.md",
+      "issues": [
+        "Missing Overview section"
+      ]
+    },
+    {
+      "file": "design_docs\\Core_Systems\\Memory_Management\\PERSISTENT_EFFECTS_FIX.md",
+      "issues": [
+        "Missing Overview section"
+      ]
+    },
+    {
+      "file": "design_docs\\Core_Systems\\Memory_Management\\TESLA_LIGHTNING_PERSISTENCE_FIX.md",
+      "issues": [
+        "Missing Overview section"
+      ]
+    },
+    {
+      "file": "design_docs\\Core_Systems\\Memory_Management\\TESLA_PARTICLE_FIX.md",
+      "issues": [
+        "Missing Overview section"
+      ]
+    },
+    {
+      "file": "design_docs\\Core_Systems\\Performance\\CORPSE_CLEANUP_VERIFICATION.md",
+      "issues": [
+        "Missing Overview section"
+      ]
+    },
+    {
+      "file": "design_docs\\Core_Systems\\Performance\\GRAPHICS_AUDIT_SUMMARY.md",
+      "issues": [
+        "Missing Overview section",
+        "No standard structure sections found"
+      ]
+    },
+    {
+      "file": "design_docs\\Core_Systems\\Performance\\LAYOUT_OPTIMIZATION_SUMMARY.md",
+      "issues": [
+        "Missing Overview section"
+      ]
+    },
+    {
+      "file": "design_docs\\Core_Systems\\Performance\\PERSISTENT_EFFECTS_VERIFICATION.md",
+      "issues": [
+        "Missing Overview section"
+      ]
+    },
+    {
+      "file": "design_docs\\Core_Systems\\Stat_Tracking\\EXAMPLES.md",
+      "issues": [
+        "Missing Overview section"
+      ]
+    },
+    {
+      "file": "design_docs\\Features\\Environment\\GRAVEYARD.md",
+      "issues": [
+        "Missing Overview section"
+      ]
+    },
+    {
+      "file": "design_docs\\Features\\UI\\UI_LAYOUT_GUIDE.md",
+      "issues": [
+        "Missing Overview section"
+      ]
+    },
+    {
+      "file": "design_docs\\Features\\Zombies\\ARMORED_ZOMBIE_VISUAL_REFERENCE.md",
+      "issues": [
+        "Missing Overview section",
+        "No standard structure sections found"
+      ]
+    },
+    {
+      "file": "design_docs\\Features\\Zombies\\BASIC_ZOMBIE_VISUAL_REFERENCE.md",
+      "issues": [
+        "Missing Overview section"
+      ]
+    },
+    {
+      "file": "design_docs\\Features\\Zombies\\FAST_ZOMBIE_VISUAL_REFERENCE.md",
+      "issues": [
+        "Missing Overview section",
+        "No standard structure sections found"
+      ]
+    },
+    {
+      "file": "design_docs\\Features\\Zombies\\IMPLEMENTATION_STATUS.md",
+      "issues": [
+        "Missing Overview section"
+      ]
+    },
+    {
+      "file": "design_docs\\Features\\Zombies\\SPACING_AND_VISIBILITY_IMPROVEMENTS.md",
+      "issues": [
+        "Missing Overview section",
+        "No standard structure sections found"
+      ]
+    },
+    {
+      "file": "design_docs\\Features\\Zombies\\TANK_ZOMBIE_VISUAL_REFERENCE.md",
+      "issues": [
+        "Missing Overview section",
+        "No standard structure sections found"
+      ]
+    },
+    {
+      "file": "design_docs\\Features\\Zombies\\ZOMBIE_REFERENCE.md",
+      "issues": [
+        "Missing Overview section"
+      ]
+    },
+    {
+      "file": "design_docs\\Game_Balance\\AI_Test_Balance\\BALANCE_ANALYSIS_DEVELOPER_GUIDE.md",
+      "issues": [
+        "Missing Overview section"
+      ]
+    },
+    {
+      "file": "design_docs\\Game_Balance\\AI_Test_Balance\\BALANCE_ANALYSIS_DOCUMENTATION_SUMMARY.md",
+      "issues": [
+        "Missing Overview section",
+        "No standard structure sections found"
+      ]
+    },
+    {
+      "file": "design_docs\\Game_Balance\\AI_Test_Balance\\BALANCE_ANALYSIS_EXAMPLES.md",
+      "issues": [
+        "Missing Overview section"
+      ]
+    },
+    {
+      "file": "design_docs\\Game_Balance\\AI_Test_Balance\\BALANCE_ANALYSIS_TROUBLESHOOTING.md",
+      "issues": [
+        "Missing Overview section",
+        "No standard structure sections found"
+      ]
+    },
+    {
+      "file": "design_docs\\Game_Balance\\AI_Test_Balance\\BALANCE_CONFIG_REFERENCE.md",
+      "issues": [
+        "Missing Overview section",
+        "No standard structure sections found"
+      ]
+    },
+    {
+      "file": "design_docs\\Game_Balance\\AI_Test_Balance\\BALANCE_DOCUMENTATION_INDEX.md",
+      "issues": [
+        "Missing Overview section",
+        "No standard structure sections found",
+        "10 invalid reference(s)"
+      ]
+    },
+    {
+      "file": "design_docs\\Game_Balance\\AI_Test_Balance\\ENHANCED_TRACKING_SUMMARY.md",
+      "issues": [
+        "Missing Overview section"
+      ]
+    },
+    {
+      "file": "design_docs\\Game_Balance\\AI_Test_Balance\\METRICS_QUICK_REFERENCE.md",
+      "issues": [
+        "Missing Overview section",
+        "No standard structure sections found"
+      ]
+    },
+    {
+      "file": "design_docs\\Game_Balance\\AI_Test_Balance\\STATS_QUICK_REFERENCE.md",
+      "issues": [
+        "Missing Overview section",
+        "No standard structure sections found"
+      ]
+    },
+    {
+      "file": "design_docs\\Game_Balance\\WAVE_BALANCING_GUIDE.md",
+      "issues": [
+        "Missing Overview section"
+      ]
+    }
+  ],
+  "duplicateContent": [
+    {
+      "paragraph": "```typescript\n// Add to tower's parent container\nif (tower.parent) {\n  tower.parent.addChild(lightni...",
+      "files": [
+        "C:\\Users\\Mitchell\\Documents\\My_Code\\Games\\Zombie_Tower_Defence-OS2\\Z_TD\\design_docs\\Core_Systems\\Memory_Management\\TESLA_LIGHTNING_PERSISTENCE_FIX.md",
+        "C:\\Users\\Mitchell\\Documents\\My_Code\\Games\\Zombie_Tower_Defence-OS2\\Z_TD\\design_docs\\Core_Systems\\Memory_Management\\TESLA_LIGHTNING_PERSISTENCE_FIX.md"
+      ]
+    },
+    {
+      "paragraph": "```typescript\npublic static cleanupWaveResources(managers: GameManagers): void {\n  console.log('🧹 C...",
+      "files": [
+        "C:\\Users\\Mitchell\\Documents\\My_Code\\Games\\Zombie_Tower_Defence-OS2\\Z_TD\\design_docs\\Core_Systems\\Memory_Management\\TESLA_PARTICLE_FIX.md",
+        "C:\\Users\\Mitchell\\Documents\\My_Code\\Games\\Zombie_Tower_Defence-OS2\\Z_TD\\design_docs\\Core_Systems\\Memory_Management\\TESLA_PARTICLE_FIX.md"
+      ]
+    },
+    {
+      "paragraph": "- Memory should stay around 300-500MB\n- Small spikes during waves (normal)\n- Memory drops back down ...",
+      "files": [
+        "C:\\Users\\Mitchell\\Documents\\My_Code\\Games\\Zombie_Tower_Defence-OS2\\Z_TD\\design_docs\\Core_Systems\\Memory_Management\\PERSISTENT_EFFECTS_FIX.md",
+        "C:\\Users\\Mitchell\\Documents\\My_Code\\Games\\Zombie_Tower_Defence-OS2\\Z_TD\\design_docs\\Core_Systems\\Memory_Management\\TESLA_PARTICLE_FIX.md"
+      ]
+    },
+    {
+      "paragraph": "_Last Updated: Current Build_  \n_For implementation details, see `src/renderers/VisualMapRenderer.ts...",
+      "files": [
+        "C:\\Users\\Mitchell\\Documents\\My_Code\\Games\\Zombie_Tower_Defence-OS2\\Z_TD\\design_docs\\Features\\Camp\\SURVIVOR_CAMP_DESIGN.md",
+        "C:\\Users\\Mitchell\\Documents\\My_Code\\Games\\Zombie_Tower_Defence-OS2\\Z_TD\\design_docs\\Features\\Environment\\PATH_DESIGN.md"
+      ]
+    },
+    {
+      "paragraph": "```\n🧪 Starting Balance Analysis Edge Case Tests...\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━...",
+      "files": [
+        "C:\\Users\\Mitchell\\Documents\\My_Code\\Games\\Zombie_Tower_Defence-OS2\\Z_TD\\design_docs\\Game_Balance\\AI_Test_Balance\\EDGE_CASE_TESTING_GUIDE.md",
+        "C:\\Users\\Mitchell\\Documents\\My_Code\\Games\\Zombie_Tower_Defence-OS2\\Z_TD\\design_docs\\Game_Balance\\AI_Test_Balance\\EDGE_CASE_TEST_SUMMARY.md"
+      ]
+    },
+    {
+      "paragraph": "📦 Testing: No Towers Placed\n─────────────────────────────────────────────────────\n  ✅ No Towers - W...",
+      "files": [
+        "C:\\Users\\Mitchell\\Documents\\My_Code\\Games\\Zombie_Tower_Defence-OS2\\Z_TD\\design_docs\\Game_Balance\\AI_Test_Balance\\EDGE_CASE_TESTING_GUIDE.md",
+        "C:\\Users\\Mitchell\\Documents\\My_Code\\Games\\Zombie_Tower_Defence-OS2\\Z_TD\\design_docs\\Game_Balance\\AI_Test_Balance\\EDGE_CASE_TEST_SUMMARY.md"
+      ]
+    },
+    {
+      "paragraph": "📦 Testing: Game Ending on Wave 1\n─────────────────────────────────────────────────────\n  ✅ Wave 1 E...",
+      "files": [
+        "C:\\Users\\Mitchell\\Documents\\My_Code\\Games\\Zombie_Tower_Defence-OS2\\Z_TD\\design_docs\\Game_Balance\\AI_Test_Balance\\EDGE_CASE_TESTING_GUIDE.md",
+        "C:\\Users\\Mitchell\\Documents\\My_Code\\Games\\Zombie_Tower_Defence-OS2\\Z_TD\\design_docs\\Game_Balance\\AI_Test_Balance\\EDGE_CASE_TEST_SUMMARY.md"
+      ]
+    },
+    {
+      "paragraph": "📦 Testing: Very Long Sessions (50+ Waves)\n─────────────────────────────────────────────────────\n  ✅...",
+      "files": [
+        "C:\\Users\\Mitchell\\Documents\\My_Code\\Games\\Zombie_Tower_Defence-OS2\\Z_TD\\design_docs\\Game_Balance\\AI_Test_Balance\\EDGE_CASE_TESTING_GUIDE.md",
+        "C:\\Users\\Mitchell\\Documents\\My_Code\\Games\\Zombie_Tower_Defence-OS2\\Z_TD\\design_docs\\Game_Balance\\AI_Test_Balance\\EDGE_CASE_TEST_SUMMARY.md"
+      ]
+    },
+    {
+      "paragraph": "📦 Testing: Tracking Disabled Scenarios\n─────────────────────────────────────────────────────\n  ✅ Tr...",
+      "files": [
+        "C:\\Users\\Mitchell\\Documents\\My_Code\\Games\\Zombie_Tower_Defence-OS2\\Z_TD\\design_docs\\Game_Balance\\AI_Test_Balance\\EDGE_CASE_TESTING_GUIDE.md",
+        "C:\\Users\\Mitchell\\Documents\\My_Code\\Games\\Zombie_Tower_Defence-OS2\\Z_TD\\design_docs\\Game_Balance\\AI_Test_Balance\\EDGE_CASE_TEST_SUMMARY.md"
+      ]
+    },
+    {
+      "paragraph": "- Verify all analysis functions check for zero denominators\n- Add guards: `if (denominator === 0) re...",
+      "files": [
+        "C:\\Users\\Mitchell\\Documents\\My_Code\\Games\\Zombie_Tower_Defence-OS2\\Z_TD\\design_docs\\Game_Balance\\AI_Test_Balance\\EDGE_CASE_TESTING_GUIDE.md",
+        "C:\\Users\\Mitchell\\Documents\\My_Code\\Games\\Zombie_Tower_Defence-OS2\\Z_TD\\design_docs\\Game_Balance\\AI_Test_Balance\\EDGE_CASE_TEST_SUMMARY.md"
+      ]
+    },
+    {
+      "paragraph": "4. **NEGATIVE_ECONOMY**\n   - Economy efficiency below 100%\n   - Recommendation: Reduce spending, foc...",
+      "files": [
+        "C:\\Users\\Mitchell\\Documents\\My_Code\\Games\\Zombie_Tower_Defence-OS2\\Z_TD\\design_docs\\Game_Balance\\AI_Test_Balance\\BALANCE_ANALYSIS_GUIDE.md",
+        "C:\\Users\\Mitchell\\Documents\\My_Code\\Games\\Zombie_Tower_Defence-OS2\\Z_TD\\design_docs\\Game_Balance\\AI_Test_Balance\\ENHANCED_METRICS_GUIDE.md"
+      ]
+    },
+    {
+      "paragraph": "```\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n📊 Performance Test Report: Test Name\n━━━━━...",
+      "files": [
+        "C:\\Users\\Mitchell\\Documents\\My_Code\\Games\\Zombie_Tower_Defence-OS2\\Z_TD\\design_docs\\Core_Systems\\Performance\\PERFORMANCE_TESTING_GUIDE.md",
+        "C:\\Users\\Mitchell\\Documents\\My_Code\\Games\\Zombie_Tower_Defence-OS2\\Z_TD\\design_docs\\Game_Balance\\AI_Test_Balance\\PERFORMANCE_TEST_SUMMARY.md"
+      ]
+    },
+    {
+      "paragraph": "🎮 Frame Rate Impact:\n   Baseline FPS: 60.0\n   Test FPS: 59.2\n   FPS Drop: 1.3%\n   ✅ Impact: ACCEPTA...",
+      "files": [
+        "C:\\Users\\Mitchell\\Documents\\My_Code\\Games\\Zombie_Tower_Defence-OS2\\Z_TD\\design_docs\\Core_Systems\\Performance\\PERFORMANCE_TESTING_GUIDE.md",
+        "C:\\Users\\Mitchell\\Documents\\My_Code\\Games\\Zombie_Tower_Defence-OS2\\Z_TD\\design_docs\\Game_Balance\\AI_Test_Balance\\PERFORMANCE_TEST_SUMMARY.md"
+      ]
+    }
+  ],
+  "missingOverview": [
+    "design_docs\\Archive\\Towers\\TOWER_SELECTION_FIX.md",
+    "design_docs\\Archive\\UI\\AI_CONTROL_INTEGRATION.md",
+    "design_docs\\Archive\\UI\\DEBUG_INFO_AUTO_CLOSE.md",
+    "design_docs\\Archive\\UI\\DEBUG_INFO_PANEL_SHORTCUTS.md",
+    "design_docs\\Archive\\UI\\DEBUG_TEST_UI_MANAGER_IMPLEMENTATION.md",
+    "design_docs\\Archive\\UI\\PANEL_CLOSE_BUTTONS.md",
+    "design_docs\\Archive\\UI\\STATS_PANEL_INTEGRATION.md",
+    "design_docs\\Archive\\Zombies\\ZOMBIE_VISUALS.md",
+    "design_docs\\Core_Systems\\Memory_Management\\MEMORY_OPTIMIZATION_GUIDE.md",
+    "design_docs\\Core_Systems\\Memory_Management\\PERSISTENT_EFFECTS_FIX.md",
+    "design_docs\\Core_Systems\\Memory_Management\\TESLA_LIGHTNING_PERSISTENCE_FIX.md",
+    "design_docs\\Core_Systems\\Memory_Management\\TESLA_PARTICLE_FIX.md",
+    "design_docs\\Core_Systems\\Performance\\CORPSE_CLEANUP_VERIFICATION.md",
+    "design_docs\\Core_Systems\\Performance\\GRAPHICS_AUDIT_SUMMARY.md",
+    "design_docs\\Core_Systems\\Performance\\LAYOUT_OPTIMIZATION_SUMMARY.md",
+    "design_docs\\Core_Systems\\Performance\\PERSISTENT_EFFECTS_VERIFICATION.md",
+    "design_docs\\Core_Systems\\Stat_Tracking\\EXAMPLES.md",
+    "design_docs\\Features\\Environment\\GRAVEYARD.md",
+    "design_docs\\Features\\UI\\UI_LAYOUT_GUIDE.md",
+    "design_docs\\Features\\Zombies\\ARMORED_ZOMBIE_VISUAL_REFERENCE.md",
+    "design_docs\\Features\\Zombies\\BASIC_ZOMBIE_VISUAL_REFERENCE.md",
+    "design_docs\\Features\\Zombies\\FAST_ZOMBIE_VISUAL_REFERENCE.md",
+    "design_docs\\Features\\Zombies\\IMPLEMENTATION_STATUS.md",
+    "design_docs\\Features\\Zombies\\SPACING_AND_VISIBILITY_IMPROVEMENTS.md",
+    "design_docs\\Features\\Zombies\\TANK_ZOMBIE_VISUAL_REFERENCE.md",
+    "design_docs\\Features\\Zombies\\ZOMBIE_REFERENCE.md",
+    "design_docs\\Game_Balance\\AI_Test_Balance\\BALANCE_ANALYSIS_DEVELOPER_GUIDE.md",
+    "design_docs\\Game_Balance\\AI_Test_Balance\\BALANCE_ANALYSIS_DOCUMENTATION_SUMMARY.md",
+    "design_docs\\Game_Balance\\AI_Test_Balance\\BALANCE_ANALYSIS_EXAMPLES.md",
+    "design_docs\\Game_Balance\\AI_Test_Balance\\BALANCE_ANALYSIS_TROUBLESHOOTING.md",
+    "design_docs\\Game_Balance\\AI_Test_Balance\\BALANCE_CONFIG_REFERENCE.md",
+    "design_docs\\Game_Balance\\AI_Test_Balance\\BALANCE_DOCUMENTATION_INDEX.md",
+    "design_docs\\Game_Balance\\AI_Test_Balance\\ENHANCED_TRACKING_SUMMARY.md",
+    "design_docs\\Game_Balance\\AI_Test_Balance\\METRICS_QUICK_REFERENCE.md",
+    "design_docs\\Game_Balance\\AI_Test_Balance\\STATS_QUICK_REFERENCE.md",
+    "design_docs\\Game_Balance\\WAVE_BALANCING_GUIDE.md"
+  ],
+  "invalidReferences": [
+    {
+      "doc": "C:\\Users\\Mitchell\\Documents\\My_Code\\Games\\Zombie_Tower_Defence-OS2\\Z_TD\\design_docs\\Archive\\Core_Systems\\HEALTH_COMPONENT.md",
+      "reference": "../../Core_Systems/README.md",
+      "type": "markdown"
+    },
+    {
+      "doc": "C:\\Users\\Mitchell\\Documents\\My_Code\\Games\\Zombie_Tower_Defence-OS2\\Z_TD\\design_docs\\Archive\\Core_Systems\\HEALTH_COMPONENT.md",
+      "reference": "../Memory_Management/README.md",
+      "type": "markdown"
+    },
+    {
+      "doc": "C:\\Users\\Mitchell\\Documents\\My_Code\\Games\\Zombie_Tower_Defence-OS2\\Z_TD\\design_docs\\Archive\\Core_Systems\\HOTKEY_SYSTEM.md",
+      "reference": "../../Core_Systems/README.md",
+      "type": "markdown"
+    },
+    {
+      "doc": "C:\\Users\\Mitchell\\Documents\\My_Code\\Games\\Zombie_Tower_Defence-OS2\\Z_TD\\design_docs\\Archive\\Core_Systems\\PROJECTILE_SYSTEM.md",
+      "reference": "../Memory_Management/README.md",
+      "type": "markdown"
+    },
+    {
+      "doc": "C:\\Users\\Mitchell\\Documents\\My_Code\\Games\\Zombie_Tower_Defence-OS2\\Z_TD\\design_docs\\Archive\\Zombies\\ZOMBIE_SPAWNING.md",
+      "reference": "../../Core_Systems/README.md",
+      "type": "markdown"
+    },
+    {
+      "doc": "C:\\Users\\Mitchell\\Documents\\My_Code\\Games\\Zombie_Tower_Defence-OS2\\Z_TD\\design_docs\\Game_Balance\\AI_Test_Balance\\BALANCE_DOCUMENTATION_INDEX.md",
+      "reference": "../../README_REPORTS.md",
+      "type": "markdown"
+    },
+    {
+      "doc": "C:\\Users\\Mitchell\\Documents\\My_Code\\Games\\Zombie_Tower_Defence-OS2\\Z_TD\\design_docs\\Game_Balance\\AI_Test_Balance\\BALANCE_DOCUMENTATION_INDEX.md",
+      "reference": "BALANCE_ANALYSIS_DEVELOPER_GUIDE.md#quick-start",
+      "type": "markdown"
+    },
+    {
+      "doc": "C:\\Users\\Mitchell\\Documents\\My_Code\\Games\\Zombie_Tower_Defence-OS2\\Z_TD\\design_docs\\Game_Balance\\AI_Test_Balance\\BALANCE_DOCUMENTATION_INDEX.md",
+      "reference": "BALANCE_ANALYSIS_GUIDE.md#using-the-system",
+      "type": "markdown"
+    },
+    {
+      "doc": "C:\\Users\\Mitchell\\Documents\\My_Code\\Games\\Zombie_Tower_Defence-OS2\\Z_TD\\design_docs\\Game_Balance\\AI_Test_Balance\\BALANCE_DOCUMENTATION_INDEX.md",
+      "reference": "BALANCE_CONFIG_REFERENCE.md#balance-thresholds",
+      "type": "markdown"
+    },
+    {
+      "doc": "C:\\Users\\Mitchell\\Documents\\My_Code\\Games\\Zombie_Tower_Defence-OS2\\Z_TD\\design_docs\\Game_Balance\\AI_Test_Balance\\BALANCE_DOCUMENTATION_INDEX.md",
+      "reference": "BALANCE_ANALYSIS_TROUBLESHOOTING.md#integration-issues",
+      "type": "markdown"
+    },
+    {
+      "doc": "C:\\Users\\Mitchell\\Documents\\My_Code\\Games\\Zombie_Tower_Defence-OS2\\Z_TD\\design_docs\\Game_Balance\\AI_Test_Balance\\BALANCE_DOCUMENTATION_INDEX.md",
+      "reference": "BALANCE_ANALYSIS_EXAMPLES.md#report-structure-reference",
+      "type": "markdown"
+    },
+    {
+      "doc": "C:\\Users\\Mitchell\\Documents\\My_Code\\Games\\Zombie_Tower_Defence-OS2\\Z_TD\\design_docs\\Game_Balance\\AI_Test_Balance\\BALANCE_DOCUMENTATION_INDEX.md",
+      "reference": "BALANCE_ANALYSIS_GUIDE.md#1-lanchesters-laws-wave-defense",
+      "type": "markdown"
+    },
+    {
+      "doc": "C:\\Users\\Mitchell\\Documents\\My_Code\\Games\\Zombie_Tower_Defence-OS2\\Z_TD\\design_docs\\Game_Balance\\AI_Test_Balance\\BALANCE_DOCUMENTATION_INDEX.md",
+      "reference": "BALANCE_ANALYSIS_GUIDE.md#2-efficiency-score",
+      "type": "markdown"
+    },
+    {
+      "doc": "C:\\Users\\Mitchell\\Documents\\My_Code\\Games\\Zombie_Tower_Defence-OS2\\Z_TD\\design_docs\\Game_Balance\\AI_Test_Balance\\BALANCE_DOCUMENTATION_INDEX.md",
+      "reference": "BALANCE_ANALYSIS_GUIDE.md#4-threat-score",
+      "type": "markdown"
+    },
+    {
+      "doc": "C:\\Users\\Mitchell\\Documents\\My_Code\\Games\\Zombie_Tower_Defence-OS2\\Z_TD\\design_docs\\Game_Balance\\AI_Test_Balance\\BALANCE_DOCUMENTATION_INDEX.md",
+      "reference": "BALANCE_ANALYSIS_GUIDE.md#5-effective-dps-overkill-adjustment",
+      "type": "markdown"
+    }
+  ],
+  "noStandardStructure": [
+    {
+      "file": "design_docs\\Archive\\UI\\AI_CONTROL_INTEGRATION.md",
+      "headers": [
+        "AI Control Panel Integration",
+        "Summary",
+        "Changes Made",
+        "Panel Order in Debug Info",
+        "Panel Layout",
+        "Usage",
+        "Benefits",
+        "Related Documentation"
+      ]
+    },
+    {
+      "file": "design_docs\\Archive\\Zombies\\ZOMBIE_VISUALS.md",
+      "headers": [
+        "Zombie Visual Enhancements",
+        "Enhanced Zombie Visuals",
+        "Blood Particle System",
+        "Corpse System",
+        "Integration",
+        "Configuration",
+        "Visual Improvements Summary",
+        "Related Documentation"
+      ]
+    },
+    {
+      "file": "design_docs\\Core_Systems\\Performance\\GRAPHICS_AUDIT_SUMMARY.md",
+      "headers": [
+        "Graphics Object Destruction Audit",
+        "Summary",
+        "Findings",
+        "Recommendations",
+        "Conclusion"
+      ]
+    },
+    {
+      "file": "design_docs\\Features\\Zombies\\ARMORED_ZOMBIE_VISUAL_REFERENCE.md",
+      "headers": []
+    },
+    {
+      "file": "design_docs\\Features\\Zombies\\FAST_ZOMBIE_VISUAL_REFERENCE.md",
+      "headers": [
+        "Fast Zombie - Simplified Visual Reference",
+        "Color Palette",
+        "Design Philosophy",
+        "Body Structure",
+        "Differences from Basic Zombie",
+        "Component Breakdown",
+        "Animation Details",
+        "Visual Effects",
+        "Health-Based Changes",
+        "Performance",
+        "Comparison to Basic Zombie",
+        "Strategic Role"
+      ]
+    },
+    {
+      "file": "design_docs\\Features\\Zombies\\SPACING_AND_VISIBILITY_IMPROVEMENTS.md",
+      "headers": []
+    },
+    {
+      "file": "design_docs\\Features\\Zombies\\TANK_ZOMBIE_VISUAL_REFERENCE.md",
+      "headers": [
+        "Tank Zombie - Simplified Visual Reference",
+        "Color Palette",
+        "Design Philosophy",
+        "Body Structure",
+        "Differences from Basic Zombie",
+        "Component Breakdown",
+        "Animation Details",
+        "Visual Effects",
+        "Health-Based Changes",
+        "Performance",
+        "Comparison to Other Zombies",
+        "Strategic Role",
+        "Visual Hierarchy",
+        "Design Notes"
+      ]
+    },
+    {
+      "file": "design_docs\\Game_Balance\\AI_Test_Balance\\BALANCE_ANALYSIS_DOCUMENTATION_SUMMARY.md",
+      "headers": [
+        "Balance Analysis Documentation - Summary",
+        "Task Completion Summary",
+        "Documentation Created",
+        "Documentation Coverage",
+        "Documentation Quality Metrics",
+        "Documentation Statistics",
+        "Documentation Organization",
+        "Next Steps",
+        "Documentation Validation",
+        "Related Files",
+        "Conclusion"
+      ]
+    },
+    {
+      "file": "design_docs\\Game_Balance\\AI_Test_Balance\\BALANCE_ANALYSIS_TROUBLESHOOTING.md",
+      "headers": [
+        "Balance Analysis - Troubleshooting Guide",
+        "Table of Contents",
+        "System Not Running",
+        "Inaccurate Results",
+        "Performance Issues",
+        "Missing Data",
+        "Library Errors",
+        "Integration Issues",
+        "Report Problems",
+        "or",
+        "Should see: Server running on http://localhost:3000",
+        "Configuration Issues",
+        "Getting Help"
+      ]
+    },
+    {
+      "file": "design_docs\\Game_Balance\\AI_Test_Balance\\BALANCE_CONFIG_REFERENCE.md",
+      "headers": [
+        "Balance Configuration Reference",
+        "Configuration File",
+        "Balance Thresholds",
+        "Diminishing Returns",
+        "Statistical Analysis",
+        "Performance",
+        "Example Configurations",
+        "Runtime Configuration",
+        "Calibration Guide",
+        "Related Documentation"
+      ]
+    },
+    {
+      "file": "design_docs\\Game_Balance\\AI_Test_Balance\\BALANCE_DOCUMENTATION_INDEX.md",
+      "headers": [
+        "Balance Analysis Documentation Index",
+        "Quick Start",
+        "Documentation Structure",
+        "Documentation by Use Case",
+        "Documentation Maintenance",
+        "Contributing to Documentation",
+        "Related Resources",
+        "Quick Links",
+        "Glossary"
+      ]
+    },
+    {
+      "file": "design_docs\\Game_Balance\\AI_Test_Balance\\METRICS_QUICK_REFERENCE.md",
+      "headers": [
+        "Player Metrics - Quick Reference Card",
+        "📊 Key Metrics at a Glance",
+        "🚨 Warning Signs",
+        "💡 Quick Optimization Tips",
+        "📁 Report Location",
+        "🎯 Target Benchmarks",
+        "📊 Using Timeline Data"
+      ]
+    },
+    {
+      "file": "design_docs\\Game_Balance\\AI_Test_Balance\\STATS_QUICK_REFERENCE.md",
+      "headers": [
+        "Statistics Quick Reference",
+        "All Tracked Metrics",
+        "Target Values",
+        "Quick Diagnosis",
+        "Console Commands",
+        "File Locations",
+        "Analysis Checklist",
+        "Balance Analysis Metrics (NEW)",
+        "Common Metrics Combinations",
+        "Balance Analysis Quick Reference",
+        "Configuration"
+      ]
+    }
+  ]
+}

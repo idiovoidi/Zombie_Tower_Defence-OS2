@@ -1,3 +1,7 @@
+---
+inclusion: always
+---
+
 # Product Overview
 
 Z-TD is a tower defense game built with PixiJS. Players defend against waves of zombies by strategically placing and upgrading towers along a path.

@@ -67,5 +67,5 @@ Wave 1: 100% | Wave 5: 160% | Wave 10: 235% | Wave 20: 385%
 
 ## See Also
 
-- [Zombie Visual Reference](../../design_docs/Features/Zombies/VISUAL_REFERENCE.md)
-- [Zombie Implementation Details](../../design_docs/Features/Zombies/IMPLEMENTATION.md)
+- [Zombie Visual Reference](../../../design_docs/Features/Zombies/VISUAL_REFERENCE.md)
+- [Zombie Implementation Details](../../../design_docs/Features/Zombies/IMPLEMENTATION.md)

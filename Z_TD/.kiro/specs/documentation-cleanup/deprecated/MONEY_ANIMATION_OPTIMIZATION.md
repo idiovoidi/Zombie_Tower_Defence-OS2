@@ -12,6 +12,7 @@ Performance drops drastically around waves 20-30 due to excessive Text object cr
   - Destruction and cleanup
 
 ### Wave 20 Analysis
+
 - **Zombies per wave:** ~120 zombies
 - **Text objects created:** 120 per wave
 - **Animation duration:** 2 seconds
@@ -21,6 +22,7 @@ Performance drops drastically around waves 20-30 due to excessive Text object cr
 ## Solution: Smart Batched Money Gains
 
 Instead of creating a Text object for every zombie kill, the system uses smart batching:
+
 - **Immediate feedback** for isolated gains (>200ms apart)
 - **Batched display** for rapid consecutive gains (within 500ms)
 - Best of both worlds: responsive feedback + performance optimization
@@ -44,12 +46,12 @@ Instead of creating a Text object for every zombie kill, the system uses smart b
 
 ### Performance Improvements
 
-| Metric | Before | After | Improvement |
-|--------|--------|-------|-------------|
-| Text objects/wave | 120 | 4-6 | **95% reduction** |
-| Concurrent animations | 40-60 | 5 max | **90% reduction** |
-| Memory allocations | High | Low | **95% reduction** |
-| Frame time impact | 5-10ms | <1ms | **90% reduction** |
+| Metric                | Before | After | Improvement       |
+| --------------------- | ------ | ----- | ----------------- |
+| Text objects/wave     | 120    | 4-6   | **95% reduction** |
+| Concurrent animations | 40-60  | 5 max | **90% reduction** |
+| Memory allocations    | High   | Low   | **95% reduction** |
+| Frame time impact     | 5-10ms | <1ms  | **90% reduction** |
 
 ## Implementation Details
 
@@ -106,12 +108,14 @@ if (this.animations.length >= this.MAX_ACTIVE_ANIMATIONS) {
 ## User Experience
 
 ### Before
+
 - Individual `+10`, `+15`, `+5` text spam
 - Hard to read during intense combat
 - Screen clutter
 - Performance drops
 
 ### After
+
 - Clean `+$450` batched gains every 500ms
 - Easy to read and track
 - Minimal screen clutter
@@ -127,6 +131,7 @@ private readonly MAX_ACTIVE_ANIMATIONS = 5; // Max concurrent animations
 ```
 
 **Recommendations:**
+
 - **BATCH_INTERVAL:** 500ms (good balance of feedback and batching)
 - **MAX_ACTIVE_ANIMATIONS:** 5 (prevents spam without losing feedback)
 
@@ -140,6 +145,7 @@ The optimization can be tested by:
 4. Verifying gains are accurately displayed
 
 ### Expected Results
+
 - Smooth 60 FPS even at wave 30+
 - Clear, readable money gain feedback
 - No animation spam
@@ -148,6 +154,7 @@ The optimization can be tested by:
 ## Additional Performance Considerations
 
 ### Other Systems Already Optimized
+
 1. **Blood Particles:** Limited to 200 particles max
 2. **Corpses:** Limited to 50 corpses max
 3. **Projectiles:** Pooled and limited
@@ -180,6 +187,7 @@ If performance still drops after this optimization, check:
 ## Verification
 
 Run the game and observe:
+
 - ✅ Money gains display in batches
 - ✅ Maximum 5 animations on screen
 - ✅ Smooth performance at wave 20+
@@ -188,6 +196,7 @@ Run the game and observe:
 ## Future Enhancements
 
 Potential improvements:
+
 1. **Adaptive batching** - Increase batch interval during high kill rates
 2. **Sound effects** - Add satisfying "cha-ching" sound for large batches
 3. **Visual effects** - Add coin particle burst for large gains
