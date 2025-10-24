@@ -617,4 +617,44 @@ import { VisualEffects } from './utils/VisualEffects';
     console.log('  runFrameRateTest() - Test frame rate impact');
   };
   console.log('💡 Type performanceTest() in console to load performance testing tools');
+
+  // Expose performance monitoring debug commands
+  const { PerformanceMonitor } = await import('./utils/PerformanceMonitor');
+  const { ResourceCleanupManager } = await import('./utils/ResourceCleanupManager');
+
+  window.debugPerformance = () => {
+    console.log('\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+    console.log('🔍 Performance Debug Information');
+    console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+
+    // Log performance metrics
+    PerformanceMonitor.logMetrics();
+
+    // Log resource cleanup state
+    console.log('\n📦 Resource Cleanup State:');
+    ResourceCleanupManager.logState();
+
+    console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n');
+  };
+
+  window.debugCleanup = () => {
+    console.log('🧹 Forcing cleanup of all wave resources...');
+    // Note: This is a simplified cleanup that only clears what's publicly accessible
+    // Full cleanup requires access to private managers
+    console.warn('⚠️ Limited cleanup - some resources may require game restart');
+    ResourceCleanupManager.cleanupPersistentEffects();
+    console.log('✅ Cleanup complete');
+  };
+
+  window.debugToggleMonitoring = () => {
+    PerformanceMonitor.toggle();
+    const status = PerformanceMonitor.isEnabled() ? 'enabled' : 'disabled';
+    console.log(`🔧 Performance monitoring ${status}`);
+  };
+
+  console.log('📊 Performance Monitoring available in console');
+  console.log('💡 Performance Monitoring Commands:');
+  console.log('  debugPerformance() - Log current performance metrics');
+  console.log('  debugCleanup() - Force cleanup of wave resources');
+  console.log('  debugToggleMonitoring() - Enable/disable performance monitoring');
 })();

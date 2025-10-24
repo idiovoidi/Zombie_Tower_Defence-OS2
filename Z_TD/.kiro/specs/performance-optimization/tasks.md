@@ -102,7 +102,6 @@
     - _Requirements: 6.1, 6.2, 6.3_
 
 - [x] 7. Enhance Memory Cleanup Systems
-
   - [x] 7.1 Audit Graphics object destruction
     - Search for all Graphics object creation in codebase
     - Verify each has corresponding destroy() call
@@ -128,17 +127,22 @@
     - Add forced cleanup fallback for stuck resources
     - _Requirements: 2.5, 4.3_
 
-- [ ] 8. Integrate Performance Monitoring
-  - [ ] 8.1 Add monitoring to GameManager
+- [x] 8. Integrate Performance Monitoring
+  - [x] 8.1 Add monitoring to GameManager
+
     - Wrap each manager update with performance measurements
     - Track total frame time and per-system times
     - Log warnings when systems exceed time budgets
+
     - _Requirements: 3.1, 3.2_
+
   - [ ] 8.2 Add entity count tracking
     - Track zombies, towers, projectiles, effects, particles, corpses
+
     - Update counts each frame
     - Log warnings when counts exceed thresholds
     - _Requirements: 3.3, 3.4, 3.5_
+
   - [ ] 8.3 Add memory usage tracking
     - Track heap usage each frame
     - Calculate memory growth rate per wave
@@ -147,10 +151,13 @@
   - [ ] 8.4 Create debug console commands
     - Add `window.debugPerformance()` to log current metrics
     - Add `window.debugCleanup()` to force cleanup
+
     - Add `window.debugToggleMonitoring()` to enable/disable monitoring
     - _Requirements: 3.1_
 
-- [ ] 9. Add Performance Configuration
+- [x] 9. Add Performance Configuration
+
+
   - Create `PerformanceConfig` in DevConfig with tunable parameters
   - Add settings for max particles, corpses, effects, and grid cell size
   - Add flags to enable/disable monitoring and pooling

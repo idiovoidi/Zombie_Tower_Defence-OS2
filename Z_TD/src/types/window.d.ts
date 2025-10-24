@@ -27,8 +27,13 @@ declare global {
 
     // Performance testing tools (loaded dynamically)
     performanceTest?: () => Promise<void>;
-    runBalancePerformanceTests?: () => Promise<void>;
-    runFrameRateTest?: () => Promise<void>;
+    runBalancePerformanceTests?: () => void;
+    runFrameRateTest?: () => void;
+
+    // Performance monitoring debug commands
+    debugPerformance: () => void;
+    debugCleanup: () => void;
+    debugToggleMonitoring: () => void;
   }
 }
 

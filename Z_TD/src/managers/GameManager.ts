@@ -22,6 +22,7 @@ import { StatTracker } from '../utils/StatTracker';
 import { EffectCleanupManager } from '../utils/EffectCleanupManager';
 import { EffectManager } from '../effects/EffectManager';
 import { ResourceCleanupManager } from '../utils/ResourceCleanupManager';
+import { PerformanceMonitor } from '../utils/PerformanceMonitor';
 
 export class GameManager {
   private app: Application;
@@ -50,6 +51,9 @@ export class GameManager {
   private onMoneyGainCallback: ((amount: number) => void) | null = null;
   private onDamageFlashCallback: (() => void) | null = null;
   private waveStartLives: number = 0;
+  private waveStartMemory: number = 0;
+  private lastMemoryCheck: number = 0;
+  private memoryCheckInterval: number = 1000; // Check memory every second
 
   constructor(app: Application) {
     this.app = app;
@@ -577,26 +581,41 @@ export class GameManager {
 
   // Update game state
   public update(deltaTime: number): void {
+    // Start frame measurement
+    PerformanceMonitor.startFrame();
+
     // Update animated fog effects
+    PerformanceMonitor.startMeasure('visualMapRenderer');
     if (this.visualMapRenderer) {
       this.visualMapRenderer.updateFog(deltaTime);
     }
+    PerformanceMonitor.endMeasure('visualMapRenderer');
 
     // Update AI player (needs to run in all states to detect wave complete)
+    PerformanceMonitor.startMeasure('aiPlayerManager');
     this.aiPlayerManager.update(deltaTime);
+    PerformanceMonitor.endMeasure('aiPlayerManager');
 
     // Update stat tracker
+    PerformanceMonitor.startMeasure('statTracker');
     this.statTracker.update(deltaTime);
+    PerformanceMonitor.endMeasure('statTracker');
 
     // Update balance tracking manager
+    PerformanceMonitor.startMeasure('balanceTrackingManager');
     this.balanceTrackingManager.update(deltaTime);
+    PerformanceMonitor.endMeasure('balanceTrackingManager');
 
     // CRITICAL: Update effect manager (shell casings, muzzle flashes, etc.)
+    PerformanceMonitor.startMeasure('effectManager');
     this.effectManager.update(deltaTime);
+    PerformanceMonitor.endMeasure('effectManager');
 
     if (this.currentState === GameConfig.GAME_STATES.PLAYING) {
       // Update zombie manager
+      PerformanceMonitor.startMeasure('zombieManager');
       this.zombieManager.update(deltaTime);
+      PerformanceMonitor.endMeasure('zombieManager');
 
       // Update tower combat - only update arrays when they change (dirty flag optimization)
       const towersDirty = this.towerPlacementManager.areTowersDirty();
@@ -627,7 +646,9 @@ export class GameManager {
         }
       }
 
+      PerformanceMonitor.startMeasure('towerCombatManager');
       this.towerCombatManager.update(deltaTime);
+      PerformanceMonitor.endMeasure('towerCombatManager');
 
       // Check if wave is complete
       if (this.zombieManager.isWaveComplete()) {
@@ -668,6 +689,100 @@ export class GameManager {
           // Remove zombie after it reaches the end
           this.zombieManager.removeZombie(i);
         }
+      }
+    }
+
+    // Track entity counts for performance monitoring
+    if (this.currentState === GameConfig.GAME_STATES.PLAYING) {
+      PerformanceMonitor.trackEntityCount('zombies', this.zombieManager.getZombies().length);
+      PerformanceMonitor.trackEntityCount(
+        'towers',
+        this.towerPlacementManager.getPlacedTowers().length
+      );
+      PerformanceMonitor.trackEntityCount(
+        'projectiles',
+        this.projectileManager.getProjectiles().length
+      );
+
+      // Track effect counts
+      const effectCounts = this.effectManager.getEffectCounts();
+      PerformanceMonitor.trackEntityCount(
+        'effects',
+        effectCounts.casings +
+          effectCounts.flashes +
+          effectCounts.trails +
+          effectCounts.impacts +
+          effectCounts.glints
+      );
+
+      // Track particle counts
+      const particleStats = this.zombieManager.getBloodParticleSystem().getStats();
+      PerformanceMonitor.trackEntityCount('particles', particleStats.activeParticles);
+
+      // Track corpse counts
+      const corpseManager = this.zombieManager.getCorpseManager();
+      PerformanceMonitor.trackEntityCount('corpses', corpseManager.getCorpseCount());
+
+      // Track persistent effects
+      const resourceState = ResourceCleanupManager.getState();
+      PerformanceMonitor.trackEntityCount('persistentEffects', resourceState.persistentEffects);
+
+      // Check entity thresholds and log warnings
+      PerformanceMonitor.checkEntityThresholds();
+
+      // Track memory usage periodically (every second)
+      this.lastMemoryCheck += deltaTime;
+      if (this.lastMemoryCheck >= this.memoryCheckInterval) {
+        this.lastMemoryCheck = 0;
+        this.checkMemoryUsage();
+      }
+    }
+
+    // End frame measurement
+    PerformanceMonitor.endFrame();
+  }
+
+  /**
+   * Check memory usage and log warnings if thresholds are exceeded
+   */
+  private checkMemoryUsage(): void {
+    const memoryInfo = PerformanceMonitor.getMemoryUsage();
+
+    // Only check if memory API is available
+    if (memoryInfo.heapUsed === 0) {
+      return;
+    }
+
+    const heapUsedMB = memoryInfo.heapUsed / 1024 / 1024;
+
+    // Memory targets based on wave number
+    const wave = this.wave;
+    let targetMemoryMB = 400; // Default target
+
+    if (wave <= 5) {
+      targetMemoryMB = 400;
+    } else if (wave <= 10) {
+      targetMemoryMB = 450;
+    } else {
+      targetMemoryMB = 500;
+    }
+
+    // Log warning if memory exceeds target
+    if (heapUsedMB > targetMemoryMB) {
+      PerformanceMonitor.logWarning(
+        `High memory usage: ${heapUsedMB.toFixed(2)} MB (target: ${targetMemoryMB} MB for wave ${wave})`
+      );
+    }
+
+    // Calculate memory growth rate per wave
+    if (this.waveStartMemory > 0) {
+      const memoryGrowth = heapUsedMB - this.waveStartMemory;
+
+      // Warn if memory growth exceeds 10 MB per wave (after wave 5)
+      if (wave > 5 && memoryGrowth > 10) {
+        PerformanceMonitor.logWarning(
+          `High memory growth: +${memoryGrowth.toFixed(2)} MB this wave (target: <10 MB per wave)`
+        );
       }
     }
   }
@@ -733,6 +848,12 @@ export class GameManager {
 
     // Track lives at wave start for balance analysis
     this.waveStartLives = this.lives;
+
+    // Track memory at wave start for growth rate calculation
+    const memoryInfo = PerformanceMonitor.getMemoryUsage();
+    if (memoryInfo.heapUsed > 0) {
+      this.waveStartMemory = memoryInfo.heapUsed / 1024 / 1024;
+    }
 
     // Track wave start
     this.statTracker.trackWaveStart();

@@ -1,27 +1,28 @@
 # Persistent Effects Cleanup Verification
 
 ## Summary
+
 Verification that all persistent effects are properly registered with ResourceCleanupManager and unregistered when they expire naturally or during wave transitions.
 
 ## Persistent Effect Locations
 
 ### ✅ All Persistent Effects Properly Managed
 
-| Location | Effect Type | Registration | Natural Expiration | Wave Cleanup |
-|----------|-------------|--------------|-------------------|--------------|
-| **VisualEffects.ts** | | | | |
-| - createDamageIndicator() | damage_indicator | ✅ | ✅ (1000ms timeout) | ✅ |
-| - createDamageFlash() | damage_flash | ✅ | ✅ (500ms animation) | ✅ |
-| **Tower.ts** | | | | |
-| - showDamageFlash() | tower_damage_flash | ✅ | ✅ (100ms timeout) | ✅ |
-| **Projectile.ts** | | | | |
-| - createExplosion() | explosion | ✅ | ✅ (400ms animation) | ✅ |
-| - createFirePool() | fire_pool | ✅ | ✅ (2000ms fade) | ✅ |
-| - createSludgePool() | sludge_pool | ✅ | ✅ (4000-7000ms fade) | ✅ |
-| **TowerCombatManager.ts** | | | | |
-| - createLightningArc() | tesla_lightning | ✅ | ✅ (150ms timeout) | ✅ |
-| - createFlameStream() | flame_stream | ✅ | ✅ (120ms timeout) | ✅ |
-| - createElectricParticles() | tesla_particles | ✅ | ✅ (180-250ms fade) | ✅ |
+| Location                    | Effect Type        | Registration | Natural Expiration    | Wave Cleanup |
+| --------------------------- | ------------------ | ------------ | --------------------- | ------------ |
+| **VisualEffects.ts**        |                    |              |                       |              |
+| - createDamageIndicator()   | damage_indicator   | ✅           | ✅ (1000ms timeout)   | ✅           |
+| - createDamageFlash()       | damage_flash       | ✅           | ✅ (500ms animation)  | ✅           |
+| **Tower.ts**                |                    |              |                       |              |
+| - showDamageFlash()         | tower_damage_flash | ✅           | ✅ (100ms timeout)    | ✅           |
+| **Projectile.ts**           |                    |              |                       |              |
+| - createExplosion()         | explosion          | ✅           | ✅ (400ms animation)  | ✅           |
+| - createFirePool()          | fire_pool          | ✅           | ✅ (2000ms fade)      | ✅           |
+| - createSludgePool()        | sludge_pool        | ✅           | ✅ (4000-7000ms fade) | ✅           |
+| **TowerCombatManager.ts**   |                    |              |                       |              |
+| - createLightningArc()      | tesla_lightning    | ✅           | ✅ (150ms timeout)    | ✅           |
+| - createFlameStream()       | flame_stream       | ✅           | ✅ (120ms timeout)    | ✅           |
+| - createElectricParticles() | tesla_particles    | ✅           | ✅ (180-250ms fade)   | ✅           |
 
 ## Registration Pattern
 
@@ -36,7 +37,9 @@ const graphics = new Graphics();
 ResourceCleanupManager.registerPersistentEffect(graphics, {
   type: 'effect_type',
   duration: durationMs,
-  onCleanup: () => { /* optional cleanup logic */ }
+  onCleanup: () => {
+    /* optional cleanup logic */
+  },
 });
 
 // 3. Add to scene
@@ -47,10 +50,10 @@ const timeout = EffectCleanupManager.registerTimeout(
   setTimeout(() => {
     // 5. Clear timer
     EffectCleanupManager.clearTimeout(timeout);
-    
+
     // 6. Unregister from cleanup manager
     ResourceCleanupManager.unregisterPersistentEffect(graphics);
-    
+
     // 7. Remove from scene and destroy
     if (graphics.parent) {
       graphics.parent.removeChild(graphics);
@@ -79,15 +82,15 @@ const timeout = EffectCleanupManager.registerTimeout(
 public static cleanupWaveResources(managers: GameManagers): void {
   // 1. FIRST: Clear all timers (prevents callbacks on destroyed objects)
   EffectCleanupManager.clearAll();
-  
+
   // 2. THEN: Destroy persistent effects (safe now that timers are cleared)
   this.cleanupPersistentEffects();
-  
+
   // 3. Clear other managers
   managers.projectileManager?.clear();
   managers.effectManager?.clear();
   managers.zombieManager?.getBloodParticleSystem().clear();
-  
+
   // 4. Execute custom cleanup callbacks
   this.executeCleanupCallbacks();
 }
@@ -96,17 +99,20 @@ public static cleanupWaveResources(managers: GameManagers): void {
 ## Verification Results
 
 ### ✅ Registration Verification
+
 - All persistent effects call `registerPersistentEffect()` immediately after creation
 - All effects include proper metadata (type, duration)
 - Effects with special cleanup needs provide `onCleanup` callbacks
 
 ### ✅ Natural Expiration Verification
+
 - All effects use `EffectCleanupManager.registerTimeout/registerInterval` for timers
 - All timers properly call `unregisterPersistentEffect()` before destroying
 - All effects check `if (!graphics.destroyed)` before cleanup operations
 - All effects remove from parent before destroying
 
 ### ✅ Wave Cleanup Verification
+
 - `cleanupWaveResources()` is called in `cleanupWaveObjects()` after each wave
 - `cleanupWaveResources()` is called in `startNextWave()` as safety check
 - Cleanup order is correct: timers first, then objects
@@ -155,18 +161,21 @@ public static cleanupWaveResources(managers: GameManagers): void {
 ## Testing Recommendations
 
 ### Manual Testing
+
 1. Play through 5+ waves and verify no persistent effects remain
 2. Check console for cleanup logs showing effect counts
 3. Monitor memory usage - should stabilize after wave 5
 4. Verify no visual artifacts remain after wave cleanup
 
 ### Automated Testing
+
 1. Create test that spawns effects and triggers wave cleanup
 2. Verify `persistentEffects.size === 0` after cleanup
 3. Verify `effectTimers.intervals === 0` after cleanup
 4. Verify `effectTimers.timeouts === 0` after cleanup
 
 ### Debug Commands
+
 ```typescript
 // Check current state
 ResourceCleanupManager.logState();
@@ -188,6 +197,6 @@ console.assert(state.persistentEffects === 0, 'Effects not cleaned up!');
 ✅ All effects cleaned up during wave transitions  
 ✅ Cleanup order prevents callbacks on destroyed objects  
 ✅ Special cases (sludge slow, tesla particles) handled correctly  
-✅ Memory leak safeguards in place  
+✅ Memory leak safeguards in place
 
 No issues found. The persistent effect cleanup system is working as designed.
