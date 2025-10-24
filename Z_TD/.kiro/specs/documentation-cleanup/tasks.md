@@ -55,7 +55,9 @@
   - Update frontmatter with appropriate fileMatchPattern
   - _Requirements: 3.1, 3.2, 3.3_
 
-- [-] 2.2 Refactor Zombie_Types.md
+- [x] 2.2 Refactor Zombie_Types.md
+
+
 
 
 
@@ -64,6 +66,10 @@
   - Move implementation details to design_docs/Features/Zombies/IMPLEMENTATION.md
   - Update frontmatter with appropriate fileMatchPattern
   - _Requirements: 3.1, 3.2, 3.3_
+
+
+
+
 
 - [ ] 2.3 Enhance and reorganize Towers.md
 
@@ -78,12 +84,17 @@
   - Move tech.md to .kiro/steering/core/tech.md
   - Move structure.md to .kiro/steering/core/structure.md
   - Move cleanup.md to .kiro/steering/core/cleanup.md
+
   - Move product.md to .kiro/steering/process/product.md
   - Move summary.md to .kiro/steering/process/summary.md
   - Update any references to these files
   - _Requirements: 1.1, 1.4_
 
-- [ ] 3. Reorganize design documentation
+- [x] 3. Reorganize design documentation
+
+
+
+
 
   - Create feature-based directory structure
   - Move existing design docs to appropriate locations
@@ -91,38 +102,57 @@
   - Update cross-references between documents
   - _Requirements: 4.1, 4.2, 4.3, 4.4_
 
-- [ ] 3.1 Reorganize memory management documentation
+
+
+- [x] 3.1 Reorganize memory management documentation
+
   - Move all files from design_docs/Augment_Code_Docs/ to design_docs/Core_Systems/Memory_Management/
   - Create design_docs/Core_Systems/Memory_Management/README.md as overview
   - Consolidate CLEANUP_*.md files into single CLEANUP_GUIDE.md
   - Consolidate MEMORY_LEAK_*.md files into single MEMORY_LEAK_GUIDE.md
   - Delete Augment_Code_Docs directory after migration
+
+
   - _Requirements: 4.1, 4.2_
 
-- [ ] 3.2 Reorganize tower documentation
+- [x] 3.2 Reorganize tower documentation
+
   - Move design_docs/Towers/* to design_docs/Features/Towers/
+
+
   - Move TOWER_*.md files from root to design_docs/Features/Towers/
   - Consolidate TOWER_DESIGN_IMPROVEMENTS.md and CURRENT_TOWER_IMPROVEMENTS.md into IMPROVEMENTS.md
   - Move FUTURE_TOWER_IDEAS.md to design_docs/Features/Towers/IDEAS.md
+
+
   - Create design_docs/Features/Towers/README.md as overview
   - _Requirements: 4.1, 4.2, 4.4_
 
-- [ ] 3.3 Reorganize zombie documentation
+- [x] 3.3 Reorganize zombie documentation
+
+
   - Move design_docs/Zombies/* to design_docs/Features/Zombies/
   - Move ZOMBIE_*.md files from root to design_docs/Features/Zombies/
   - Create design_docs/Features/Zombies/README.md as overview
   - _Requirements: 4.1, 4.4_
 
-- [ ] 3.4 Reorganize UI documentation
+- [x] 3.4 Reorganize UI documentation
+
+
   - Move design_docs/User_Interface/* to design_docs/Features/UI/
   - Create design_docs/Features/UI/README.md as overview
   - _Requirements: 4.1, 4.4_
 
-- [ ] 3.5 Consolidate graveyard and environment documentation
+
+- [x] 3.5 Consolidate graveyard and environment documentation
+
+
   - Create design_docs/Features/Environment/ directory
   - Consolidate graveyard_*.md files into design_docs/Features/Environment/GRAVEYARD.md
   - Move ZOMBIE_ENVIRONMENT_REDESIGN.md to design_docs/Features/Environment/
   - _Requirements: 4.2_
+
+
 
 - [ ] 3.6 Reorganize wave and camp documentation
   - Create design_docs/Features/Waves/ directory
@@ -132,6 +162,8 @@
   - Move CAMP_UPGRADE_SYSTEM.md and SURVIVOR_CAMP_*.md to design_docs/Features/Camp/
   - _Requirements: 4.1, 4.4_
 
+
+
 - [ ] 3.7 Reorganize performance documentation
   - Create design_docs/Core_Systems/Performance/ directory
   - Move PERFORMANCE_TESTING_GUIDE.md to design_docs/Core_Systems/Performance/
@@ -139,7 +171,8 @@
   - Move task_summary/performance-optimization/* to design_docs/Core_Systems/Performance/
   - _Requirements: 4.1, 4.4_
 
-- [ ] 3.8 Handle personal and miscellaneous documentation
+- [x] 3.8 Handle personal and miscellaneous documentation
+
   - Add design_docs/My_Docs/ to .gitignore
   - Move PATH_DESIGN.md to design_docs/Features/Environment/
   - Move DEBUG_*.md files to design_docs/Core_Systems/Testing/

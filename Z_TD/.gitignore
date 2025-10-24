@@ -30,3 +30,6 @@ coverage/
 player_reports/*.json
 # But keep the example
 !player_reports/EXAMPLE_REPORT.json
+
+# Personal documentation
+design_docs/My_Docs/
