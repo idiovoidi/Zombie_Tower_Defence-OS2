@@ -347,13 +347,15 @@ export class TowerCombatManager {
       tower.parent.addChild(lightningGraphics);
     }
 
-    // Remove lightning after short duration
-    setTimeout(() => {
-      if (lightningGraphics.parent) {
-        lightningGraphics.parent.removeChild(lightningGraphics);
-      }
-      lightningGraphics.destroy();
-    }, 150); // Lightning lasts 150ms for chain effect
+    // Remove lightning after short duration (tracked to prevent memory leaks)
+    EffectCleanupManager.registerTimeout(
+      setTimeout(() => {
+        if (lightningGraphics.parent) {
+          lightningGraphics.parent.removeChild(lightningGraphics);
+        }
+        lightningGraphics.destroy();
+      }, 150)
+    ); // Lightning lasts 150ms for chain effect
   }
 
   /**
@@ -591,13 +593,15 @@ export class TowerCombatManager {
       tower.parent.addChild(flameGraphics);
     }
 
-    // Remove flame after short duration
-    setTimeout(() => {
-      if (flameGraphics.parent) {
-        flameGraphics.parent.removeChild(flameGraphics);
-      }
-      flameGraphics.destroy();
-    }, 120); // Flame lasts 120ms
+    // Remove flame after short duration (tracked to prevent memory leaks)
+    EffectCleanupManager.registerTimeout(
+      setTimeout(() => {
+        if (flameGraphics.parent) {
+          flameGraphics.parent.removeChild(flameGraphics);
+        }
+        flameGraphics.destroy();
+      }, 120)
+    ); // Flame lasts 120ms
   }
 
   /**

@@ -7,6 +7,7 @@ import { GameConfig } from '../config/gameConfig';
 import { TowerRangeVisualizer } from '../utils/TowerRangeVisualizer';
 import { TowerManager } from '../managers/TowerManager';
 import { BarrelHeatGlow } from '../effects/BarrelHeatGlow';
+import { EffectCleanupManager } from '../utils/EffectCleanupManager';
 import type { MuzzleFlash, ShellCasing, TowerEffects } from '../types/tower-internal';
 
 export class Tower extends GameObject implements ITower, TowerEffects {
@@ -441,15 +442,17 @@ export class Tower extends GameObject implements ITower, TowerEffects {
     const originalY = this.barrel.y;
     this.barrel.y = 2;
 
-    // Reset after a short delay
-    setTimeout(() => {
-      if (this.barrel && !this.barrel.destroyed) {
-        this.barrel.removeChild(flash);
-        flash.destroy();
-        // Return to original position
-        this.barrel.y = originalY;
-      }
-    }, 100);
+    // Reset after a short delay (tracked to prevent memory leaks)
+    EffectCleanupManager.registerTimeout(
+      setTimeout(() => {
+        if (this.barrel && !this.barrel.destroyed) {
+          this.barrel.removeChild(flash);
+          flash.destroy();
+          // Return to original position
+          this.barrel.y = originalY;
+        }
+      }, 100)
+    );
   }
 
   // Show tower range visualization
@@ -1202,13 +1205,15 @@ export class Tower extends GameObject implements ITower, TowerEffects {
       damageFlash.circle(0, 0, 30).fill({ color: 0xff0000, alpha: 0.5 });
       this.addChild(damageFlash);
 
-      // Remove flash after a short delay
-      setTimeout(() => {
-        if (damageFlash && !damageFlash.destroyed) {
-          this.removeChild(damageFlash);
-          damageFlash.destroy();
-        }
-      }, 100);
+      // Remove flash after a short delay (tracked to prevent memory leaks)
+      EffectCleanupManager.registerTimeout(
+        setTimeout(() => {
+          if (damageFlash && !damageFlash.destroyed) {
+            this.removeChild(damageFlash);
+            damageFlash.destroy();
+          }
+        }, 100)
+      );
 
       return actualDamage;
     }

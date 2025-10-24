@@ -20,6 +20,7 @@ import { DebugConstants } from '../config/debugConstants';
 import { type GameLogEntry, LogExporter } from '../utils/LogExporter';
 import { StatTracker } from '../utils/StatTracker';
 import { EffectCleanupManager } from '../utils/EffectCleanupManager';
+import { EffectManager } from '../effects/EffectManager';
 
 export class GameManager {
   private app: Application;
@@ -39,6 +40,7 @@ export class GameManager {
   private upgradeSystem: UpgradeSystem;
   private towerCombatManager: TowerCombatManager;
   private projectileManager: ProjectileManager;
+  private effectManager: EffectManager; // CRITICAL: Manages shell casings, muzzle flashes, etc.
   private aiPlayerManager: AIPlayerManager;
   private balanceTrackingManager: BalanceTrackingManager;
   private statTracker: StatTracker;
@@ -86,6 +88,9 @@ export class GameManager {
     this.resourceManager = new ResourceManager();
     this.upgradeSystem = new UpgradeSystem(this.resourceManager);
     this.projectileManager = new ProjectileManager(this.gameContainer);
+    // CRITICAL: Initialize EffectManager for shell casings, muzzle flashes, etc.
+    this.effectManager = new EffectManager(this.gameContainer);
+    console.log('EffectManager initialized');
     // Initialize TowerCombatManager with world dimensions for spatial partitioning
     const worldWidth = 1024; // Play area width (excluding UI)
     const worldHeight = 768; // Full height
@@ -153,6 +158,10 @@ export class GameManager {
     if (this.levelManager.loadLevel(levelId)) {
       const level = this.levelManager.getCurrentLevel();
       if (level) {
+        // CRITICAL: Clear all game objects from previous game to prevent memory leaks
+        console.log('🧹 Cleaning up previous game state...');
+        this.clearGameState();
+
         // Clear any orphaned effect intervals from previous game
         EffectCleanupManager.clearAll();
 
@@ -162,6 +171,10 @@ export class GameManager {
         // Reset and enable balance tracking for new game
         this.balanceTrackingManager.reset();
         this.balanceTrackingManager.enable();
+
+        // Reset wave counter
+        this.wave = DebugConstants.ENABLED ? DebugConstants.START_AT_WAVE : 1;
+        this.waveManager.reset();
 
         // Set level-specific game parameters (unless debug mode overrides)
         if (DebugConstants.ENABLED) {
@@ -217,6 +230,64 @@ export class GameManager {
     } else {
       console.error(`Failed to load level: ${levelId}`);
     }
+  }
+
+  /**
+   * Clear all game state to prevent memory leaks when starting a new game
+   * CRITICAL: This must be called before starting a new game or restarting
+   */
+  private clearGameState(): void {
+    // Clear all zombies (destroys zombie objects, blood particles, corpses)
+    this.zombieManager.clear();
+    console.log('  ✓ Zombies cleared');
+
+    // Clear all towers (destroys tower objects and their effects)
+    this.towerPlacementManager.clear();
+    console.log('  ✓ Towers cleared');
+
+    // Clear all projectiles (destroys projectile objects and their effects)
+    this.projectileManager.clear();
+    console.log('  ✓ Projectiles cleared');
+
+    // CRITICAL: Clear all visual effects (shell casings, muzzle flashes, bullet trails, etc.)
+    this.effectManager.clear();
+    console.log('  ✓ Visual effects cleared');
+
+    // Clear tower combat manager state
+    this.towerCombatManager.setTowers([]);
+    this.towerCombatManager.setZombies([]);
+    console.log('  ✓ Combat manager cleared');
+
+    console.log('🧹 Game state cleanup complete');
+  }
+
+  /**
+   * Clean up wave-specific objects between waves to prevent memory accumulation
+   * CRITICAL: This must be called after each wave completes
+   */
+  private cleanupWaveObjects(): void {
+    // Clear all remaining projectiles (explosions, fire pools, sludge pools, etc.)
+    this.projectileManager.clear();
+    console.log('  ✓ Projectiles cleared');
+
+    // CRITICAL: Clear all visual effects (shell casings, muzzle flashes, bullet trails, etc.)
+    this.effectManager.clear();
+    console.log('  ✓ Visual effects cleared (casings, flashes, trails)');
+
+    // Clear all effect intervals/timeouts (laser particles, etc.)
+    EffectCleanupManager.clearAll();
+    console.log('  ✓ Effect timers cleared');
+
+    // Clear blood particles from zombie manager
+    const bloodSystem = this.zombieManager.getBloodParticleSystem();
+    bloodSystem.clear();
+    console.log('  ✓ Blood particles cleared');
+
+    // Note: Corpses will fade naturally over time (managed by CorpseManager)
+    // This keeps some visual persistence while preventing memory buildup
+    console.log('  ✓ Old corpses will fade naturally');
+
+    console.log('🧹 Wave cleanup complete');
   }
 
   // Spawn starter tower for new players
@@ -292,6 +363,10 @@ export class GameManager {
     if (!this.aiPlayerManager.isEnabled()) {
       this.exportManualGameLog();
     }
+
+    // Clear game state to free memory (player can restart from menu)
+    console.log('🧹 Cleaning up game state after game over...');
+    this.clearGameState();
   }
 
   // Export game log for manual play
@@ -345,6 +420,10 @@ export class GameManager {
     if (this.balanceTrackingManager.isEnabled()) {
       this.balanceTrackingManager.performEndGameAnalysis();
     }
+
+    // Clear game state to free memory (player can restart from menu)
+    console.log('🧹 Cleaning up game state after victory...');
+    this.clearGameState();
   }
 
   // Get current state
@@ -536,6 +615,9 @@ export class GameManager {
     // Update balance tracking manager
     this.balanceTrackingManager.update(deltaTime);
 
+    // CRITICAL: Update effect manager (shell casings, muzzle flashes, etc.)
+    this.effectManager.update(deltaTime);
+
     if (this.currentState === GameConfig.GAME_STATES.PLAYING) {
       // Update zombie manager
       this.zombieManager.update(deltaTime);
@@ -603,6 +685,10 @@ export class GameManager {
     console.log(`Wave ${this.wave} complete!`);
     this.currentState = GameConfig.GAME_STATES.WAVE_COMPLETE;
 
+    // CRITICAL: Clean up wave-specific objects to prevent memory leaks
+    console.log('🧹 Cleaning up wave objects...');
+    this.cleanupWaveObjects();
+
     // Track wave completion
     this.statTracker.trackWaveComplete();
 
@@ -640,6 +726,15 @@ export class GameManager {
   public startNextWave(): void {
     this.wave++;
     this.waveManager.nextWave();
+
+    // CRITICAL: Ensure cleanup happened before starting new wave
+    // This is a safety check in case cleanup wasn't called in onWaveComplete
+    console.log('🧹 Pre-wave cleanup check...');
+    this.projectileManager.clear();
+    this.effectManager.clear();
+    EffectCleanupManager.clearAll();
+    console.log('  ✓ Pre-wave cleanup complete');
+
     this.zombieManager.startWave();
     this.currentState = GameConfig.GAME_STATES.PLAYING;
 

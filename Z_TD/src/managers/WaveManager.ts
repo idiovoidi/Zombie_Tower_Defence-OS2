@@ -563,6 +563,17 @@ export class WaveManager {
     this.currentWave++;
   }
 
+  // Reset wave manager to initial state (for new game)
+  public reset(): void {
+    this.currentWave = 1;
+    this.playerPerformance = {
+      killRate: 100,
+      livesLost: 0,
+      resourceEfficiency: 100,
+    };
+    this.difficultyModifier = 1.0;
+  }
+
   // Get current wave number
   public getCurrentWave(): number {
     return this.currentWave;
