@@ -51,9 +51,6 @@ export class GameManager {
   private onMoneyGainCallback: ((amount: number) => void) | null = null;
   private onDamageFlashCallback: (() => void) | null = null;
   private waveStartLives: number = 0;
-  private waveStartMemory: number = 0;
-  private lastMemoryCheck: number = 0;
-  private memoryCheckInterval: number = 1000; // Check memory every second
 
   constructor(app: Application) {
     this.app = app;
@@ -154,6 +151,9 @@ export class GameManager {
     if (this.zombieManager.getZombies().length > 0) {
       this.towerCombatManager.setZombies(this.zombieManager.getZombies());
     }
+
+    // Record memory snapshot for wave 1
+    PerformanceMonitor.recordWaveMemory(this.wave);
 
     console.log('Game started');
   }
@@ -730,62 +730,15 @@ export class GameManager {
       // Check entity thresholds and log warnings
       PerformanceMonitor.checkEntityThresholds();
 
-      // Track memory usage periodically (every second)
-      this.lastMemoryCheck += deltaTime;
-      if (this.lastMemoryCheck >= this.memoryCheckInterval) {
-        this.lastMemoryCheck = 0;
-        this.checkMemoryUsage();
-      }
+      // Track memory usage periodically (throttled internally)
+      PerformanceMonitor.trackMemoryUsage();
     }
 
     // End frame measurement
     PerformanceMonitor.endFrame();
   }
 
-  /**
-   * Check memory usage and log warnings if thresholds are exceeded
-   */
-  private checkMemoryUsage(): void {
-    const memoryInfo = PerformanceMonitor.getMemoryUsage();
 
-    // Only check if memory API is available
-    if (memoryInfo.heapUsed === 0) {
-      return;
-    }
-
-    const heapUsedMB = memoryInfo.heapUsed / 1024 / 1024;
-
-    // Memory targets based on wave number
-    const wave = this.wave;
-    let targetMemoryMB = 400; // Default target
-
-    if (wave <= 5) {
-      targetMemoryMB = 400;
-    } else if (wave <= 10) {
-      targetMemoryMB = 450;
-    } else {
-      targetMemoryMB = 500;
-    }
-
-    // Log warning if memory exceeds target
-    if (heapUsedMB > targetMemoryMB) {
-      PerformanceMonitor.logWarning(
-        `High memory usage: ${heapUsedMB.toFixed(2)} MB (target: ${targetMemoryMB} MB for wave ${wave})`
-      );
-    }
-
-    // Calculate memory growth rate per wave
-    if (this.waveStartMemory > 0) {
-      const memoryGrowth = heapUsedMB - this.waveStartMemory;
-
-      // Warn if memory growth exceeds 10 MB per wave (after wave 5)
-      if (wave > 5 && memoryGrowth > 10) {
-        PerformanceMonitor.logWarning(
-          `High memory growth: +${memoryGrowth.toFixed(2)} MB this wave (target: <10 MB per wave)`
-        );
-      }
-    }
-  }
 
   // Handle wave completion
   private onWaveComplete(): void {
@@ -849,11 +802,8 @@ export class GameManager {
     // Track lives at wave start for balance analysis
     this.waveStartLives = this.lives;
 
-    // Track memory at wave start for growth rate calculation
-    const memoryInfo = PerformanceMonitor.getMemoryUsage();
-    if (memoryInfo.heapUsed > 0) {
-      this.waveStartMemory = memoryInfo.heapUsed / 1024 / 1024;
-    }
+    // Record memory snapshot at wave start
+    PerformanceMonitor.recordWaveMemory(this.wave);
 
     // Track wave start
     this.statTracker.trackWaveStart();

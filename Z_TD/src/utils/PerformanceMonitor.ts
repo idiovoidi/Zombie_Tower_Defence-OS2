@@ -19,6 +19,15 @@ export interface MemoryInfo {
   heapUsed: number;
   heapTotal: number;
   external: number;
+  heapUsedMB: number;
+  heapTotalMB: number;
+}
+
+export interface WaveMemorySnapshot {
+  wave: number;
+  timestamp: number;
+  heapUsedMB: number;
+  heapTotalMB: number;
 }
 
 export interface SystemMeasurement {
@@ -38,12 +47,23 @@ export class PerformanceMonitor {
   private static frameStartTime: number = 0;
   private static lastFrameTime: number = 0;
 
+  // Memory tracking
+  private static waveMemorySnapshots: WaveMemorySnapshot[] = [];
+  private static lastMemoryCheck: number = 0;
+  private static readonly MEMORY_CHECK_INTERVAL_MS = 1000; // Check every second
+
   // Thresholds
   private static readonly SLOW_SYSTEM_THRESHOLD_MS = 5;
   private static readonly SLOW_FRAME_THRESHOLD_MS = 33; // Below 30 FPS
   private static readonly MAX_GRAPHICS_OBJECTS = 100;
   private static readonly MAX_PERSISTENT_EFFECTS = 20;
   private static readonly MAX_FRAME_HISTORY = 60; // Keep last 60 frames
+
+  // Memory thresholds (in MB)
+  private static readonly MEMORY_TARGET_WAVE_5 = 400;
+  private static readonly MEMORY_TARGET_WAVE_10 = 450;
+  private static readonly MEMORY_TARGET_WAVE_20 = 500;
+  private static readonly MAX_MEMORY_GROWTH_PER_WAVE = 10; // MB per wave after wave 5
 
   /**
    * Enable or disable performance monitoring
@@ -198,10 +218,14 @@ export class PerformanceMonitor {
 
     if (typeof performance !== 'undefined' && perfWithMemory.memory) {
       const memory = perfWithMemory.memory;
+      const heapUsedMB = memory.usedJSHeapSize / 1024 / 1024;
+      const heapTotalMB = memory.totalJSHeapSize / 1024 / 1024;
       return {
         heapUsed: memory.usedJSHeapSize,
         heapTotal: memory.totalJSHeapSize,
         external: memory.jsHeapSizeLimit,
+        heapUsedMB,
+        heapTotalMB,
       };
     }
 
@@ -210,7 +234,142 @@ export class PerformanceMonitor {
       heapUsed: 0,
       heapTotal: 0,
       external: 0,
+      heapUsedMB: 0,
+      heapTotalMB: 0,
     };
+  }
+
+  /**
+   * Track memory usage each frame (throttled to avoid overhead)
+   */
+  public static trackMemoryUsage(): void {
+    if (!this.enabled) {
+      return;
+    }
+
+    const now = performance.now();
+    if (now - this.lastMemoryCheck < this.MEMORY_CHECK_INTERVAL_MS) {
+      return;
+    }
+
+    this.lastMemoryCheck = now;
+    const memory = this.getMemoryUsage();
+
+    // Check memory thresholds if we have memory data
+    if (memory.heapUsedMB > 0) {
+      this.checkMemoryThresholds(memory.heapUsedMB);
+    }
+  }
+
+  /**
+   * Record memory snapshot at wave start
+   */
+  public static recordWaveMemory(wave: number): void {
+    if (!this.enabled) {
+      return;
+    }
+
+    const memory = this.getMemoryUsage();
+    if (memory.heapUsedMB === 0) {
+      return; // Memory API not available
+    }
+
+    const snapshot: WaveMemorySnapshot = {
+      wave,
+      timestamp: Date.now(),
+      heapUsedMB: memory.heapUsedMB,
+      heapTotalMB: memory.heapTotalMB,
+    };
+
+    this.waveMemorySnapshots.push(snapshot);
+
+    // Log wave memory
+    console.log(
+      `📊 Wave ${wave} Memory: ${memory.heapUsedMB.toFixed(2)} MB (Total: ${memory.heapTotalMB.toFixed(2)} MB)`
+    );
+
+    // Calculate and log growth rate if we have previous waves
+    if (this.waveMemorySnapshots.length > 1) {
+      const growthRate = this.calculateMemoryGrowthRate();
+      if (growthRate !== null) {
+        console.log(`📈 Memory growth rate: ${growthRate.toFixed(2)} MB/wave`);
+
+        // Check if growth rate exceeds threshold after wave 5
+        if (wave > 5 && growthRate > this.MAX_MEMORY_GROWTH_PER_WAVE) {
+          this.logWarning(
+            `High memory growth rate: ${growthRate.toFixed(2)} MB/wave (target: ${this.MAX_MEMORY_GROWTH_PER_WAVE} MB/wave)`
+          );
+        }
+      }
+    }
+  }
+
+  /**
+   * Calculate memory growth rate per wave
+   */
+  private static calculateMemoryGrowthRate(): number | null {
+    if (this.waveMemorySnapshots.length < 2) {
+      return null;
+    }
+
+    // Calculate growth rate from last 5 waves (or all available if less than 5)
+    const recentSnapshots = this.waveMemorySnapshots.slice(-5);
+    if (recentSnapshots.length < 2) {
+      return null;
+    }
+
+    const firstSnapshot = recentSnapshots[0];
+    const lastSnapshot = recentSnapshots[recentSnapshots.length - 1];
+
+    const memoryDiff = lastSnapshot.heapUsedMB - firstSnapshot.heapUsedMB;
+    const waveDiff = lastSnapshot.wave - firstSnapshot.wave;
+
+    if (waveDiff === 0) {
+      return null;
+    }
+
+    return memoryDiff / waveDiff;
+  }
+
+  /**
+   * Check memory usage against wave-specific thresholds
+   */
+  private static checkMemoryThresholds(heapUsedMB: number): void {
+    // Get current wave from the last snapshot
+    if (this.waveMemorySnapshots.length === 0) {
+      return;
+    }
+
+    const currentWave = this.waveMemorySnapshots[this.waveMemorySnapshots.length - 1].wave;
+
+    // Check wave-specific thresholds
+    if (currentWave >= 20 && heapUsedMB > this.MEMORY_TARGET_WAVE_20) {
+      this.logWarning(
+        `Memory exceeds wave 20 target: ${heapUsedMB.toFixed(2)} MB (target: ${this.MEMORY_TARGET_WAVE_20} MB)`
+      );
+    } else if (currentWave >= 10 && heapUsedMB > this.MEMORY_TARGET_WAVE_10) {
+      this.logWarning(
+        `Memory exceeds wave 10 target: ${heapUsedMB.toFixed(2)} MB (target: ${this.MEMORY_TARGET_WAVE_10} MB)`
+      );
+    } else if (currentWave >= 5 && heapUsedMB > this.MEMORY_TARGET_WAVE_5) {
+      this.logWarning(
+        `Memory exceeds wave 5 target: ${heapUsedMB.toFixed(2)} MB (target: ${this.MEMORY_TARGET_WAVE_5} MB)`
+      );
+    }
+  }
+
+  /**
+   * Get wave memory snapshots
+   */
+  public static getWaveMemorySnapshots(): WaveMemorySnapshot[] {
+    return [...this.waveMemorySnapshots];
+  }
+
+  /**
+   * Get memory growth rate
+   */
+  public static getMemoryGrowthRate(): number | null {
+    return this.calculateMemoryGrowthRate();
   }
 
   /**
@@ -287,11 +446,21 @@ export class PerformanceMonitor {
 
     // Memory usage
     if (metrics.memoryUsage.heapUsed > 0) {
-      const heapUsedMB = (metrics.memoryUsage.heapUsed / 1024 / 1024).toFixed(2);
-      const heapTotalMB = (metrics.memoryUsage.heapTotal / 1024 / 1024).toFixed(2);
       console.log(`\n💾 Memory Usage:`);
-      console.log(`   Heap Used: ${heapUsedMB} MB`);
-      console.log(`   Heap Total: ${heapTotalMB} MB`);
+      console.log(`   Heap Used: ${metrics.memoryUsage.heapUsedMB.toFixed(2)} MB`);
+      console.log(`   Heap Total: ${metrics.memoryUsage.heapTotalMB.toFixed(2)} MB`);
+
+      // Show memory growth rate if available
+      const growthRate = this.getMemoryGrowthRate();
+      if (growthRate !== null) {
+        const icon = growthRate > this.MAX_MEMORY_GROWTH_PER_WAVE ? '⚠️' : '✅';
+        console.log(`   ${icon} Growth Rate: ${growthRate.toFixed(2)} MB/wave`);
+      }
+
+      // Show wave memory history
+      if (this.waveMemorySnapshots.length > 0) {
+        console.log(`   Wave History: ${this.waveMemorySnapshots.length} snapshots`);
+      }
     }
 
     // Warnings
@@ -315,6 +484,8 @@ export class PerformanceMonitor {
     this.warnings = [];
     this.frameStartTime = 0;
     this.lastFrameTime = 0;
+    this.waveMemorySnapshots = [];
+    this.lastMemoryCheck = 0;
   }
 
   /**
@@ -334,4 +505,54 @@ export class PerformanceMonitor {
   public static getWarnings(): string[] {
     return [...this.warnings];
   }
+}
+
+// Debug console commands
+declare global {
+  interface Window {
+    debugPerformance: () => void;
+    debugCleanup: () => void;
+    debugToggleMonitoring: () => void;
+  }
+}
+
+// Only attach debug commands in browser environment (not in tests)
+if (typeof window !== 'undefined') {
+  /**
+   * Debug console command: Log current performance metrics
+   * Usage: window.debugPerformance() or debugPerformance() in console
+   */
+  window.debugPerformance = () => {
+    console.log('🔍 Performance Debug Command');
+    PerformanceMonitor.logMetrics();
+  };
+
+  /**
+   * Debug console command: Force cleanup of all resources
+   * Usage: window.debugCleanup() or debugCleanup() in console
+   */
+  window.debugCleanup = () => {
+    console.log('🔍 Cleanup Debug Command');
+    // Import ResourceCleanupManager dynamically to avoid circular dependencies
+    import('./ResourceCleanupManager').then(({ ResourceCleanupManager }) => {
+      console.log('📊 Current state before cleanup:');
+      ResourceCleanupManager.logState();
+      console.log('\n🧹 Forcing cleanup...');
+      ResourceCleanupManager.forceCleanup();
+      console.log('\n📊 State after cleanup:');
+      ResourceCleanupManager.logState();
+    });
+  };
+
+  /**
+   * Debug console command: Toggle performance monitoring on/off
+   * Usage: window.debugToggleMonitoring() or debugToggleMonitoring() in console
+   */
+  window.debugToggleMonitoring = () => {
+    console.log('🔍 Toggle Monitoring Debug Command');
+    PerformanceMonitor.toggle();
+    console.log(
+      `Performance monitoring is now ${PerformanceMonitor.isEnabled() ? 'ENABLED' : 'DISABLED'}`
+    );
+  };
 }

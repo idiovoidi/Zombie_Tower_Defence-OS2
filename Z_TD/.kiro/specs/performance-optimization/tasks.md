@@ -129,42 +129,43 @@
 
 - [x] 8. Integrate Performance Monitoring
   - [x] 8.1 Add monitoring to GameManager
-
     - Wrap each manager update with performance measurements
     - Track total frame time and per-system times
     - Log warnings when systems exceed time budgets
 
     - _Requirements: 3.1, 3.2_
 
-  - [ ] 8.2 Add entity count tracking
+  - [x] 8.2 Add entity count tracking
     - Track zombies, towers, projectiles, effects, particles, corpses
 
     - Update counts each frame
     - Log warnings when counts exceed thresholds
     - _Requirements: 3.3, 3.4, 3.5_
 
-  - [ ] 8.3 Add memory usage tracking
+  - [x] 8.3 Add memory usage tracking
     - Track heap usage each frame
+
     - Calculate memory growth rate per wave
     - Log warnings when memory exceeds targets
     - _Requirements: 2.1, 2.2, 2.3, 2.4_
-  - [ ] 8.4 Create debug console commands
+
+  - [x] 8.4 Create debug console commands
     - Add `window.debugPerformance()` to log current metrics
+
     - Add `window.debugCleanup()` to force cleanup
 
     - Add `window.debugToggleMonitoring()` to enable/disable monitoring
     - _Requirements: 3.1_
 
 - [x] 9. Add Performance Configuration
-
-
   - Create `PerformanceConfig` in DevConfig with tunable parameters
   - Add settings for max particles, corpses, effects, and grid cell size
   - Add flags to enable/disable monitoring and pooling
   - Add threshold values for warnings and performance targets
   - _Requirements: 3.1, 7.1, 7.2, 7.3_
 
-- [ ] 10. Performance Testing and Validation
+- [x] 10. Performance Testing and Validation
+
   - [ ]\* 10.1 Create performance benchmark tests
     - Test frame rates at waves 1, 5, 10, 20
     - Verify frame rates meet targets (60, 50, 45, 40 FPS)
@@ -191,7 +192,6 @@
     - Test with 20 towers firing continuously
     - Run game for 50+ waves to verify stability
     - _Requirements: 1.1, 1.2, 1.3, 2.1, 2.2, 2.3_
-
 
 - [ ] 11. Documentation and Cleanup
   - [ ]\* 11.1 Update performance documentation

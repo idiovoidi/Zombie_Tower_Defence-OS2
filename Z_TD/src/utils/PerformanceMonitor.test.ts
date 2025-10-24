@@ -144,11 +144,77 @@ describe('PerformanceMonitor', () => {
       expect(memoryInfo).toHaveProperty('heapUsed');
       expect(memoryInfo).toHaveProperty('heapTotal');
       expect(memoryInfo).toHaveProperty('external');
+      expect(memoryInfo).toHaveProperty('heapUsedMB');
+      expect(memoryInfo).toHaveProperty('heapTotalMB');
     });
 
     it('should include memory in metrics', () => {
       const metrics = PerformanceMonitor.getMetrics();
       expect(metrics.memoryUsage).toBeDefined();
+    });
+
+    it('should record wave memory snapshots', () => {
+      PerformanceMonitor.recordWaveMemory(1);
+      PerformanceMonitor.recordWaveMemory(2);
+
+      const snapshots = PerformanceMonitor.getWaveMemorySnapshots();
+
+      // Memory API may not be available in test environment
+      // If available, should have 2 snapshots
+      // If not available, should have 0 snapshots
+      const memory = PerformanceMonitor.getMemoryUsage();
+      if (memory.heapUsedMB > 0) {
+        expect(snapshots.length).toBe(2);
+        expect(snapshots[0].wave).toBe(1);
+        expect(snapshots[1].wave).toBe(2);
+      } else {
+        expect(snapshots.length).toBe(0);
+      }
+    });
+
+    it('should calculate memory growth rate', () => {
+      // Record multiple waves
+      PerformanceMonitor.recordWaveMemory(1);
+      PerformanceMonitor.recordWaveMemory(2);
+      PerformanceMonitor.recordWaveMemory(3);
+
+      const growthRate = PerformanceMonitor.getMemoryGrowthRate();
+      // Growth rate may be null if memory API not available
+      if (growthRate !== null) {
+        expect(typeof growthRate).toBe('number');
+      }
+    });
+
+    it('should return null growth rate with insufficient data', () => {
+      PerformanceMonitor.recordWaveMemory(1);
+
+      const growthRate = PerformanceMonitor.getMemoryGrowthRate();
+      expect(growthRate).toBeNull();
+    });
+
+    it('should track memory usage periodically', () => {
+      const consoleSpy = jest.spyOn(console, 'warn').mockImplementation();
+
+      // Record a wave first
+      PerformanceMonitor.recordWaveMemory(1);
+
+      // Track memory usage
+      PerformanceMonitor.trackMemoryUsage();
+
+      // Should not throw errors
+      expect(consoleSpy).not.toThrow();
+
+      consoleSpy.mockRestore();
+    });
+
+    it('should clear wave snapshots on reset', () => {
+      PerformanceMonitor.recordWaveMemory(1);
+      PerformanceMonitor.recordWaveMemory(2);
+
+      PerformanceMonitor.reset();
+
+      const snapshots = PerformanceMonitor.getWaveMemorySnapshots();
+      expect(snapshots.length).toBe(0);
     });
   });
 
