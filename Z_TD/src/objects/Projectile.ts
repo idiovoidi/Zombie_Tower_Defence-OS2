@@ -1,6 +1,7 @@
 import { Container, Graphics } from 'pixi.js';
 import { Zombie } from './Zombie';
 import { EffectCleanupManager } from '../utils/EffectCleanupManager';
+import { ResourceCleanupManager } from '../utils/ResourceCleanupManager';
 
 export class Projectile extends Container {
   private visual: Graphics;
@@ -367,6 +368,12 @@ export class Projectile extends Container {
       explosion.position.set(this.position.x, this.position.y);
       this.parent.addChild(explosion);
 
+      // Register explosion as persistent effect for immediate cleanup
+      ResourceCleanupManager.registerPersistentEffect(explosion, {
+        type: 'explosion',
+        duration: 400,
+      });
+
       // Animate explosion expanding and fading
       let elapsed = 0;
       const duration = 400; // Explosion lasts 400ms
@@ -380,6 +387,7 @@ export class Projectile extends Container {
 
           if (progress >= 1) {
             EffectCleanupManager.clearInterval(animateInterval);
+            ResourceCleanupManager.unregisterPersistentEffect(explosion);
             if (explosion.parent) {
               explosion.parent.removeChild(explosion);
             }
@@ -447,6 +455,12 @@ export class Projectile extends Container {
       firePool.position.set(this.position.x, this.position.y);
       this.parent.addChild(firePool);
 
+      // Register fire pool as persistent effect for immediate cleanup
+      ResourceCleanupManager.registerPersistentEffect(firePool, {
+        type: 'fire_pool',
+        duration: 2000,
+      });
+
       // Animate fire pool fading out
       let elapsed = 0;
       const duration = 2000; // Fire lasts 2 seconds
@@ -457,6 +471,7 @@ export class Projectile extends Container {
 
           if (progress >= 1) {
             EffectCleanupManager.clearInterval(fadeInterval);
+            ResourceCleanupManager.unregisterPersistentEffect(firePool);
             if (firePool.parent) {
               firePool.parent.removeChild(firePool);
             }
@@ -534,6 +549,20 @@ export class Projectile extends Container {
         affectedZombies: new Set<Zombie>(),
       };
 
+      // Register sludge pool as persistent effect for immediate cleanup
+      ResourceCleanupManager.registerPersistentEffect(sludgePool, {
+        type: 'sludge_pool',
+        duration: poolDuration,
+        onCleanup: () => {
+          // Remove slow from all affected zombies
+          for (const zombie of poolData.affectedZombies) {
+            if (zombie.parent) {
+              zombie.removeSlow();
+            }
+          }
+        },
+      });
+
       // Apply slow effect to zombies in pool
       const slowInterval = EffectCleanupManager.registerInterval(
         setInterval(() => {
@@ -574,6 +603,7 @@ export class Projectile extends Container {
           if (progress >= 1) {
             EffectCleanupManager.clearInterval(fadeInterval);
             EffectCleanupManager.clearInterval(slowInterval);
+            ResourceCleanupManager.unregisterPersistentEffect(sludgePool);
 
             // Remove slow from all affected zombies
             for (const zombie of poolData.affectedZombies) {

@@ -1,29 +1,42 @@
 /**
- * EffectCleanupManager - Centralized manager for tracking and cleaning up timers
- * 
- * This manager solves memory leaks caused by orphaned setInterval/setTimeout calls
- * in projectile effects (explosions, fire pools, sludge pools) and other animations.
- * 
+ * EffectCleanupManager - Low-level timer tracking and cleanup
+ *
+ * This manager provides a focused solution for tracking and cleaning up timers
+ * (setInterval/setTimeout) to prevent memory leaks from orphaned callbacks.
+ *
+ * Scope:
+ * - ONLY handles timers (intervals and timeouts)
+ * - Does NOT handle Graphics objects or game resources
+ * - For resource cleanup, use ResourceCleanupManager
+ *
  * Problem:
- * - Projectile effects use setInterval for animations
+ * - Animation effects use setInterval for animations
  * - If game is reset/cleared while intervals are running, they continue executing
- * - Intervals hold references to Graphics objects and zombie arrays
- * - This prevents garbage collection and causes memory leaks
- * 
+ * - Intervals hold references to objects, preventing garbage collection
+ *
  * Solution:
  * - Track all active intervals/timeouts in a central registry
  * - Provide cleanup methods that can be called on game reset/clear
  * - Automatically clean up completed timers
+ *
+ * Usage:
+ * ```typescript
+ * // Register interval for tracking
+ * const interval = EffectCleanupManager.registerInterval(
+ *   setInterval(() => { ... }, 16)
+ * );
+ *
+ * // Clear when done
+ * EffectCleanupManager.clearInterval(interval);
+ *
+ * // Or clear all on cleanup
+ * EffectCleanupManager.clearAll();
+ * ```
  */
-
-export interface IDisposable {
-  dispose(): void;
-}
 
 export class EffectCleanupManager {
   private static intervals: Set<NodeJS.Timeout> = new Set();
   private static timeouts: Set<NodeJS.Timeout> = new Set();
-  private static disposables: Set<IDisposable> = new Set();
 
   /**
    * Register an interval for tracking and cleanup
@@ -42,13 +55,6 @@ export class EffectCleanupManager {
   }
 
   /**
-   * Register a disposable object for cleanup
-   */
-  public static registerDisposable(disposable: IDisposable): void {
-    this.disposables.add(disposable);
-  }
-
-  /**
    * Unregister an interval (call this when interval completes normally)
    */
   public static unregisterInterval(interval: NodeJS.Timeout): void {
@@ -60,13 +66,6 @@ export class EffectCleanupManager {
    */
   public static unregisterTimeout(timeout: NodeJS.Timeout): void {
     this.timeouts.delete(timeout);
-  }
-
-  /**
-   * Unregister a disposable
-   */
-  public static unregisterDisposable(disposable: IDisposable): void {
-    this.disposables.delete(disposable);
   }
 
   /**
@@ -116,42 +115,21 @@ export class EffectCleanupManager {
   }
 
   /**
-   * Dispose all tracked disposables
-   */
-  public static disposeAll(): void {
-    let count = 0;
-    for (const disposable of this.disposables) {
-      try {
-        disposable.dispose();
-        count++;
-      } catch (error) {
-        console.error('Error disposing object:', error);
-      }
-    }
-    this.disposables.clear();
-    if (count > 0) {
-      console.log(`🧹 Disposed ${count} tracked objects`);
-    }
-  }
-
-  /**
-   * Clear everything (intervals, timeouts, disposables)
+   * Clear everything (intervals and timeouts)
    * Call this on game reset, level change, or cleanup
    */
   public static clearAll(): void {
     this.clearAllIntervals();
     this.clearAllTimeouts();
-    this.disposeAll();
   }
 
   /**
    * Get current counts (for debugging)
    */
-  public static getCounts(): { intervals: number; timeouts: number; disposables: number } {
+  public static getCounts(): { intervals: number; timeouts: number } {
     return {
       intervals: this.intervals.size,
       timeouts: this.timeouts.size,
-      disposables: this.disposables.size,
     };
   }
 

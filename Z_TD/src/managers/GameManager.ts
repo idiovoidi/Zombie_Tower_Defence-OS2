@@ -21,6 +21,7 @@ import { type GameLogEntry, LogExporter } from '../utils/LogExporter';
 import { StatTracker } from '../utils/StatTracker';
 import { EffectCleanupManager } from '../utils/EffectCleanupManager';
 import { EffectManager } from '../effects/EffectManager';
+import { ResourceCleanupManager } from '../utils/ResourceCleanupManager';
 
 export class GameManager {
   private app: Application;
@@ -237,28 +238,15 @@ export class GameManager {
    * CRITICAL: This must be called before starting a new game or restarting
    */
   private clearGameState(): void {
-    // Clear all zombies (destroys zombie objects, blood particles, corpses)
-    this.zombieManager.clear();
-    console.log('  ✓ Zombies cleared');
-
-    // Clear all towers (destroys tower objects and their effects)
-    this.towerPlacementManager.clear();
-    console.log('  ✓ Towers cleared');
-
-    // Clear all projectiles (destroys projectile objects and their effects)
-    this.projectileManager.clear();
-    console.log('  ✓ Projectiles cleared');
-
-    // CRITICAL: Clear all visual effects (shell casings, muzzle flashes, bullet trails, etc.)
-    this.effectManager.clear();
-    console.log('  ✓ Visual effects cleared');
-
-    // Clear tower combat manager state
-    this.towerCombatManager.setTowers([]);
-    this.towerCombatManager.setZombies([]);
-    console.log('  ✓ Combat manager cleared');
-
-    console.log('🧹 Game state cleanup complete');
+    // Use centralized cleanup manager for all game resources
+    ResourceCleanupManager.cleanupGameResources({
+      zombieManager: this.zombieManager,
+      towerPlacementManager: this.towerPlacementManager,
+      projectileManager: this.projectileManager,
+      effectManager: this.effectManager,
+      towerCombatManager: this.towerCombatManager,
+      waveManager: this.waveManager,
+    });
   }
 
   /**
@@ -266,28 +254,16 @@ export class GameManager {
    * CRITICAL: This must be called after each wave completes
    */
   private cleanupWaveObjects(): void {
-    // Clear all remaining projectiles (explosions, fire pools, sludge pools, etc.)
-    this.projectileManager.clear();
-    console.log('  ✓ Projectiles cleared');
-
-    // CRITICAL: Clear all visual effects (shell casings, muzzle flashes, bullet trails, etc.)
-    this.effectManager.clear();
-    console.log('  ✓ Visual effects cleared (casings, flashes, trails)');
-
-    // Clear all effect intervals/timeouts (laser particles, etc.)
-    EffectCleanupManager.clearAll();
-    console.log('  ✓ Effect timers cleared');
-
-    // Clear blood particles from zombie manager
-    const bloodSystem = this.zombieManager.getBloodParticleSystem();
-    bloodSystem.clear();
-    console.log('  ✓ Blood particles cleared');
+    // Use centralized cleanup manager for wave resources
+    ResourceCleanupManager.cleanupWaveResources({
+      zombieManager: this.zombieManager,
+      projectileManager: this.projectileManager,
+      effectManager: this.effectManager,
+    });
 
     // Note: Corpses will fade naturally over time (managed by CorpseManager)
     // This keeps some visual persistence while preventing memory buildup
     console.log('  ✓ Old corpses will fade naturally');
-
-    console.log('🧹 Wave cleanup complete');
   }
 
   // Spawn starter tower for new players
@@ -730,9 +706,10 @@ export class GameManager {
     // CRITICAL: Ensure cleanup happened before starting new wave
     // This is a safety check in case cleanup wasn't called in onWaveComplete
     console.log('🧹 Pre-wave cleanup check...');
-    this.projectileManager.clear();
-    this.effectManager.clear();
-    EffectCleanupManager.clearAll();
+    ResourceCleanupManager.cleanupWaveResources({
+      projectileManager: this.projectileManager,
+      effectManager: this.effectManager,
+    });
     console.log('  ✓ Pre-wave cleanup complete');
 
     this.zombieManager.startWave();

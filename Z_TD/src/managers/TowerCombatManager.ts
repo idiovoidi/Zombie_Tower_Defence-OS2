@@ -4,6 +4,7 @@ import { ProjectileManager } from './ProjectileManager';
 import { Graphics } from 'pixi.js';
 import { SpatialGrid } from '../utils/SpatialGrid';
 import { EffectCleanupManager } from '../utils/EffectCleanupManager';
+import { ResourceCleanupManager } from '../utils/ResourceCleanupManager';
 
 export class TowerCombatManager {
   private towers: Tower[] = [];
@@ -616,6 +617,12 @@ export class TowerCombatManager {
     const particleContainer = new Graphics();
     zombie.addChild(particleContainer);
 
+    // Register particle container as persistent effect for immediate cleanup
+    ResourceCleanupManager.registerPersistentEffect(particleContainer, {
+      type: 'tesla_particles',
+      duration: isPrimary ? 250 : 180,
+    });
+
     // Number of particles based on whether it's primary or chain hit
     const particleCount = isPrimary ? 12 : 8;
     const particleSize = isPrimary ? 3 : 2;
@@ -679,31 +686,33 @@ export class TowerCombatManager {
       // Fade back to original color
       let tintElapsed = 0;
       const tintDuration = isPrimary ? 300 : 200;
-      const tintInterval = setInterval(() => {
-        tintElapsed += 16;
-        const progress = tintElapsed / tintDuration;
+      const tintInterval = EffectCleanupManager.registerInterval(
+        setInterval(() => {
+          tintElapsed += 16;
+          const progress = tintElapsed / tintDuration;
 
-        if (progress >= 1 || !zombie['visual'] || zombie['visual'].destroyed) {
-          clearInterval(tintInterval);
-          if (zombie['visual'] && !zombie['visual'].destroyed) {
-            zombie['visual'].tint = originalTint;
+          if (progress >= 1 || !zombie['visual'] || zombie['visual'].destroyed) {
+            EffectCleanupManager.clearInterval(tintInterval);
+            if (zombie['visual'] && !zombie['visual'].destroyed) {
+              zombie['visual'].tint = originalTint;
+            }
+          } else {
+            // Interpolate from cyan back to original
+            const r1 = 0x00;
+            const g1 = 0xff;
+            const b1 = 0xff;
+            const r2 = (originalTint >> 16) & 0xff;
+            const g2 = (originalTint >> 8) & 0xff;
+            const b2 = originalTint & 0xff;
+
+            const r = Math.floor(r1 + (r2 - r1) * progress);
+            const g = Math.floor(g1 + (g2 - g1) * progress);
+            const b = Math.floor(b1 + (b2 - b1) * progress);
+
+            zombie['visual'].tint = (r << 16) | (g << 8) | b;
           }
-        } else {
-          // Interpolate from cyan back to original
-          const r1 = 0x00;
-          const g1 = 0xff;
-          const b1 = 0xff;
-          const r2 = (originalTint >> 16) & 0xff;
-          const g2 = (originalTint >> 8) & 0xff;
-          const b2 = originalTint & 0xff;
-
-          const r = Math.floor(r1 + (r2 - r1) * progress);
-          const g = Math.floor(g1 + (g2 - g1) * progress);
-          const b = Math.floor(b1 + (b2 - b1) * progress);
-
-          zombie['visual'].tint = (r << 16) | (g << 8) | b;
-        }
-      }, 16);
+        }, 16)
+      );
     }
 
     // Animate particles fading out (no scaling to prevent flying away)
@@ -716,6 +725,7 @@ export class TowerCombatManager {
 
         if (progress >= 1) {
           EffectCleanupManager.clearInterval(fadeInterval);
+          ResourceCleanupManager.unregisterPersistentEffect(particleContainer);
           if (particleContainer.parent) {
             particleContainer.parent.removeChild(particleContainer);
           }
