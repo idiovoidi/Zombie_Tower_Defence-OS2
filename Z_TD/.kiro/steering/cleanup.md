@@ -4,142 +4,89 @@ inclusion: always
 
 # Cleanup & Memory Management
 
-## Core Disposal Pattern
+## Mandatory Disposal Pattern
 
-Every game object MUST follow the three-step disposal pattern:
+All game objects extending GameObject or PixiJS Container MUST implement destroy() with this exact order:
 
 ```typescript
 public destroy(): void {
-  // 1. Clear timers and intervals FIRST
-  if (this.timeout) {
-    clearTimeout(this.timeout);
-    this.timeout = null;
-  }
-
-  // 2. Destroy child objects and clear references
-  if (this.childObject) {
-    this.childObject.destroy();
-    this.childObject = null;
-  }
+  // 1. Clear timers FIRST (prevents accessing destroyed objects)
+  if (this.timeout) clearTimeout(this.timeout);
+  if (this.interval) EffectCleanupManager.clearInterval(this.interval);
+  
+  // 2. Destroy children and clear references
+  this.childObject?.destroy();
+  this.childObject = null;
   this.arrayReference = [];
-
+  
   // 3. Call parent destroy LAST
   super.destroy();
 }
 ```
 
-## Cleanup Managers
+## Timer Management
 
-### EffectCleanupManager (Low-Level Timer Tracking)
-
-**Location:** `src/utils/EffectCleanupManager.ts`
-
-**Purpose:** Track and cleanup ALL setInterval/setTimeout calls
-
-**Usage:**
+NEVER use raw `setInterval` or `setTimeout`. Always use EffectCleanupManager (`src/utils/EffectCleanupManager.ts`):
 
 ```typescript
-// ALWAYS register timers
-const interval = EffectCleanupManager.registerInterval(
-  setInterval(() => {
-    /* animation */
-  }, 16)
-);
+// Register timers
+const interval = EffectCleanupManager.registerInterval(setInterval(() => {}, 16));
+const timeout = EffectCleanupManager.registerTimeout(setTimeout(() => {}, 1000));
 
-// Clear when done
+// Clear individual timers
 EffectCleanupManager.clearInterval(interval);
+EffectCleanupManager.clearTimeout(timeout);
 
-// Clear all on reset
+// Clear all timers (called by ResourceCleanupManager)
 EffectCleanupManager.clearAll();
 ```
 
-### ResourceCleanupManager (High-Level Orchestration)
+## Persistent Effect Management
 
-**Location:** `src/utils/ResourceCleanupManager.ts`
-
-**Purpose:** Orchestrate cleanup across all game resources
-
-**Usage:**
+Register long-lived visual effects with ResourceCleanupManager (`src/utils/ResourceCleanupManager.ts`):
 
 ```typescript
-// Register persistent effects (fire pools, sludge pools, explosions, Tesla particles)
+// Register: fire pools, sludge pools, explosions, Tesla particles
 ResourceCleanupManager.registerPersistentEffect(graphics, {
   type: 'fire_pool',
   duration: 2000,
-  onCleanup: () => {
-    /* custom cleanup */
-  },
+  onCleanup: () => { /* custom cleanup */ }
 });
 
-// Unregister when naturally expires
+// Unregister when effect naturally expires
 ResourceCleanupManager.unregisterPersistentEffect(graphics);
-
-// Wave cleanup (between waves)
-ResourceCleanupManager.cleanupWaveResources(managers);
-
-// Full game cleanup (on restart)
-ResourceCleanupManager.cleanupGameResources(managers);
 ```
+
+## Cleanup Scopes
+
+**Wave Cleanup** (`ResourceCleanupManager.cleanupWaveResources()`):
+- Persistent effects, projectiles, visual effects, blood particles
+- Does NOT clean: corpses (fade naturally), towers, zombies
+
+**Game Cleanup** (`ResourceCleanupManager.cleanupGameResources()`):
+- Everything from wave cleanup plus zombies, towers, combat state, wave state
 
 ## Critical Rules
 
-1. **Timer Order:** ALWAYS clear timers BEFORE destroying objects. Timers accessing destroyed objects cause errors.
+1. Clear timers BEFORE destroying objects (prevents errors from timers accessing destroyed objects)
+2. NEVER use raw setInterval/setTimeout - always use EffectCleanupManager
+3. Register persistent effects (fire/sludge pools, explosions, Tesla particles) with ResourceCleanupManager
+4. Always call `.destroy()` on PixiJS Graphics/Container objects
+5. Set object references to `null` after destroying to prevent memory leaks
+6. Always call `super.destroy()` LAST in destroy() methods
 
-2. **Always Track Timers:** NEVER use raw setInterval/setTimeout. Always use EffectCleanupManager.
+## Memory Leak Patterns to Avoid
 
-3. **Register Persistent Effects:** Fire pools, sludge pools, explosions, and Tesla particles MUST be registered with ResourceCleanupManager.
+- Orphaned timers (use EffectCleanupManager)
+- Undestroyed PixiJS objects (always call .destroy())
+- Circular references (clear references in destroy())
+- Event listeners (handled automatically by PixiJS Container.destroy())
 
-4. **Destroy PixiJS Objects:** Always call `.destroy()` on Graphics/Container objects when done.
-
-5. **Clear References:** Set object references to null in destroy() methods to prevent memory leaks.
-
-6. **Call super.destroy():** Always call parent destroy() LAST in destroy() methods.
-
-## Wave vs Game Cleanup
-
-**Wave Cleanup** (between waves):
-
-- Persistent effects (fire pools, sludge pools, explosions, Tesla particles)
-- Projectiles
-- Visual effects (shell casings, muzzle flashes, bullet trails)
-- Effect timers
-- Blood particles
-- Does NOT clean: Corpses (fade naturally), Towers, Zombies
-
-**Game Cleanup** (on restart):
-
-- Everything from wave cleanup
-- All zombies
-- All towers
-- Combat manager state
-- Wave manager state
-
-## Memory Leak Prevention
-
-Common leak patterns to avoid:
-
-1. **Orphaned Timers:** Use EffectCleanupManager for ALL timers
-2. **Undestroyed PixiJS Objects:** Always call .destroy()
-3. **Circular References:** Clear references in destroy() methods
-4. **Event Listeners:** Handled automatically by PixiJS Container.destroy()
-
-## Debugging
+## Debugging Memory Issues
 
 ```typescript
-// Check current state
-ResourceCleanupManager.logState();
-// Warns if > 20 persistent effects or > 20 timers
-
-// Monitor memory
-EffectCleanupManager.logState();
-// Shows active intervals/timeouts
+ResourceCleanupManager.logState(); // Warns if >20 persistent effects or timers
+EffectCleanupManager.logState();   // Shows active intervals/timeouts
 ```
 
-## Expected Memory Behavior
-
-- Wave 1-5: 300-350MB
-- Wave 10: ~400MB
-- Wave 20+: ~450MB (stable)
-- After restart: Returns to ~300MB
-
-Memory should NOT continuously grow across waves.
+Expected memory: Wave 1-5: 300-350MB, Wave 10: ~400MB, Wave 20+: ~450MB (stable). Memory should NOT continuously grow.
