@@ -165,29 +165,39 @@
   - _Requirements: 3.1, 7.1, 7.2, 7.3_
 
 - [x] 10. Performance Testing and Validation
-
-  - [ ]\* 10.1 Create performance benchmark tests
+  - [x] 10.1 Create performance benchmark tests
     - Test frame rates at waves 1, 5, 10, 20
+
     - Verify frame rates meet targets (60, 50, 45, 40 FPS)
     - Test with varying entity counts
     - _Requirements: 1.1, 1.2, 1.3, 1.4, 1.5_
-  - [ ]\* 10.2 Create memory leak tests
+
+  - [x] 10.2 Create memory leak tests
     - Run game for 20+ waves and track memory
     - Verify memory stabilizes below 500 MB
     - Verify cleanup reduces memory by 80%+
     - _Requirements: 2.1, 2.2, 2.3, 2.4, 2.5_
-  - [ ]\* 10.3 Validate optimization effectiveness
+
+  - [-] 10.3 Validate optimization effectiveness
+
+
+
     - Measure target finding performance (before/after)
     - Count array rebuild operations (before/after)
     - Track object allocation rates (before/after)
+
     - _Requirements: 5.1, 5.2, 6.1, 6.2, 6.4_
-  - [ ]\* 10.4 Verify visual quality maintained
+
+  - [ ] 10.4 Verify visual quality maintained
     - Manually test all visual effects are present
     - Verify explosions, fire, lightning effects unchanged
     - Verify blood splatter and corpses appear correctly
     - Verify muzzle flashes and shell casings present
     - _Requirements: 8.1, 8.2, 8.3, 8.4, 8.5_
-  - [ ]\* 10.5 Run stress tests
+
+  - [ ] 10.5 Run stress tests
+
+
     - Test with 100 zombies spawned simultaneously
     - Test with 20 towers firing continuously
     - Run game for 50+ waves to verify stability

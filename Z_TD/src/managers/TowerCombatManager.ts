@@ -5,6 +5,7 @@ import { Graphics } from 'pixi.js';
 import { SpatialGrid } from '../utils/SpatialGrid';
 import { EffectCleanupManager } from '../utils/EffectCleanupManager';
 import { ResourceCleanupManager } from '../utils/ResourceCleanupManager';
+import { OptimizationValidator } from '../utils/OptimizationValidator';
 
 export class TowerCombatManager {
   private towers: Tower[] = [];
@@ -93,6 +94,23 @@ export class TowerCombatManager {
   private findTarget(tower: Tower): Zombie | null {
     const towerPos = tower.position;
     const range = tower.getRange();
+
+    // Measure target finding performance if validation is enabled
+    if (OptimizationValidator.isEnabled() && this.zombies.length > 0) {
+      OptimizationValidator.measureTargetFinding(
+        this.zombies,
+        towerPos.x,
+        towerPos.y,
+        range,
+        () =>
+          this.zombieGrid.queryClosest(
+            towerPos.x,
+            towerPos.y,
+            range,
+            zombie => zombie.parent !== null
+          )
+      );
+    }
 
     // Use spatial grid to query only nearby zombies (O(k) instead of O(n))
     // This reduces from checking ALL zombies to only zombies in nearby grid cells

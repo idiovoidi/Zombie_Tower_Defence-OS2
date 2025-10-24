@@ -1,6 +1,7 @@
 import { Container, Graphics, Text } from 'pixi.js';
 import { UIComponent } from './UIComponent';
 import type { GameManager } from '@managers/GameManager';
+import { PerformanceMonitor } from '@utils/PerformanceMonitor';
 
 export class StatsPanel extends UIComponent {
   private background!: Graphics;
@@ -16,7 +17,7 @@ export class StatsPanel extends UIComponent {
   private contentContainer!: Container;
 
   private readonly PANEL_WIDTH = 280;
-  private readonly PANEL_HEIGHT = 400;
+  private readonly PANEL_HEIGHT = 550;
   private readonly COLLAPSED_HEIGHT = 40;
   private readonly PADDING = 10;
   private readonly LINE_HEIGHT = 20;
@@ -277,6 +278,37 @@ export class StatsPanel extends UIComponent {
     yOffset += this.LINE_HEIGHT;
 
     this.updateStat('Kills/$', `${stats.killsPerDollar.toFixed(2)}`, yOffset);
+    yOffset += this.LINE_HEIGHT;
+
+    // Memory metrics
+    yOffset += 5;
+    this.updateStat('─ Memory ─', '', yOffset, 0xffaa00);
+    yOffset += this.LINE_HEIGHT;
+
+    const memoryUsage = PerformanceMonitor.getMemoryUsage();
+    if (memoryUsage.heapUsedMB > 0) {
+      this.updateStat('Heap Used', `${memoryUsage.heapUsedMB.toFixed(1)} MB`, yOffset);
+      yOffset += this.LINE_HEIGHT;
+
+      this.updateStat('Heap Total', `${memoryUsage.heapTotalMB.toFixed(1)} MB`, yOffset);
+      yOffset += this.LINE_HEIGHT;
+
+      const growthRate = PerformanceMonitor.getMemoryGrowthRate();
+      if (growthRate !== null) {
+        const growthColor = growthRate > 10 ? 0xff4444 : 0x44ff44;
+        this.updateStat('Growth', `${growthRate.toFixed(2)} MB/wave`, yOffset, growthColor);
+        yOffset += this.LINE_HEIGHT;
+      }
+
+      const snapshots = PerformanceMonitor.getWaveMemorySnapshots();
+      if (snapshots.length > 0) {
+        this.updateStat('Snapshots', `${snapshots.length} waves`, yOffset);
+      }
+    } else {
+      this.updateStat('Memory API', 'Not Available', yOffset, 0xff8800);
+      yOffset += this.LINE_HEIGHT;
+      this.updateStat('Info', 'Use Chrome/Edge', yOffset, 0xaaaaaa);
+    }
   }
 
   private updateStat(

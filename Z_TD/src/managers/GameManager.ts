@@ -23,6 +23,7 @@ import { EffectCleanupManager } from '../utils/EffectCleanupManager';
 import { EffectManager } from '../effects/EffectManager';
 import { ResourceCleanupManager } from '../utils/ResourceCleanupManager';
 import { PerformanceMonitor } from '../utils/PerformanceMonitor';
+import { OptimizationValidator } from '../utils/OptimizationValidator';
 
 export class GameManager {
   private app: Application;
@@ -584,6 +585,9 @@ export class GameManager {
     // Start frame measurement
     PerformanceMonitor.startFrame();
 
+    // Track frame for optimization validation
+    OptimizationValidator.trackFrame();
+
     // Update animated fog effects
     PerformanceMonitor.startMeasure('visualMapRenderer');
     if (this.visualMapRenderer) {
@@ -631,6 +635,7 @@ export class GameManager {
         const towers = this.towerPlacementManager.getPlacedTowers();
         this.towerCombatManager.setTowers(towers);
         this.towerPlacementManager.clearTowersDirty();
+        OptimizationValidator.trackArrayRebuild('towers');
         if (DevConfig.PERFORMANCE.LOG_DIRTY_FLAGS) {
           console.log(`🔄 Towers array rebuilt (${towers.length} towers)`);
         }
@@ -641,6 +646,7 @@ export class GameManager {
         this.towerCombatManager.setZombies(zombies);
         this.projectileManager.setZombies(zombies); // Update projectile manager with zombie list
         this.zombieManager.clearZombiesDirty();
+        OptimizationValidator.trackArrayRebuild('zombies');
         if (DevConfig.PERFORMANCE.LOG_DIRTY_FLAGS) {
           console.log(`🔄 Zombies array rebuilt (${zombies.length} zombies)`);
         }

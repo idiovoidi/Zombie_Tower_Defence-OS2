@@ -1,3 +1,5 @@
+import { OptimizationValidator } from './OptimizationValidator';
+
 /**
  * Statistics for an object pool
  */
@@ -36,12 +38,14 @@ export class ObjectPool<T> {
    */
   acquire(): T {
     let obj: T;
+    let wasReused = false;
 
     if (this.available.length > 0) {
       const pooledObj = this.available.pop();
       if (pooledObj) {
         obj = pooledObj;
         this.reused++;
+        wasReused = true;
       } else {
         obj = this.factory();
         this.created++;
@@ -52,6 +56,10 @@ export class ObjectPool<T> {
     }
 
     this.active.add(obj);
+
+    // Track allocation for optimization validation
+    OptimizationValidator.trackAllocation(true, wasReused);
+
     return obj;
   }
 
