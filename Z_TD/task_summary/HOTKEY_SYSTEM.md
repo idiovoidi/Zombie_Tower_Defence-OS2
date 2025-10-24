@@ -12,13 +12,13 @@ Quick tower selection via keyboard:
 
 | Key | Tower | Description |
 |-----|-------|-------------|
-| **M** | Machine Gun | Rapid-fire tower |
-| **S** | Sniper | High-damage precision tower |
-| **H** | Shotgun | Spread damage tower |
-| **F** | Flame | Area damage tower |
-| **G** | Grenade | Explosive area tower |
-| **T** | Tesla | Chain lightning tower |
-| **L** | Sludge | Slow/crowd control tower |
+| **1** | Machine Gun | Rapid-fire tower |
+| **2** | Sniper | High-damage precision tower |
+| **3** | Shotgun | Spread damage tower |
+| **4** | Flame | Area damage tower |
+| **5** | Grenade | Explosive area tower |
+| **6** | Tesla | Chain lightning tower |
+| **7** | Sludge | Slow/crowd control tower |
 
 ### Game Control Hotkeys
 
@@ -41,14 +41,14 @@ Centralized configuration file for all hotkeys:
 
 ```typescript
 export const TOWER_HOTKEYS: Record<string, TowerHotkey> = {
-  G: {
-    key: 'G',
+  '5': {
+    key: '5',
     towerType: GameConfig.TOWER_TYPES.GRENADE,
     description: 'Grenade Tower',
     category: 'tower',
   },
-  T: {
-    key: 'T',
+  '6': {
+    key: '6',
     towerType: GameConfig.TOWER_TYPES.TESLA,
     description: 'Tesla Tower',
     category: 'tower',
@@ -130,7 +130,7 @@ inputManager.onKeyDown((key, event) => {
 ### For Players
 
 1. **Quick Tower Placement:**
-   - Press hotkey (e.g., **G** for Grenade)
+   - Press hotkey (e.g., **5** for Grenade)
    - Move mouse to position
    - Click to place
 
@@ -184,13 +184,13 @@ inputManager.onKeyDown((key, event) => {
 
 ```typescript
 // Get tower type from key
-const towerType = getTowerTypeFromKey('G'); // Returns GRENADE
+const towerType = getTowerTypeFromKey('5'); // Returns GRENADE
 
 // Get hotkey for tower type
-const hotkey = getHotkeyForTowerType(GameConfig.TOWER_TYPES.TESLA); // Returns 'T'
+const hotkey = getHotkeyForTowerType(GameConfig.TOWER_TYPES.TESLA); // Returns '6'
 
 // Check if key is tower hotkey
-const isTower = isTowerHotkey('G'); // Returns true
+const isTower = isTowerHotkey('5'); // Returns true
 
 // Format hotkey for display
 const formatted = formatHotkey(' '); // Returns 'Space'
@@ -282,8 +282,8 @@ Potential improvements:
 Test the hotkey system:
 
 1. **Tower Placement:**
-   - Press **G** → Should select Grenade Tower
-   - Press **T** → Should select Tesla Tower
+   - Press **5** → Should select Grenade Tower
+   - Press **6** → Should select Tesla Tower
    - Click to place → Should place tower
 
 2. **Affordability:**

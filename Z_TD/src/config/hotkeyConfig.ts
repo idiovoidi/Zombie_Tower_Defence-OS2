@@ -23,43 +23,43 @@ export interface TowerHotkey extends HotkeyBinding {
  * Maps keyboard keys to tower types for quick placement
  */
 export const TOWER_HOTKEYS: Record<string, TowerHotkey> = {
-  M: {
+  '1': {
     key: '1',
     towerType: GameConfig.TOWER_TYPES.MACHINE_GUN,
     description: 'Machine Gun Tower',
     category: 'tower',
   },
-  S: {
+  '2': {
     key: '2',
     towerType: GameConfig.TOWER_TYPES.SNIPER,
     description: 'Sniper Tower',
     category: 'tower',
   },
-  H: {
+  '3': {
     key: '3',
     towerType: GameConfig.TOWER_TYPES.SHOTGUN,
     description: 'Shotgun Tower',
     category: 'tower',
   },
-  F: {
+  '4': {
     key: '4',
     towerType: GameConfig.TOWER_TYPES.FLAME,
     description: 'Flame Tower',
     category: 'tower',
   },
-  G: {
+  '5': {
     key: '5',
     towerType: GameConfig.TOWER_TYPES.GRENADE,
     description: 'Grenade Tower',
     category: 'tower',
   },
-  T: {
+  '6': {
     key: '6',
     towerType: GameConfig.TOWER_TYPES.TESLA,
     description: 'Tesla Tower',
     category: 'tower',
   },
-  L: {
+  '7': {
     key: '7',
     towerType: GameConfig.TOWER_TYPES.SLUDGE,
     description: 'Sludge Tower',
@@ -127,12 +127,11 @@ export const DEBUG_HOTKEYS: Record<string, HotkeyBinding> = {
 
 /**
  * Get tower type from key press
- * @param key The key that was pressed (case-insensitive)
+ * @param key The key that was pressed
  * @returns Tower type or null if no binding exists
  */
 export function getTowerTypeFromKey(key: string): string | null {
-  const upperKey = key.toUpperCase();
-  const hotkey = TOWER_HOTKEYS[upperKey];
+  const hotkey = TOWER_HOTKEYS[key];
   return hotkey ? hotkey.towerType : null;
 }
 

@@ -3,9 +3,8 @@ import { Container, Text } from 'pixi.js';
 /**
  * MoneyAnimation - Optimized money gain feedback system
  *
- * Uses batching to reduce text spam during high kill rates (waves 20+).
- * Instead of creating a new Text object for every zombie kill, gains are
- * batched over a short interval and displayed as a single animation.
+ * Uses smart batching to reduce text spam during high kill rates (waves 20+).
+ * Shows immediate feedback for isolated gains, batches rapid consecutive gains.
  *
  * Performance improvements:
  * - Reduces Text object creation from 100+ per second to ~2 per second
@@ -19,7 +18,9 @@ export class MoneyAnimation {
   // Batching system to reduce text spam
   private batchedAmount: number = 0;
   private batchTimer: number = 0;
+  private lastGainTime: number = 0;
   private readonly BATCH_INTERVAL = 500; // Batch gains every 500ms
+  private readonly IMMEDIATE_THRESHOLD = 200; // Show immediately if >200ms since last gain
   private readonly MAX_ACTIVE_ANIMATIONS = 5; // Limit concurrent animations
 
   constructor(container: Container) {
@@ -28,12 +29,24 @@ export class MoneyAnimation {
 
   /**
    * Show a money gain animation in the bottom left feed
-   * Uses batching to reduce text spam during high kill rates
+   * Uses smart batching to reduce text spam during high kill rates
    * @param amount Amount of money gained
    */
   public showMoneyGain(amount: number): void {
-    // Batch small amounts to reduce spam
-    this.batchedAmount += amount;
+    const now = performance.now();
+    const timeSinceLastGain = now - this.lastGainTime;
+
+    // If it's been a while since last gain, show immediately
+    if (timeSinceLastGain > this.IMMEDIATE_THRESHOLD && this.batchedAmount === 0) {
+      this.batchedAmount = amount;
+      this.flushBatch();
+      this.lastGainTime = now;
+      this.batchTimer = 0;
+    } else {
+      // Otherwise, batch it
+      this.batchedAmount += amount;
+      this.lastGainTime = now;
+    }
   }
 
   /**

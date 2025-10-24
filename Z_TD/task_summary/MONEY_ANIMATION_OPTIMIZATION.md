@@ -18,9 +18,12 @@ Performance drops drastically around waves 20-30 due to excessive Text object cr
 - **Concurrent animations:** 40-60 active at peak
 - **Frame impact:** ~5-10ms per frame just for text updates
 
-## Solution: Batched Money Gains
+## Solution: Smart Batched Money Gains
 
-Instead of creating a Text object for every zombie kill, gains are batched over a short interval (500ms) and displayed as a single animation.
+Instead of creating a Text object for every zombie kill, the system uses smart batching:
+- **Immediate feedback** for isolated gains (>200ms apart)
+- **Batched display** for rapid consecutive gains (within 500ms)
+- Best of both worlds: responsive feedback + performance optimization
 
 ### Key Changes
 
@@ -50,15 +53,27 @@ Instead of creating a Text object for every zombie kill, gains are batched over 
 
 ## Implementation Details
 
-### Batching Logic
+### Smart Batching Logic
 
 ```typescript
-// Money gains are accumulated
+// Immediate feedback for isolated gains
 public showMoneyGain(amount: number): void {
-  this.batchedAmount += amount;
+  const now = performance.now();
+  const timeSinceLastGain = now - this.lastGainTime;
+
+  // Show immediately if it's been a while
+  if (timeSinceLastGain > IMMEDIATE_THRESHOLD && this.batchedAmount === 0) {
+    this.batchedAmount = amount;
+    this.flushBatch();
+    this.lastGainTime = now;
+  } else {
+    // Batch rapid gains
+    this.batchedAmount += amount;
+    this.lastGainTime = now;
+  }
 }
 
-// Flushed every 500ms
+// Flush batched gains every 500ms
 public update(deltaTime: number): void {
   this.batchTimer += deltaTime;
   if (this.batchTimer >= this.BATCH_INTERVAL) {

@@ -446,7 +446,7 @@ import { VisualEffects } from './utils/VisualEffects';
 
       // M - Add money
       if (key === 'm') {
-        const amount = event.shiftKey ? 10000 : 1000;
+        const amount = event.shiftKey ? 20000 : 5000;
         gameManager.addMoney(amount);
         console.log(`💰 Added $${amount} (Total: $${gameManager.getMoney()})`);
       }
