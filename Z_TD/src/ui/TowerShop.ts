@@ -247,6 +247,32 @@ export class TowerShop extends UIComponent {
     rngLabel.position.set(65, 62);
     button.addChild(rngLabel);
 
+    // Hotkey indicator (dynamically imported to avoid circular dependencies)
+    import('../config/hotkeyConfig').then(({ getHotkeyForTowerType, formatHotkey }) => {
+      const hotkey = getHotkeyForTowerType(type);
+      if (hotkey) {
+        // Hotkey background badge
+        const hotkeyBg = new Graphics();
+        hotkeyBg.roundRect(140, 48, 32, 24, 4).fill({ color: 0x1a1a1a, alpha: 0.9 });
+        hotkeyBg.roundRect(140, 48, 32, 24, 4).stroke({ width: 1, color: 0xffcc00 });
+        button.addChild(hotkeyBg);
+
+        // Hotkey text
+        const hotkeyText = new Text({
+          text: formatHotkey(hotkey.key),
+          style: {
+            fontFamily: 'Arial',
+            fontSize: 16,
+            fill: 0xffcc00,
+            fontWeight: 'bold',
+          },
+        });
+        hotkeyText.anchor.set(0.5, 0.5);
+        hotkeyText.position.set(156, 60);
+        button.addChild(hotkeyText);
+      }
+    });
+
     // Status indicator LED
     const led = new Graphics();
     led.circle(170, 15, 4).fill(0x00ff00);
@@ -511,39 +537,7 @@ export class TowerShop extends UIComponent {
     }
   }
 
-  private selectTower(type: string): void {
-    // Deselect previous
-    if (this.selectedTowerType) {
-      const prevButton = this.towerButtons.get(this.selectedTowerType);
-      if (prevButton) {
-        const frame = prevButton.getChildAt(1) as Graphics;
-        const led = (prevButton as any).led as Graphics;
-        const bgGraphics = (prevButton as any).bgGraphics as Graphics;
-        frame.clear();
-        frame.rect(0, 0, 184, 82).stroke({ width: 2, color: 0x3a3a3a });
-        led.alpha = 0.5;
-        bgGraphics.alpha = 0.8;
-      }
-    }
 
-    // Select new
-    this.selectedTowerType = type;
-    const button = this.towerButtons.get(type);
-    if (button) {
-      const frame = button.getChildAt(1) as Graphics;
-      const led = (button as any).led as Graphics;
-      const bgGraphics = (button as any).bgGraphics as Graphics;
-      frame.clear();
-      frame.rect(0, 0, 184, 82).stroke({ width: 3, color: 0x00ff00 });
-      led.alpha = 1.0;
-      bgGraphics.alpha = 1.0;
-    }
-
-    // Notify callback
-    if (this.onTowerSelectCallback) {
-      this.onTowerSelectCallback(type);
-    }
-  }
 
   public setTowerSelectCallback(callback: (type: string) => void): void {
     this.onTowerSelectCallback = callback;
@@ -566,6 +560,36 @@ export class TowerShop extends UIComponent {
         bgGraphics.alpha = 0.8;
       }
       this.selectedTowerType = null;
+    }
+  }
+
+  /**
+   * Select a tower type programmatically (e.g., via hotkey)
+   * @param type Tower type to select
+   */
+  public selectTower(type: string): void {
+    // Clear previous selection
+    this.clearSelection();
+
+    // Select new tower
+    const button = this.towerButtons.get(type);
+    if (button) {
+      this.selectedTowerType = type;
+
+      // Update button visuals
+      const frame = button.getChildAt(1) as Graphics;
+      const led = (button as unknown).led as Graphics;
+      const bgGraphics = (button as unknown).bgGraphics as Graphics;
+
+      frame.clear();
+      frame.rect(0, 0, 184, 82).stroke({ width: 3, color: 0x00ff00 });
+      led.alpha = 1;
+      bgGraphics.alpha = 1;
+
+      // Trigger callback
+      if (this.onTowerSelectCallback) {
+        this.onTowerSelectCallback(type);
+      }
     }
   }
 

@@ -178,9 +178,7 @@
     - Verify cleanup reduces memory by 80%+
     - _Requirements: 2.1, 2.2, 2.3, 2.4, 2.5_
 
-  - [-] 10.3 Validate optimization effectiveness
-
-
+  - [x] 10.3 Validate optimization effectiveness
 
     - Measure target finding performance (before/after)
     - Count array rebuild operations (before/after)
@@ -196,8 +194,6 @@
     - _Requirements: 8.1, 8.2, 8.3, 8.4, 8.5_
 
   - [ ] 10.5 Run stress tests
-
-
     - Test with 100 zombies spawned simultaneously
     - Test with 20 towers firing continuously
     - Run game for 50+ waves to verify stability

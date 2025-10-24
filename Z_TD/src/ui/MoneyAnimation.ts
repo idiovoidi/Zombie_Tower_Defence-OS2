@@ -1,8 +1,26 @@
 import { Container, Text } from 'pixi.js';
 
+/**
+ * MoneyAnimation - Optimized money gain feedback system
+ *
+ * Uses batching to reduce text spam during high kill rates (waves 20+).
+ * Instead of creating a new Text object for every zombie kill, gains are
+ * batched over a short interval and displayed as a single animation.
+ *
+ * Performance improvements:
+ * - Reduces Text object creation from 100+ per second to ~2 per second
+ * - Limits concurrent animations to prevent frame drops
+ * - Shorter animation duration for better readability
+ */
 export class MoneyAnimation {
   private container: Container;
   private animations: Array<{ text: Text; startTime: number; duration: number }> = [];
+
+  // Batching system to reduce text spam
+  private batchedAmount: number = 0;
+  private batchTimer: number = 0;
+  private readonly BATCH_INTERVAL = 500; // Batch gains every 500ms
+  private readonly MAX_ACTIVE_ANIMATIONS = 5; // Limit concurrent animations
 
   constructor(container: Container) {
     this.container = container;
@@ -10,16 +28,38 @@ export class MoneyAnimation {
 
   /**
    * Show a money gain animation in the bottom left feed
+   * Uses batching to reduce text spam during high kill rates
    * @param amount Amount of money gained
    */
   public showMoneyGain(amount: number): void {
+    // Batch small amounts to reduce spam
+    this.batchedAmount += amount;
+  }
+
+  /**
+   * Flush batched money gains as a single animation
+   */
+  private flushBatch(): void {
+    if (this.batchedAmount <= 0) {
+      return;
+    }
+
+    // Remove oldest animation if we're at the limit
+    if (this.animations.length >= this.MAX_ACTIVE_ANIMATIONS) {
+      const oldest = this.animations.shift();
+      if (oldest) {
+        this.container.removeChild(oldest.text);
+        oldest.text.destroy();
+      }
+    }
+
     const text = new Text({
-      text: `+$${amount}`,
+      text: `+$${this.batchedAmount}`,
       style: {
         fontFamily: 'Arial',
-        fontSize: 24,
+        fontSize: 28,
         fontWeight: 'bold',
-        fill: 0x00ff00,
+        fill: 0xffdd00, // Gold color for batched gains
         stroke: { color: 0x000000, width: 4 },
       },
     });
@@ -30,7 +70,7 @@ export class MoneyAnimation {
     // Stack animations vertically, offset by existing animations
     const baseX = 20;
     const baseY = window.innerHeight - 100; // Above bottom bar
-    const verticalOffset = this.animations.length * 35; // Stack upward
+    const verticalOffset = this.animations.length * 40; // Stack upward
 
     text.position.set(baseX, baseY - verticalOffset);
     text.alpha = 1;
@@ -41,8 +81,11 @@ export class MoneyAnimation {
     this.animations.push({
       text,
       startTime: performance.now(),
-      duration: 2000, // 2 seconds (slightly longer for readability)
+      duration: 1500, // Shorter duration for batched gains
     });
+
+    // Reset batch
+    this.batchedAmount = 0;
   }
 
   /**
@@ -52,6 +95,14 @@ export class MoneyAnimation {
   public update(deltaTime: number): void {
     const currentTime = performance.now();
 
+    // Update batch timer
+    this.batchTimer += deltaTime;
+    if (this.batchTimer >= this.BATCH_INTERVAL) {
+      this.flushBatch();
+      this.batchTimer = 0;
+    }
+
+    // Update existing animations
     for (let i = this.animations.length - 1; i >= 0; i--) {
       const anim = this.animations[i];
       const elapsed = currentTime - anim.startTime;
@@ -64,17 +115,17 @@ export class MoneyAnimation {
         this.animations.splice(i, 1);
       } else {
         // Update animation
-        // Float upward slowly
-        anim.text.y -= deltaTime * 0.03;
+        // Float upward
+        anim.text.y -= deltaTime * 0.05; // Slightly faster float
 
-        // Fade out in the last 40% of animation
-        if (progress > 0.6) {
-          anim.text.alpha = 1 - (progress - 0.6) / 0.4;
+        // Fade out in the last 50% of animation
+        if (progress > 0.5) {
+          anim.text.alpha = 1 - (progress - 0.5) / 0.5;
         }
 
         // Slight scale pulse at the start
-        if (progress < 0.2) {
-          const scale = 1 + (1 - progress / 0.2) * 0.2;
+        if (progress < 0.15) {
+          const scale = 1 + (1 - progress / 0.15) * 0.3;
           anim.text.scale.set(scale);
         }
       }
@@ -90,5 +141,7 @@ export class MoneyAnimation {
       anim.text.destroy();
     }
     this.animations = [];
+    this.batchedAmount = 0;
+    this.batchTimer = 0;
   }
 }

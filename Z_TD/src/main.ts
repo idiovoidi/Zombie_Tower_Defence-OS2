@@ -388,14 +388,57 @@ import { VisualEffects } from './utils/VisualEffects';
     }
   });
 
-  window.addEventListener('keydown', event => {
-    if (event.key === 'Escape') {
-      const placementManager = gameManager.getTowerPlacementManager();
-      if (placementManager.isInPlacementMode()) {
-        placementManager.cancelPlacement();
-        towerShop.clearSelection();
+  // Set up keyboard hotkeys using InputManager
+  inputManager.onKeyDown((key, event) => {
+    const currentState = gameManager.getCurrentState();
+    const isPlaying =
+      currentState === GameConfig.GAME_STATES.PLAYING ||
+      currentState === GameConfig.GAME_STATES.WAVE_COMPLETE;
+
+    // Import hotkey config dynamically to avoid circular dependencies
+    import('./config/hotkeyConfig').then(({ getTowerTypeFromKey, GAME_HOTKEYS }) => {
+      // Tower placement hotkeys (only in playing state)
+      if (isPlaying) {
+        const towerType = getTowerTypeFromKey(key);
+        if (towerType) {
+          const placementManager = gameManager.getTowerPlacementManager();
+          const cost = gameManager.getTowerManager().getTowerCost(towerType);
+
+          // Check if player can afford the tower
+          if (gameManager.getMoney() >= cost) {
+            // Cancel current placement if any
+            if (placementManager.isInPlacementMode()) {
+              placementManager.cancelPlacement();
+              towerShop.clearSelection();
+            }
+
+            // Start new placement
+            placementManager.startPlacement(towerType);
+            towerShop.selectTower(towerType);
+            DebugUtils.debug(`Hotkey ${key}: Selected ${towerType} tower`);
+          } else {
+            DebugUtils.debug(`Hotkey ${key}: Cannot afford ${towerType} tower (cost: ${cost})`);
+          }
+          return;
+        }
       }
-    }
+
+      // Game control hotkeys
+      if (key === GAME_HOTKEYS.ESCAPE.key || key === 'Escape') {
+        const placementManager = gameManager.getTowerPlacementManager();
+        if (placementManager.isInPlacementMode()) {
+          placementManager.cancelPlacement();
+          towerShop.clearSelection();
+        }
+      }
+
+      if (key === GAME_HOTKEYS.SPACE.key && isPlaying) {
+        if (currentState === GameConfig.GAME_STATES.WAVE_COMPLETE) {
+          gameManager.startNextWave();
+          bottomBar.hideNextWaveButton();
+        }
+      }
+    });
 
     // Debug hotkeys (only work when debug mode is enabled)
     if (DebugConstants.ENABLED) {

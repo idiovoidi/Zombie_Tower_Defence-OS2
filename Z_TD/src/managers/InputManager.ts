@@ -14,10 +14,13 @@ export class InputManager {
     onPointerMove: ((coords: InputCoordinates, event: FederatedPointerEvent) => void)[];
     onPointerUp: ((coords: InputCoordinates, event: FederatedPointerEvent) => void)[];
     onRightClick: ((coords: InputCoordinates, event: FederatedPointerEvent) => void)[];
+    onKeyDown: ((key: string, event: KeyboardEvent) => void)[];
+    onKeyUp: ((key: string, event: KeyboardEvent) => void)[];
   };
   private debugMode: boolean = false; // Disable debug by default
   private campClickArea: Container | null = null;
   private onCampClickCallback: (() => void) | null = null;
+  private pressedKeys: Set<string> = new Set();
 
   constructor(app: Application, scaleManager: ScaleManager) {
     this.app = app;
@@ -27,9 +30,12 @@ export class InputManager {
       onPointerMove: [],
       onPointerUp: [],
       onRightClick: [],
+      onKeyDown: [],
+      onKeyUp: [],
     };
 
     this.setupEventListeners();
+    this.setupKeyboardListeners();
   }
 
   private setupEventListeners(): void {
@@ -67,6 +73,53 @@ export class InputManager {
     this.app.canvas.addEventListener('contextmenu', e => {
       e.preventDefault();
     });
+  }
+
+  private setupKeyboardListeners(): void {
+    // Keyboard down events
+    window.addEventListener('keydown', (event: KeyboardEvent) => {
+      // Prevent default for game keys to avoid browser shortcuts
+      if (this.shouldPreventDefault(event.key)) {
+        event.preventDefault();
+      }
+
+      // Track pressed keys to prevent repeat events
+      if (this.pressedKeys.has(event.key)) {
+        return; // Key is already pressed, ignore repeat
+      }
+      this.pressedKeys.add(event.key);
+
+      // Debug logging
+      if (this.debugMode) {
+        console.log(`⌨️ Key Down: ${event.key}`);
+      }
+
+      // Call all registered callbacks
+      this.callbacks.onKeyDown.forEach(callback => callback(event.key, event));
+    });
+
+    // Keyboard up events
+    window.addEventListener('keyup', (event: KeyboardEvent) => {
+      this.pressedKeys.delete(event.key);
+
+      // Debug logging
+      if (this.debugMode) {
+        console.log(`⌨️ Key Up: ${event.key}`);
+      }
+
+      // Call all registered callbacks
+      this.callbacks.onKeyUp.forEach(callback => callback(event.key, event));
+    });
+  }
+
+  private shouldPreventDefault(key: string): boolean {
+    // Prevent default for keys that might trigger browser shortcuts
+    const preventKeys = [
+      ' ', // Space (prevent page scroll)
+      'Tab', // Tab (prevent focus change)
+      'Escape', // Escape
+    ];
+    return preventKeys.includes(key);
   }
 
   private getCoordinates(event: FederatedPointerEvent): InputCoordinates {
@@ -113,6 +166,18 @@ export class InputManager {
     callback: (coords: InputCoordinates, event: FederatedPointerEvent) => void
   ): void {
     this.callbacks.onRightClick.push(callback);
+  }
+
+  public onKeyDown(callback: (key: string, event: KeyboardEvent) => void): void {
+    this.callbacks.onKeyDown.push(callback);
+  }
+
+  public onKeyUp(callback: (key: string, event: KeyboardEvent) => void): void {
+    this.callbacks.onKeyUp.push(callback);
+  }
+
+  public isKeyPressed(key: string): boolean {
+    return this.pressedKeys.has(key);
   }
 
   // Utility method to check if coordinates are within game area
