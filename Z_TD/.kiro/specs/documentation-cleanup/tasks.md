@@ -1,22 +1,33 @@
 # Implementation Plan
 
-- [ ] 1. Create new documentation structure
+- [x] 1. Create new documentation structure
+
+
+
+
+
   - Create new directory hierarchy for organized documentation
   - Create README files explaining each section's purpose
   - Create documentation templates for steering rules, design docs, and archive entries
   - _Requirements: 1.1, 1.3_
 
-- [ ] 1.1 Create core directory structure
+
+- [x] 1.1 Create core directory structure
+
   - Create .kiro/steering/core/, .kiro/steering/features/, .kiro/steering/process/ directories
   - Create design_docs/Core_Systems/, design_docs/Features/, design_docs/Archive/ directories
   - Create design_docs/Core_Systems subdirectories (Memory_Management, Performance, Testing)
   - Create design_docs/Features subdirectories (Towers, Zombies, UI, Combat, Waves)
   - _Requirements: 1.1_
 
+
+
 - [ ] 1.2 Create documentation README files
   - Write design_docs/README.md explaining documentation structure and contribution guidelines
   - Write .kiro/steering/README.md explaining steering rule purpose and usage
   - Write design_docs/Archive/README.md explaining archive purpose
+
+
   - _Requirements: 1.3, 6.1, 6.2_
 
 - [ ] 1.3 Create documentation templates
@@ -25,21 +36,29 @@
   - Create .kiro/specs/documentation-cleanup/templates/archive-entry-template.md
   - _Requirements: 6.4_
 
-- [ ] 2. Consolidate and reorganize steering rules
+- [x] 2. Consolidate and reorganize steering rules
+
+
+
   - Split oversized steering rules into focused files
   - Organize steering rules into subdirectories by category
   - Update frontmatter for conditional inclusion
   - Extract detailed content to design docs
   - _Requirements: 3.1, 3.2, 3.3, 3.4_
 
-- [ ] 2.1 Refactor Stat_Tracking.md
+- [x] 2.1 Refactor Stat_Tracking.md
+
+
   - Extract quick reference tables and keep in new .kiro/steering/features/stats.md (<200 lines)
   - Move detailed implementation guide to design_docs/Core_Systems/Stat_Tracking/GUIDE.md
   - Move code examples to design_docs/Core_Systems/Stat_Tracking/EXAMPLES.md
   - Update frontmatter with appropriate fileMatchPattern
   - _Requirements: 3.1, 3.2, 3.3_
 
-- [ ] 2.2 Refactor Zombie_Types.md
+- [-] 2.2 Refactor Zombie_Types.md
+
+
+
   - Keep combat modifiers matrix in new .kiro/steering/features/zombies.md
   - Move visual reference details to design_docs/Features/Zombies/VISUAL_REFERENCE.md
   - Move implementation details to design_docs/Features/Zombies/IMPLEMENTATION.md
@@ -47,6 +66,7 @@
   - _Requirements: 3.1, 3.2, 3.3_
 
 - [ ] 2.3 Enhance and reorganize Towers.md
+
   - Move to .kiro/steering/features/towers.md
   - Add tower type quick reference table
   - Add damage calculation pattern examples
@@ -64,6 +84,7 @@
   - _Requirements: 1.1, 1.4_
 
 - [ ] 3. Reorganize design documentation
+
   - Create feature-based directory structure
   - Move existing design docs to appropriate locations
   - Consolidate overlapping documentation
