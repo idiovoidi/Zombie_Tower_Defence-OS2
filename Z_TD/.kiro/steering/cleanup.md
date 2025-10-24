@@ -5,17 +5,17 @@ inclusion: always
 inclusion: always
 ---
 
-# Cleanup & Memory Management
+# Memory Management & Cleanup
 
-This project requires strict memory management patterns to prevent leaks in the PixiJS-based game engine.
+This PixiJS-based game requires strict memory management to prevent leaks. Follow these patterns for all game objects, effects, and timers.
 
-## Mandatory destroy() Implementation
+## destroy() Method Pattern
 
-All classes extending GameObject or PixiJS Container MUST implement destroy() following this exact order:
+All classes extending GameObject or PixiJS Container MUST implement destroy() in this exact order:
 
 ```typescript
 public destroy(): void {
-  // 1. Clear timers FIRST (prevents accessing destroyed objects)
+  // 1. Clear timers FIRST (prevents callbacks accessing destroyed objects)
   if (this.timeout) clearTimeout(this.timeout);
   if (this.interval) EffectCleanupManager.clearInterval(this.interval);
   
@@ -29,68 +29,73 @@ public destroy(): void {
 }
 ```
 
-Order matters: timers → children/references → parent.
+**Order is critical**: timers → children/references → parent.
 
-## Timer Management Rules
+## Timer Management
 
-NEVER use raw `setInterval` or `setTimeout`. Always use `EffectCleanupManager` (src/utils/EffectCleanupManager.ts):
+NEVER use raw `setInterval` or `setTimeout`. Always use `EffectCleanupManager`:
 
 ```typescript
-// Correct usage
+// Register timers
 const interval = EffectCleanupManager.registerInterval(setInterval(() => {}, 16));
 const timeout = EffectCleanupManager.registerTimeout(setTimeout(() => {}, 1000));
 
-// Clear when done
+// Clear in destroy()
 EffectCleanupManager.clearInterval(interval);
 EffectCleanupManager.clearTimeout(timeout);
 ```
 
+Location: `src/utils/EffectCleanupManager.ts`
+
 ## Persistent Visual Effects
 
-Long-lived effects (fire pools, sludge pools, explosions, Tesla particles) MUST be registered with `ResourceCleanupManager` (src/utils/ResourceCleanupManager.ts):
+Long-lived effects (fire pools, sludge, explosions, Tesla lightning) MUST be registered with `ResourceCleanupManager`:
 
 ```typescript
-// Register effect
+// Register when creating effect
 ResourceCleanupManager.registerPersistentEffect(graphics, {
   type: 'fire_pool',
   duration: 2000,
-  onCleanup: () => { /* optional custom cleanup */ }
+  onCleanup: () => { /* optional */ }
 });
 
-// Unregister when effect expires naturally
+// Unregister when effect expires
 ResourceCleanupManager.unregisterPersistentEffect(graphics);
 ```
+
+Location: `src/utils/ResourceCleanupManager.ts`
 
 ## Cleanup Scopes
 
 **Wave Cleanup** (`ResourceCleanupManager.cleanupWaveResources()`):
-- Cleans: persistent effects, projectiles, visual effects, blood particles
-- Preserves: corpses (fade naturally), towers, zombies
+- Removes: persistent effects, projectiles, visual effects, blood particles
+- Keeps: corpses (fade naturally), towers, zombies
 
 **Game Cleanup** (`ResourceCleanupManager.cleanupGameResources()`):
-- Cleans: everything from wave cleanup + zombies, towers, combat state, wave state
+- Removes: everything + zombies, towers, combat state, wave state
 
 ## Critical Rules
 
-1. Clear timers BEFORE destroying objects
-2. NEVER use raw setInterval/setTimeout - always wrap with EffectCleanupManager
+1. Clear timers BEFORE destroying objects (prevents callbacks on destroyed objects)
+2. NEVER use raw setInterval/setTimeout - always use EffectCleanupManager
 3. Register persistent effects with ResourceCleanupManager
 4. Always call `.destroy()` on PixiJS Graphics/Container objects
-5. Null out references after destroying: `this.obj = null`
+5. Null references after destroying: `this.obj = null`
 6. Call `super.destroy()` LAST in destroy() methods
+7. Clear arrays: `this.array = []` or `this.array.length = 0`
 
-## Common Memory Leak Patterns
+## Common Memory Leak Causes
 
-- Orphaned timers → use EffectCleanupManager
-- Undestroyed PixiJS objects → always call .destroy()
-- Circular references → clear references in destroy()
-- Event listeners → handled by PixiJS Container.destroy()
+- **Orphaned timers**: Use EffectCleanupManager for all timers
+- **Undestroyed PixiJS objects**: Always call `.destroy()` on Graphics/Container
+- **Circular references**: Clear all object references in destroy()
+- **Event listeners**: Automatically handled by PixiJS Container.destroy()
 
-## Debugging
+## Debugging Memory Issues
 
 ```typescript
 ResourceCleanupManager.logState(); // Warns if >20 persistent effects/timers
 EffectCleanupManager.logState();   // Shows active intervals/timeouts
 ```
 
-Expected memory usage: Wave 1-5: 300-350MB, Wave 10: ~400MB, Wave 20+: ~450MB (stable). Memory should NOT grow continuously.
+**Expected memory usage**: Wave 1-5: 300-350MB, Wave 10: ~400MB, Wave 20+: ~450MB (stable). Memory should stabilize, not grow continuously.
