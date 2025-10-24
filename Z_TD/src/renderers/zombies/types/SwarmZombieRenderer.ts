@@ -3,6 +3,7 @@ import { IZombieRenderer, ZombieRenderState } from '../ZombieRenderer';
 import { ZombieAnimator } from '../ZombieAnimator';
 import { ParticleType, ZombieParticleSystem } from '../ZombieParticleSystem';
 import { GlowEffect, ShadowEffect } from '../components/ZombieEffects';
+import { EffectCleanupManager } from '../../../utils/EffectCleanupManager';
 
 export class SwarmZombieRenderer implements IZombieRenderer {
   private graphics: Graphics;
@@ -180,9 +181,14 @@ export class SwarmZombieRenderer implements IZombieRenderer {
     // Flash yellow
     const originalTint = this.graphics.tint;
     this.graphics.tint = 0xffff00;
-    setTimeout(() => {
-      this.graphics.tint = originalTint;
-    }, 100);
+    const timeout = EffectCleanupManager.registerTimeout(
+      setTimeout(() => {
+        EffectCleanupManager.clearTimeout(timeout);
+        if (!this.graphics.destroyed) {
+          this.graphics.tint = originalTint;
+        }
+      }, 100)
+    );
 
     // Small blood splatter
     this.particles.emit(ParticleType.BLOOD_SPLATTER, 0, 0, {

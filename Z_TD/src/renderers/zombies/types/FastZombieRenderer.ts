@@ -3,6 +3,7 @@ import { IZombieRenderer, ZombieRenderState } from '../ZombieRenderer';
 import { ZombieAnimator } from '../ZombieAnimator';
 import { ParticleType, ZombieParticleSystem } from '../ZombieParticleSystem';
 import { GlowEffect, ShadowEffect } from '../components/ZombieEffects';
+import { EffectCleanupManager } from '../../../utils/EffectCleanupManager';
 
 export class FastZombieRenderer implements IZombieRenderer {
   private graphics: Graphics;
@@ -174,9 +175,14 @@ export class FastZombieRenderer implements IZombieRenderer {
     // Flash orange
     const originalTint = this.graphics.tint;
     this.graphics.tint = 0xff6600;
-    setTimeout(() => {
-      this.graphics.tint = originalTint;
-    }, 100);
+    const timeout = EffectCleanupManager.registerTimeout(
+      setTimeout(() => {
+        EffectCleanupManager.clearTimeout(timeout);
+        if (!this.graphics.destroyed) {
+          this.graphics.tint = originalTint;
+        }
+      }, 100)
+    );
 
     // Emit blood particles
     this.particles.emit(ParticleType.BLOOD_SPLATTER, 0, 0, {

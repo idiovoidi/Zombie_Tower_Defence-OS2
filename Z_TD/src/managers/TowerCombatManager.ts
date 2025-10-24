@@ -348,9 +348,17 @@ export class TowerCombatManager {
       tower.parent.addChild(lightningGraphics);
     }
 
+    // Register lightning as persistent effect for immediate cleanup
+    ResourceCleanupManager.registerPersistentEffect(lightningGraphics, {
+      type: 'tesla_lightning',
+      duration: 150,
+    });
+
     // Remove lightning after short duration (tracked to prevent memory leaks)
-    EffectCleanupManager.registerTimeout(
+    const timeout = EffectCleanupManager.registerTimeout(
       setTimeout(() => {
+        EffectCleanupManager.clearTimeout(timeout);
+        ResourceCleanupManager.unregisterPersistentEffect(lightningGraphics);
         if (lightningGraphics.parent) {
           lightningGraphics.parent.removeChild(lightningGraphics);
         }
@@ -594,9 +602,17 @@ export class TowerCombatManager {
       tower.parent.addChild(flameGraphics);
     }
 
+    // Register flame as persistent effect for immediate cleanup
+    ResourceCleanupManager.registerPersistentEffect(flameGraphics, {
+      type: 'flame_stream',
+      duration: 120,
+    });
+
     // Remove flame after short duration (tracked to prevent memory leaks)
-    EffectCleanupManager.registerTimeout(
+    const timeout = EffectCleanupManager.registerTimeout(
       setTimeout(() => {
+        EffectCleanupManager.clearTimeout(timeout);
+        ResourceCleanupManager.unregisterPersistentEffect(flameGraphics);
         if (flameGraphics.parent) {
           flameGraphics.parent.removeChild(flameGraphics);
         }

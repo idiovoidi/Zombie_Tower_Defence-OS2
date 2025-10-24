@@ -1,4 +1,6 @@
 import { Container, Graphics } from 'pixi.js';
+import { EffectCleanupManager } from './EffectCleanupManager';
+import { ResourceCleanupManager } from './ResourceCleanupManager';
 
 export class VisualEffects {
   // Create a damage indicator that floats upward
@@ -17,11 +19,21 @@ export class VisualEffects {
     damageText.position.set(x, y);
     container.addChild(damageText);
 
+    // Register as persistent effect for immediate cleanup
+    ResourceCleanupManager.registerPersistentEffect(damageText, {
+      type: 'damage_indicator',
+      duration: 1000,
+    });
+
     // This would be animated in a real implementation
-    setTimeout(() => {
-      container.removeChild(damageText);
-      damageText.destroy();
-    }, 1000);
+    const timeout = EffectCleanupManager.registerTimeout(
+      setTimeout(() => {
+        EffectCleanupManager.clearTimeout(timeout);
+        ResourceCleanupManager.unregisterPersistentEffect(damageText);
+        container.removeChild(damageText);
+        damageText.destroy();
+      }, 1000)
+    );
   }
 
   // Create a screen damage flash effect (red corners)
@@ -47,6 +59,13 @@ export class VisualEffects {
       graphic.position.set(corner.x, corner.y);
       graphic.zIndex = 10000; // Ensure it's on top
       container.addChild(graphic);
+
+      // Register each corner graphic as persistent effect
+      ResourceCleanupManager.registerPersistentEffect(graphic, {
+        type: 'damage_flash',
+        duration: flashDuration,
+      });
+
       return graphic;
     });
 
@@ -60,7 +79,10 @@ export class VisualEffects {
       const alpha = 0.5 * (1 - progress);
 
       flashGraphics.forEach(graphic => {
-        graphic.alpha = alpha;
+        // Skip if already destroyed (e.g., wave ended)
+        if (!graphic.destroyed) {
+          graphic.alpha = alpha;
+        }
       });
 
       if (progress < 1) {
@@ -68,8 +90,11 @@ export class VisualEffects {
       } else {
         // Clean up
         flashGraphics.forEach(graphic => {
-          container.removeChild(graphic);
-          graphic.destroy();
+          if (!graphic.destroyed) {
+            ResourceCleanupManager.unregisterPersistentEffect(graphic);
+            container.removeChild(graphic);
+            graphic.destroy();
+          }
         });
       }
     };

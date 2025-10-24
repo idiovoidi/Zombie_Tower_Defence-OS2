@@ -8,6 +8,7 @@ import { TowerRangeVisualizer } from '../utils/TowerRangeVisualizer';
 import { TowerManager } from '../managers/TowerManager';
 import { BarrelHeatGlow } from '../effects/BarrelHeatGlow';
 import { EffectCleanupManager } from '../utils/EffectCleanupManager';
+import { ResourceCleanupManager } from '../utils/ResourceCleanupManager';
 import type { MuzzleFlash, ShellCasing, TowerEffects } from '../types/tower-internal';
 
 export class Tower extends GameObject implements ITower, TowerEffects {
@@ -1205,9 +1206,17 @@ export class Tower extends GameObject implements ITower, TowerEffects {
       damageFlash.circle(0, 0, 30).fill({ color: 0xff0000, alpha: 0.5 });
       this.addChild(damageFlash);
 
+      // Register as persistent effect for immediate cleanup
+      ResourceCleanupManager.registerPersistentEffect(damageFlash, {
+        type: 'tower_damage_flash',
+        duration: 100,
+      });
+
       // Remove flash after a short delay (tracked to prevent memory leaks)
-      EffectCleanupManager.registerTimeout(
+      const timeout = EffectCleanupManager.registerTimeout(
         setTimeout(() => {
+          EffectCleanupManager.clearTimeout(timeout);
+          ResourceCleanupManager.unregisterPersistentEffect(damageFlash);
           if (damageFlash && !damageFlash.destroyed) {
             this.removeChild(damageFlash);
             damageFlash.destroy();
