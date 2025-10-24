@@ -101,37 +101,34 @@
     - Add logging to verify flags prevent unnecessary rebuilds
     - _Requirements: 6.1, 6.2, 6.3_
 
-- [-] 7. Enhance Memory Cleanup Systems
-
+- [x] 7. Enhance Memory Cleanup Systems
 
   - [x] 7.1 Audit Graphics object destruction
-
-
     - Search for all Graphics object creation in codebase
     - Verify each has corresponding destroy() call
     - Add missing destroy() calls where needed
     - _Requirements: 4.1, 4.2, 4.3_
 
   - [x] 7.2 Verify persistent effect cleanup
-
     - Ensure all persistent effects are registered with ResourceCleanupManager
     - Verify effects are unregistered when they expire naturally
     - Test cleanup during wave transitions
     - _Requirements: 4.2, 4.3_
 
-  - [ ] 7.3 Optimize corpse cleanup
+  - [x] 7.3 Optimize corpse cleanup
     - Verify corpse limit (50) is enforced
     - Ensure oldest corpses are removed when limit reached
+
     - Verify corpse Graphics objects are properly destroyed
     - _Requirements: 7.1, 7.2_
-  - [ ] 7.4 Add cleanup verification
+
+  - [x] 7.4 Add cleanup verification
     - Implement post-cleanup state checks
     - Log warnings if cleanup fails to remove resources
     - Add forced cleanup fallback for stuck resources
     - _Requirements: 2.5, 4.3_
 
 - [ ] 8. Integrate Performance Monitoring
-
   - [ ] 8.1 Add monitoring to GameManager
     - Wrap each manager update with performance measurements
     - Track total frame time and per-system times

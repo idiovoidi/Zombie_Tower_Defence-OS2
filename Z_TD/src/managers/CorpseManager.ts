@@ -238,4 +238,45 @@ export class CorpseManager {
   public setMaxCorpses(max: number): void {
     this.maxCorpses = max;
   }
+
+  // Get corpse statistics for debugging
+  public getStats(): {
+    currentCount: number;
+    maxCount: number;
+    oldestAge: number;
+    averageAge: number;
+  } {
+    const currentCount = this.corpses.length;
+    const maxCount = this.maxCorpses;
+
+    if (currentCount === 0) {
+      return {
+        currentCount: 0,
+        maxCount,
+        oldestAge: 0,
+        averageAge: 0,
+      };
+    }
+
+    const ages = this.corpses.map(c => c.fadeTimer);
+    const oldestAge = Math.max(...ages);
+    const averageAge = ages.reduce((sum, age) => sum + age, 0) / ages.length;
+
+    return {
+      currentCount,
+      maxCount,
+      oldestAge,
+      averageAge,
+    };
+  }
+
+  // Get current corpse count
+  public getCorpseCount(): number {
+    return this.corpses.length;
+  }
+
+  // Get maximum corpse limit
+  public getMaxCorpses(): number {
+    return this.maxCorpses;
+  }
 }

@@ -220,6 +220,9 @@ export class ResourceCleanupManager {
   public static cleanupWaveResources(managers: GameManagers): void {
     console.log('🧹 Cleaning up wave resources...');
 
+    // Get state before cleanup for verification
+    const stateBefore = this.getState();
+
     // CRITICAL: Clear all effect timers FIRST before destroying objects
     // This prevents timers from trying to access destroyed objects
     EffectCleanupManager.clearAll();
@@ -250,6 +253,9 @@ export class ResourceCleanupManager {
     // Execute custom cleanup callbacks
     this.executeCleanupCallbacks();
 
+    // Verify cleanup was successful
+    this.verifyCleanup(stateBefore, 'wave');
+
     console.log('🧹 Wave cleanup complete');
   }
 
@@ -259,6 +265,9 @@ export class ResourceCleanupManager {
    */
   public static cleanupGameResources(managers: GameManagers): void {
     console.log('🧹 Cleaning up game resources...');
+
+    // Get state before cleanup for verification
+    const stateBefore = this.getState();
 
     // CRITICAL: Clear all effect timers FIRST before destroying objects
     // This prevents timers from trying to access destroyed objects
@@ -308,6 +317,9 @@ export class ResourceCleanupManager {
     // Execute custom cleanup callbacks
     this.executeCleanupCallbacks();
 
+    // Verify cleanup was successful
+    this.verifyCleanup(stateBefore, 'game');
+
     console.log('🧹 Game cleanup complete');
   }
 
@@ -315,7 +327,9 @@ export class ResourceCleanupManager {
    * Utility: Safely destroy a Graphics object
    */
   public static destroyGraphics(graphics: Graphics | null | undefined): void {
-    if (!graphics) return;
+    if (!graphics) {
+      return;
+    }
 
     try {
       if (graphics.parent) {
@@ -331,7 +345,9 @@ export class ResourceCleanupManager {
    * Utility: Safely destroy a Container and all its children
    */
   public static destroyContainer(container: Container | null | undefined): void {
-    if (!container) return;
+    if (!container) {
+      return;
+    }
 
     try {
       // Destroy all children first
@@ -382,6 +398,110 @@ export class ResourceCleanupManager {
     if (state.effectTimers.intervals > 20 || state.effectTimers.timeouts > 20) {
       console.warn('⚠️ High number of effect timers - possible memory leak!');
     }
+  }
+
+  /**
+   * Verify cleanup was successful and log warnings if resources remain
+   * @param stateBefore State before cleanup
+   * @param cleanupType Type of cleanup performed ('wave' or 'game')
+   */
+  private static verifyCleanup(
+    stateBefore: {
+      persistentEffects: number;
+      cleanupCallbacks: number;
+      effectTimers: { intervals: number; timeouts: number };
+    },
+    cleanupType: 'wave' | 'game'
+  ): void {
+    const stateAfter = this.getState();
+
+    // Check if cleanup was successful
+    const issues: string[] = [];
+
+    if (stateAfter.persistentEffects > 0) {
+      issues.push(
+        `${stateAfter.persistentEffects} persistent effects remain (expected 0, had ${stateBefore.persistentEffects} before cleanup)`
+      );
+    }
+
+    if (stateAfter.effectTimers.intervals > 0) {
+      issues.push(
+        `${stateAfter.effectTimers.intervals} intervals remain (expected 0, had ${stateBefore.effectTimers.intervals} before cleanup)`
+      );
+    }
+
+    if (stateAfter.effectTimers.timeouts > 0) {
+      issues.push(
+        `${stateAfter.effectTimers.timeouts} timeouts remain (expected 0, had ${stateBefore.effectTimers.timeouts} before cleanup)`
+      );
+    }
+
+    // Log results
+    if (issues.length > 0) {
+      console.warn(`⚠️ ${cleanupType} cleanup verification failed:`);
+      for (const issue of issues) {
+        console.warn(`  - ${issue}`);
+      }
+
+      // Attempt forced cleanup
+      console.warn('🔧 Attempting forced cleanup...');
+      this.forceCleanup();
+
+      // Verify forced cleanup worked
+      const stateAfterForced = this.getState();
+      if (
+        stateAfterForced.persistentEffects === 0 &&
+        stateAfterForced.effectTimers.intervals === 0 &&
+        stateAfterForced.effectTimers.timeouts === 0
+      ) {
+        console.log('✅ Forced cleanup successful');
+      } else {
+        console.error('❌ Forced cleanup failed - manual intervention required');
+        console.error('Final state:', stateAfterForced);
+      }
+    } else {
+      console.log(
+        `✅ ${cleanupType} cleanup verified: ${stateBefore.persistentEffects} effects, ${stateBefore.effectTimers.intervals} intervals, ${stateBefore.effectTimers.timeouts} timeouts removed`
+      );
+    }
+  }
+
+  /**
+   * Force cleanup of all resources (fallback for stuck resources)
+   * This is more aggressive than normal cleanup and should only be used
+   * when normal cleanup fails
+   */
+  public static forceCleanup(): void {
+    console.log('🔧 Force cleanup initiated...');
+
+    // Force clear all timers
+    EffectCleanupManager.clearAll();
+
+    // Force destroy all persistent effects (even if already destroyed)
+    let forcedCount = 0;
+    for (const effect of this.persistentEffects) {
+      try {
+        if (!effect.graphics.destroyed) {
+          if (effect.graphics.parent) {
+            effect.graphics.parent.removeChild(effect.graphics);
+          }
+          effect.graphics.destroy();
+          forcedCount++;
+        }
+      } catch (error) {
+        console.error('Error in force cleanup:', error);
+      }
+    }
+    this.persistentEffects.clear();
+
+    if (forcedCount > 0) {
+      console.log(`🔧 Force destroyed ${forcedCount} stuck effects`);
+    }
+
+    // Clear all callbacks
+    this.cleanupCallbacks.clear();
+
+    console.log('🔧 Force cleanup complete');
   }
 
   /**
