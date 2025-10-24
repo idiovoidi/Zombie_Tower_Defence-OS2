@@ -1,4 +1,5 @@
 import { Container, Text } from 'pixi.js';
+import { GameConfig } from '../config/gameConfig';
 
 /**
  * MoneyAnimation - Optimized money gain feedback system
@@ -82,7 +83,7 @@ export class MoneyAnimation {
     // Position in bottom left corner (with some padding)
     // Stack animations vertically, offset by existing animations
     const baseX = 20;
-    const baseY = window.innerHeight - 100; // Above bottom bar
+    const baseY = GameConfig.SCREEN_HEIGHT - 100; // Above bottom bar (use game canvas height, not window)
     const verticalOffset = this.animations.length * 40; // Stack upward
 
     text.position.set(baseX, baseY - verticalOffset);

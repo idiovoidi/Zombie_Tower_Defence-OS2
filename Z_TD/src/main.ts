@@ -81,19 +81,6 @@ import { VisualEffects } from './utils/VisualEffects';
     }
   });
 
-  // Create money animation system
-  const moneyAnimation = new MoneyAnimation(app.stage);
-
-  // Set up money gain callback
-  gameManager.setMoneyGainCallback((amount: number) => {
-    moneyAnimation.showMoneyGain(amount);
-  });
-
-  // Set up damage flash callback
-  gameManager.setDamageFlashCallback(() => {
-    VisualEffects.createDamageFlash(app.stage, GameConfig.SCREEN_WIDTH, GameConfig.SCREEN_HEIGHT);
-  });
-
   // Create UI manager
   const uiManager = new UIManager(app);
 
@@ -198,6 +185,20 @@ import { VisualEffects } from './utils/VisualEffects';
       DebugUtils.debug('Not enough money for camp upgrade');
       return false;
     }
+  });
+
+  // Create money animation system AFTER all UI components are registered
+  // This ensures it renders on top of other UI elements
+  const moneyAnimation = new MoneyAnimation(app.stage);
+
+  // Set up money gain callback
+  gameManager.setMoneyGainCallback((amount: number) => {
+    moneyAnimation.showMoneyGain(amount);
+  });
+
+  // Set up damage flash callback
+  gameManager.setDamageFlashCallback(() => {
+    VisualEffects.createDamageFlash(app.stage, GameConfig.SCREEN_WIDTH, GameConfig.SCREEN_HEIGHT);
   });
 
   // Set up camp click callback (will be set after map is loaded)
