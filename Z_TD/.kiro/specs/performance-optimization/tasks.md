@@ -192,6 +192,7 @@
     - Run game for 50+ waves to verify stability
     - _Requirements: 1.1, 1.2, 1.3, 2.1, 2.2, 2.3_
 
+
 - [ ] 11. Documentation and Cleanup
   - [ ]\* 11.1 Update performance documentation
     - Document new PerformanceMonitor API
