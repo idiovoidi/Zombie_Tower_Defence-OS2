@@ -313,6 +313,11 @@ Towers sell for 75% of total investment (base + upgrades)
 - [Combat](../Combat/README.md) - Damage calculation and effects
 - [UI](../UI/README.md) - Tower shop and selection UI
 
+### Archived Implementations
+- [Tower Visual Redesign](../../Archive/Towers/TOWER_REDESIGN.md) - Little men with guns implementation
+- [Tower Selection Fix](../../Archive/Towers/TOWER_SELECTION_FIX.md) - Selection system improvements
+- [Tower Visual Upgrades](../../Archive/Towers/TOWER_UPGRADES_VISUAL.md) - Upgrade progression visuals
+
 ---
 
 ## Implementation Status

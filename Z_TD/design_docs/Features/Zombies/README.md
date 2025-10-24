@@ -362,6 +362,11 @@ Zombies follow a predefined path of waypoints:
 - [Combat](../Combat/README.md) - Damage calculation and effects
 - [Waves](../Waves/README.md) - Wave progression system
 
+### Archived Implementations
+- [Zombie Visual Enhancements](../../Archive/Zombies/ZOMBIE_ENHANCEMENTS_SUMMARY.md) - Blood particles and corpse system
+- [Zombie Spawning](../../Archive/Zombies/ZOMBIE_SPAWNING.md) - Spawning and movement implementation
+- [Zombie Visuals](../../Archive/Zombies/ZOMBIE_VISUALS.md) - Enhanced visual system details
+
 ---
 
 ## Implementation Status

@@ -46,4 +46,17 @@ Design specification for the wave information panel
 
 ---
 
+## Related Documentation
+
+### Archived Implementations
+- [Debug Info Auto-Close](../../Archive/UI/DEBUG_INFO_AUTO_CLOSE.md) - Auto-close functionality for debug panel
+- [Debug Info Panel Shortcuts](../../Archive/UI/DEBUG_INFO_PANEL_SHORTCUTS.md) - Shortcut system for debug tools
+- [Panel Close Buttons](../../Archive/UI/PANEL_CLOSE_BUTTONS.md) - Close button implementation for all panels
+- [Screen Layout Update](../../Archive/UI/SCREEN_LAYOUT_UPDATE.md) - Vertical tower shop layout
+- [Debug Test UI Manager](../../Archive/UI/DEBUG_TEST_UI_MANAGER_IMPLEMENTATION.md) - Centralized debug panel management
+- [Stats Panel Integration](../../Archive/UI/STATS_PANEL_INTEGRATION.md) - Performance stats panel integration
+- [AI Control Integration](../../Archive/UI/AI_CONTROL_INTEGRATION.md) - AI control panel integration
+
+---
+
 **Last Updated:** October 25, 2025
