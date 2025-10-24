@@ -21,6 +21,7 @@ Remove obsolete code
 
 Corners of the screen should flash red when the survivor camp is damaged
 
+Fix the money animation MoneyAnimation.ts in the future
 ---
 
 Implemented design plans
