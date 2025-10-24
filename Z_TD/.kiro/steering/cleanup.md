@@ -1,9 +1,6 @@
 ---
 inclusion: always
 ---
----
-inclusion: always
----
 
 # Memory Management & Cleanup
 
@@ -18,12 +15,12 @@ public destroy(): void {
   // 1. Clear timers FIRST (prevents callbacks accessing destroyed objects)
   if (this.timeout) clearTimeout(this.timeout);
   if (this.interval) EffectCleanupManager.clearInterval(this.interval);
-  
+
   // 2. Destroy children and clear references
   this.childObject?.destroy();
   this.childObject = null;
   this.arrayReference = [];
-  
+
   // 3. Call parent destroy LAST
   super.destroy();
 }
@@ -56,7 +53,9 @@ Long-lived effects (fire pools, sludge, explosions, Tesla lightning) MUST be reg
 ResourceCleanupManager.registerPersistentEffect(graphics, {
   type: 'fire_pool',
   duration: 2000,
-  onCleanup: () => { /* optional */ }
+  onCleanup: () => {
+    /* optional */
+  },
 });
 
 // Unregister when effect expires
@@ -68,10 +67,12 @@ Location: `src/utils/ResourceCleanupManager.ts`
 ## Cleanup Scopes
 
 **Wave Cleanup** (`ResourceCleanupManager.cleanupWaveResources()`):
+
 - Removes: persistent effects, projectiles, visual effects, blood particles
 - Keeps: corpses (fade naturally), towers, zombies
 
 **Game Cleanup** (`ResourceCleanupManager.cleanupGameResources()`):
+
 - Removes: everything + zombies, towers, combat state, wave state
 
 ## Critical Rules
@@ -95,7 +96,7 @@ Location: `src/utils/ResourceCleanupManager.ts`
 
 ```typescript
 ResourceCleanupManager.logState(); // Warns if >20 persistent effects/timers
-EffectCleanupManager.logState();   // Shows active intervals/timeouts
+EffectCleanupManager.logState(); // Shows active intervals/timeouts
 ```
 
 **Expected memory usage**: Wave 1-5: 300-350MB, Wave 10: ~400MB, Wave 20+: ~450MB (stable). Memory should stabilize, not grow continuously.

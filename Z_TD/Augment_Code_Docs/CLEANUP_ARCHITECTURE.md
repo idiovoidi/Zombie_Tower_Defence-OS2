@@ -58,6 +58,7 @@ This document describes the **centralized cleanup architecture** implemented to 
 The central cleanup module that manages all game resources.
 
 **Key Features:**
+
 - Tracks persistent effects (fire pools, sludge pools, explosions, Tesla particles)
 - Provides reusable cleanup utilities
 - Separates wave cleanup from full game cleanup
@@ -72,7 +73,7 @@ ResourceCleanupManager.registerPersistentEffect(graphics, {
   duration: 2000,
   onCleanup: () => {
     // Custom cleanup logic
-  }
+  },
 });
 
 // Clean up resources between waves
@@ -90,6 +91,7 @@ ResourceCleanupManager.logState();
 Manages timers (setInterval/setTimeout) to prevent orphaned callbacks.
 
 **Key Features:**
+
 - Tracks all active intervals and timeouts
 - Clears timers on cleanup
 - Prevents callbacks from executing after objects are destroyed
@@ -160,6 +162,7 @@ private cleanupWaveObjects(): void {
 ```
 
 **What Gets Cleaned:**
+
 - ✅ All persistent effects (fire pools, sludge pools, explosions, Tesla particles)
 - ✅ All projectiles
 - ✅ All visual effects (shell casings, muzzle flashes, bullet trails)
@@ -187,6 +190,7 @@ private clearGameState(): void {
 ```
 
 **What Gets Cleaned:**
+
 - ✅ Everything from wave cleanup
 - ✅ All zombies
 - ✅ All towers
@@ -218,6 +222,7 @@ ResourceCleanupManager.logState();
 ### Memory Leak Detection
 
 The system automatically warns if:
+
 - More than 20 persistent effects are active
 - More than 20 intervals/timeouts are active
 
@@ -252,21 +257,25 @@ Memory returns to ~300MB after game restart.
 ## 🎯 Benefits
 
 ### 1. **Maintainability**
+
 - Cleanup logic is centralized in one module
 - Easy to add new cleanup patterns
 - Clear separation of concerns
 
 ### 2. **Reliability**
+
 - Guaranteed cleanup between waves
 - No forgotten cleanup calls
 - Automatic tracking prevents leaks
 
 ### 3. **Debuggability**
+
 - Easy to see what's in memory
 - Automatic warnings for potential leaks
 - Detailed logging of cleanup operations
 
 ### 4. **Performance**
+
 - Stable memory usage across waves
 - No performance degradation over time
 - Browser doesn't crash after extended play
@@ -278,6 +287,7 @@ Memory returns to ~300MB after game restart.
 ### When Creating Persistent Effects
 
 1. **Always register the effect:**
+
    ```typescript
    ResourceCleanupManager.registerPersistentEffect(graphics, {
      type: 'effect_type',
@@ -286,6 +296,7 @@ Memory returns to ~300MB after game restart.
    ```
 
 2. **Unregister when naturally expires:**
+
    ```typescript
    ResourceCleanupManager.unregisterPersistentEffect(graphics);
    ```
@@ -374,4 +385,3 @@ The centralized cleanup architecture successfully prevents memory leaks by:
 5. ✅ Ensuring consistent, reliable cleanup
 
 Memory usage is now stable across waves, and the game can run indefinitely without crashes! 🚀
-

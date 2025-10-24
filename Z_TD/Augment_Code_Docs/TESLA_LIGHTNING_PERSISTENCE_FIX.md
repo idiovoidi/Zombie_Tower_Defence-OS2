@@ -38,6 +38,7 @@ The electric particles were already fixed, but the **main lightning arc** was no
 **File:** `src/managers/TowerCombatManager.ts`
 
 **Before (BROKEN):**
+
 ```typescript
 // Add to tower's parent container
 if (tower.parent) {
@@ -56,6 +57,7 @@ EffectCleanupManager.registerTimeout(
 ```
 
 **After (FIXED):**
+
 ```typescript
 // Add to tower's parent container
 if (tower.parent) {
@@ -82,6 +84,7 @@ const timeout = EffectCleanupManager.registerTimeout(
 ```
 
 **Key Changes:**
+
 1. ✅ Register `lightningGraphics` as persistent effect immediately
 2. ✅ Unregister when timeout completes naturally
 3. ✅ Clear timeout reference when cleanup happens
@@ -114,7 +117,8 @@ While investigating, I found **5 more visual effects** with the same issue!
 
 **Issue:** 4 corner graphics not registered, uses requestAnimationFrame
 
-**Fixed:** 
+**Fixed:**
+
 - Register all 4 corner graphics as persistent effects
 - Added destroyed check before updating alpha
 - Unregister when animation completes
@@ -130,13 +134,15 @@ While investigating, I found **5 more visual effects** with the same issue!
 ### 5. Zombie Damage Flash (3 Renderers)
 
 **Files:**
+
 - `src/renderers/zombies/types/BasicZombieRenderer.ts` (lines 173-193)
 - `src/renderers/zombies/types/FastZombieRenderer.ts` (lines 174-194)
 - `src/renderers/zombies/types/SwarmZombieRenderer.ts` (lines 180-200)
 
 **Issue:** Tint change timeout not tracked (less critical but still a leak)
 
-**Fixed:** 
+**Fixed:**
+
 - Track timeout with EffectCleanupManager
 - Check if graphics destroyed before changing tint
 - Clear timeout reference when complete
@@ -145,14 +151,14 @@ While investigating, I found **5 more visual effects** with the same issue!
 
 ## 📊 **Summary of Changes**
 
-| Effect Type | File | Duration | Status |
-|-------------|------|----------|--------|
-| **Tesla Lightning Arc** | TowerCombatManager.ts | 150ms | ✅ FIXED |
-| **Flame Stream** | TowerCombatManager.ts | 120ms | ✅ FIXED |
-| **Damage Indicator** | VisualEffects.ts | 1000ms | ✅ FIXED |
-| **Damage Flash (Screen)** | VisualEffects.ts | 500ms | ✅ FIXED |
-| **Tower Damage Flash** | Tower.ts | 100ms | ✅ FIXED |
-| **Zombie Damage Flash** | 3 Zombie Renderers | 100ms | ✅ FIXED |
+| Effect Type               | File                  | Duration | Status   |
+| ------------------------- | --------------------- | -------- | -------- |
+| **Tesla Lightning Arc**   | TowerCombatManager.ts | 150ms    | ✅ FIXED |
+| **Flame Stream**          | TowerCombatManager.ts | 120ms    | ✅ FIXED |
+| **Damage Indicator**      | VisualEffects.ts      | 1000ms   | ✅ FIXED |
+| **Damage Flash (Screen)** | VisualEffects.ts      | 500ms    | ✅ FIXED |
+| **Tower Damage Flash**    | Tower.ts              | 100ms    | ✅ FIXED |
+| **Zombie Damage Flash**   | 3 Zombie Renderers    | 100ms    | ✅ FIXED |
 
 **Total Effects Fixed:** 6 types (9 files modified)
 
@@ -179,10 +185,10 @@ const timeout = EffectCleanupManager.registerTimeout(
   setTimeout(() => {
     // 4. Clear timeout reference
     EffectCleanupManager.clearTimeout(timeout);
-    
+
     // 5. Unregister persistent effect
     ResourceCleanupManager.unregisterPersistentEffect(graphics);
-    
+
     // 6. Clean up graphics
     if (graphics.parent) {
       graphics.parent.removeChild(graphics);
@@ -193,6 +199,7 @@ const timeout = EffectCleanupManager.registerTimeout(
 ```
 
 **Why This Works:**
+
 1. **Immediate Registration** - Graphics tracked from creation
 2. **Dual Tracking** - Both timer AND graphics tracked
 3. **Wave Cleanup** - If wave ends, ResourceCleanupManager destroys graphics
@@ -206,6 +213,7 @@ const timeout = EffectCleanupManager.registerTimeout(
 Please test the following scenarios:
 
 ### Tesla Tower
+
 - [ ] Fire Tesla tower at zombies
 - [ ] End wave while lightning is visible
 - [ ] Verify lightning disappears immediately
@@ -213,21 +221,25 @@ Please test the following scenarios:
 - [ ] Check memory usage stays stable
 
 ### Flame Tower
+
 - [ ] Fire Flame tower at zombies
 - [ ] End wave while flame stream is visible
 - [ ] Verify flame disappears immediately
 
 ### Damage Effects
+
 - [ ] Take damage (zombies reach base)
 - [ ] End wave while red corner flash is visible
 - [ ] Verify flash disappears immediately
 
 ### Tower Damage
+
 - [ ] Let zombies damage a tower
 - [ ] End wave while red flash is visible
 - [ ] Verify flash disappears immediately
 
 ### Zombie Damage
+
 - [ ] Shoot zombies
 - [ ] End wave while zombie is flashing
 - [ ] Verify no visual glitches
@@ -237,6 +249,7 @@ Please test the following scenarios:
 ## 📈 **Expected Results**
 
 **Before Fix:**
+
 - ❌ Tesla lightning persists between waves
 - ❌ Flame streams persist between waves
 - ❌ Damage flashes persist between waves
@@ -244,6 +257,7 @@ Please test the following scenarios:
 - ❌ Visual clutter on screen
 
 **After Fix:**
+
 - ✅ All effects cleaned up immediately when wave ends
 - ✅ No visual persistence between waves
 - ✅ Stable memory usage
@@ -286,6 +300,7 @@ Please test the following scenarios:
 The Tesla lightning persistence issue has been **completely fixed**, along with **5 other similar issues** that were discovered during the investigation!
 
 All visual effects now properly:
+
 1. ✅ Register as persistent effects when created
 2. ✅ Track their timers for cleanup
 3. ✅ Clean up when wave ends (forced cleanup)
@@ -293,4 +308,3 @@ All visual effects now properly:
 5. ✅ Prevent memory leaks and visual persistence
 
 Your game should now have **stable memory usage** and **clean visual transitions** between waves! 🚀⚡
-

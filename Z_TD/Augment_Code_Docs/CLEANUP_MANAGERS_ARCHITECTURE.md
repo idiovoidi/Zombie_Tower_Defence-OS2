@@ -17,9 +17,9 @@ This document explains why we have two files and how they work together.
 
 Each manager has **one clear job**:
 
-| Manager | Responsibility | Scope |
-|---------|---------------|-------|
-| **EffectCleanupManager** | Track and clear timers | `setInterval`, `setTimeout` |
+| Manager                    | Responsibility               | Scope                          |
+| -------------------------- | ---------------------------- | ------------------------------ |
+| **EffectCleanupManager**   | Track and clear timers       | `setInterval`, `setTimeout`    |
 | **ResourceCleanupManager** | Orchestrate resource cleanup | Graphics, managers, game state |
 
 ### Benefits of Separation
@@ -90,6 +90,7 @@ EffectCleanupManager.logState();
 ### When to Use
 
 Use **EffectCleanupManager** when you need to:
+
 - Track animation intervals
 - Track delayed callbacks
 - Ensure timers are cleaned up on reset
@@ -139,7 +140,7 @@ ResourceCleanupManager.registerPersistentEffect(firePool, {
   duration: 2000,
   onCleanup: () => {
     // Custom cleanup logic
-  }
+  },
 });
 
 // Unregister when naturally expires
@@ -174,6 +175,7 @@ ResourceCleanupManager.logState();
 ### When to Use
 
 Use **ResourceCleanupManager** when you need to:
+
 - Register persistent effects (fire pools, sludge pools, explosions, Tesla particles)
 - Clean up between waves
 - Clean up on game restart
@@ -239,16 +241,16 @@ ResourceCleanupManager.cleanupWaveResources()
 
 ## 📊 Comparison Table
 
-| Feature | EffectCleanupManager | ResourceCleanupManager |
-|---------|---------------------|----------------------|
-| **Level** | Low-level | High-level |
-| **Scope** | Timers only | All resources |
-| **Tracks** | Intervals, timeouts | Graphics, managers |
-| **Orchestrates** | No | Yes |
-| **Calls other managers** | No | Yes (calls EffectCleanupManager) |
-| **Used by** | Projectile, Tower, TowerCombatManager | GameManager |
-| **File size** | 146 lines | 397 lines |
-| **Dependencies** | None | EffectCleanupManager |
+| Feature                  | EffectCleanupManager                  | ResourceCleanupManager           |
+| ------------------------ | ------------------------------------- | -------------------------------- |
+| **Level**                | Low-level                             | High-level                       |
+| **Scope**                | Timers only                           | All resources                    |
+| **Tracks**               | Intervals, timeouts                   | Graphics, managers               |
+| **Orchestrates**         | No                                    | Yes                              |
+| **Calls other managers** | No                                    | Yes (calls EffectCleanupManager) |
+| **Used by**              | Projectile, Tower, TowerCombatManager | GameManager                      |
+| **File size**            | 146 lines                             | 397 lines                        |
+| **Dependencies**         | None                                  | EffectCleanupManager             |
 
 ---
 
@@ -257,6 +259,7 @@ ResourceCleanupManager.cleanupWaveResources()
 ### 1. Single Responsibility Principle (SRP)
 
 Each manager has one job:
+
 - **EffectCleanupManager** = Timer tracking
 - **ResourceCleanupManager** = Resource orchestration
 
@@ -280,6 +283,7 @@ ResourceCleanupManager.cleanupWaveResources(managers);
 ### 3. Registry Pattern
 
 Both managers use registries to track resources:
+
 - **EffectCleanupManager** = `Set<NodeJS.Timeout>`
 - **ResourceCleanupManager** = `Set<PersistentEffect>`
 
@@ -312,6 +316,7 @@ Both managers use registries to track resources:
 ### When Creating Effects
 
 1. **Always register timers:**
+
    ```typescript
    const interval = EffectCleanupManager.registerInterval(
      setInterval(() => { ... }, 16)
@@ -319,6 +324,7 @@ Both managers use registries to track resources:
    ```
 
 2. **Always register persistent effects:**
+
    ```typescript
    ResourceCleanupManager.registerPersistentEffect(graphics, {
      type: 'effect_type',
@@ -335,6 +341,7 @@ Both managers use registries to track resources:
 ### When Adding New Managers
 
 1. **Add to GameManagers interface:**
+
    ```typescript
    export interface GameManagers {
      newManager?: {
@@ -358,9 +365,7 @@ Both managers use registries to track resources:
 
 ```typescript
 // Register timers
-const interval = EffectCleanupManager.registerInterval(
-  setInterval(() => console.log('tick'), 100)
-);
+const interval = EffectCleanupManager.registerInterval(setInterval(() => console.log('tick'), 100));
 
 // Check state
 EffectCleanupManager.logState();
@@ -422,10 +427,10 @@ ResourceCleanupManager.logState();
    - Calls EffectCleanupManager
 
 **Why separate?**
+
 - Single Responsibility Principle
 - Easy to test independently
 - Clear separation of concerns
 - Maintainable and scalable
 
 **Result:** Clean, organized, maintainable cleanup system! 🚀
-

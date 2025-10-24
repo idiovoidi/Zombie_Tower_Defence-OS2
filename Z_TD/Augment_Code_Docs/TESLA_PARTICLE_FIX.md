@@ -22,12 +22,14 @@ In `ResourceCleanupManager.cleanupWaveResources()` and `cleanupGameResources()`,
 ```
 
 **What Happened:**
+
 1. Tesla tower shoots → Creates particle container → Registers as persistent effect → Starts fade interval
 2. Wave ends → `cleanupPersistentEffects()` destroys particle container
 3. Fade interval is still running → Tries to access destroyed particle container
 4. Causes errors or undefined behavior
 
 **The Fix:**
+
 ```typescript
 // NEW (FIXED) ORDER:
 1. EffectCleanupManager.clearAll()  // Clear animation intervals FIRST
@@ -49,11 +51,12 @@ for (const effect of this.persistentEffects) {
   if (effect.graphics.parent) {
     effect.graphics.parent.removeChild(effect.graphics);
   }
-  effect.graphics.destroy();  // ERROR: Already destroyed!
+  effect.graphics.destroy(); // ERROR: Already destroyed!
 }
 ```
 
 **The Fix:**
+
 ```typescript
 // NEW CODE:
 for (const effect of this.persistentEffects) {
@@ -87,6 +90,7 @@ Now we check if the object is already destroyed before trying to destroy it agai
 **File:** `src/utils/ResourceCleanupManager.ts`
 
 **Before:**
+
 ```typescript
 public static cleanupWaveResources(managers: GameManagers): void {
   console.log('🧹 Cleaning up wave resources...');
@@ -103,6 +107,7 @@ public static cleanupWaveResources(managers: GameManagers): void {
 ```
 
 **After:**
+
 ```typescript
 public static cleanupWaveResources(managers: GameManagers): void {
   console.log('🧹 Cleaning up wave resources...');
@@ -130,6 +135,7 @@ Same fix applied to the full game cleanup method.
 **Method:** `cleanupPersistentEffects()`
 
 **Changes:**
+
 - Added check for `effect.graphics.destroyed` before attempting cleanup
 - Wrapped destroy calls in try-catch for safety
 - Prevents errors when objects are already destroyed by their parent
@@ -141,16 +147,17 @@ Same fix applied to the full game cleanup method.
 ### The Tesla Particle Lifecycle
 
 1. **Creation:**
+
    ```typescript
    // Tesla shoots zombie
    const particleContainer = new Graphics();
-   zombie.addChild(particleContainer);  // Attached to zombie!
-   
+   zombie.addChild(particleContainer); // Attached to zombie!
+
    ResourceCleanupManager.registerPersistentEffect(particleContainer, {
      type: 'tesla_particles',
      duration: isPrimary ? 250 : 180,
    });
-   
+
    // Start fade animation
    const fadeInterval = setInterval(() => {
      // Fade out over time
@@ -159,6 +166,7 @@ Same fix applied to the full game cleanup method.
    ```
 
 2. **Natural Expiration (if zombie survives):**
+
    ```typescript
    // After 250ms, interval completes
    ResourceCleanupManager.unregisterPersistentEffect(particleContainer);
@@ -166,41 +174,45 @@ Same fix applied to the full game cleanup method.
    ```
 
 3. **Wave End Cleanup (OLD - BROKEN):**
+
    ```typescript
    // Wave ends
-   cleanupPersistentEffects();  // Tries to destroy particleContainer
-   EffectCleanupManager.clearAll();  // Clears fadeInterval AFTER destroy
-   
+   cleanupPersistentEffects(); // Tries to destroy particleContainer
+   EffectCleanupManager.clearAll(); // Clears fadeInterval AFTER destroy
+
    // PROBLEM: Interval might still run one more time and access destroyed object!
    ```
 
 4. **Wave End Cleanup (NEW - FIXED):**
+
    ```typescript
    // Wave ends
-   EffectCleanupManager.clearAll();  // Stops fadeInterval FIRST
-   cleanupPersistentEffects();  // Then safely destroys particleContainer
-   
+   EffectCleanupManager.clearAll(); // Stops fadeInterval FIRST
+   cleanupPersistentEffects(); // Then safely destroys particleContainer
+
    // SUCCESS: Interval is stopped before object is destroyed!
    ```
 
 ### Edge Case: Zombie Dies Before Wave Ends
 
 1. **Zombie dies:**
+
    ```typescript
-   zombie.destroy();  // PixiJS automatically destroys all children
+   zombie.destroy(); // PixiJS automatically destroys all children
    // particleContainer is now destroyed (but still registered as persistent effect)
    ```
 
 2. **Wave ends:**
+
    ```typescript
-   EffectCleanupManager.clearAll();  // Stops fadeInterval
+   EffectCleanupManager.clearAll(); // Stops fadeInterval
    cleanupPersistentEffects();
-   
+
    // Check if already destroyed
    if (effect.graphics.destroyed) {
-     continue;  // Skip, already cleaned up
+     continue; // Skip, already cleaned up
    }
-   
+
    // SUCCESS: No error trying to destroy already-destroyed object!
    ```
 
@@ -209,12 +221,14 @@ Same fix applied to the full game cleanup method.
 ## 📊 Expected Behavior
 
 ### Before Fix:
+
 - Tesla particles would persist between waves
 - Console errors about accessing destroyed objects
 - Memory would accumulate with orphaned particle containers
 - Possible visual glitches with particles stuck on screen
 
 ### After Fix:
+
 - Tesla particles are properly cleaned up between waves
 - No console errors
 - Memory stays stable
@@ -227,12 +241,14 @@ Same fix applied to the full game cleanup method.
 ### 1. Visual Test
 
 **Steps:**
+
 1. Build Tesla towers
 2. Let them shoot zombies (you'll see cyan electric particles)
 3. End the wave while particles are still visible
 4. Start next wave
 
 **Expected Result:**
+
 - All Tesla particles should disappear immediately when wave ends
 - No particles should carry over to the next wave
 - No visual glitches or stuck particles
@@ -240,6 +256,7 @@ Same fix applied to the full game cleanup method.
 ### 2. Memory Test
 
 **Steps:**
+
 1. Open Chrome DevTools → Performance tab
 2. Enable Memory checkbox
 3. Start recording
@@ -247,6 +264,7 @@ Same fix applied to the full game cleanup method.
 5. Stop recording
 
 **Expected Result:**
+
 - Memory should stay around 300-500MB
 - Small spikes during waves (normal)
 - Memory drops back down after each wave
@@ -255,11 +273,13 @@ Same fix applied to the full game cleanup method.
 ### 3. Console Test
 
 **Steps:**
+
 1. Open browser console (F12)
 2. Play through a few waves
 3. Watch for cleanup messages
 
 **Expected Output:**
+
 ```
 🧹 Cleaning up wave resources...
   ✓ Effect timers cleared
@@ -275,6 +295,7 @@ Same fix applied to the full game cleanup method.
 ```
 
 **Should NOT see:**
+
 - Errors about accessing destroyed objects
 - Warnings about memory leaks
 - Errors in the console
@@ -282,6 +303,7 @@ Same fix applied to the full game cleanup method.
 ### 4. Debugging Test
 
 **In browser console, run:**
+
 ```javascript
 // Check current state
 ResourceCleanupManager.logState();
@@ -308,12 +330,14 @@ ResourceCleanupManager.logState();
 ### 1. `src/utils/ResourceCleanupManager.ts`
 
 **Changes:**
+
 - Fixed cleanup order in `cleanupWaveResources()` (line 196-230)
 - Fixed cleanup order in `cleanupGameResources()` (line 236-288)
 - Added `destroyed` check in `cleanupPersistentEffects()` (line 124-171)
 - Added try-catch for safety in `cleanupPersistentEffects()`
 
 **Key Changes:**
+
 ```typescript
 // Line 199-201: Clear timers FIRST
 EffectCleanupManager.clearAll();
@@ -364,6 +388,7 @@ try {
 The fix includes several defensive programming practices:
 
 1. **Check before destroy:**
+
    ```typescript
    if (effect.graphics.destroyed) {
      continue;
@@ -371,6 +396,7 @@ The fix includes several defensive programming practices:
    ```
 
 2. **Try-catch for safety:**
+
    ```typescript
    try {
      effect.graphics.destroy();
@@ -390,10 +416,12 @@ The fix includes several defensive programming practices:
 ## 🎉 Summary
 
 The Tesla particle memory leak was caused by:
+
 1. ❌ **Wrong cleanup order** - Destroying objects before stopping their animation timers
 2. ❌ **No protection** - Trying to destroy already-destroyed objects
 
 The fix:
+
 1. ✅ **Correct cleanup order** - Stop timers FIRST, then destroy objects
 2. ✅ **Defensive checks** - Check if already destroyed before attempting cleanup
 3. ✅ **Error handling** - Wrap destroy calls in try-catch
@@ -422,4 +450,3 @@ The fix:
 - [ ] Verify memory returns to baseline after game restart
 
 If all tests pass, the Tesla particle memory leak is **completely resolved**! 🚀
-

@@ -14,7 +14,7 @@ The previous cleanup system had a critical flaw:
    - BUT the Graphics objects themselves remained in the scene!
 
 2. **No direct tracking of Graphics objects**
-   - The old system used `EffectCleanupManager.registerDisposable()` 
+   - The old system used `EffectCleanupManager.registerDisposable()`
    - But disposables were only called when timers completed naturally
    - If a wave ended mid-animation, the Graphics stayed in memory forever
 
@@ -39,6 +39,7 @@ We've implemented a **dedicated cleanup module** that separates memory managemen
 Created `src/utils/ResourceCleanupManager.ts` - a centralized system for tracking and cleaning up all game resources.
 
 **Features:**
+
 - ✅ Directly tracks Graphics objects (not just timers)
 - ✅ Registers persistent effects when created
 - ✅ Immediately destroys effects on wave end
@@ -50,6 +51,7 @@ Created `src/utils/ResourceCleanupManager.ts` - a centralized system for trackin
 All persistent effects now register themselves:
 
 **Before (OLD - BROKEN):**
+
 ```typescript
 // Create fire pool
 const firePool = new Graphics();
@@ -57,13 +59,14 @@ this.parent.addChild(firePool);
 
 // Register disposable (only called when timer completes)
 EffectCleanupManager.registerDisposable({
-  dispose: () => firePool.destroy()
+  dispose: () => firePool.destroy(),
 });
 
 // If wave ends, timer is cleared but firePool stays in scene!
 ```
 
 **After (NEW - FIXED):**
+
 ```typescript
 // Create fire pool
 const firePool = new Graphics();
@@ -75,7 +78,7 @@ ResourceCleanupManager.registerPersistentEffect(firePool, {
   duration: 2000,
   onCleanup: () => {
     // Custom cleanup logic (e.g., remove slow from zombies)
-  }
+  },
 });
 
 // When wave ends, ResourceCleanupManager immediately:
@@ -89,14 +92,17 @@ ResourceCleanupManager.registerPersistentEffect(firePool, {
 Fixed in these files:
 
 **`src/objects/Projectile.ts`:**
+
 - ✅ Grenade explosions
 - ✅ Fire pools (flame tower)
 - ✅ Sludge pools (sludge tower)
 
 **`src/managers/TowerCombatManager.ts`:**
+
 - ✅ Tesla electric particles
 
 **`src/managers/GameManager.ts`:**
+
 - ✅ Simplified cleanup methods to use ResourceCleanupManager
 - ✅ Wave cleanup now properly destroys all persistent effects
 - ✅ Full game cleanup for restarts
@@ -161,6 +167,7 @@ You should now see detailed cleanup logs after each wave:
 6. Stop recording
 
 **Expected behavior:**
+
 - Memory should stay around 300-500MB
 - Small spikes during waves (normal)
 - Memory drops back down after each wave
@@ -169,11 +176,13 @@ You should now see detailed cleanup logs after each wave:
 ### 3. Visual Test
 
 **Before the fix:**
+
 - End a wave while fire pools/sludge pools are active
 - Start next wave
 - Old effects would still be visible on screen
 
 **After the fix:**
+
 - End a wave while fire pools/sludge pools are active
 - Start next wave
 - All old effects are immediately removed
@@ -196,6 +205,7 @@ ResourceCleanupManager.logState();
 ```
 
 If you see warnings like:
+
 ```
 ⚠️ High number of persistent effects - possible memory leak!
 ```
@@ -207,11 +217,13 @@ That means something isn't being cleaned up properly.
 ## 📁 Files Modified
 
 ### New Files Created:
+
 1. **`src/utils/ResourceCleanupManager.ts`** - Main cleanup module (NEW)
 2. **`CLEANUP_ARCHITECTURE.md`** - Detailed documentation (NEW)
 3. **`PERSISTENT_EFFECTS_FIX.md`** - This file (NEW)
 
 ### Files Modified:
+
 1. **`src/objects/Projectile.ts`**
    - Replaced `EffectCleanupManager.registerDisposable()` with `ResourceCleanupManager.registerPersistentEffect()`
    - Added `unregisterPersistentEffect()` calls when effects naturally expire
@@ -231,21 +243,25 @@ That means something isn't being cleaned up properly.
 ## 🎯 Benefits of New Architecture
 
 ### 1. **Separation of Concerns**
+
 - Cleanup logic is isolated in dedicated module
 - GameManager focuses on game flow, not memory management
 - Easier to maintain and extend
 
 ### 2. **Guaranteed Cleanup**
+
 - All persistent effects are tracked automatically
 - No way to forget to clean up an effect
 - Centralized cleanup ensures consistency
 
 ### 3. **Better Debugging**
+
 - Easy to see what's in memory at any time
 - Automatic warnings for potential leaks
 - Detailed logging of cleanup operations
 
 ### 4. **Reusability**
+
 - Cleanup utilities can be used anywhere
 - Common patterns are standardized
 - Easy to add new effect types
@@ -255,6 +271,7 @@ That means something isn't being cleaned up properly.
 ## 📈 Expected Memory Behavior
 
 ### Before All Fixes:
+
 ```
 Wave 1:  300MB
 Wave 5:  800MB
@@ -264,6 +281,7 @@ Wave 20: 5GB+ (browser crash)
 ```
 
 ### After Shell Casing Fix:
+
 ```
 Wave 1:  300MB
 Wave 5:  500MB
@@ -273,6 +291,7 @@ Wave 20: 1.2GB (still growing)
 ```
 
 ### After Persistent Effects Fix (NOW):
+
 ```
 Wave 1:  300MB
 Wave 5:  350MB
@@ -331,4 +350,3 @@ We've successfully refactored the cleanup system to use a **dedicated cleanup mo
 The persistent effects memory leak should now be **completely resolved**! 🚀
 
 Your game should maintain stable memory usage even after dozens of waves and multiple restarts.
-

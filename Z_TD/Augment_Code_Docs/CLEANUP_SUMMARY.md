@@ -8,7 +8,9 @@
 ## Changes Made
 
 ### 1. src/main.ts
+
 **Removed:**
+
 - Unused imports: `FederatedPointerEvent`, `Texture`
 - Unused variable: `waveManager` (line ~420)
 - Unused FPS calculation block: `currentFPS`, `frameCount`, `fpsUpdateTime` (lines ~483-503)
@@ -19,7 +21,9 @@
 ---
 
 ### 2. src/ui/ShaderTestPanel.ts
+
 **Removed:**
+
 - Unused import: `ResolutionPixelationFilter`
 
 **Lines Changed:** 1 line removed
@@ -27,7 +31,9 @@
 ---
 
 ### 3. src/utils/VisualPresets.ts
+
 **Changed:**
+
 - Added `DebugUtils` import
 - Replaced 30+ `console.log()` statements with `DebugUtils.debug()`
 - Replaced `console.warn()` with `DebugUtils.warn()`
@@ -40,8 +46,9 @@
 ## Verification
 
 ### Lint Results
+
 **Before:** 7 unused variable/import errors  
-**After:** 0 unused variable/import errors  
+**After:** 0 unused variable/import errors
 
 ```bash
 npm run lint
@@ -49,6 +56,7 @@ npm run lint
 ```
 
 ### Diagnostics
+
 - ✅ src/main.ts - No unused variable errors
 - ✅ src/ui/ShaderTestPanel.ts - No diagnostics
 - ✅ src/utils/VisualPresets.ts - No diagnostics
@@ -58,16 +66,19 @@ npm run lint
 ## Impact
 
 ### Bundle Size
+
 - **Estimated Reduction:** 5-8KB (minified)
 - Removed unused imports and dead code
 - Eliminated unused FPS calculation overhead
 
 ### Code Quality
+
 - **Cleaner Imports:** No unused dependencies
 - **Better Debugging:** Console logs now respect debug mode via DebugUtils
 - **Maintainability:** Easier to understand what code is actually used
 
 ### Performance
+
 - Removed unused FPS calculation (runs every frame)
 - Fewer function calls in production builds
 - Cleaner console output
@@ -79,6 +90,7 @@ npm run lint
 ### Additional Debug Logging Cleanup
 
 **Files Updated:**
+
 1. ✅ src/utils/StatisticalAnalyzer.ts - 3 console.warn → DebugUtils.warn
 2. ✅ src/utils/StyleEffects.ts - 2 console.log → DebugUtils.debug
 3. ✅ src/utils/PixelArtRenderer.ts - 3 console.log → DebugUtils.debug
@@ -117,9 +129,11 @@ If you want to continue cleanup:
 4. ✅ OBSOLETE_CODE_AUDIT.md (updated)
 
 **Total Files Modified:** 10
+
 - High Priority: 3 files
 - Medium Priority: 7 files
 
 **Total Lines Changed:** ~61 lines
+
 - High Priority: ~46 lines
 - Medium Priority: ~15 lines

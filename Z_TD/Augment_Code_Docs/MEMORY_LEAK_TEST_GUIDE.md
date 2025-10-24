@@ -30,7 +30,7 @@ const testRestart = () => {
   restartCount++;
   console.log(`\n🔄 Restart Test #${restartCount}`);
   console.log('Memory before:', (performance.memory.usedJSHeapSize / 1048576).toFixed(2) + 'MB');
-  
+
   // Simulate game restart (you'll need to manually trigger this in the UI)
   // After each restart, check memory
 };
@@ -58,18 +58,21 @@ const countObjects = () => {
 ### Step-by-Step Memory Leak Detection
 
 #### 1. Take Initial Snapshot
+
 1. Open Chrome DevTools (F12)
 2. Go to **Memory** tab
 3. Select **Heap snapshot**
 4. Click **Take snapshot** (Snapshot 1)
 
 #### 2. Play First Game
+
 1. Start a new game
 2. Play through 5-10 waves
 3. Let the game end (game over or victory)
 4. Return to main menu
 
 #### 3. Take Second Snapshot
+
 1. In Memory tab, click **Take snapshot** (Snapshot 2)
 2. Select Snapshot 2
 3. Change view from "Summary" to **"Comparison"**
@@ -80,18 +83,21 @@ const countObjects = () => {
 **What to Look For:**
 
 ✅ **GOOD (No Leak):**
+
 - Zombie objects: 0 or very few
 - Graphics objects: Stable count
 - Container objects: Stable count
 - Total size delta: < 50MB
 
 ❌ **BAD (Memory Leak):**
+
 - Zombie objects: Hundreds/thousands
 - Graphics objects: Growing significantly
 - Container objects: Growing significantly
 - Total size delta: > 500MB
 
 #### 5. Repeat Test
+
 1. Start another game
 2. Play through 5-10 waves
 3. End game
@@ -99,6 +105,7 @@ const countObjects = () => {
 5. Compare with Snapshot 2
 
 **Expected Result:**
+
 - Memory delta between Snapshot 2 and 3 should be similar to Snapshot 1 and 2
 - No continuous growth pattern
 
@@ -116,25 +123,25 @@ const countObjects = () => {
 const runMemoryLeakTest = async () => {
   console.log('🧪 Starting Memory Leak Test...');
   console.log('This will restart the game 5 times and measure memory');
-  
+
   const results = [];
-  
+
   for (let i = 0; i < 5; i++) {
     console.log(`\n--- Test Run ${i + 1}/5 ---`);
-    
+
     // Record memory before
     const memBefore = performance.memory.usedJSHeapSize / 1048576;
     console.log(`Memory before: ${memBefore.toFixed(2)}MB`);
-    
+
     // You'll need to manually:
     // 1. Start game
     // 2. Play for a bit
     // 3. End game
     // 4. Return to menu
-    
+
     console.log('⏸️ Waiting for manual game completion...');
     console.log('Press Enter in console when back at main menu');
-    
+
     await new Promise(resolve => {
       const checkInterval = setInterval(() => {
         // Check if user pressed enter or game state changed
@@ -143,29 +150,29 @@ const runMemoryLeakTest = async () => {
         resolve();
       }, 1000);
     });
-    
+
     // Record memory after
     const memAfter = performance.memory.usedJSHeapSize / 1048576;
     console.log(`Memory after: ${memAfter.toFixed(2)}MB`);
-    
+
     const delta = memAfter - memBefore;
     console.log(`Memory delta: ${delta.toFixed(2)}MB`);
-    
+
     results.push({
       run: i + 1,
       before: memBefore,
       after: memAfter,
-      delta: delta
+      delta: delta,
     });
   }
-  
+
   console.log('\n📊 Test Results Summary:');
   console.table(results);
-  
+
   // Analyze results
   const avgDelta = results.reduce((sum, r) => sum + r.delta, 0) / results.length;
   console.log(`\nAverage memory delta: ${avgDelta.toFixed(2)}MB`);
-  
+
   if (avgDelta < 50) {
     console.log('✅ PASS: Memory usage is stable');
   } else if (avgDelta < 200) {
@@ -184,6 +191,7 @@ const runMemoryLeakTest = async () => {
 ## Manual Testing Checklist
 
 ### Before Fix (Expected Behavior)
+
 - [ ] Memory starts at ~300MB
 - [ ] After 1st game: ~800MB
 - [ ] After 2nd game: ~1.5GB
@@ -193,6 +201,7 @@ const runMemoryLeakTest = async () => {
 - [ ] Browser may crash
 
 ### After Fix (Expected Behavior)
+
 - [ ] Memory starts at ~300MB
 - [ ] After 1st game: ~400-500MB
 - [ ] After 2nd game: ~400-500MB (stable)
@@ -214,14 +223,14 @@ let frames = 0;
 
 const monitor = setInterval(() => {
   const now = performance.now();
-  const fps = Math.round(frames * 1000 / (now - lastTime));
+  const fps = Math.round((frames * 1000) / (now - lastTime));
   frames = 0;
   lastTime = now;
-  
-  const mem = performance.memory 
+
+  const mem = performance.memory
     ? (performance.memory.usedJSHeapSize / 1048576).toFixed(2) + 'MB'
     : 'N/A';
-  
+
   console.log(`FPS: ${fps} | Memory: ${mem}`);
 }, 1000);
 
@@ -257,6 +266,7 @@ New Game:       350MB  ← Should drop back down again
 ### Memory Usage Pattern
 
 **GOOD (No Leak):**
+
 ```
 Game 1: 300 → 400 → 350 (after cleanup)
 Game 2: 350 → 450 → 350 (after cleanup)
@@ -264,6 +274,7 @@ Game 3: 350 → 450 → 350 (after cleanup)
 ```
 
 **BAD (Memory Leak):**
+
 ```
 Game 1: 300 → 400 → 400 (no cleanup)
 Game 2: 400 → 900 → 900 (no cleanup)
@@ -305,4 +316,3 @@ Game 3: 900 → 1800 → 1800 (no cleanup)
 ✅ No browser crashes
 ✅ Cleanup logs appear in console
 ✅ Heap snapshots show proper cleanup
-
