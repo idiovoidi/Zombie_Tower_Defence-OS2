@@ -16,6 +16,7 @@ Quick reference guide to find documentation by topic. All paths are relative to 
 AI assistant guidance files (concise, actionable patterns). Located in `.kiro/steering/`
 
 ### Core Patterns
+
 - [tech.md](../.kiro/steering/tech.md) - Tech stack, commands, build tools
 - [structure.md](../.kiro/steering/structure.md) - Project organization, file patterns, path aliases
 - [cleanup.md](../.kiro/steering/cleanup.md) - Memory management, cleanup patterns, timer management
@@ -23,11 +24,13 @@ AI assistant guidance files (concise, actionable patterns). Located in `.kiro/st
 - [summary.md](../.kiro/steering/summary.md) - Documentation guidelines
 
 ### Feature-Specific
+
 - [towers.md](../.kiro/steering/features/towers.md) - Tower development patterns
 - [zombies.md](../.kiro/steering/features/zombies.md) - Zombie type patterns and combat modifiers
 - [stats.md](../.kiro/steering/features/stats.md) - Stat tracking quick reference
 
 ### Process
+
 - [README.md](../.kiro/steering/README.md) - Steering rules guide and usage
 
 ## Core Systems
@@ -35,6 +38,7 @@ AI assistant guidance files (concise, actionable patterns). Located in `.kiro/st
 Foundational game systems and architecture. Located in `design_docs/Core_Systems/`
 
 ### Memory Management
+
 - [README.md](Core_Systems/Memory_Management/README.md) - Overview of memory management approach
 - [CLEANUP_GUIDE.md](Core_Systems/Memory_Management/CLEANUP_GUIDE.md) - Cleanup patterns and best practices
 - [MEMORY_LEAK_GUIDE.md](Core_Systems/Memory_Management/MEMORY_LEAK_GUIDE.md) - Identifying and fixing memory leaks
@@ -45,6 +49,7 @@ Foundational game systems and architecture. Located in `design_docs/Core_Systems
 - [TESLA_PARTICLE_FIX.md](Core_Systems/Memory_Management/TESLA_PARTICLE_FIX.md) - Tesla particle system fixes
 
 ### Performance
+
 - [PERFORMANCE_TESTING_GUIDE.md](Core_Systems/Performance/PERFORMANCE_TESTING_GUIDE.md) - Performance monitoring and testing
 - [LAYOUT_OPTIMIZATION_SUMMARY.md](Core_Systems/Performance/LAYOUT_OPTIMIZATION_SUMMARY.md) - UI layout optimization
 - [GRAPHICS_AUDIT_SUMMARY.md](Core_Systems/Performance/GRAPHICS_AUDIT_SUMMARY.md) - Graphics performance audit
@@ -54,10 +59,12 @@ Foundational game systems and architecture. Located in `design_docs/Core_Systems
 - [TASK_7_COMPLETION_SUMMARY.md](Core_Systems/Performance/TASK_7_COMPLETION_SUMMARY.md) - Performance task completion
 
 ### Stat Tracking
+
 - [GUIDE.md](Core_Systems/Stat_Tracking/GUIDE.md) - Comprehensive stat tracking implementation guide
 - [EXAMPLES.md](Core_Systems/Stat_Tracking/EXAMPLES.md) - Code examples for stat tracking
 
 ### Testing & Debugging
+
 - [DEBUG_HOTKEYS.md](Core_Systems/Testing/DEBUG_HOTKEYS.md) - Debug keyboard shortcuts
 - [DEBUG_TEST_UI_MANAGER.md](Core_Systems/Testing/DEBUG_TEST_UI_MANAGER.md) - Debug UI manager implementation
 
@@ -66,12 +73,14 @@ Foundational game systems and architecture. Located in `design_docs/Core_Systems
 Game features and mechanics. Located in `design_docs/Features/`
 
 ### Towers
+
 - [README.md](Features/Towers/README.md) - Tower system overview
 - [IMPROVEMENTS.md](Features/Towers/IMPROVEMENTS.md) - Tower improvements and enhancements
 - [IDEAS.md](Features/Towers/IDEAS.md) - Future tower ideas and concepts
 - [PROGRESSION_DESIGN.md](Features/Towers/PROGRESSION_DESIGN.md) - Tower progression and upgrade system
 
 ### Zombies
+
 - [README.md](Features/Zombies/README.md) - Zombie system overview
 - [IMPLEMENTATION.md](Features/Zombies/IMPLEMENTATION.md) - Zombie implementation details
 - [IMPLEMENTATION_STATUS.md](Features/Zombies/IMPLEMENTATION_STATUS.md) - Current implementation status
@@ -89,6 +98,7 @@ Game features and mechanics. Located in `design_docs/Features/`
 - [ENVIRONMENT_REDESIGN.md](Features/Zombies/ENVIRONMENT_REDESIGN.md) - Zombie environment redesign
 
 ### User Interface
+
 - [README.md](Features/UI/README.md) - UI system overview
 - [UI_LAYOUT_GUIDE.md](Features/UI/UI_LAYOUT_GUIDE.md) - UI layout patterns and structure
 - [TOWER_SHOP_DESIGN.md](Features/UI/TOWER_SHOP_DESIGN.md) - Tower shop UI design
@@ -96,18 +106,22 @@ Game features and mechanics. Located in `design_docs/Features/`
 - [WAVE_INFO_PANEL_DESIGN.md](Features/UI/WAVE_INFO_PANEL_DESIGN.md) - Wave info panel design
 
 ### Waves
+
 - [ENHANCED_WAVE_PROGRESSION.md](Features/Waves/ENHANCED_WAVE_PROGRESSION.md) - Wave progression system
 
 ### Camp/Base
+
 - [CAMP_UPGRADE_SYSTEM.md](Features/Camp/CAMP_UPGRADE_SYSTEM.md) - Camp upgrade mechanics
 - [SURVIVOR_CAMP_DESIGN.md](Features/Camp/SURVIVOR_CAMP_DESIGN.md) - Survivor camp design
 - [SURVIVOR_CAMP_VISUAL_OVERHAUL.md](Features/Camp/SURVIVOR_CAMP_VISUAL_OVERHAUL.md) - Camp visual design
 
 ### Environment
+
 - [GRAVEYARD.md](Features/Environment/GRAVEYARD.md) - Graveyard environment design
 - [PATH_DESIGN.md](Features/Environment/PATH_DESIGN.md) - Path system design
 
 ### Combat
+
 - (No current documentation - see Towers and Zombies for combat-related content)
 
 ## Game Balance
@@ -125,16 +139,19 @@ Completed implementations and historical documentation. Located in `design_docs/
 - [README.md](Archive/README.md) - Archive purpose and organization
 
 ### Core Systems (Archived)
+
 - [HEALTH_COMPONENT.md](Archive/Core_Systems/HEALTH_COMPONENT.md) - Health component implementation
 - [HOTKEY_SYSTEM.md](Archive/Core_Systems/HOTKEY_SYSTEM.md) - Hotkey system implementation
 - [PROJECTILE_SYSTEM.md](Archive/Core_Systems/PROJECTILE_SYSTEM.md) - Projectile system implementation
 
 ### Towers (Archived)
+
 - [TOWER_REDESIGN.md](Archive/Towers/TOWER_REDESIGN.md) - Tower system redesign
 - [TOWER_SELECTION_FIX.md](Archive/Towers/TOWER_SELECTION_FIX.md) - Tower selection fixes
 - [TOWER_UPGRADES_VISUAL.md](Archive/Towers/TOWER_UPGRADES_VISUAL.md) - Tower upgrade visuals
 
 ### UI (Archived)
+
 - [AI_CONTROL_INTEGRATION.md](Archive/UI/AI_CONTROL_INTEGRATION.md) - AI control UI integration
 - [DEBUG_INFO_AUTO_CLOSE.md](Archive/UI/DEBUG_INFO_AUTO_CLOSE.md) - Debug panel auto-close
 - [DEBUG_INFO_PANEL_SHORTCUTS.md](Archive/UI/DEBUG_INFO_PANEL_SHORTCUTS.md) - Debug panel shortcuts
@@ -144,6 +161,7 @@ Completed implementations and historical documentation. Located in `design_docs/
 - [STATS_PANEL_INTEGRATION.md](Archive/UI/STATS_PANEL_INTEGRATION.md) - Stats panel integration
 
 ### Zombies (Archived)
+
 - [ZOMBIE_ENHANCEMENTS_SUMMARY.md](Archive/Zombies/ZOMBIE_ENHANCEMENTS_SUMMARY.md) - Zombie enhancements
 - [ZOMBIE_SPAWNING.md](Archive/Zombies/ZOMBIE_SPAWNING.md) - Zombie spawning implementation
 - [ZOMBIE_VISUALS.md](Archive/Zombies/ZOMBIE_VISUALS.md) - Zombie visual implementation
@@ -153,38 +171,45 @@ Completed implementations and historical documentation. Located in `design_docs/
 ### Finding Information By Topic
 
 **Memory & Performance**
+
 - Start: [Memory Management README](Core_Systems/Memory_Management/README.md)
 - Cleanup: [cleanup.md](../.kiro/steering/cleanup.md) (patterns), [CLEANUP_GUIDE.md](Core_Systems/Memory_Management/CLEANUP_GUIDE.md) (details)
 - Performance: [PERFORMANCE_TESTING_GUIDE.md](Core_Systems/Performance/PERFORMANCE_TESTING_GUIDE.md)
 
 **Tower Development**
+
 - Start: [Towers README](Features/Towers/README.md)
 - Patterns: [towers.md](../.kiro/steering/features/towers.md)
 - Design: [PROGRESSION_DESIGN.md](Features/Towers/PROGRESSION_DESIGN.md)
 - Ideas: [IDEAS.md](Features/Towers/IDEAS.md)
 
 **Zombie Development**
+
 - Start: [Zombies README](Features/Zombies/README.md)
 - Patterns: [zombies.md](../.kiro/steering/features/zombies.md)
 - Implementation: [IMPLEMENTATION.md](Features/Zombies/IMPLEMENTATION.md)
 - Visuals: [VISUAL_REFERENCE.md](Features/Zombies/VISUAL_REFERENCE.md)
 
 **UI Development**
+
 - Start: [UI README](Features/UI/README.md)
 - Layout: [UI_LAYOUT_GUIDE.md](Features/UI/UI_LAYOUT_GUIDE.md)
 - Components: Individual design files in Features/UI/
 
 **Project Setup & Structure**
+
 - Tech Stack: [tech.md](../.kiro/steering/tech.md)
 - Structure: [structure.md](../.kiro/steering/structure.md)
 - Product: [product.md](../.kiro/steering/product.md)
 
 **Statistics & Reporting**
+
 - Quick Reference: [stats.md](../.kiro/steering/features/stats.md)
 - Detailed Guide: [GUIDE.md](Core_Systems/Stat_Tracking/GUIDE.md)
 - Examples: [EXAMPLES.md](Core_Systems/Stat_Tracking/EXAMPLES.md)
 
 **Game Balance**
+
 - Waves: [WAVE_BALANCING_GUIDE.md](Game_Balance/WAVE_BALANCING_GUIDE.md)
 - Progression: [WAVE_PROGRESSION_GUIDE.md](Game_Balance/WAVE_PROGRESSION_GUIDE.md)
 
@@ -193,6 +218,7 @@ Completed implementations and historical documentation. Located in `design_docs/
 ### When to Use Each Type
 
 **Steering Rules** (`.kiro/steering/`)
+
 - Concise AI guidance (<200 lines)
 - Quick reference patterns
 - Actionable rules and conventions
@@ -200,6 +226,7 @@ Completed implementations and historical documentation. Located in `design_docs/
 - See: [Steering README](../.kiro/steering/README.md)
 
 **Design Docs** (`design_docs/`)
+
 - Detailed architecture
 - Implementation guides
 - Complex examples
@@ -207,6 +234,7 @@ Completed implementations and historical documentation. Located in `design_docs/
 - See: [Design Docs README](README.md)
 
 **Archive** (`design_docs/Archive/`)
+
 - Completed implementations
 - Historical records
 - Verification results
@@ -215,6 +243,7 @@ Completed implementations and historical documentation. Located in `design_docs/
 ## Contributing Documentation
 
 See [README.md](README.md) for:
+
 - Documentation structure guidelines
 - Naming conventions
 - Cross-referencing patterns
@@ -232,6 +261,7 @@ See [README.md](README.md) for:
 ## Maintenance
 
 This index is maintained as part of the documentation cleanup spec. Update when:
+
 - Adding new documentation files
 - Reorganizing documentation structure
 - Archiving completed work

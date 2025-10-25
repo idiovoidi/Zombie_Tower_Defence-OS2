@@ -34,4 +34,3 @@ This directory contains documentation related to game performance monitoring, op
 4. Verify cleanup between waves
 5. Profile graphics performance
 6. Test on various hardware configurations
-

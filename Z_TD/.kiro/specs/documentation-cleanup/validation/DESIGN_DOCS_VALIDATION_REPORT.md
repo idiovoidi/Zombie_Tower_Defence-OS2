@@ -9,6 +9,7 @@
 Validated 83 design documents across the entire `design_docs/` directory structure.
 
 **Results:**
+
 - ✅ **Passed:** 43 documents (52%)
 - ❌ **Failed:** 40 documents (48%)
 
@@ -24,6 +25,7 @@ Validated 83 design documents across the entire `design_docs/` directory structu
 ### 1. Missing Overview Section (36 documents)
 
 **Archive Documents (11):**
+
 - Archive/Towers/TOWER_SELECTION_FIX.md
 - Archive/UI/AI_CONTROL_INTEGRATION.md
 - Archive/UI/DEBUG_INFO_AUTO_CLOSE.md
@@ -34,6 +36,7 @@ Validated 83 design documents across the entire `design_docs/` directory structu
 - Archive/Zombies/ZOMBIE_VISUALS.md
 
 **Core Systems (8):**
+
 - Core_Systems/Memory_Management/MEMORY_OPTIMIZATION_GUIDE.md
 - Core_Systems/Memory_Management/PERSISTENT_EFFECTS_FIX.md
 - Core_Systems/Memory_Management/TESLA_LIGHTNING_PERSISTENCE_FIX.md
@@ -45,6 +48,7 @@ Validated 83 design documents across the entire `design_docs/` directory structu
 - Core_Systems/Stat_Tracking/EXAMPLES.md
 
 **Features (9):**
+
 - Features/Environment/GRAVEYARD.md
 - Features/UI/UI_LAYOUT_GUIDE.md
 - Features/Zombies/ARMORED_ZOMBIE_VISUAL_REFERENCE.md
@@ -56,6 +60,7 @@ Validated 83 design documents across the entire `design_docs/` directory structu
 - Features/Zombies/ZOMBIE_REFERENCE.md
 
 **Game Balance (8):**
+
 - Game_Balance/AI_Test_Balance/BALANCE_ANALYSIS_DEVELOPER_GUIDE.md
 - Game_Balance/AI_Test_Balance/BALANCE_ANALYSIS_DOCUMENTATION_SUMMARY.md
 - Game_Balance/AI_Test_Balance/BALANCE_ANALYSIS_EXAMPLES.md
@@ -72,19 +77,23 @@ Validated 83 design documents across the entire `design_docs/` directory structu
 Documents lacking standard sections like Overview, Architecture, Implementation, Examples, or Testing:
 
 **Archive:**
+
 - Archive/UI/AI_CONTROL_INTEGRATION.md (has: Summary, Changes Made, Usage, Benefits)
 - Archive/Zombies/ZOMBIE_VISUALS.md (has: Blood Particle System, Corpse System, Integration)
 
 **Core Systems:**
+
 - Core_Systems/Performance/GRAPHICS_AUDIT_SUMMARY.md (has: Summary, Findings, Recommendations)
 
 **Features:**
+
 - Features/Zombies/ARMORED_ZOMBIE_VISUAL_REFERENCE.md (empty headers)
 - Features/Zombies/FAST_ZOMBIE_VISUAL_REFERENCE.md (has: Color Palette, Design Philosophy, Body Structure)
 - Features/Zombies/SPACING_AND_VISIBILITY_IMPROVEMENTS.md (empty headers)
 - Features/Zombies/TANK_ZOMBIE_VISUAL_REFERENCE.md (has: Color Palette, Design Philosophy, Body Structure)
 
 **Game Balance:**
+
 - Game_Balance/AI_Test_Balance/BALANCE_ANALYSIS_DOCUMENTATION_SUMMARY.md
 - Game_Balance/AI_Test_Balance/BALANCE_ANALYSIS_TROUBLESHOOTING.md
 - Game_Balance/AI_Test_Balance/BALANCE_CONFIG_REFERENCE.md
@@ -95,20 +104,19 @@ Documents lacking standard sections like Overview, Architecture, Implementation,
 ### 3. Invalid Cross-References (15 broken links)
 
 **Archive Documents (5 broken links):**
+
 - Archive/Core_Systems/HEALTH_COMPONENT.md
   - Missing: `../../Core_Systems/README.md` (should be `../../Core_Systems/`)
   - Missing: `../Memory_Management/README.md` (wrong path from Archive)
-  
 - Archive/Core_Systems/HOTKEY_SYSTEM.md
   - Missing: `../../Core_Systems/README.md`
-  
 - Archive/Core_Systems/PROJECTILE_SYSTEM.md
   - Missing: `../Memory_Management/README.md`
-  
 - Archive/Zombies/ZOMBIE_SPAWNING.md
   - Missing: `../../Core_Systems/README.md`
 
 **Game Balance (10 broken links):**
+
 - Game_Balance/AI_Test_Balance/BALANCE_DOCUMENTATION_INDEX.md
   - Missing: `../../README_REPORTS.md`
   - Missing: Multiple anchor links (files exist but anchors may not)
@@ -118,26 +126,24 @@ Documents lacking standard sections like Overview, Architecture, Implementation,
 ### 4. Duplicate Content (13 instances)
 
 **Within Same Files (false positives):**
+
 - TESLA_LIGHTNING_PERSISTENCE_FIX.md (code example appears twice in same file)
 - TESLA_PARTICLE_FIX.md (code example appears twice in same file)
 
 **Across Different Files:**
+
 - Memory management expectations duplicated between:
   - PERSISTENT_EFFECTS_FIX.md
   - TESLA_PARTICLE_FIX.md
-  
 - Implementation details duplicated between:
   - SURVIVOR_CAMP_DESIGN.md
   - PATH_DESIGN.md
-  
 - Edge case testing output duplicated between:
   - EDGE_CASE_TESTING_GUIDE.md
   - EDGE_CASE_TEST_SUMMARY.md
-  
 - Balance analysis content duplicated between:
   - BALANCE_ANALYSIS_GUIDE.md
   - ENHANCED_METRICS_GUIDE.md
-  
 - Performance testing output duplicated between:
   - PERFORMANCE_TESTING_GUIDE.md
   - PERFORMANCE_TEST_SUMMARY.md
@@ -152,7 +158,7 @@ Documents lacking standard sections like Overview, Architecture, Implementation,
 
 3. **Quick Reference Docs:** Documents with "QUICK_REFERENCE" in the name intentionally use a condensed format without standard structure. This is by design.
 
-4. **Summary/Verification Docs:** Documents ending in "_SUMMARY" or "_VERIFICATION" are completion reports, not design docs, so missing Overview is expected.
+4. **Summary/Verification Docs:** Documents ending in "\_SUMMARY" or "\_VERIFICATION" are completion reports, not design docs, so missing Overview is expected.
 
 5. **Balance Analysis Docs:** The AI_Test_Balance directory contains specialized documentation with its own structure appropriate for balance analysis tooling.
 
@@ -216,6 +222,7 @@ Not all documents need to follow the standard design doc structure:
 Created automated validation script: `.kiro/specs/documentation-cleanup/validation/validate-design-docs.js`
 
 **Features:**
+
 - Checks for Overview sections
 - Validates standard structure
 - Verifies cross-references
@@ -223,11 +230,13 @@ Created automated validation script: `.kiro/specs/documentation-cleanup/validati
 - Generates JSON report
 
 **Usage:**
+
 ```bash
 node .kiro/specs/documentation-cleanup/validation/validate-design-docs.js
 ```
 
 **Output:**
+
 - Console report with summary and detailed issues
 - JSON file: `design-docs-validation.json`
 
@@ -244,7 +253,8 @@ The validation script can be run regularly to maintain documentation quality as 
 ---
 
 **Requirements Satisfied:**
+
 - ✅ 4.2: Check all design docs follow standard structure
-- ✅ 4.4: Verify all have Overview section  
+- ✅ 4.4: Verify all have Overview section
 - ✅ 4.4: Verify all cross-references are valid
 - ✅ 4.2: Check for duplicate content

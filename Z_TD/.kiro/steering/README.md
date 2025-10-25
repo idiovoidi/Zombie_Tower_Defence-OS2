@@ -5,6 +5,7 @@ Steering rules provide concise, actionable guidance to AI assistants during deve
 ## Purpose
 
 Steering rules help AI assistants:
+
 - Follow project conventions and patterns
 - Use the correct tech stack and commands
 - Apply consistent coding standards
@@ -35,32 +36,38 @@ Each steering rule file follows this structure:
 ```markdown
 ---
 inclusion: fileMatch | manual | always
-fileMatchPattern: 'pattern/**/*.ts'  # if fileMatch
+fileMatchPattern: 'pattern/**/*.ts' # if fileMatch
 ---
 
 # [Topic Name]
 
 ## Quick Reference
+
 [Tables, commands, key patterns]
 
 ## Rules
+
 [Actionable guidelines]
 
 ## Common Patterns
+
 [Minimal code examples]
 
 ## See Also
+
 [Links to detailed design docs]
 ```
 
 ## Inclusion Types
 
 ### Always Included
+
 Files without frontmatter or with `inclusion: always` are included in all AI interactions.
 
 **Use for**: Core patterns, tech stack, project structure
 
 ### File Match (Conditional)
+
 Files with `inclusion: fileMatch` are included only when working on matching files.
 
 ```yaml
@@ -73,6 +80,7 @@ fileMatchPattern: ['**/towers/**/*.ts', '**/Tower*.ts']
 **Use for**: Feature-specific guidance that's only relevant for certain files
 
 ### Manual
+
 Files with `inclusion: manual` are only included when explicitly referenced.
 
 ```yaml
@@ -86,35 +94,43 @@ inclusion: manual
 ## Guidelines
 
 ### Keep It Concise
+
 - **Maximum 200 lines per file**
 - Focus on patterns, not implementation details
 - Use tables for quick reference
 - Link to design docs for details
 
 ### Be Actionable
+
 - Provide clear rules and patterns
 - Include minimal code examples
 - Show correct usage, not theory
 - Focus on "how" not "why"
 
 ### Stay Current
+
 - Update when patterns change
 - Remove outdated guidance
 - Keep examples working
 - Sync with codebase
 
 ### Avoid Implementation Details
+
 Steering rules are for patterns, not detailed implementations:
 
 **Good** (steering rule):
+
 ```markdown
 ## Tower Creation Pattern
+
 Use TowerFactory.createTower(type, position)
 ```
 
 **Bad** (belongs in design doc):
+
 ```markdown
 ## Tower Creation Implementation
+
 The TowerFactory class uses a factory pattern with...
 [50 lines of implementation details]
 ```
@@ -144,12 +160,14 @@ The TowerFactory class uses a factory pattern with...
 ## Steering Rules vs Design Docs
 
 **Use Steering Rules for**:
+
 - Quick reference patterns
 - Commands and conventions
 - AI assistant guidance
 - Must be <200 lines
 
 **Use Design Docs for**:
+
 - Detailed architecture
 - Implementation guides
 - Complex examples
@@ -160,6 +178,7 @@ See `design_docs/README.md` for design documentation guidelines.
 ## Examples
 
 ### Good Steering Rule
+
 ```markdown
 ---
 inclusion: fileMatch
@@ -169,25 +188,29 @@ fileMatchPattern: '**/towers/**/*.ts'
 # Tower Development
 
 ## Quick Reference
+
 | Tower Type | Base Damage | Range | Special |
-|------------|-------------|-------|---------|
+| ---------- | ----------- | ----- | ------- |
 | Basic      | 10          | 150   | None    |
 | Sniper     | 50          | 300   | Pierce  |
 
 ## Rules
+
 - Extend Tower base class
 - Implement ITower interface
 - Register with TowerFactory
 
 ## See Also
+
 - [Tower Architecture](../../design_docs/Features/Towers/ARCHITECTURE.md)
 ```
 
 ### Bad Steering Rule (Too Detailed)
+
 ```markdown
 # Tower System
 
-[200+ lines of implementation details, class diagrams, 
+[200+ lines of implementation details, class diagrams,
 full code examples, historical context...]
 ```
 

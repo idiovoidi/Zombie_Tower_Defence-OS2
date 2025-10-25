@@ -13,11 +13,13 @@ This guide documents all memory leak investigations, fixes, and testing procedur
 **Location:** `src/managers/ZombieManager.ts`
 
 **Problem:**
+
 - `removeZombie()` method removed zombies from the container and array but **never called `zombie.destroy()`**
 - `clear()` method had the same issue
 - Every zombie that died or reached the end remained in memory with all its components, graphics, and event listeners
 
 **Impact:**
+
 - Hundreds/thousands of zombie objects accumulating in memory over multiple waves
 - Each zombie contains: Graphics objects, Components, Event listeners, Renderer objects
 - This was the **PRIMARY** cause of the 20GB memory leak
@@ -54,11 +56,13 @@ public clear(): void {
 
 **Problem:**
 The game was **NOT clearing previous game objects** when starting a new game or restarting after game over/victory. This caused:
+
 - All zombies, towers, projectiles, corpses, and blood particles from previous games to remain in memory
 - Each new game **stacked on top** of the previous one
 - Memory usage grew exponentially with each restart
 
 **Impact:**
+
 - **SEVERE**: Memory could grow from 500MB to 20GB+ over multiple game sessions
 - Every restart added another full game's worth of objects to memory
 - Objects were never garbage collected because they remained in the scene graph
@@ -93,6 +97,7 @@ private clearGameState(): void {
 ```
 
 **Modified methods to call cleanup:**
+
 - `startGameWithLevel()` - Now calls `clearGameState()` at the start
 - `gameOver()` - Now calls `clearGameState()` after game over
 - `victory()` - Now calls `clearGameState()` after victory
@@ -105,11 +110,13 @@ private clearGameState(): void {
 
 **Problem:**
 The `EffectManager` class existed but was **NEVER instantiated, updated, or cleaned up** in the GameManager:
+
 - Shell casings, muzzle flashes, bullet trails, impact flashes, and scope glints were being spawned
 - These effects were added to the game container but **never updated or removed**
 - Effects accumulated indefinitely throughout waves and game sessions
 
 **Impact:**
+
 - **SEVERE**: Shell casings and effects accumulated throughout all waves
 - After 10 waves, hundreds of shell casings remained in memory
 - Each machine gun shot added 1 shell casing that never got cleaned up
@@ -138,12 +145,14 @@ The `EffectManager` class existed but was **NEVER instantiated, updated, or clea
 **Location:** `src/objects/Zombie.ts`
 
 **Problem:**
+
 - `takeDamage()` method created a `setTimeout` callback for damage flash effect
 - If zombie was destroyed before the timeout fired, the callback would still execute
 - Timeout held a reference to the zombie, preventing garbage collection
 - No cleanup of pending timeouts when zombie was destroyed
 
 **Impact:**
+
 - Zombie objects couldn't be garbage collected if they had pending damage flash timeouts
 - Accumulated over time as zombies took damage before dying
 
@@ -200,6 +209,7 @@ public override destroy(): void {
 ### 5. Untracked setTimeout Calls ✅ FIXED
 
 **Files Modified:**
+
 - `src/objects/Tower.ts` (2 setTimeout calls)
 - `src/managers/TowerCombatManager.ts` (2 setTimeout calls)
 
@@ -224,6 +234,7 @@ EffectCleanupManager.registerTimeout(
 ```
 
 **Locations fixed:**
+
 1. Tower muzzle flash cleanup (100ms)
 2. Tower damage flash cleanup (100ms)
 3. Lightning arc cleanup (150ms)
@@ -234,6 +245,7 @@ EffectCleanupManager.registerTimeout(
 ### 6. Persistent Effects Not Cleaned Up Between Waves ✅ FIXED
 
 **Problem:**
+
 - Fire pools, sludge pools, explosions, and Tesla particles persisted indefinitely
 - Effects created during a wave remained in memory even after the wave ended
 - Memory usage climbed drastically: 300MB → 800MB → 1.5GB → 5GB+
@@ -256,6 +268,7 @@ ResourceCleanupManager.unregisterPersistentEffect(firePool);
 ```
 
 **Updated all persistent effects:**
+
 - Grenade explosions
 - Fire pools (flame tower)
 - Sludge pools (sludge tower)
@@ -270,16 +283,18 @@ Tesla tower lightning arcs persisted between waves if the wave ended while they 
 
 **Root Cause:**
 Two critical bugs:
+
 1. **Wrong cleanup order** - Objects destroyed before timers cleared
 2. **No protection** - Trying to destroy already-destroyed objects
 
 **Fix:**
 
 1. **Fixed cleanup order:**
+
    ```typescript
    // NEW (FIXED) ORDER:
-   EffectCleanupManager.clearAll();  // Clear timers FIRST
-   cleanupPersistentEffects();       // Then destroy objects
+   EffectCleanupManager.clearAll(); // Clear timers FIRST
+   cleanupPersistentEffects(); // Then destroy objects
    ```
 
 2. **Added protection:**
@@ -289,7 +304,7 @@ Two critical bugs:
      if (effect.graphics.destroyed) {
        continue;
      }
-     
+
      try {
        if (effect.graphics.parent) {
          effect.graphics.parent.removeChild(effect.graphics);
@@ -366,12 +381,14 @@ testRestart();
 **What to Look For:**
 
 ✅ **GOOD (No Leak):**
+
 - Zombie objects: 0 or very few
 - Graphics objects: Stable count
 - Container objects: Stable count
 - Total size delta: < 50MB
 
 ❌ **BAD (Memory Leak):**
+
 - Zombie objects: Hundreds/thousands
 - Graphics objects: Growing significantly
 - Container objects: Growing significantly
@@ -385,6 +402,7 @@ testRestart();
    - Compare with Snapshot 2
 
 **Expected Result:**
+
 - Memory delta between Snapshot 2 and 3 should be similar to Snapshot 1 and 2
 - No continuous growth pattern
 
@@ -433,6 +451,7 @@ New Game:       350MB  ← Should drop back down again
 ### Memory Usage Pattern
 
 **GOOD (No Leak):**
+
 ```
 Game 1: 300 → 400 → 350 (after cleanup)
 Game 2: 350 → 450 → 350 (after cleanup)
@@ -440,6 +459,7 @@ Game 3: 350 → 450 → 350 (after cleanup)
 ```
 
 **BAD (Memory Leak):**
+
 ```
 Game 1: 300 → 400 → 400 (no cleanup)
 Game 2: 400 → 900 → 900 (no cleanup)
@@ -487,10 +507,12 @@ Game 3: 900 → 1800 → 1800 (no cleanup)
 ## Files Modified
 
 ### New Files Created:
+
 1. `src/utils/ResourceCleanupManager.ts` - Main cleanup module
 2. `src/utils/EffectCleanupManager.ts` - Timer tracking
 
 ### Files Modified:
+
 1. `src/managers/ZombieManager.ts` - Added zombie.destroy() calls
 2. `src/objects/Zombie.ts` - Added timeout tracking and destroy() override
 3. `src/managers/GameManager.ts` - Added EffectManager integration and clearGameState()
@@ -506,6 +528,7 @@ Game 3: 900 → 1800 → 1800 (no cleanup)
 ## Summary
 
 The memory leaks were caused by:
+
 1. ❌ Zombies not being destroyed
 2. ❌ Game state not cleared between games
 3. ❌ EffectManager not instantiated or updated

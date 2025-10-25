@@ -9,9 +9,11 @@ This directory contains comprehensive documentation for the Z-TD game's memory m
 ## Documents in This Directory
 
 ### [CLEANUP_GUIDE.md](./CLEANUP_GUIDE.md)
+
 **Purpose:** Comprehensive guide to cleanup patterns and disposal architecture
 
 **Contents:**
+
 - Core cleanup architecture (EffectCleanupManager + ResourceCleanupManager)
 - The three-step disposal pattern
 - Cleanup flow and order
@@ -22,6 +24,7 @@ This directory contains comprehensive documentation for the Z-TD game's memory m
 - Debugging and monitoring
 
 **Use this when:**
+
 - Implementing new game objects that need cleanup
 - Adding new persistent effects
 - Debugging memory issues
@@ -30,9 +33,11 @@ This directory contains comprehensive documentation for the Z-TD game's memory m
 ---
 
 ### [MEMORY_LEAK_GUIDE.md](./MEMORY_LEAK_GUIDE.md)
+
 **Purpose:** Documentation of all memory leak investigations, fixes, and testing procedures
 
 **Contents:**
+
 - Critical memory leaks found and fixed
 - Detailed fix descriptions with code examples
 - Memory leak testing guide
@@ -42,6 +47,7 @@ This directory contains comprehensive documentation for the Z-TD game's memory m
 - Troubleshooting guide
 
 **Use this when:**
+
 - Investigating potential memory leaks
 - Testing memory usage
 - Verifying fixes
@@ -52,18 +58,23 @@ This directory contains comprehensive documentation for the Z-TD game's memory m
 ### Additional Files
 
 #### DISPOSAL_ARCHITECTURE.md
+
 Detailed disposal architecture and memory management patterns. Covers the three-step disposal pattern, manager hierarchy, and object lifecycle management.
 
 #### MEMORY_OPTIMIZATION_GUIDE.md
+
 Guide to memory optimization techniques, including object pooling, texture management, and performance monitoring.
 
 #### PERSISTENT_EFFECTS_FIX.md
+
 Detailed documentation of the persistent effects memory leak fix, including the transition from timer-based tracking to direct Graphics object tracking.
 
 #### TESLA_LIGHTNING_PERSISTENCE_FIX.md
+
 Documentation of the Tesla lightning persistence bug fix, including cleanup order issues and protection against already-destroyed objects.
 
 #### TESLA_PARTICLE_FIX.md
+
 Documentation of the Tesla particle memory leak fix, covering the two critical bugs: wrong cleanup order and no protection against already-destroyed objects.
 
 ---
@@ -128,12 +139,14 @@ EffectCleanupManager.clearTimeout(timeout);
 ## Memory Budget Guidelines
 
 ### Target Memory Usage
+
 - **Idle (Menu):** < 100MB
 - **Early Game (Waves 1-5):** < 200MB
 - **Mid Game (Waves 6-15):** < 350MB
 - **Late Game (Waves 16+):** < 500MB
 
 ### Warning Thresholds
+
 - **> 10 active intervals:** Possible leak
 - **> 100 corpses:** Cleanup not working
 - **> 1GB memory:** Critical leak
@@ -167,16 +180,19 @@ setInterval(() => {
 ## Related Code Files
 
 ### Core Cleanup Managers
+
 - `src/utils/ResourceCleanupManager.ts` - High-level resource orchestration
 - `src/utils/EffectCleanupManager.ts` - Low-level timer tracking
 
 ### Game Managers
+
 - `src/managers/GameManager.ts` - Uses cleanup system for wave and game cleanup
 - `src/managers/ZombieManager.ts` - Zombie disposal
 - `src/managers/ProjectileManager.ts` - Projectile disposal
 - `src/managers/TowerPlacementManager.ts` - Tower disposal
 
 ### Game Objects
+
 - `src/objects/Zombie.ts` - Zombie cleanup implementation
 - `src/objects/Tower.ts` - Tower cleanup implementation
 - `src/objects/Projectile.ts` - Projectile cleanup and persistent effects
@@ -201,6 +217,7 @@ All issues have been completely fixed, and the game now maintains stable memory 
 ## Best Practices Summary
 
 ### DO:
+
 ✅ Always call `.destroy()` on PixiJS objects
 ✅ Track all timers with EffectCleanupManager
 ✅ Clear object references in destroy() methods
@@ -208,6 +225,7 @@ All issues have been completely fixed, and the game now maintains stable memory 
 ✅ Test memory usage over extended gameplay
 
 ### DON'T:
+
 ❌ Use setInterval/setTimeout without tracking
 ❌ Remove objects from parent without destroying
 ❌ Hold references to destroyed objects

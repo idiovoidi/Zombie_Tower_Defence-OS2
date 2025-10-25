@@ -109,7 +109,7 @@ describe('Optimization Effectiveness Validation', () => {
       // Compare first and last results to show overall improvement trend
       const firstResult = results[0];
       const lastResult = results[results.length - 1];
-      
+
       // With more entities, the improvement should be more pronounced
       // (demonstrates O(k) vs O(n) scaling)
       expect(lastResult.improvement).toBeGreaterThanOrEqual(firstResult.improvement * 0.5);
@@ -243,12 +243,12 @@ describe('Optimization Effectiveness Validation', () => {
 
       // Test the dirty flag API directly without creating actual projectiles
       // (PixiJS mocking makes it difficult to create real projectiles in tests)
-      
+
       // Verify the dirty flag can be set and cleared
       // In real usage, createProjectile() would set this flag
       const projectiles = projectileManager.getProjectiles();
       expect(projectiles.length).toBe(0);
-      
+
       // Verify clear dirty flag works
       projectileManager.clearProjectilesDirty();
       expect(projectileManager.areProjectilesDirty()).toBe(false);
@@ -356,7 +356,9 @@ describe('Optimization Effectiveness Validation', () => {
       const reduction = ((rebuildsWithout - rebuildsWith) / rebuildsWithout) * 100;
 
       console.log(`\n📊 Dirty Flag Optimization Results:`);
-      console.log(`   Without Optimization: ${rebuildsWithout} rebuilds in ${withoutTime.toFixed(2)}ms`);
+      console.log(
+        `   Without Optimization: ${rebuildsWithout} rebuilds in ${withoutTime.toFixed(2)}ms`
+      );
       console.log(`   With Optimization: ${rebuildsWith} rebuilds in ${withTime.toFixed(2)}ms`);
       console.log(`   Rebuild Reduction: ${reduction.toFixed(1)}%`);
     });
@@ -429,11 +431,16 @@ describe('Optimization Effectiveness Validation', () => {
       expect(stats.reused).toBeGreaterThan(0);
 
       const reuseRate = (stats.reused / allocationsWithPooling) * 100;
-      const allocationReduction = ((allocationsWithPooling - stats.created) / allocationsWithPooling) * 100;
+      const allocationReduction =
+        ((allocationsWithPooling - stats.created) / allocationsWithPooling) * 100;
 
       console.log(`\n📊 Object Pooling Results:`);
-      console.log(`   Without Pooling: ${allocationsWithout} allocations in ${withoutTime.toFixed(2)}ms`);
-      console.log(`   With Pooling: ${stats.created} allocations, ${stats.reused} reuses in ${withTime.toFixed(2)}ms`);
+      console.log(
+        `   Without Pooling: ${allocationsWithout} allocations in ${withoutTime.toFixed(2)}ms`
+      );
+      console.log(
+        `   With Pooling: ${stats.created} allocations, ${stats.reused} reuses in ${withTime.toFixed(2)}ms`
+      );
       console.log(`   Reuse Rate: ${reuseRate.toFixed(1)}%`);
       console.log(`   Allocation Reduction: ${allocationReduction.toFixed(1)}%`);
 
@@ -589,7 +596,8 @@ describe('Optimization Effectiveness Validation', () => {
       const stats = pool.getStats();
       const allocationRateWith = stats.created / (withTime / 1000); // per second
 
-      const reduction = ((allocationRateWithout - allocationRateWith) / allocationRateWithout) * 100;
+      const reduction =
+        ((allocationRateWithout - allocationRateWith) / allocationRateWithout) * 100;
 
       console.log(`\n📊 Allocation Rate Comparison:`);
       console.log(`   Without Pooling: ${allocationRateWithout.toFixed(0)} allocations/sec`);
@@ -697,7 +705,8 @@ describe('Optimization Effectiveness Validation', () => {
 
       const avgTargetFindTime = totalTargetFindTime / frames;
       const rebuildRate = (totalRebuildCount / frames) * 100;
-      const effectReuseRate = (effectStats.reused / (effectStats.created + effectStats.reused)) * 100;
+      const effectReuseRate =
+        (effectStats.reused / (effectStats.created + effectStats.reused)) * 100;
 
       console.log(`\n📊 Combined Optimization Impact (${frames} frames):`);
       console.log(`   Total Time: ${totalTime.toFixed(2)}ms`);

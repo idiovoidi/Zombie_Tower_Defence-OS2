@@ -570,16 +570,14 @@ export class Zombie extends GameObject {
     const moveX = normalizedDx * this.speed * (deltaTime / 1000);
     const moveY = normalizedDy * this.speed * (deltaTime / 1000);
 
-    // Add shambling sway effect - perpendicular to movement direction
+    // OPTIMIZATION: Simplified sway calculation (single sine wave instead of two)
+    // This reduces Math.sin() calls from 2 to 1 per zombie per frame
     this.swayTime += deltaTime / 1000;
-    const swayFrequency = 1.5 + Math.random() * 0.5; // Varied sway speed (1.5-2.0 cycles/sec)
-    const swayAmplitude = this.getSwayAmplitude(); // How far they sway (pixels)
+    const swayFrequency = 1.5; // Fixed frequency for consistency
+    const swayAmplitude = this.getSwayAmplitude();
 
-    // Multiple sine waves for more organic, unpredictable movement
-    const primarySway = Math.sin(this.swayTime * swayFrequency * Math.PI * 2 + this.swayOffset);
-    const secondarySway =
-      Math.sin(this.swayTime * swayFrequency * 1.7 * Math.PI * 2 + this.swayOffset * 0.7) * 0.3;
-    const swayValue = primarySway + secondarySway;
+    // Single sine wave for sway (still looks good, much faster)
+    const swayValue = Math.sin(this.swayTime * swayFrequency * Math.PI * 2 + this.swayOffset);
 
     // Calculate perpendicular direction for sway (rotate 90 degrees)
     const perpX = -normalizedDy;

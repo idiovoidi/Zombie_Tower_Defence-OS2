@@ -207,9 +207,6 @@
   - _Requirements: 1.3, 6.1, 6.2, 6.3, 6.4_
 
 - [x] 6.1 Create documentation index
-
-
-
   - Write design_docs/INDEX.md mapping topics to documentation locations
   - Include sections for: Core Systems, Features, Archive, Steering Rules
   - Add quick links to most commonly referenced docs
@@ -240,10 +237,6 @@
   - _Requirements: 6.2, 6.4_
 
 - [x] 7. Validate and test documentation structure
-
-
-
-
   - Run validation checks on all documentation
   - Test with AI assistant
   - Test with developer onboarding scenario
@@ -251,39 +244,24 @@
   - _Requirements: 1.1, 1.2, 1.3, 1.4, 4.4_
 
 - [x] 7.1 Validate steering rules
-
-
   - Check all steering rules are <200 lines
   - Verify all have proper frontmatter
   - Verify no implementation details (only patterns)
   - Verify all code examples are minimal
   - _Requirements: 3.1, 3.2_
 
-
-
-
-
 - [x] 7.2 Validate design documentation
-
-
   - Check all design docs follow standard structure
-
-
-
 
   - Verify all have Overview section
   - Verify all cross-references are valid
   - Check for duplicate content
   - _Requirements: 4.2, 4.4_
 
-
-
 - [ ] 7.3 Validate archive entries
-
   - Check all have completion dates
   - Check all have verification status
   - Verify all link to current docs
-
 
   - _Requirements: 5.3_
 

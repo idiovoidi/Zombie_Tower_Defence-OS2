@@ -7,38 +7,46 @@ This directory contains all design documentation for the Z-TD user interface sys
 ## Documents
 
 ### BOTTOM_BAR_DESIGN.md
+
 Design specification for the bottom bar UI component
 
 ### TOWER_SHOP_DESIGN.md
+
 Design specification for the tower shop UI component
 
 ### UI_LAYOUT_GUIDE.md
+
 Guide for UI layout and positioning
 
 ### WAVE_INFO_PANEL_DESIGN.md
+
 Design specification for the wave information panel
 
 ## UI Components
 
 ### Bottom Bar
+
 - Resource display (money, wood, metal, energy)
 - Lives display
 - Wave number
 - Game controls
 
 ### Tower Shop
+
 - Tower selection
 - Tower costs
 - Tower information
 - Purchase interface
 
 ### Wave Info Panel
+
 - Current wave number
 - Zombies remaining
 - Wave progress
 - Next wave countdown
 
 ### HUD
+
 - Resource counters
 - Lives counter
 - Wave information
@@ -49,6 +57,7 @@ Design specification for the wave information panel
 ## Related Documentation
 
 ### Archived Implementations
+
 - [Debug Info Auto-Close](../../Archive/UI/DEBUG_INFO_AUTO_CLOSE.md) - Auto-close functionality for debug panel
 - [Debug Info Panel Shortcuts](../../Archive/UI/DEBUG_INFO_PANEL_SHORTCUTS.md) - Shortcut system for debug tools
 - [Panel Close Buttons](../../Archive/UI/PANEL_CLOSE_BUTTONS.md) - Close button implementation for all panels

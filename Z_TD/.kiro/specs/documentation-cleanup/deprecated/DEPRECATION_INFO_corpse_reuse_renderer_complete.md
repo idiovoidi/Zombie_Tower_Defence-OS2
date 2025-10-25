@@ -1,15 +1,19 @@
 # Deprecation Info: corpse_reuse_renderer_complete.md
 
 ## Original Path
+
 `design_docs/corpse_reuse_renderer_complete.md`
 
 ## Flagged Date
+
 2025-10-25
 
 ## Reason for Flagging
+
 This document has "complete" in the title, indicating it's a completion summary rather than active design documentation. It describes a completed implementation of the corpse rendering system and should be moved to the Archive as a historical record.
 
 ## Verification Needed
+
 1. **Check current implementation:**
    - Verify if `src/managers/CorpseManager.ts` still uses renderer reuse approach
    - Check if the death pose system (3 poses) is still implemented
@@ -24,11 +28,13 @@ This document has "complete" in the title, indicating it's a completion summary 
    - Check if renderer list is still accurate (BasicZombieRenderer, FastZombieRenderer, etc.)
 
 ## Potential Replacement
+
 - **If still accurate:** Move to `design_docs/Archive/Zombies/CORPSE_SYSTEM.md`
 - **If superseded:** Delete after extracting any unique information
 - **If partially accurate:** Update and move to `design_docs/Features/Zombies/CORPSE_SYSTEM.md`
 
 ## Notes
+
 - This is high-quality documentation with detailed implementation notes
 - Contains useful performance metrics and testing results
 - May have historical value even if implementation has changed

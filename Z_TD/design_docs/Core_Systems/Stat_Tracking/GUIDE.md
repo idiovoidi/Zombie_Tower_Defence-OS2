@@ -162,12 +162,12 @@ if (now - this.stats.lastMoneySnapshot >= 5000) {
     money: currentMoney,
     wave: currentWave,
   });
-  
+
   // Check for bankruptcy
   if (currentMoney === 0 && this.stats.lastMoneyAmount > 0) {
     this.stats.bankruptcyEvents++;
   }
-  
+
   this.stats.lastMoneyAmount = currentMoney;
   this.stats.lastSnapshotTime = now;
 }
@@ -186,7 +186,7 @@ if (now - this.stats.lastSnapshotTime >= 10000) {
     zombiesAlive: zombieManager.getZombies().length,
     currentDPS: this.calculateCurrentDPS(),
   });
-  
+
   this.stats.lastSnapshotTime = now;
 }
 ```
@@ -231,12 +231,7 @@ Call from combat system when damage is dealt:
 // In TowerCombatManager or similar
 const aiManager = this.gameManager.getAIPlayerManager();
 if (aiManager.isEnabled()) {
-  aiManager.trackDamage(
-    damageAmount,
-    tower.getType(),
-    zombieWasKilled,
-    overkillAmount
-  );
+  aiManager.trackDamage(damageAmount, tower.getType(), zombieWasKilled, overkillAmount);
 }
 ```
 
@@ -250,13 +245,13 @@ public trackDamage(
   overkill: number
 ): void {
   if (!this.enabled) return;
-  
+
   this.stats.totalDamageDealt += damage;
   this.stats.damageInLastSecond += damage;
-  
+
   const currentDamage = this.stats.damageByTowerType.get(towerType) || 0;
   this.stats.damageByTowerType.set(towerType, currentDamage + damage);
-  
+
   if (killed) {
     this.stats.zombiesKilled++;
     const currentKills = this.stats.killsByTowerType.get(towerType) || 0;
@@ -283,7 +278,7 @@ Implementation in AIPlayerManager:
 ```typescript
 public trackShot(hit: boolean): void {
   if (!this.enabled) return;
-  
+
   if (hit) {
     this.stats.shotsHit++;
   } else {
@@ -299,19 +294,19 @@ Automatically tracked when wave completes:
 ```typescript
 private trackWaveCompletion(): void {
   const currentMoney = this.gameManager.getMoney();
-  
+
   // Track money earned this wave
   const moneyEarned = currentMoney - (this.stats.lastMoneyAmount || this.stats.startMoney);
   this.stats.moneyPerWave.push(Math.max(0, moneyEarned));
-  
+
   // Track wave time
   if (this.currentWaveStartTime > 0) {
     const waveTime = Date.now() - this.currentWaveStartTime;
     this.stats.waveCompletionTimes.push(waveTime);
-    
+
     const livesLost = this.currentWaveLivesStart - this.gameManager.getLives();
     this.stats.livesLostPerWave.push(livesLost);
-    
+
     this.stats.towersBuiltPerWave.push(this.currentWaveTowersBuilt);
     this.stats.decisionsPerWave.push(this.currentWaveDecisions);
   }
@@ -323,6 +318,7 @@ private trackWaveCompletion(): void {
 ### Export Process
 
 Reports are generated when:
+
 1. AI player is disabled
 2. Game ends (victory/defeat)
 3. Player manually stops
@@ -335,13 +331,13 @@ private exportStats(): void {
   const duration = Date.now() - this.stats.startTime;
   const survivalRate = (currentLives / this.stats.startLives) * 100;
   // ... more calculations
-  
+
   // 2. Convert Maps to plain objects
   const towerComposition: Record<string, number> = {};
   this.stats.towerComposition.forEach((count, type) => {
     towerComposition[type] = count;
   });
-  
+
   // 3. Build GameLogEntry object
   const logEntry: GameLogEntry = {
     timestamp: new Date(this.stats.startTime).toISOString(),
@@ -350,13 +346,13 @@ private exportStats(): void {
     duration: duration,
     // ... all sections
   };
-  
+
   // 4. Get balance data if enabled
   let balanceData: Record<string, unknown> | undefined;
   if (balanceTrackingManager?.isEnabled()) {
     balanceData = balanceTrackingManager.generateReportData();
   }
-  
+
   // 5. Export via LogExporter
   LogExporter.exportLog(logEntry, balanceData);
 }
@@ -377,7 +373,7 @@ private static async saveToServer(
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ filename, data }),
     });
-    
+
     if (response.ok) {
       const result = await response.json();
       console.log(`✅ Report saved to: ${result.filepath}`);
@@ -398,7 +394,7 @@ If server is unavailable, reports store in localStorage:
 private static storeLog(filename: string, logEntry: GameLogEntry): void {
   const logs = this.getStoredLogs();
   logs[filename] = logEntry;
-  
+
   // Limit to MAX_STORED_LOGS (100)
   const logKeys = Object.keys(logs);
   if (logKeys.length > this.MAX_STORED_LOGS) {
@@ -406,7 +402,7 @@ private static storeLog(filename: string, logEntry: GameLogEntry): void {
     const toRemove = sortedKeys.slice(0, logKeys.length - this.MAX_STORED_LOGS);
     toRemove.forEach(key => delete logs[key]);
   }
-  
+
   localStorage.setItem(this.STORAGE_KEY, JSON.stringify(logs));
 }
 ```
@@ -479,16 +475,16 @@ private static calculateBalanceRating(
   issues: Array<{ severity: string }>
 ): string {
   if (issues.length === 0) return 'EXCELLENT';
-  
+
   const criticalCount = issues.filter(i => i.severity === 'CRITICAL').length;
   const highCount = issues.filter(i => i.severity === 'HIGH').length;
   const mediumCount = issues.filter(i => i.severity === 'MEDIUM').length;
-  
+
   if (criticalCount > 0) return 'CRITICAL';
   if (highCount >= 2) return 'POOR';
   if (highCount === 1 || mediumCount >= 3) return 'FAIR';
   if (mediumCount > 0) return 'GOOD';
-  
+
   return 'EXCELLENT';
 }
 ```
@@ -502,7 +498,7 @@ AI manager logs performance every 10 seconds:
 ```typescript
 private logPerformanceStats(): void {
   const elapsed = (Date.now() - this.stats.startTime) / 1000;
-  
+
   console.log('🤖 ─────────────────────────────────────────────────────');
   console.log(`🤖 AI Performance Report (${Math.floor(elapsed)}s elapsed)`);
   console.log(`🤖 Wave: ${currentWave} (highest: ${this.stats.highestWave})`);
@@ -534,11 +530,13 @@ When reviewing reports, verify:
 **Problem**: Reports not appearing in `player_reports/`
 
 **Diagnosis**:
+
 1. Check if server is running (look for "🚀 Report server running")
 2. Check browser console for fetch errors
 3. Check server console for POST requests
 
 **Solution**:
+
 - Start with `npm run dev:full` instead of `npm run dev`
 - If server crashed, restart it
 - Use recovery mode: `LogExporter.exportAllLogs()`
@@ -548,11 +546,13 @@ When reviewing reports, verify:
 **Problem**: Combat stats show 0 or undefined
 
 **Diagnosis**:
+
 1. Check if `trackDamage()` is being called
 2. Check if `trackShot()` is being called
 3. Verify AI is enabled during gameplay
 
 **Solution**:
+
 - Integrate tracking calls in combat system
 - Add console.log to verify calls
 - Check that `aiManager.isEnabled()` returns true
@@ -562,12 +562,14 @@ When reviewing reports, verify:
 **Problem**: Efficiency metrics seem wrong
 
 **Diagnosis**:
+
 1. Check for division by zero
 2. Verify all costs are tracked
 3. Check Map to object conversions
 4. Verify timing calculations
 
 **Solution**:
+
 - Add guards for zero denominators
 - Ensure all spending tracked in `moneySpent`
 - Verify Maps are properly converted
@@ -639,7 +641,7 @@ public trackNewMetric(value: number): void {
 ```typescript
 private exportStats(): void {
   // ... existing calculations
-  
+
   const logEntry: GameLogEntry = {
     // ... existing sections
     newMetricSection: {
@@ -647,7 +649,7 @@ private exportStats(): void {
       anotherMetric: this.calculateAnotherMetric(),
     },
   };
-  
+
   LogExporter.exportLog(logEntry);
 }
 ```
@@ -655,6 +657,7 @@ private exportStats(): void {
 ### 6. Document
 
 Update documentation:
+
 - Add to quick reference in steering rule
 - Document calculation in this guide
 - Add to code examples

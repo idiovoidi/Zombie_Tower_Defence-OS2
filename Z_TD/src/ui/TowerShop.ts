@@ -537,8 +537,6 @@ export class TowerShop extends UIComponent {
     }
   }
 
-
-
   public setTowerSelectCallback(callback: (type: string) => void): void {
     this.onTowerSelectCallback = callback;
   }

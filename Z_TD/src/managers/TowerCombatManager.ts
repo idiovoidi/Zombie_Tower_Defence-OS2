@@ -14,11 +14,15 @@ export class TowerCombatManager {
   private onDamageCallback:
     | ((damage: number, towerType: string, killed: boolean, overkill: number) => void)
     | null = null;
-  private zombieGrid: SpatialGrid<Zombie>;
+  private zombieGrid: SpatialGrid<Zombie & { [key: string]: unknown }>;
 
   constructor(worldWidth: number = 1024, worldHeight: number = 768) {
     // Create spatial grid with 128px cells (optimal for typical tower ranges of 150-300px)
-    this.zombieGrid = new SpatialGrid<Zombie>(worldWidth, worldHeight, 128);
+    this.zombieGrid = new SpatialGrid<Zombie & { [key: string]: unknown }>(
+      worldWidth,
+      worldHeight,
+      128
+    );
   }
 
   public setProjectileManager(projectileManager: ProjectileManager): void {
@@ -32,12 +36,19 @@ export class TowerCombatManager {
   public setZombies(zombies: Zombie[]): void {
     this.zombies = zombies;
 
-    // Rebuild spatial grid with new zombie list
-    this.zombieGrid.clear();
-    for (const zombie of zombies) {
-      if (zombie.parent) {
-        // Only add zombies that are active in the scene
-        this.zombieGrid.insert(zombie);
+    // OPTIMIZATION: Only rebuild grid when zombie count changes significantly
+    // This prevents expensive grid rebuilds every frame
+    const currentSize = this.zombieGrid.size();
+    const newSize = zombies.filter(z => z.parent).length;
+
+    // Only rebuild if zombie count changed by more than 5 or grid is empty
+    if (Math.abs(currentSize - newSize) > 5 || currentSize === 0) {
+      this.zombieGrid.clear();
+      for (const zombie of zombies) {
+        if (zombie.parent) {
+          // Type assertion: Zombie satisfies SpatialEntity requirements
+          this.zombieGrid.insert(zombie as Zombie & { [key: string]: unknown });
+        }
       }
     }
 
@@ -60,11 +71,12 @@ export class TowerCombatManager {
   public update(deltaTime: number): void {
     const currentTime = performance.now();
 
-    // Update zombie positions in spatial grid
-    for (const zombie of this.zombies) {
-      if (zombie.parent) {
-        this.zombieGrid.update(zombie);
-      }
+    // OPTIMIZATION: Use batch update for spatial grid (much faster than individual updates)
+    // Filter active zombies once instead of checking in loop
+    const activeZombies = this.zombies.filter(z => z.parent);
+    if (activeZombies.length > 0) {
+      // Type assertion: Zombie satisfies SpatialEntity requirements
+      this.zombieGrid.batchUpdate(activeZombies as (Zombie & { [key: string]: unknown })[]);
     }
 
     for (const tower of this.towers) {
@@ -97,18 +109,13 @@ export class TowerCombatManager {
 
     // Measure target finding performance if validation is enabled
     if (OptimizationValidator.isEnabled() && this.zombies.length > 0) {
-      OptimizationValidator.measureTargetFinding(
-        this.zombies,
-        towerPos.x,
-        towerPos.y,
-        range,
-        () =>
-          this.zombieGrid.queryClosest(
-            towerPos.x,
-            towerPos.y,
-            range,
-            zombie => zombie.parent !== null
-          )
+      OptimizationValidator.measureTargetFinding(this.zombies, towerPos.x, towerPos.y, range, () =>
+        this.zombieGrid.queryClosest(
+          towerPos.x,
+          towerPos.y,
+          range,
+          zombie => zombie.parent !== null
+        )
       );
     }
 

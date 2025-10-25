@@ -43,7 +43,7 @@ export class SpatialGrid<T extends SpatialEntity> {
 
   // Query result cache
   private queryCache: Map<string, { results: T[]; timestamp: number }>;
-  private queryCacheDuration: number = 16; // Cache for 1 frame (~16ms)
+  private queryCacheDuration: number = 100; // Cache for ~6 frames (100ms) - more effective caching
 
   /**
    * Create a spatial grid

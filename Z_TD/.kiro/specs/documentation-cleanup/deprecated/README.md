@@ -5,12 +5,14 @@ This directory holds documentation that has been flagged as potentially outdated
 ## Purpose
 
 The deprecation area serves as a holding zone for documentation that:
+
 - May conflict with the current codebase
 - Contains outdated implementation details
 - Has been superseded by newer documentation
 - Is redundant with other documentation
 
 Documents remain here until they can be verified and either:
+
 - **Deleted** if confirmed outdated
 - **Restored** if still relevant (moved back to original location)
 - **Partially extracted** if some content is still useful
@@ -39,16 +41,19 @@ For each flagged document, verify:
 After verification:
 
 **If Outdated:**
+
 - Delete the document
 - Document deletion in commit message
 - Remove from deprecation area
 
 **If Still Relevant:**
+
 - Move back to appropriate location
 - Update content if needed
 - Remove DEPRECATION_INFO.md
 
 **If Partially Relevant:**
+
 - Extract useful content to appropriate docs
 - Delete the original
 - Document what was extracted
@@ -61,21 +66,27 @@ Each flagged document should have a corresponding `DEPRECATION_INFO.md` file:
 # Deprecation Info: [Document Name]
 
 ## Original Path
+
 `path/to/original/document.md`
 
 ## Flagged Date
+
 YYYY-MM-DD
 
 ## Reason for Flagging
+
 [Why this document was flagged as potentially outdated]
 
 ## Verification Needed
+
 [What needs to be checked to determine if this should be deleted]
 
 ## Potential Replacement
+
 [Links to newer documentation that may replace this, if any]
 
 ## Notes
+
 [Any additional context or considerations]
 ```
 
@@ -206,11 +217,13 @@ Documents should not remain in the deprecation area indefinitely:
 **High Priority - Completion Summaries:** 7 files
 **Medium Priority - Performance Documentation:** 3 files
 **Low Priority - Recent Additions:** 11 files
-  - Duplicates to DELETE: 5 files
-  - Empty files to DELETE: 2 files
-  - Summaries to ARCHIVE: 4 files
+
+- Duplicates to DELETE: 5 files
+- Empty files to DELETE: 2 files
+- Summaries to ARCHIVE: 4 files
 
 **Next Actions:**
+
 1. Verify each file against current codebase
 2. Move confirmed accurate files to appropriate Archive locations
 3. Update or consolidate files that are partially accurate

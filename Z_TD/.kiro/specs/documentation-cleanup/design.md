@@ -73,21 +73,25 @@ Each steering rule file follows this pattern:
 ```markdown
 ---
 inclusion: fileMatch | manual | always
-fileMatchPattern: 'pattern/**/*.ts'  # if fileMatch
+fileMatchPattern: 'pattern/**/*.ts' # if fileMatch
 ---
 
 # [Topic Name]
 
 ## Quick Reference
+
 [Tables, commands, key patterns]
 
 ## Rules
+
 [Actionable guidelines]
 
 ## Common Patterns
+
 [Code examples - minimal]
 
 ## See Also
+
 [Links to detailed design docs]
 ```
 
@@ -97,24 +101,31 @@ fileMatchPattern: 'pattern/**/*.ts'  # if fileMatch
 # [Feature Name]
 
 ## Overview
+
 [What this feature does]
 
 ## Architecture
+
 [System design, components]
 
 ## Implementation Details
+
 [Technical specifics, algorithms]
 
 ## Data Models
+
 [Interfaces, types, schemas]
 
 ## Examples
+
 [Code examples, usage patterns]
 
 ## Testing
+
 [How to test, validation]
 
 ## References
+
 [Related docs, external resources]
 ```
 
@@ -126,18 +137,23 @@ fileMatchPattern: 'pattern/**/*.ts'  # if fileMatch
 ## Completed: [Date]
 
 ## What Was Built
+
 [Features implemented]
 
 ## How It Works
+
 [Technical overview]
 
 ## Verification
+
 [Testing results, metrics]
 
 ## Files Modified
+
 [List of changed files]
 
 ## Known Issues
+
 [Any remaining issues]
 ```
 
@@ -174,12 +190,14 @@ interface DeprecatedDoc {
 ### Phase 1: Steering Rules Cleanup
 
 **Current Issues:**
+
 - Stat_Tracking.md is 500+ lines (too verbose)
 - Zombie_Types.md contains implementation details better suited for design docs
 - Towers.md is minimal and could be expanded
 - No clear organization (all files in root)
 
 **Actions:**
+
 1. Split Stat_Tracking.md:
    - Keep quick reference in steering/features/stats.md (<200 lines)
    - Move detailed guide to design_docs/Core_Systems/Stat_Tracking/
@@ -203,6 +221,7 @@ interface DeprecatedDoc {
 ### Phase 2: Design Docs Reorganization
 
 **Current Issues:**
+
 - Flat structure with 20+ files in root
 - Augment_Code_Docs/ contains memory management docs (unclear naming)
 - task_summary/ subfolder duplicates root task_summary/
@@ -210,26 +229,28 @@ interface DeprecatedDoc {
 - Multiple "complete" and "summary" docs that overlap
 
 **Actions:**
+
 1. Create feature-based structure:
+
    ```
    Core_Systems/
    ├── Memory_Management/  # From Augment_Code_Docs
    ├── Performance/
    └── Testing/
-   
+
    Features/
    ├── Towers/
    ├── Zombies/
    ├── UI/
    ├── Combat/
    └── Waves/
-   
+
    Archive/
    └── [completed features]
    ```
 
 2. Consolidate overlapping docs:
-   - Merge graveyard_*.md files into Features/Environment/Graveyard.md
+   - Merge graveyard\_\*.md files into Features/Environment/Graveyard.md
    - Merge tower improvement docs into Features/Towers/Improvements.md
    - Move "complete" docs to Archive/
 
@@ -241,12 +262,14 @@ interface DeprecatedDoc {
 ### Phase 3: Task Summary Archive
 
 **Current Issues:**
+
 - task_summary/ contains 20+ files with completed work
 - Overlaps with design docs
 - No clear organization
 - Some files are just installation instructions
 
 **Actions:**
+
 1. Archive completed implementations:
    - Move to design_docs/Archive/[feature-name]/
    - Add completion date and verification status
@@ -265,6 +288,7 @@ interface DeprecatedDoc {
 **Purpose:** Hold potentially outdated docs for verification before deletion
 
 **Structure:**
+
 ```
 .kiro/specs/documentation-cleanup/deprecated/
 ├── README.md  # Explains deprecation process
@@ -274,6 +298,7 @@ interface DeprecatedDoc {
 ```
 
 **Process:**
+
 1. Flag doc as deprecated (move to deprecated/)
 2. Create DEPRECATION_INFO.md explaining:
    - Why it was flagged
@@ -289,6 +314,7 @@ interface DeprecatedDoc {
 ### Missing Documentation
 
 When documentation is missing for a feature:
+
 1. Check Archive/ for historical docs
 2. Check deprecated/ for flagged docs
 3. Create new doc using templates
@@ -297,6 +323,7 @@ When documentation is missing for a feature:
 ### Conflicting Information
 
 When docs conflict:
+
 1. Check last modified dates
 2. Verify against current codebase
 3. Keep most accurate version
@@ -306,6 +333,7 @@ When docs conflict:
 ### Broken Links
 
 When consolidating creates broken links:
+
 1. Update all references during consolidation
 2. Add redirects in README files
 3. Use grep to find all references before moving files
@@ -376,6 +404,7 @@ When consolidating creates broken links:
 ### Frontmatter Updates
 
 When reorganizing steering rules:
+
 ```yaml
 ---
 inclusion: fileMatch
@@ -388,6 +417,7 @@ Update patterns to match new structure.
 ### Cross-Reference Updates
 
 Use consistent linking format:
+
 ```markdown
 See [Memory Management](../Core_Systems/Memory_Management/README.md)
 See steering rule: [cleanup.md](../../.kiro/steering/core/cleanup.md)
@@ -396,34 +426,40 @@ See steering rule: [cleanup.md](../../.kiro/steering/core/cleanup.md)
 ## Migration Plan
 
 ### Step 1: Create New Structure
+
 - Create new directories
 - Create README files
 - Create templates
 
 ### Step 2: Consolidate Steering Rules
+
 - Split large files
 - Organize into subdirectories
 - Update frontmatter
 - Test AI assistant usage
 
 ### Step 3: Reorganize Design Docs
+
 - Create feature directories
 - Move files to new locations
 - Update cross-references
 - Create Archive/
 
 ### Step 4: Archive Task Summaries
+
 - Review each summary
 - Move to Archive/ or deprecated/
 - Update links
 - Remove redundant files
 
 ### Step 5: Create Documentation Index
+
 - Generate topic index
 - Create search guide
 - Document contribution process
 
 ### Step 6: Validation
+
 - Run all validation checks
 - Test with AI assistant
 - Test with developer onboarding

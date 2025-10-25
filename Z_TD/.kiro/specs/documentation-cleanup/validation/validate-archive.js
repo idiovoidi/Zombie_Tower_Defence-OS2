@@ -14,40 +14,40 @@ const warnings = [];
 function validateArchiveFile(filePath, relativePath) {
   const content = fs.readFileSync(filePath, 'utf8');
   const fileName = path.basename(filePath);
-  
+
   // Skip README files
   if (fileName === 'README.md') return;
-  
+
   // Check for completion date
   const hasCompletionDate = /\*\*Completed:\*\*\s+\d{4}/.test(content);
   if (!hasCompletionDate) {
     issues.push(`❌ ${relativePath}: Missing completion date (format: **Completed:** YYYY)`);
   }
-  
+
   // Check for verification status
   const hasVerificationStatus = /\*\*Verification Status:\*\*/.test(content);
   if (!hasVerificationStatus) {
     issues.push(`❌ ${relativePath}: Missing verification status`);
   }
-  
+
   // Check if verified
   const isVerified = /✅\s+Verified/.test(content);
   if (!isVerified) {
     warnings.push(`⚠️  ${relativePath}: Not marked as verified`);
   }
-  
+
   // Check for links to current docs (Related Documentation section)
   const hasRelatedDocs = /## Related Documentation/i.test(content);
   if (!hasRelatedDocs) {
     warnings.push(`⚠️  ${relativePath}: Missing "Related Documentation" section`);
   }
-  
+
   // Check for at least one link to current docs
   const hasLinks = /\[.*\]\(\.\.\/.*\.md\)/.test(content);
   if (!hasLinks) {
     warnings.push(`⚠️  ${relativePath}: No links to current documentation found`);
   }
-  
+
   // Check for status marker at end
   const hasStatusComplete = /\*\*Status\*\*:\s+✅\s+Complete/i.test(content);
   if (!hasStatusComplete) {
@@ -57,12 +57,12 @@ function validateArchiveFile(filePath, relativePath) {
 
 function walkDirectory(dir, baseDir = dir) {
   const files = fs.readdirSync(dir);
-  
+
   files.forEach(file => {
     const filePath = path.join(dir, file);
     const stat = fs.statSync(filePath);
     const relativePath = path.relative(baseDir, filePath);
-    
+
     if (stat.isDirectory()) {
       walkDirectory(filePath, baseDir);
     } else if (file.endsWith('.md')) {

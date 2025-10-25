@@ -5,223 +5,143 @@
   "issues": [
     {
       "file": "design_docs\\Archive\\Core_Systems\\HEALTH_COMPONENT.md",
-      "issues": [
-        "2 invalid reference(s)"
-      ]
+      "issues": ["2 invalid reference(s)"]
     },
     {
       "file": "design_docs\\Archive\\Core_Systems\\HOTKEY_SYSTEM.md",
-      "issues": [
-        "1 invalid reference(s)"
-      ]
+      "issues": ["1 invalid reference(s)"]
     },
     {
       "file": "design_docs\\Archive\\Core_Systems\\PROJECTILE_SYSTEM.md",
-      "issues": [
-        "1 invalid reference(s)"
-      ]
+      "issues": ["1 invalid reference(s)"]
     },
     {
       "file": "design_docs\\Archive\\Towers\\TOWER_SELECTION_FIX.md",
-      "issues": [
-        "Missing Overview section"
-      ]
+      "issues": ["Missing Overview section"]
     },
     {
       "file": "design_docs\\Archive\\UI\\AI_CONTROL_INTEGRATION.md",
-      "issues": [
-        "Missing Overview section",
-        "No standard structure sections found"
-      ]
+      "issues": ["Missing Overview section", "No standard structure sections found"]
     },
     {
       "file": "design_docs\\Archive\\UI\\DEBUG_INFO_AUTO_CLOSE.md",
-      "issues": [
-        "Missing Overview section"
-      ]
+      "issues": ["Missing Overview section"]
     },
     {
       "file": "design_docs\\Archive\\UI\\DEBUG_INFO_PANEL_SHORTCUTS.md",
-      "issues": [
-        "Missing Overview section"
-      ]
+      "issues": ["Missing Overview section"]
     },
     {
       "file": "design_docs\\Archive\\UI\\DEBUG_TEST_UI_MANAGER_IMPLEMENTATION.md",
-      "issues": [
-        "Missing Overview section"
-      ]
+      "issues": ["Missing Overview section"]
     },
     {
       "file": "design_docs\\Archive\\UI\\PANEL_CLOSE_BUTTONS.md",
-      "issues": [
-        "Missing Overview section"
-      ]
+      "issues": ["Missing Overview section"]
     },
     {
       "file": "design_docs\\Archive\\UI\\STATS_PANEL_INTEGRATION.md",
-      "issues": [
-        "Missing Overview section"
-      ]
+      "issues": ["Missing Overview section"]
     },
     {
       "file": "design_docs\\Archive\\Zombies\\ZOMBIE_SPAWNING.md",
-      "issues": [
-        "1 invalid reference(s)"
-      ]
+      "issues": ["1 invalid reference(s)"]
     },
     {
       "file": "design_docs\\Archive\\Zombies\\ZOMBIE_VISUALS.md",
-      "issues": [
-        "Missing Overview section",
-        "No standard structure sections found"
-      ]
+      "issues": ["Missing Overview section", "No standard structure sections found"]
     },
     {
       "file": "design_docs\\Core_Systems\\Memory_Management\\MEMORY_OPTIMIZATION_GUIDE.md",
-      "issues": [
-        "Missing Overview section"
-      ]
+      "issues": ["Missing Overview section"]
     },
     {
       "file": "design_docs\\Core_Systems\\Memory_Management\\PERSISTENT_EFFECTS_FIX.md",
-      "issues": [
-        "Missing Overview section"
-      ]
+      "issues": ["Missing Overview section"]
     },
     {
       "file": "design_docs\\Core_Systems\\Memory_Management\\TESLA_LIGHTNING_PERSISTENCE_FIX.md",
-      "issues": [
-        "Missing Overview section"
-      ]
+      "issues": ["Missing Overview section"]
     },
     {
       "file": "design_docs\\Core_Systems\\Memory_Management\\TESLA_PARTICLE_FIX.md",
-      "issues": [
-        "Missing Overview section"
-      ]
+      "issues": ["Missing Overview section"]
     },
     {
       "file": "design_docs\\Core_Systems\\Performance\\CORPSE_CLEANUP_VERIFICATION.md",
-      "issues": [
-        "Missing Overview section"
-      ]
+      "issues": ["Missing Overview section"]
     },
     {
       "file": "design_docs\\Core_Systems\\Performance\\GRAPHICS_AUDIT_SUMMARY.md",
-      "issues": [
-        "Missing Overview section",
-        "No standard structure sections found"
-      ]
+      "issues": ["Missing Overview section", "No standard structure sections found"]
     },
     {
       "file": "design_docs\\Core_Systems\\Performance\\LAYOUT_OPTIMIZATION_SUMMARY.md",
-      "issues": [
-        "Missing Overview section"
-      ]
+      "issues": ["Missing Overview section"]
     },
     {
       "file": "design_docs\\Core_Systems\\Performance\\PERSISTENT_EFFECTS_VERIFICATION.md",
-      "issues": [
-        "Missing Overview section"
-      ]
+      "issues": ["Missing Overview section"]
     },
     {
       "file": "design_docs\\Core_Systems\\Stat_Tracking\\EXAMPLES.md",
-      "issues": [
-        "Missing Overview section"
-      ]
+      "issues": ["Missing Overview section"]
     },
     {
       "file": "design_docs\\Features\\Environment\\GRAVEYARD.md",
-      "issues": [
-        "Missing Overview section"
-      ]
+      "issues": ["Missing Overview section"]
     },
     {
       "file": "design_docs\\Features\\UI\\UI_LAYOUT_GUIDE.md",
-      "issues": [
-        "Missing Overview section"
-      ]
+      "issues": ["Missing Overview section"]
     },
     {
       "file": "design_docs\\Features\\Zombies\\ARMORED_ZOMBIE_VISUAL_REFERENCE.md",
-      "issues": [
-        "Missing Overview section",
-        "No standard structure sections found"
-      ]
+      "issues": ["Missing Overview section", "No standard structure sections found"]
     },
     {
       "file": "design_docs\\Features\\Zombies\\BASIC_ZOMBIE_VISUAL_REFERENCE.md",
-      "issues": [
-        "Missing Overview section"
-      ]
+      "issues": ["Missing Overview section"]
     },
     {
       "file": "design_docs\\Features\\Zombies\\FAST_ZOMBIE_VISUAL_REFERENCE.md",
-      "issues": [
-        "Missing Overview section",
-        "No standard structure sections found"
-      ]
+      "issues": ["Missing Overview section", "No standard structure sections found"]
     },
     {
       "file": "design_docs\\Features\\Zombies\\IMPLEMENTATION_STATUS.md",
-      "issues": [
-        "Missing Overview section"
-      ]
+      "issues": ["Missing Overview section"]
     },
     {
       "file": "design_docs\\Features\\Zombies\\SPACING_AND_VISIBILITY_IMPROVEMENTS.md",
-      "issues": [
-        "Missing Overview section",
-        "No standard structure sections found"
-      ]
+      "issues": ["Missing Overview section", "No standard structure sections found"]
     },
     {
       "file": "design_docs\\Features\\Zombies\\TANK_ZOMBIE_VISUAL_REFERENCE.md",
-      "issues": [
-        "Missing Overview section",
-        "No standard structure sections found"
-      ]
+      "issues": ["Missing Overview section", "No standard structure sections found"]
     },
     {
       "file": "design_docs\\Features\\Zombies\\ZOMBIE_REFERENCE.md",
-      "issues": [
-        "Missing Overview section"
-      ]
+      "issues": ["Missing Overview section"]
     },
     {
       "file": "design_docs\\Game_Balance\\AI_Test_Balance\\BALANCE_ANALYSIS_DEVELOPER_GUIDE.md",
-      "issues": [
-        "Missing Overview section"
-      ]
+      "issues": ["Missing Overview section"]
     },
     {
       "file": "design_docs\\Game_Balance\\AI_Test_Balance\\BALANCE_ANALYSIS_DOCUMENTATION_SUMMARY.md",
-      "issues": [
-        "Missing Overview section",
-        "No standard structure sections found"
-      ]
+      "issues": ["Missing Overview section", "No standard structure sections found"]
     },
     {
       "file": "design_docs\\Game_Balance\\AI_Test_Balance\\BALANCE_ANALYSIS_EXAMPLES.md",
-      "issues": [
-        "Missing Overview section"
-      ]
+      "issues": ["Missing Overview section"]
     },
     {
       "file": "design_docs\\Game_Balance\\AI_Test_Balance\\BALANCE_ANALYSIS_TROUBLESHOOTING.md",
-      "issues": [
-        "Missing Overview section",
-        "No standard structure sections found"
-      ]
+      "issues": ["Missing Overview section", "No standard structure sections found"]
     },
     {
       "file": "design_docs\\Game_Balance\\AI_Test_Balance\\BALANCE_CONFIG_REFERENCE.md",
-      "issues": [
-        "Missing Overview section",
-        "No standard structure sections found"
-      ]
+      "issues": ["Missing Overview section", "No standard structure sections found"]
     },
     {
       "file": "design_docs\\Game_Balance\\AI_Test_Balance\\BALANCE_DOCUMENTATION_INDEX.md",
@@ -233,29 +153,19 @@
     },
     {
       "file": "design_docs\\Game_Balance\\AI_Test_Balance\\ENHANCED_TRACKING_SUMMARY.md",
-      "issues": [
-        "Missing Overview section"
-      ]
+      "issues": ["Missing Overview section"]
     },
     {
       "file": "design_docs\\Game_Balance\\AI_Test_Balance\\METRICS_QUICK_REFERENCE.md",
-      "issues": [
-        "Missing Overview section",
-        "No standard structure sections found"
-      ]
+      "issues": ["Missing Overview section", "No standard structure sections found"]
     },
     {
       "file": "design_docs\\Game_Balance\\AI_Test_Balance\\STATS_QUICK_REFERENCE.md",
-      "issues": [
-        "Missing Overview section",
-        "No standard structure sections found"
-      ]
+      "issues": ["Missing Overview section", "No standard structure sections found"]
     },
     {
       "file": "design_docs\\Game_Balance\\WAVE_BALANCING_GUIDE.md",
-      "issues": [
-        "Missing Overview section"
-      ]
+      "issues": ["Missing Overview section"]
     }
   ],
   "duplicateContent": [

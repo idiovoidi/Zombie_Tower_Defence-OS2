@@ -744,8 +744,6 @@ export class GameManager {
     PerformanceMonitor.endFrame();
   }
 
-
-
   // Handle wave completion
   private onWaveComplete(): void {
     console.log(`Wave ${this.wave} complete!`);

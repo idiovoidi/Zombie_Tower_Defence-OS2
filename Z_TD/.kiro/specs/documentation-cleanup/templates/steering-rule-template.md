@@ -1,6 +1,6 @@
 ---
 inclusion: always | fileMatch | manual
-fileMatchPattern: 'pattern/**/*.ts'  # Only if inclusion: fileMatch
+fileMatchPattern: 'pattern/**/*.ts' # Only if inclusion: fileMatch
 ---
 
 # [Topic Name]
@@ -11,8 +11,8 @@ Brief description of what this steering rule covers and when it should be used.
 
 [Tables, commands, or key information that developers need at a glance]
 
-| Item | Value | Notes |
-|------|-------|-------|
+| Item    | Value | Notes       |
+| ------- | ----- | ----------- |
 | Example | Value | Description |
 
 ## Rules
@@ -54,6 +54,7 @@ const good = () => {};
 ---
 
 **Guidelines for this template:**
+
 - Keep under 200 lines total
 - Focus on patterns, not implementation details
 - Use tables for quick reference

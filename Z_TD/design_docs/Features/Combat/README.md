@@ -7,24 +7,28 @@ The combat system handles interactions between towers and zombies, including dam
 ## Key Components
 
 ### Damage System
+
 - Base damage from tower stats
 - Damage modifiers based on zombie type
 - Upgrade scaling
 - Overkill tracking
 
 ### Targeting System
+
 - Range-based target acquisition
 - Priority targeting (nearest, weakest, strongest)
 - Line of sight checks
 - Target tracking
 
 ### Projectile System
+
 - Projectile creation and movement
 - Hit detection
 - Visual effects
 - Cleanup and disposal
 
 ### Special Effects
+
 - Area of effect damage
 - Damage over time
 - Slow effects
@@ -55,6 +59,7 @@ finalDamage = baseDamage * damageModifier * (1 + upgradeBonus);
 ```
 
 Where:
+
 - `baseDamage` = Tower's base damage stat
 - `damageModifier` = Zombie type modifier (0.5 to 2.0)
 - `upgradeBonus` = Upgrade level bonus (varies by tower)
@@ -63,4 +68,3 @@ Where:
 
 - [Tower Development Patterns](../../../.kiro/steering/features/towers.md)
 - [Zombie Combat Modifiers](../../../.kiro/steering/features/zombies.md)
-

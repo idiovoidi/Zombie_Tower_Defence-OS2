@@ -84,6 +84,7 @@ EffectCleanupManager.logState();
 ```
 
 **When to Use:**
+
 - Track animation intervals
 - Track delayed callbacks
 - Ensure timers cleaned up on reset
@@ -131,6 +132,7 @@ ResourceCleanupManager.logState();
 ```
 
 **When to Use:**
+
 - Register persistent effects (fire pools, sludge pools, explosions, Tesla particles)
 - Clean up between waves
 - Clean up on game restart
@@ -161,6 +163,7 @@ ResourceCleanupManager.cleanupWaveResources()
 Called after each wave completes:
 
 **What Gets Cleaned:**
+
 - ✅ All persistent effects (fire pools, sludge pools, explosions, Tesla particles)
 - ✅ All projectiles
 - ✅ All visual effects (shell casings, muzzle flashes, bullet trails)
@@ -175,6 +178,7 @@ Called after each wave completes:
 Called when starting a new game or restarting:
 
 **What Gets Cleaned:**
+
 - ✅ Everything from wave cleanup
 - ✅ All zombies
 - ✅ All towers
@@ -249,6 +253,7 @@ const timeout = EffectCleanupManager.registerTimeout(
 ## Disposal Checklist by System
 
 ### Zombies
+
 - [x] `zombie.destroy()` called in `ZombieManager.removeZombie()`
 - [x] `zombie.destroy()` called in `ZombieManager.clear()`
 - [x] Timeout cleanup in `Zombie.destroy()` for damage flash
@@ -256,6 +261,7 @@ const timeout = EffectCleanupManager.registerTimeout(
 - [x] Component cleanup via `GameObject.destroy()`
 
 ### Projectiles
+
 - [x] `projectile.destroy()` called in `ProjectileManager.update()`
 - [x] `projectile.destroy()` called in `ProjectileManager.clear()`
 - [x] Explosion interval tracked via EffectCleanupManager
@@ -264,12 +270,14 @@ const timeout = EffectCleanupManager.registerTimeout(
 - [x] Graphics objects destroyed in effect methods
 
 ### Towers
+
 - [x] `tower.destroy()` called in `TowerPlacementManager.clear()`
 - [x] Barrel heat glow cleanup in `Tower.destroy()`
 - [x] Laser sight cleanup in `Tower.destroy()`
 - [x] Shell casings cleanup in `Tower.destroy()`
 
 ### Particles & Effects
+
 - [x] Blood particles destroyed in `BloodParticleSystem.update()`
 - [x] Blood particles cleared in `BloodParticleSystem.clear()`
 - [x] Corpses destroyed in `CorpseManager.update()`
@@ -278,6 +286,7 @@ const timeout = EffectCleanupManager.registerTimeout(
 - [x] Laser particles use EffectCleanupManager
 
 ### Game Reset
+
 - [x] `EffectCleanupManager.clearAll()` called in `GameManager.startGameWithLevel()`
 - [x] `EffectCleanupManager.clearAll()` called in `ProjectileManager.clear()`
 
@@ -292,6 +301,7 @@ const timeout = EffectCleanupManager.registerTimeout(
 **Solution:** EffectCleanupManager tracks all timers
 
 **Affected:**
+
 - Projectile explosions (400ms)
 - Fire pools (2000ms)
 - Sludge pools (4000-7000ms, 2 intervals each)
@@ -304,6 +314,7 @@ const timeout = EffectCleanupManager.registerTimeout(
 **Solution:** Always call `.destroy()` on PixiJS objects
 
 **Affected:**
+
 - Zombies (fixed)
 - Projectiles (fixed)
 - Towers (fixed)
@@ -334,6 +345,7 @@ public destroy(): void {
 ## Best Practices
 
 ### DO:
+
 ✅ Always call `.destroy()` on PixiJS objects
 ✅ Track all timers with EffectCleanupManager
 ✅ Clear object references in destroy() methods
@@ -342,6 +354,7 @@ public destroy(): void {
 ✅ Test memory usage over extended gameplay
 
 ### DON'T:
+
 ❌ Use setInterval/setTimeout without tracking
 ❌ Remove objects from parent without destroying
 ❌ Hold references to destroyed objects
@@ -374,6 +387,7 @@ ResourceCleanupManager.logState();
 ### Memory Leak Detection
 
 The system automatically warns if:
+
 - More than 20 persistent effects are active
 - More than 20 intervals/timeouts are active
 
@@ -384,7 +398,9 @@ The system automatically warns if:
 setInterval(() => {
   const memory = (performance.memory.usedJSHeapSize / 1048576).toFixed(2);
   const counts = EffectCleanupManager.getCounts();
-  console.log(`Memory: ${memory} MB | Intervals: ${counts.intervals} | Timeouts: ${counts.timeouts}`);
+  console.log(
+    `Memory: ${memory} MB | Intervals: ${counts.intervals} | Timeouts: ${counts.timeouts}`
+  );
 }, 5000);
 ```
 

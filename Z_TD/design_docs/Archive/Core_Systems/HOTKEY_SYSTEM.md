@@ -13,22 +13,22 @@ Implemented a comprehensive hotkey system for tower placement and game controls 
 
 Quick tower selection via keyboard:
 
-| Key | Tower | Description |
-|-----|-------|-------------|
-| **1** | Machine Gun | Rapid-fire tower |
-| **2** | Sniper | High-damage precision tower |
-| **3** | Shotgun | Spread damage tower |
-| **4** | Flame | Area damage tower |
-| **5** | Grenade | Explosive area tower |
-| **6** | Tesla | Chain lightning tower |
-| **7** | Sludge | Slow/crowd control tower |
+| Key   | Tower       | Description                 |
+| ----- | ----------- | --------------------------- |
+| **1** | Machine Gun | Rapid-fire tower            |
+| **2** | Sniper      | High-damage precision tower |
+| **3** | Shotgun     | Spread damage tower         |
+| **4** | Flame       | Area damage tower           |
+| **5** | Grenade     | Explosive area tower        |
+| **6** | Tesla       | Chain lightning tower       |
+| **7** | Sludge      | Slow/crowd control tower    |
 
 ### Game Control Hotkeys
 
-| Key | Action | Description |
-|-----|--------|-------------|
-| **Space** | Start Next Wave | Begin next zombie wave |
-| **Escape** | Cancel/Pause | Cancel tower placement or pause |
+| Key        | Action          | Description                     |
+| ---------- | --------------- | ------------------------------- |
+| **Space**  | Start Next Wave | Begin next zombie wave          |
+| **Escape** | Cancel/Pause    | Cancel tower placement or pause |
 
 ### Visual Indicators
 
@@ -54,6 +54,7 @@ public isKeyPressed(key: string): boolean
 ```
 
 **Features:**
+
 - Prevents key repeat events
 - Tracks pressed keys
 - Prevents default browser shortcuts
@@ -123,9 +124,11 @@ Hotkey badges on tower shop buttons:
 ## Files Created/Modified
 
 ### Created:
+
 - `src/config/hotkeyConfig.ts` - Hotkey configuration
 
 ### Modified:
+
 - `src/managers/InputManager.ts` - Added keyboard support
 - `src/ui/TowerShop.ts` - Added selectTower method and hotkey badges
 - `src/main.ts` - Integrated hotkey handling

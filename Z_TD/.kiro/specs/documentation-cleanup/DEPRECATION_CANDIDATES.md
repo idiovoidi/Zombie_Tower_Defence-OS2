@@ -3,6 +3,7 @@
 ## Overview
 
 This document identifies documentation files that are candidates for deprecation based on:
+
 1. Files with "complete" or "summary" in their names
 2. Files that may conflict with current codebase
 3. Files with potentially outdated information
@@ -17,6 +18,7 @@ This document identifies documentation files that are candidates for deprecation
 These files indicate completed work and may be better suited for the Archive:
 
 ### 1. design_docs/Features/Zombies/corpse_redesign_complete.md
+
 - **Last Modified:** 2025-10-23
 - **Size:** 6,413 bytes
 - **Reason:** Marked as "complete" - implementation summary
@@ -31,12 +33,14 @@ These files indicate completed work and may be better suited for the Archive:
 These files are implementation summaries that may belong in Archive:
 
 ### 2. design_docs/Archive/Zombies/ZOMBIE_ENHANCEMENTS_SUMMARY.md
+
 - **Last Modified:** 2025-10-25
 - **Size:** 5,620 bytes
 - **Status:** Already in Archive ✓
 - **Action:** None - properly archived
 
 ### 3. design_docs/Core_Systems/Performance/CLEANUP_VERIFICATION_SUMMARY.md
+
 - **Last Modified:** 2025-10-24
 - **Size:** 6,551 bytes
 - **Reason:** Implementation summary for completed feature
@@ -45,6 +49,7 @@ These files are implementation summaries that may belong in Archive:
 - **Status:** CANDIDATE FOR ARCHIVE
 
 ### 4. design_docs/Core_Systems/Performance/GRAPHICS_AUDIT_SUMMARY.md
+
 - **Last Modified:** 2025-10-24
 - **Size:** 4,880 bytes
 - **Reason:** Audit summary - likely one-time analysis
@@ -52,6 +57,7 @@ These files are implementation summaries that may belong in Archive:
 - **Verification Needed:** Confirm audit is complete and no longer active
 
 ### 5. design_docs/Core_Systems/Performance/LAYOUT_OPTIMIZATION_SUMMARY.md
+
 - **Last Modified:** 2025-10-22
 - **Size:** 3,556 bytes
 - **Reason:** Optimization summary - completed work
@@ -59,6 +65,7 @@ These files are implementation summaries that may belong in Archive:
 - **Verification Needed:** Confirm optimization is complete
 
 ### 6. design_docs/Core_Systems/Performance/TASK_7_COMPLETION_SUMMARY.md
+
 - **Last Modified:** 2025-10-24
 - **Size:** 7,759 bytes
 - **Reason:** Task completion summary
@@ -66,6 +73,7 @@ These files are implementation summaries that may belong in Archive:
 - **Verification Needed:** Confirm task is complete
 
 ### 7. design_docs/Game_Balance/AI_Test_Balance/AI_IMPLEMENTATION_SUMMARY.md
+
 - **Last Modified:** 2025-10-22
 - **Size:** 5,442 bytes
 - **Reason:** Implementation summary
@@ -74,6 +82,7 @@ These files are implementation summaries that may belong in Archive:
 - **Status:** KEEP AS ACTIVE REFERENCE (system may still be evolving)
 
 ### 8. design_docs/Game_Balance/AI_Test_Balance/BALANCE_ANALYSIS_DOCUMENTATION_SUMMARY.md
+
 - **Last Modified:** 2025-10-22
 - **Size:** 11,642 bytes
 - **Reason:** Documentation summary
@@ -81,6 +90,7 @@ These files are implementation summaries that may belong in Archive:
 - **Verification Needed:** Determine if this is active reference or historical record
 
 ### 9. design_docs/Game_Balance/AI_Test_Balance/DOCUMENTATION_UPDATE_SUMMARY.md
+
 - **Last Modified:** 2025-10-22
 - **Size:** 8,772 bytes
 - **Reason:** Update summary
@@ -88,6 +98,7 @@ These files are implementation summaries that may belong in Archive:
 - **Verification Needed:** Check if documentation is still being updated
 
 ### 10. design_docs/Game_Balance/AI_Test_Balance/EDGE_CASE_TEST_SUMMARY.md
+
 - **Last Modified:** 2025-10-22
 - **Size:** 10,116 bytes
 - **Reason:** Test summary
@@ -95,6 +106,7 @@ These files are implementation summaries that may belong in Archive:
 - **Verification Needed:** Confirm edge case testing is done
 
 ### 11. design_docs/Game_Balance/AI_Test_Balance/ENHANCED_TRACKING_SUMMARY.md
+
 - **Last Modified:** 2025-10-22
 - **Size:** 4,969 bytes
 - **Reason:** Enhancement summary
@@ -102,6 +114,7 @@ These files are implementation summaries that may belong in Archive:
 - **Verification Needed:** Check if tracking system matches this documentation
 
 ### 12. design_docs/Game_Balance/AI_Test_Balance/PERFORMANCE_TEST_SUMMARY.md
+
 - **Last Modified:** 2025-10-22
 - **Size:** 5,098 bytes
 - **Reason:** Test summary
@@ -115,6 +128,7 @@ These files are implementation summaries that may belong in Archive:
 These files are in the root task_summary directory and should be moved or archived:
 
 ### 13. task_summary/performance-optimization/CLEANUP_VERIFICATION_SUMMARY.md
+
 - **Last Modified:** 2025-10-24
 - **Reason:** Duplicate of design_docs version
 - **Recommendation:** DELETE - exact duplicate
@@ -122,12 +136,14 @@ These files are in the root task_summary directory and should be moved or archiv
 - **Status:** CANDIDATE FOR DELETION
 
 ### 14. task_summary/performance-optimization/CORPSE_CLEANUP_VERIFICATION.md
+
 - **Last Modified:** 2025-10-24
 - **Reason:** Verification document - may be complete
 - **Recommendation:** Move to Archive/Core_Systems/Performance/
 - **Verification Needed:** Confirm verification is complete
 
 ### 15. task_summary/performance-optimization/GRAPHICS_AUDIT_SUMMARY.md
+
 - **Last Modified:** 2025-10-24
 - **Reason:** Duplicate of design_docs version
 - **Recommendation:** DELETE - exact duplicate
@@ -135,12 +151,14 @@ These files are in the root task_summary directory and should be moved or archiv
 - **Status:** CANDIDATE FOR DELETION
 
 ### 16. task_summary/performance-optimization/PERSISTENT_EFFECTS_VERIFICATION.md
+
 - **Last Modified:** 2025-10-24
 - **Reason:** Verification document - may be complete
 - **Recommendation:** Move to Archive/Core_Systems/Performance/
 - **Verification Needed:** Confirm verification is complete
 
 ### 17. task_summary/performance-optimization/TASK_7_COMPLETION_SUMMARY.md
+
 - **Last Modified:** 2025-10-24
 - **Reason:** Duplicate of design_docs version
 - **Recommendation:** DELETE - exact duplicate
@@ -154,6 +172,7 @@ These files are in the root task_summary directory and should be moved or archiv
 Files with no content or minimal content that may not be needed:
 
 ### 18. design_docs/Features/Zombies/ARMORED_ZOMBIE_VISUAL_REFERENCE.md
+
 - **Last Modified:** 2025-10-23
 - **Size:** 0 bytes
 - **Reason:** Empty file
@@ -161,6 +180,7 @@ Files with no content or minimal content that may not be needed:
 - **Verification Needed:** Determine if this was intentionally left empty
 
 ### 19. design_docs/Features/Zombies/SPACING_AND_VISIBILITY_IMPROVEMENTS.md
+
 - **Last Modified:** 2025-10-23
 - **Size:** 0 bytes
 - **Reason:** Empty file
@@ -174,6 +194,7 @@ Files with no content or minimal content that may not be needed:
 Files in My_Docs that should be in .gitignore:
 
 ### 20. design_docs/My_Docs/Future_Plans.md
+
 - **Last Modified:** 2025-10-24
 - **Size:** 1,112 bytes
 - **Reason:** Personal notes
@@ -181,6 +202,7 @@ Files in My_Docs that should be in .gitignore:
 - **Action:** Verify .gitignore includes design_docs/My_Docs/
 
 ### 21. design_docs/My_Docs/prompt_backup.md
+
 - **Last Modified:** 2025-10-23
 - **Size:** 325 bytes
 - **Reason:** Personal backup
@@ -188,6 +210,7 @@ Files in My_Docs that should be in .gitignore:
 - **Action:** Verify .gitignore includes design_docs/My_Docs/
 
 ### 22. design_docs/My_Docs/Tower_Ideas.md
+
 - **Last Modified:** 2025-10-22
 - **Size:** 243 bytes
 - **Reason:** Personal ideas
@@ -200,7 +223,8 @@ Files in My_Docs that should be in .gitignore:
 
 The AI_Test_Balance directory has 18 files, many with overlapping content:
 
-### 23-34. design_docs/Game_Balance/AI_Test_Balance/* (Multiple Files)
+### 23-34. design_docs/Game_Balance/AI_Test_Balance/\* (Multiple Files)
+
 - **Reason:** Large number of guides, references, and summaries that may overlap
 - **Recommendation:** Review for consolidation opportunities
 - **Files to Review:**
@@ -228,6 +252,7 @@ The AI_Test_Balance directory has 18 files, many with overlapping content:
 **Total Candidates Identified:** 34+ files
 
 **By Category:**
+
 - Complete files: 1
 - Summary files: 11
 - task_summary duplicates: 5
@@ -236,6 +261,7 @@ The AI_Test_Balance directory has 18 files, many with overlapping content:
 - Potentially redundant: 12+
 
 **Recommended Actions:**
+
 1. **Archive:** 10-12 summary files
 2. **Delete:** 2 empty files, 3-5 duplicate files
 3. **Consolidate:** 12+ AI Test Balance files
@@ -271,15 +297,18 @@ The AI_Test_Balance directory has 18 files, many with overlapping content:
 ### Recommended Actions by Priority
 
 **HIGH PRIORITY - Delete Duplicates:**
+
 - task_summary/performance-optimization/CLEANUP_VERIFICATION_SUMMARY.md
 - task_summary/performance-optimization/GRAPHICS_AUDIT_SUMMARY.md
 - task_summary/performance-optimization/TASK_7_COMPLETION_SUMMARY.md
 
 **HIGH PRIORITY - Delete Empty Files:**
+
 - design_docs/Features/Zombies/ARMORED_ZOMBIE_VISUAL_REFERENCE.md (0 bytes)
 - design_docs/Features/Zombies/SPACING_AND_VISIBILITY_IMPROVEMENTS.md (0 bytes)
 
 **MEDIUM PRIORITY - Archive Completed Work:**
+
 - design_docs/Features/Zombies/corpse_redesign_complete.md → Archive/Zombies/
 - design_docs/Core_Systems/Performance/CLEANUP_VERIFICATION_SUMMARY.md → Archive/Core_Systems/Performance/
 - design_docs/Core_Systems/Performance/GRAPHICS_AUDIT_SUMMARY.md → Archive/Core_Systems/Performance/
@@ -289,11 +318,13 @@ The AI_Test_Balance directory has 18 files, many with overlapping content:
 - task_summary/performance-optimization/PERSISTENT_EFFECTS_VERIFICATION.md → Archive/Core_Systems/Performance/
 
 **LOW PRIORITY - Review for Consolidation:**
-- design_docs/Game_Balance/AI_Test_Balance/* (18 files - may have overlap)
+
+- design_docs/Game_Balance/AI_Test_Balance/\* (18 files - may have overlap)
 
 **NO ACTION - Keep as Active:**
+
 - design_docs/Game_Balance/AI_Test_Balance/AI_IMPLEMENTATION_SUMMARY.md (system still evolving)
-- design_docs/My_Docs/* (already in .gitignore per task 3.8)
+- design_docs/My_Docs/\* (already in .gitignore per task 3.8)
 
 ## Notes
 

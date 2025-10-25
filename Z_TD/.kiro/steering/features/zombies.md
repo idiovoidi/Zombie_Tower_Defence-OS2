@@ -9,20 +9,20 @@ Quick reference for zombie types, combat modifiers, and tower effectiveness.
 
 ## Quick Stats
 
-| Type       | HP  | Speed | Reward | Size | Color    |
-|------------|-----|-------|--------|------|----------|
-| Basic      | 100 | 50    | $10    | 10px | Green    |
-| Fast       | 80  | 100   | $15    | 10px | Orange   |
-| Tank       | 300 | 25    | $50    | 15px | Red      |
-| Armored    | 150 | 40    | $30    | 11px | Gray     |
-| Swarm      | 30  | 60    | $5     | 6px  | Yellow   |
-| Stealth    | 70  | 70    | $25    | 10px | Purple   |
-| Mechanical | 120 | 55    | $40    | 12px | Cyan     |
+| Type       | HP  | Speed | Reward | Size | Color  |
+| ---------- | --- | ----- | ------ | ---- | ------ |
+| Basic      | 100 | 50    | $10    | 10px | Green  |
+| Fast       | 80  | 100   | $15    | 10px | Orange |
+| Tank       | 300 | 25    | $50    | 15px | Red    |
+| Armored    | 150 | 40    | $30    | 11px | Gray   |
+| Swarm      | 30  | 60    | $5     | 6px  | Yellow |
+| Stealth    | 70  | 70    | $25    | 10px | Purple |
+| Mechanical | 120 | 55    | $40    | 12px | Cyan   |
 
 ## Tower Effectiveness Matrix
 
 | Zombie     | Machine Gun | Sniper | Shotgun | Flame | Tesla |
-|------------|-------------|--------|---------|-------|-------|
+| ---------- | ----------- | ------ | ------- | ----- | ----- |
 | Basic      | 100%        | 100%   | 100%    | 100%  | 100%  |
 | Fast       | 100%        | 90%    | 125%    | 75%   | 125%  |
 | Tank       | 70%         | 150%   | 80%     | 125%  | 100%  |

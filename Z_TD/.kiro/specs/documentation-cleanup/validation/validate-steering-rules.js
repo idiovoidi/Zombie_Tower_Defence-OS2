@@ -16,7 +16,7 @@ const MAX_LINES = 200;
 const results = {
   passed: [],
   failed: [],
-  warnings: []
+  warnings: [],
 };
 
 function countLines(content) {
@@ -29,20 +29,20 @@ function hasFrontmatter(content) {
 
 function parseFrontmatter(content) {
   if (!hasFrontmatter(content)) return null;
-  
+
   const match = content.match(/^---\n([\s\S]*?)\n---/);
   if (!match) return null;
-  
+
   const frontmatter = {};
   const lines = match[1].split('\n');
-  
+
   for (const line of lines) {
     const [key, ...valueParts] = line.split(':');
     if (key && valueParts.length > 0) {
       frontmatter[key.trim()] = valueParts.join(':').trim();
     }
   }
-  
+
   return frontmatter;
 }
 
@@ -55,27 +55,27 @@ function hasImplementationDetails(content) {
     /public\s+\w+\s*\(/gi,
     /interface\s+\w+\s*{[\s\S]{100,}}/gi, // Large interfaces
   ];
-  
+
   let detailCount = 0;
   for (const pattern of detailPatterns) {
     const matches = content.match(pattern);
     if (matches) detailCount += matches.length;
   }
-  
+
   // More than 3 detailed implementations is a warning
   return detailCount > 3;
 }
 
 function hasMinimalCodeExamples(content) {
   const codeBlocks = content.match(/```[\s\S]*?```/g) || [];
-  
+
   for (const block of codeBlocks) {
     const lines = block.split('\n').length;
     if (lines > 30) {
       return false; // Code example too large
     }
   }
-  
+
   return true;
 }
 
@@ -83,15 +83,15 @@ function validateFile(filePath, relativePath) {
   const content = fs.readFileSync(filePath, 'utf-8');
   const lineCount = countLines(content);
   const frontmatter = parseFrontmatter(content);
-  
+
   const issues = [];
   const warnings = [];
-  
+
   // Check line count
   if (lineCount > MAX_LINES) {
     issues.push(`Exceeds ${MAX_LINES} lines (${lineCount} lines)`);
   }
-  
+
   // Check frontmatter (except README)
   if (!relativePath.includes('README.md')) {
     if (!hasFrontmatter(content)) {
@@ -100,45 +100,45 @@ function validateFile(filePath, relativePath) {
       warnings.push('Frontmatter missing "inclusion" field');
     }
   }
-  
+
   // Check for implementation details
   if (hasImplementationDetails(content)) {
     warnings.push('Contains detailed implementation code (consider moving to design docs)');
   }
-  
+
   // Check code example size
   if (!hasMinimalCodeExamples(content)) {
     issues.push('Contains code examples >30 lines (should be minimal)');
   }
-  
+
   return { lineCount, frontmatter, issues, warnings };
 }
 
 function walkDirectory(dir, baseDir = dir) {
   const files = fs.readdirSync(dir);
-  
+
   for (const file of files) {
     const filePath = path.join(dir, file);
     const stat = fs.statSync(filePath);
-    
+
     if (stat.isDirectory()) {
       walkDirectory(filePath, baseDir);
     } else if (file.endsWith('.md')) {
       const relativePath = path.relative(baseDir, filePath);
       const result = validateFile(filePath, relativePath);
-      
+
       if (result.issues.length > 0) {
         results.failed.push({
           file: relativePath,
           lineCount: result.lineCount,
           issues: result.issues,
-          warnings: result.warnings
+          warnings: result.warnings,
         });
       } else {
         results.passed.push({
           file: relativePath,
           lineCount: result.lineCount,
-          warnings: result.warnings
+          warnings: result.warnings,
         });
       }
     }

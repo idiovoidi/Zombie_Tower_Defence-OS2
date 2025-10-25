@@ -226,9 +226,13 @@ describe('Memory Leak Tests', () => {
       // If memory API is available, verify growth rate
       if (growthRate !== null && growthRate > 0) {
         expect(growthRate).toBeLessThanOrEqual(10);
-        console.log(`✅ Memory growth rate: ${growthRate.toFixed(2)} MB/wave (target: < 10 MB/wave)`);
+        console.log(
+          `✅ Memory growth rate: ${growthRate.toFixed(2)} MB/wave (target: < 10 MB/wave)`
+        );
       } else {
-        console.log('⚠️ Memory API not available or insufficient data - skipping growth rate check');
+        console.log(
+          '⚠️ Memory API not available or insufficient data - skipping growth rate check'
+        );
       }
 
       // Verify snapshots were recorded (if memory API available)
@@ -283,7 +287,9 @@ describe('Memory Leak Tests', () => {
 
         // Late game growth should be minimal (< 5 MB/wave)
         expect(lateGameGrowth).toBeLessThan(5);
-        console.log(`✅ Late game memory growth (waves 10-20): ${lateGameGrowth.toFixed(2)} MB/wave`);
+        console.log(
+          `✅ Late game memory growth (waves 10-20): ${lateGameGrowth.toFixed(2)} MB/wave`
+        );
       }
     });
   });
@@ -360,8 +366,11 @@ describe('Memory Leak Tests', () => {
       const totalResourcesBefore =
         beforeCleanup.persistentEffects + beforeCleanup.intervals + beforeCleanup.timeouts;
       const totalResourcesAfter =
-        stateAfter.persistentEffects + stateAfter.effectTimers.intervals + stateAfter.effectTimers.timeouts;
-      const cleanupEffectiveness = ((totalResourcesBefore - totalResourcesAfter) / totalResourcesBefore) * 100;
+        stateAfter.persistentEffects +
+        stateAfter.effectTimers.intervals +
+        stateAfter.effectTimers.timeouts;
+      const cleanupEffectiveness =
+        ((totalResourcesBefore - totalResourcesAfter) / totalResourcesBefore) * 100;
 
       expect(cleanupEffectiveness).toBeGreaterThanOrEqual(80);
       console.log(`✅ Cleanup effectiveness: ${cleanupEffectiveness.toFixed(1)}% (target: ≥ 80%)`);

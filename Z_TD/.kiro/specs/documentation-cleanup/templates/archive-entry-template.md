@@ -17,10 +17,12 @@ List the specific features and functionality that were implemented:
 ### Scope
 
 What was included:
+
 - Item 1
 - Item 2
 
 What was explicitly NOT included:
+
 - Item 1
 - Item 2
 
@@ -58,16 +60,19 @@ Document significant decisions made during implementation:
 ### Testing Performed
 
 #### Unit Tests
+
 - Coverage: X%
 - Key test cases:
   - Test 1: Result
   - Test 2: Result
 
 #### Integration Tests
+
 - Scenario 1: Result
 - Scenario 2: Result
 
 #### Manual Testing
+
 - Test 1: ✅ Passed
 - Test 2: ✅ Passed
 - Test 3: ⚠️ Passed with notes
@@ -76,28 +81,32 @@ Document significant decisions made during implementation:
 
 Measured performance characteristics:
 
-| Metric | Before | After | Change |
-|--------|--------|-------|--------|
-| Metric 1 | Value | Value | +/- X% |
-| Metric 2 | Value | Value | +/- X% |
+| Metric   | Before | After | Change |
+| -------- | ------ | ----- | ------ |
+| Metric 1 | Value  | Value | +/- X% |
+| Metric 2 | Value  | Value | +/- X% |
 
 ### User Acceptance
 
 If applicable, results from user testing or feedback:
+
 - Feedback 1
 - Feedback 2
 
 ## Files Modified
 
 ### Created
+
 - `path/to/new/file1.ts` - Description
 - `path/to/new/file2.ts` - Description
 
 ### Modified
+
 - `path/to/existing/file1.ts` - Changes made
 - `path/to/existing/file2.ts` - Changes made
 
 ### Deleted
+
 - `path/to/old/file.ts` - Reason for deletion
 
 ## Known Issues
@@ -105,23 +114,28 @@ If applicable, results from user testing or feedback:
 List any issues or limitations at time of completion:
 
 ### Critical
+
 - None
 
 ### Minor
+
 - Issue 1: Description and workaround
 - Issue 2: Description and workaround
 
 ### Future Improvements
+
 - Enhancement 1: Description
 - Enhancement 2: Description
 
 ## Dependencies
 
 ### New Dependencies Added
+
 - Package 1 (version): Why it was added
 - Package 2 (version): Why it was added
 
 ### Breaking Changes
+
 - Change 1: Impact and migration path
 - Change 2: Impact and migration path
 
@@ -136,18 +150,22 @@ Links to current documentation:
 ## Implementation Notes
 
 ### Challenges Encountered
+
 - Challenge 1: How it was resolved
 - Challenge 2: How it was resolved
 
 ### Lessons Learned
+
 - Lesson 1: What was learned
 - Lesson 2: What was learned
 
 ### What Went Well
+
 - Success 1
 - Success 2
 
 ### What Could Be Improved
+
 - Improvement 1
 - Improvement 2
 
@@ -160,6 +178,7 @@ Links to current documentation:
 ---
 
 **Archive Entry Guidelines:**
+
 - Use past tense (what was built, not what is)
 - Include specific dates and metrics
 - Document verification results

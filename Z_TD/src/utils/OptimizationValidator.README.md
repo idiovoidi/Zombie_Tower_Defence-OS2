@@ -5,34 +5,40 @@ The `OptimizationValidator` utility validates the effectiveness of performance o
 ## What It Measures
 
 ### 1. Target Finding Performance (Spatial Grid Optimization)
+
 - **Linear Search Time**: Time to find targets using O(n) linear search through all entities
 - **Spatial Grid Time**: Time to find targets using O(k) spatial grid queries
 - **Improvement**: Percentage improvement in search time
 - **Check Reduction**: Percentage reduction in distance calculations
 
 **Expected Results:**
+
 - 50%+ improvement in search time
 - 70%+ reduction in distance checks
 - Scales better with more entities
 
 ### 2. Array Rebuild Operations (Dirty Flag Optimization)
+
 - **Total Frames**: Number of frames tracked
 - **Rebuilds Without Flags**: How many rebuilds would occur without dirty flags (every frame × 3 arrays)
 - **Rebuilds With Flags**: Actual rebuilds that occurred (only when arrays changed)
 - **Avoidance Rate**: Percentage of rebuilds avoided
 
 **Expected Results:**
+
 - 80%+ avoidance rate
 - Rebuilds only occur when entities are added/removed
 - Significant reduction in array operations
 
 ### 3. Object Allocation Rates (Pooling Optimization)
+
 - **Allocations Without Pooling**: Total allocations if no pooling was used
 - **Allocations With Pooling**: Actual new object allocations
 - **Allocation Reduction**: Percentage reduction in new allocations
 - **Pool Reuse Rate**: Percentage of objects reused from pool
 
 **Expected Results:**
+
 - 70%+ reduction in allocations
 - 80%+ pool reuse rate
 - Reduced garbage collection overhead
@@ -54,13 +60,13 @@ The validator provides debug console commands for easy access:
 
 ```javascript
 // Enable validation
-debugOptimizationsEnable()
+debugOptimizationsEnable();
 
 // View current report
-debugOptimizations()
+debugOptimizations();
 
 // Disable validation
-debugOptimizationsDisable()
+debugOptimizationsDisable();
 ```
 
 ### Generate Report
@@ -109,20 +115,24 @@ Overall Assessment:
 The validator is automatically integrated into the game systems:
 
 ### GameManager
+
 - Tracks frames
 - Tracks array rebuilds when dirty flags are set
 
 ### TowerCombatManager
+
 - Measures target finding performance
 - Compares spatial grid vs linear search
 
 ### ObjectPool
+
 - Tracks allocations from pools
 - Records reuse rates
 
 ## Performance Impact
 
 The validator has minimal performance impact when enabled:
+
 - Target finding measurements: ~0.01ms per measurement
 - Array rebuild tracking: negligible
 - Allocation tracking: negligible
@@ -132,11 +142,13 @@ The validator has minimal performance impact when enabled:
 ## Interpreting Results
 
 ### Good Performance
+
 - Target Finding: 50%+ improvement
 - Array Rebuilds: 80%+ avoidance
 - Allocations: 70%+ reduction
 
 ### Needs Improvement
+
 - Target Finding: <50% improvement → Check spatial grid cell size
 - Array Rebuilds: <80% avoidance → Verify dirty flags are set correctly
 - Allocations: <70% reduction → Increase pool sizes or add more pooling

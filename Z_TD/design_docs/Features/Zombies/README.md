@@ -9,6 +9,7 @@ This directory contains all design documentation for the Z-TD zombie system. Zom
 ## Current Zombie Types
 
 ### 1. Basic Zombie
+
 - **HP:** 100
 - **Speed:** 30 pixels/second
 - **Damage:** 10
@@ -16,6 +17,7 @@ This directory contains all design documentation for the Z-TD zombie system. Zom
 - **Visual:** Green-gray, shambling gait
 
 ### 2. Fast Zombie
+
 - **HP:** 60
 - **Speed:** 60 pixels/second
 - **Damage:** 5
@@ -23,6 +25,7 @@ This directory contains all design documentation for the Z-TD zombie system. Zom
 - **Visual:** Lean, hunched, rapid movement
 
 ### 3. Tank Zombie
+
 - **HP:** 300
 - **Speed:** 20 pixels/second
 - **Damage:** 20
@@ -30,6 +33,7 @@ This directory contains all design documentation for the Z-TD zombie system. Zom
 - **Visual:** Large, bulky, heavy
 
 ### 4. Armored Zombie
+
 - **HP:** 150
 - **Speed:** 25 pixels/second
 - **Damage:** 15
@@ -37,6 +41,7 @@ This directory contains all design documentation for the Z-TD zombie system. Zom
 - **Visual:** Metal plating, industrial look
 
 ### 5. Swarm Zombie
+
 - **HP:** 40
 - **Speed:** 35 pixels/second
 - **Damage:** 5
@@ -44,6 +49,7 @@ This directory contains all design documentation for the Z-TD zombie system. Zom
 - **Visual:** Small, numerous
 
 ### 6. Stealth Zombie
+
 - **HP:** 80
 - **Speed:** 40 pixels/second
 - **Damage:** 12
@@ -51,6 +57,7 @@ This directory contains all design documentation for the Z-TD zombie system. Zom
 - **Visual:** Dark, shadowy
 
 ### 7. Mechanical Zombie
+
 - **HP:** 120
 - **Speed:** 35 pixels/second
 - **Damage:** 15
@@ -64,43 +71,55 @@ This directory contains all design documentation for the Z-TD zombie system. Zom
 ### Visual Reference Documents
 
 #### BASIC_ZOMBIE_VISUAL_REFERENCE.md
+
 Visual design specification for basic zombie type
 
 #### FAST_ZOMBIE_VISUAL_REFERENCE.md
+
 Visual design specification for fast zombie type
 
 #### TANK_ZOMBIE_VISUAL_REFERENCE.md
+
 Visual design specification for tank zombie type
 
 #### ARMORED_ZOMBIE_VISUAL_REFERENCE.md
+
 Visual design specification for armored zombie type
 
 ### Design Documents
 
 #### BASIC_ZOMBIE_DESIGN.md
+
 Complete design specification for basic zombie mechanics and visuals
 
 #### ZOMBIE_REFERENCE.md
+
 Comprehensive reference for all zombie types
 
 #### Zombie_Strength&Weakness.md
+
 Combat modifiers and damage type effectiveness
 
 #### IMPLEMENTATION_STATUS.md
+
 Current implementation status of zombie features
 
 ### Technical Documents
 
 #### ZOMBIE_RENDERER_CREATION_GUIDE.md
+
 Guide for creating new zombie renderers
 
 #### SPACING_AND_VISIBILITY_IMPROVEMENTS.md
+
 Improvements to zombie spacing and visual clarity
 
 #### ENVIRONMENT_REDESIGN.md
+
 Technical plan for zombie and environment visual redesign
 
 #### corpse_redesign_complete.md
+
 Completed corpse system redesign documentation
 
 ---
@@ -110,6 +129,7 @@ Completed corpse system redesign documentation
 ### Core Components
 
 **Zombie Base Class** (`src/objects/Zombie.ts`)
+
 - Health management
 - Movement along path
 - Damage handling
@@ -117,17 +137,20 @@ Completed corpse system redesign documentation
 - Visual rendering
 
 **Zombie Manager** (`src/managers/ZombieManager.ts`)
+
 - Zombie spawning
 - Zombie lifecycle
 - Zombie array management
 - Cleanup
 
 **Zombie Factory** (`src/managers/ZombieFactory.ts`)
+
 - Zombie creation
 - Type registration
 - Configuration management
 
 **Zombie Renderers** (`src/renderers/zombies/`)
+
 - Type-specific visual rendering
 - Animation systems
 - Particle effects
@@ -160,17 +183,20 @@ src/renderers/zombies/
 ### Visual Features
 
 **Procedural Animation:**
+
 - Limb swing using sine waves
 - Body bobbing (vertical oscillation)
 - Head sway (shambling effect)
 - Type-specific animation speeds
 
 **Particle Effects:**
+
 - Blood splatters on damage
 - Death particles
 - Type-specific effects (sparks, shadows, etc.)
 
 **Health Indicators:**
+
 - Health bar above zombie
 - Color-coded by health percentage
 - Damage flash effect
@@ -182,6 +208,7 @@ src/renderers/zombies/
 ### Wave-Based Spawning
 
 Zombies spawn in waves with increasing difficulty:
+
 - Wave number determines zombie count
 - Zombie types unlock progressively
 - Spawn rate increases with waves
@@ -211,45 +238,55 @@ Zombies spawn at the start of the path and follow waypoints to the exit.
 Zombies take different damage from different tower types:
 
 **Basic Zombie:**
+
 - Normal damage from all towers
 
 **Fast Zombie:**
+
 - Vulnerable to area damage
 - Hard to hit with slow projectiles
 
 **Tank Zombie:**
+
 - Resistant to low damage
 - Vulnerable to high single-shot damage
 
 **Armored Zombie:**
+
 - Damage resistance
 - Vulnerable to armor-piercing
 
 **Swarm Zombie:**
+
 - Low individual health
 - Vulnerable to area damage
 
 **Stealth Zombie:**
+
 - Harder to target
 - Normal damage when hit
 
 **Mechanical Zombie:**
+
 - 1.8x damage from Tesla towers
 - Normal damage from other towers
 
 ### Status Effects
 
 **Burning (Flame Tower):**
+
 - Damage over time
 - Visual fire effect
 - Spreads to nearby zombies
 
 **Slowed (Sludge Tower):**
+
 - Reduced movement speed
 - Visual sludge effect
 - Duration-based
 
 **Electrified (Tesla Tower):**
+
 - Chains to nearby zombies
 - Visual electric effect
 - Instant damage
@@ -261,6 +298,7 @@ Zombies take different damage from different tower types:
 ### Death Handling
 
 When a zombie dies:
+
 1. Death animation plays
 2. Corpse is created
 3. Blood particles spawn
@@ -270,12 +308,14 @@ When a zombie dies:
 ### Corpse System
 
 **Corpse Manager** (`src/managers/CorpseManager.ts`)
+
 - Creates corpse graphics
 - Manages corpse lifecycle
 - Fades corpses over time
 - Limits max corpses (50)
 
 **Corpse Features:**
+
 - Type-specific appearance
 - Fade out over 10-15 seconds
 - Blood pool underneath
@@ -284,6 +324,7 @@ When a zombie dies:
 ### Blood Particle System
 
 **Blood Particle System** (`src/managers/BloodParticleSystem.ts`)
+
 - Spawns blood particles on damage
 - Manages particle lifecycle
 - Fades particles over time
@@ -296,6 +337,7 @@ When a zombie dies:
 ### Waypoint System
 
 Zombies follow a predefined path of waypoints:
+
 1. Spawn at start waypoint
 2. Move toward next waypoint
 3. Rotate to face movement direction
@@ -354,15 +396,18 @@ Zombies follow a predefined path of waypoints:
 ## Related Documentation
 
 ### Core Systems
+
 - [Memory Management](../../Core_Systems/Memory_Management/README.md) - Cleanup patterns
 - [Performance](../../Core_Systems/Performance/README.md) - Optimization guides
 
 ### Other Features
+
 - [Towers](../Towers/README.md) - Tower types and mechanics
 - [Combat](../Combat/README.md) - Damage calculation and effects
 - [Waves](../Waves/README.md) - Wave progression system
 
 ### Archived Implementations
+
 - [Zombie Visual Enhancements](../../Archive/Zombies/ZOMBIE_ENHANCEMENTS_SUMMARY.md) - Blood particles and corpse system
 - [Zombie Spawning](../../Archive/Zombies/ZOMBIE_SPAWNING.md) - Spawning and movement implementation
 - [Zombie Visuals](../../Archive/Zombies/ZOMBIE_VISUALS.md) - Enhanced visual system details
@@ -372,6 +417,7 @@ Zombies follow a predefined path of waypoints:
 ## Implementation Status
 
 ### Completed
+
 - ✅ 7 zombie types implemented
 - ✅ Zombie rendering system
 - ✅ Zombie spawning system
@@ -383,11 +429,13 @@ Zombies follow a predefined path of waypoints:
 - ✅ Damage effects
 
 ### In Progress
+
 - 🔄 Enhanced visual effects
 - 🔄 Animation improvements
 - 🔄 Particle system optimization
 
 ### Planned
+
 - 📋 More zombie types
 - 📋 Boss zombies
 - 📋 Zombie abilities

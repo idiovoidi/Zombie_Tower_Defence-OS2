@@ -11,17 +11,20 @@ The wave system manages zombie spawning, wave progression, difficulty scaling, a
 ## Key Features
 
 ### Wave Progression
+
 - Progressive difficulty increase
 - Zombie type introduction schedule
 - Health scaling per wave
 - Spawn rate adjustments
 
 ### Zombie Composition
+
 - **Waves 1-5**: Basic (80%), Fast (20%)
 - **Waves 6-10**: Basic (60%), Fast (30%), Tank (10%)
 - **Waves 11+**: All zombie types active
 
 ### Health Scaling
+
 ```typescript
 zombieHealth = baseHealth * (1 + (wave - 1) * 0.15);
 ```
@@ -32,6 +35,7 @@ zombieHealth = baseHealth * (1 + (wave - 1) * 0.15);
 - Wave 20: 385% base health
 
 ### Spawn Timing
+
 - Spawn interval decreases with wave number
 - More zombies per wave as difficulty increases
 - Boss waves at specific intervals
@@ -45,6 +49,7 @@ zombieHealth = baseHealth * (1 + (wave - 1) * 0.15);
 ## Wave Manager
 
 The WaveManager handles:
+
 - Wave state management
 - Zombie spawning
 - Wave completion detection
@@ -55,4 +60,3 @@ The WaveManager handles:
 
 - [Zombie Patterns](../../../.kiro/steering/features/zombies.md)
 - [Product Overview](../../../.kiro/steering/product.md)
-

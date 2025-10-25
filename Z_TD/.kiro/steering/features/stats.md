@@ -71,6 +71,7 @@ fileMatchPattern: ['**/utils/**/*.ts', '**/managers/AIPlayerManager.ts', '**/uti
 ### Automatic Tracking
 
 These metrics track automatically:
+
 - Money timeline (every 5 seconds)
 - Game state snapshots (every 10 seconds)
 - Peak money and lowest lives
@@ -109,9 +110,9 @@ Example: `2025-10-15_14-30-45_AI_wave15.json`
 If server wasn't running, recover from localStorage:
 
 ```javascript
-LogExporter.exportAllLogs();  // Downloads all stored logs
+LogExporter.exportAllLogs(); // Downloads all stored logs
 LogExporter.viewStoredLogs(); // View in console
-LogExporter.clearAllLogs();   // Clear localStorage
+LogExporter.clearAllLogs(); // Clear localStorage
 ```
 
 ## Code Conventions
