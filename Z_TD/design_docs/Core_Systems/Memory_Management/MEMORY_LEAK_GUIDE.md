@@ -298,6 +298,7 @@ Two critical bugs:
    ```
 
 2. **Added protection:**
+
    ```typescript
    for (const effect of this.persistentEffects) {
      // Skip if already destroyed

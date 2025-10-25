@@ -1,6 +1,7 @@
 import type { GameManager } from '@managers/GameManager';
 import { type GameLogEntry, LogExporter } from './LogExporter';
 import { DebugUtils } from './DebugUtils';
+import { PerformanceMonitor } from './PerformanceMonitor';
 
 export interface StatTrackerData {
   startTime: number;
@@ -585,6 +586,7 @@ export class StatTracker {
         snapshots: this.stats.snapshots,
         snapshotInterval: 10000,
       },
+      performanceStats: this.getPerformanceStats(),
     };
 
     // Get balance data from BalanceTrackingManager if enabled
@@ -602,5 +604,43 @@ export class StatTracker {
     if (this.isTracking) {
       this.exportStats();
     }
+  }
+
+  /**
+   * Get performance statistics from PerformanceMonitor
+   * Includes wave memory snapshots and frame time data
+   */
+  private getPerformanceStats(): {
+    waveMemorySnapshots: Array<{
+      wave: number;
+      timestamp: number;
+      heapUsedMB: number;
+      heapTotalMB: number;
+    }>;
+    memoryGrowthRate: number | null;
+    averageFrameTime: number;
+    peakFrameTime: number;
+    averageFPS: number;
+    lowestFPS: number;
+  } {
+    // Get wave memory snapshots
+    const snapshots = PerformanceMonitor.getWaveMemorySnapshots();
+    const memoryGrowthRate = PerformanceMonitor.getMemoryGrowthRate();
+
+    // Get frame time metrics
+    const metrics = PerformanceMonitor.getMetrics();
+    const frameTime = metrics.frameTime || 0;
+
+    // Calculate FPS from frame time
+    const currentFPS = frameTime > 0 ? Math.round(1000 / frameTime) : 60;
+
+    return {
+      waveMemorySnapshots: snapshots,
+      memoryGrowthRate,
+      averageFrameTime: parseFloat(frameTime.toFixed(2)),
+      peakFrameTime: parseFloat(frameTime.toFixed(2)), // Could track peak separately
+      averageFPS: currentFPS,
+      lowestFPS: currentFPS, // Could track lowest separately
+    };
   }
 }

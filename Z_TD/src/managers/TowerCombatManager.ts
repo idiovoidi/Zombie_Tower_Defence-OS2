@@ -719,63 +719,34 @@ export class TowerCombatManager {
       particleContainer.stroke({ width: 1.5, color: 0x00ffff, alpha: 0.8 });
     }
 
+    // OPTIMIZATION: Use single timeout instead of setInterval (prevents memory leak)
     // Make zombie glow blue/cyan
     if (zombie['visual']) {
       const originalTint = zombie['visual'].tint;
       zombie['visual'].tint = 0x00ffff; // Cyan/electric blue tint
 
-      // Fade back to original color
-      let tintElapsed = 0;
+      // Single timeout to restore color
       const tintDuration = isPrimary ? 300 : 200;
-      const tintInterval = EffectCleanupManager.registerInterval(
-        setInterval(() => {
-          tintElapsed += 16;
-          const progress = tintElapsed / tintDuration;
-
-          if (progress >= 1 || !zombie['visual'] || zombie['visual'].destroyed) {
-            EffectCleanupManager.clearInterval(tintInterval);
-            if (zombie['visual'] && !zombie['visual'].destroyed) {
-              zombie['visual'].tint = originalTint;
-            }
-          } else {
-            // Interpolate from cyan back to original
-            const r1 = 0x00;
-            const g1 = 0xff;
-            const b1 = 0xff;
-            const r2 = (originalTint >> 16) & 0xff;
-            const g2 = (originalTint >> 8) & 0xff;
-            const b2 = originalTint & 0xff;
-
-            const r = Math.floor(r1 + (r2 - r1) * progress);
-            const g = Math.floor(g1 + (g2 - g1) * progress);
-            const b = Math.floor(b1 + (b2 - b1) * progress);
-
-            zombie['visual'].tint = (r << 16) | (g << 8) | b;
+      EffectCleanupManager.registerTimeout(
+        setTimeout(() => {
+          if (zombie['visual'] && !zombie['visual'].destroyed) {
+            zombie['visual'].tint = originalTint;
           }
-        }, 16)
+        }, tintDuration)
       );
     }
 
-    // Animate particles fading out (no scaling to prevent flying away)
-    let elapsed = 0;
+    // OPTIMIZATION: Use single timeout instead of setInterval (prevents memory leak)
+    // Clean up particles after duration
     const duration = isPrimary ? 250 : 180;
-    const fadeInterval = EffectCleanupManager.registerInterval(
-      setInterval(() => {
-        elapsed += 16; // ~60fps
-        const progress = elapsed / duration;
-
-        if (progress >= 1) {
-          EffectCleanupManager.clearInterval(fadeInterval);
-          ResourceCleanupManager.unregisterPersistentEffect(particleContainer);
-          if (particleContainer.parent) {
-            particleContainer.parent.removeChild(particleContainer);
-          }
-          particleContainer.destroy();
-        } else {
-          // Just fade out, no scaling
-          particleContainer.alpha = 1 - progress;
+    EffectCleanupManager.registerTimeout(
+      setTimeout(() => {
+        ResourceCleanupManager.unregisterPersistentEffect(particleContainer);
+        if (particleContainer.parent) {
+          particleContainer.parent.removeChild(particleContainer);
         }
-      }, 16)
+        particleContainer.destroy();
+      }, duration)
     );
   }
 }

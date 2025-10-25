@@ -172,6 +172,20 @@ export interface GameLogEntry {
     }>;
     snapshotInterval: number;
   };
+  // Performance monitoring data
+  performanceStats?: {
+    waveMemorySnapshots: Array<{
+      wave: number;
+      timestamp: number;
+      heapUsedMB: number;
+      heapTotalMB: number;
+    }>;
+    memoryGrowthRate: number | null;
+    averageFrameTime: number;
+    peakFrameTime: number;
+    averageFPS: number;
+    lowestFPS: number;
+  };
   // NEW: Optional balance analysis fields (backward compatible)
   balanceAnalysis?: BalanceAnalysisData;
   statisticalAnalysis?: StatisticalAnalysisData;

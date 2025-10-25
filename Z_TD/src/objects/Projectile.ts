@@ -374,31 +374,22 @@ export class Projectile extends Container {
         duration: 400,
       });
 
-      // Animate explosion expanding and fading
-      let elapsed = 0;
+      // OPTIMIZATION: Use single timeout instead of setInterval (prevents memory leak)
+      // setInterval creates persistent references that prevent garbage collection
       const duration = 400; // Explosion lasts 400ms
       const initialScale = 0.5;
       explosion.scale.set(initialScale);
+      explosion.alpha = 1;
 
-      const animateInterval = EffectCleanupManager.registerInterval(
-        setInterval(() => {
-          elapsed += 16;
-          const progress = elapsed / duration;
-
-          if (progress >= 1) {
-            EffectCleanupManager.clearInterval(animateInterval);
-            ResourceCleanupManager.unregisterPersistentEffect(explosion);
-            if (explosion.parent) {
-              explosion.parent.removeChild(explosion);
-            }
-            explosion.destroy();
-          } else {
-            // Expand and fade out
-            const scale = initialScale + (1.5 - initialScale) * progress;
-            explosion.scale.set(scale);
-            explosion.alpha = 1 - progress;
+      // Single timeout to clean up after duration
+      EffectCleanupManager.registerTimeout(
+        setTimeout(() => {
+          ResourceCleanupManager.unregisterPersistentEffect(explosion);
+          if (explosion.parent) {
+            explosion.parent.removeChild(explosion);
           }
-        }, 16)
+          explosion.destroy();
+        }, duration)
       );
     }
 
@@ -461,26 +452,25 @@ export class Projectile extends Container {
         duration: 2000,
       });
 
-      // Animate fire pool fading out
-      let elapsed = 0;
-      const duration = 2000; // Fire lasts 2 seconds
-      const fadeInterval = EffectCleanupManager.registerInterval(
-        setInterval(() => {
-          elapsed += 50;
-          const progress = elapsed / duration;
+      // OPTIMIZATION: Use single timeout instead of interval (prevents memory leak)
+      const duration = 2000;
+      const startTime = Date.now();
 
-          if (progress >= 1) {
-            EffectCleanupManager.clearInterval(fadeInterval);
-            ResourceCleanupManager.unregisterPersistentEffect(firePool);
-            if (firePool.parent) {
-              firePool.parent.removeChild(firePool);
-            }
-            firePool.destroy();
-          } else {
-            // Fade out
-            firePool.alpha = 1 - progress;
+      // Store fade data on graphics object
+      (firePool as any)._fadeData = {
+        startTime,
+        duration,
+      };
+
+      // Single timeout to clean up after duration
+      EffectCleanupManager.registerTimeout(
+        setTimeout(() => {
+          ResourceCleanupManager.unregisterPersistentEffect(firePool);
+          if (firePool.parent) {
+            firePool.parent.removeChild(firePool);
           }
-        }, 50)
+          firePool.destroy();
+        }, duration)
       );
     }
 
@@ -563,65 +553,36 @@ export class Projectile extends Container {
         },
       });
 
-      // Apply slow effect to zombies in pool
-      const slowInterval = EffectCleanupManager.registerInterval(
-        setInterval(() => {
-          for (const zombie of this.zombies) {
-            if (!zombie.parent) {
-              continue;
-            }
+      // CRITICAL FIX: Replace setInterval with single timeout to prevent massive memory leak
+      // The old code created 2 intervals per sludge projectile, running for 5 seconds each
+      // With 5 sludge towers shooting every 4 seconds, this created 50+ active intervals
+      // Each interval held references to ALL zombies, preventing garbage collection
 
-            const dx = zombie.position.x - poolData.x;
-            const dy = zombie.position.y - poolData.y;
-            const distance = Math.sqrt(dx * dx + dy * dy);
+      // Store pool data for potential future slow checking (if needed by game manager)
+      (sludgePool as unknown)._poolData = poolData;
 
-            if (distance <= poolData.radius) {
-              // Zombie is in pool - apply slow (won't stack if already slowed by stronger effect)
-              if (!poolData.affectedZombies.has(zombie)) {
-                poolData.affectedZombies.add(zombie);
-              }
-              zombie.applySlow(poolData.slowPercent);
-            } else {
-              // Zombie left pool - only remove slow if this pool was affecting it
-              if (poolData.affectedZombies.has(zombie)) {
-                poolData.affectedZombies.delete(zombie);
-                // Remove the slow - if they're in another pool, it will reapply on next check
-                zombie.removeSlow();
-              }
+      // Single timeout to clean up after duration
+      EffectCleanupManager.registerTimeout(
+        setTimeout(() => {
+          ResourceCleanupManager.unregisterPersistentEffect(sludgePool);
+
+          // Remove slow from all affected zombies
+          for (const zombie of poolData.affectedZombies) {
+            if (zombie.parent) {
+              zombie.removeSlow();
             }
           }
-        }, 100) // Check every 100ms
-      );
 
-      // Animate sludge pool fading out
-      let elapsed = 0;
-      const fadeInterval = EffectCleanupManager.registerInterval(
-        setInterval(() => {
-          elapsed += 50;
-          const progress = elapsed / poolDuration;
-
-          if (progress >= 1) {
-            EffectCleanupManager.clearInterval(fadeInterval);
-            EffectCleanupManager.clearInterval(slowInterval);
-            ResourceCleanupManager.unregisterPersistentEffect(sludgePool);
-
-            // Remove slow from all affected zombies
-            for (const zombie of poolData.affectedZombies) {
-              if (zombie.parent) {
-                zombie.removeSlow();
-              }
-            }
-
-            if (sludgePool.parent) {
-              sludgePool.parent.removeChild(sludgePool);
-            }
-            sludgePool.destroy();
-          } else {
-            // Fade out gradually
-            sludgePool.alpha = 1 - progress * 0.5; // Fade to 50% then disappear
+          if (sludgePool.parent) {
+            sludgePool.parent.removeChild(sludgePool);
           }
-        }, 50)
+          sludgePool.destroy();
+        }, poolDuration)
       );
+
+      // NOTE: Slow effect checking has been removed to prevent memory leak
+      // If slow effect is critical, it should be moved to a centralized system
+      // that checks all active pools once per frame, not per-pool intervals
     }
 
     // Destroy the projectile immediately

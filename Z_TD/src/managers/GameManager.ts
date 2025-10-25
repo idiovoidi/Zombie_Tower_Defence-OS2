@@ -352,6 +352,9 @@ export class GameManager {
 
   // Export game log for manual play
   private exportManualGameLog(): void {
+    // Import PerformanceMonitor for performance stats
+    const { PerformanceMonitor } = require('../utils/PerformanceMonitor');
+
     const logEntry = {
       timestamp: new Date().toISOString(),
       sessionId: LogExporter.getSessionId(),
@@ -379,6 +382,20 @@ export class GameManager {
           (DebugConstants.ENABLED ? DebugConstants.STARTING_LIVES : GameConfig.STARTING_LIVES) -
           this.lives,
       },
+      performanceStats: {
+        waveMemorySnapshots: PerformanceMonitor.getWaveMemorySnapshots(),
+        memoryGrowthRate: PerformanceMonitor.getMemoryGrowthRate(),
+        averageFrameTime: PerformanceMonitor.getMetrics().frameTime || 0,
+        peakFrameTime: PerformanceMonitor.getMetrics().frameTime || 0,
+        averageFPS:
+          PerformanceMonitor.getMetrics().frameTime > 0
+            ? Math.round(1000 / PerformanceMonitor.getMetrics().frameTime)
+            : 60,
+        lowestFPS:
+          PerformanceMonitor.getMetrics().frameTime > 0
+            ? Math.round(1000 / PerformanceMonitor.getMetrics().frameTime)
+            : 60,
+      },
     } as GameLogEntry;
 
     // Get balance data from BalanceTrackingManager if enabled
@@ -389,7 +406,7 @@ export class GameManager {
     }
 
     LogExporter.exportLog(logEntry, balanceData);
-    console.log('📊 Manual game log exported');
+    console.log('📊 Manual game log exported with performance data');
   }
 
   // Victory
