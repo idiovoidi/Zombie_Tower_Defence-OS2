@@ -3,6 +3,7 @@ import { IZombieRenderer, ZombieRenderState } from '../ZombieRenderer';
 import { ZombieAnimator } from '../ZombieAnimator';
 import { ParticleType, ZombieParticleSystem } from '../ZombieParticleSystem';
 import { GlowEffect, ShadowEffect } from '../components/ZombieEffects';
+import { EffectCleanupManager } from '../../../utils/EffectCleanupManager';
 
 export class MechanicalZombieRenderer implements IZombieRenderer {
   private graphics: Graphics;
@@ -279,9 +280,14 @@ export class MechanicalZombieRenderer implements IZombieRenderer {
     // Flash cyan/white (electrical)
     const originalTint = this.graphics.tint;
     this.graphics.tint = 0x00ffff;
-    setTimeout(() => {
-      this.graphics.tint = originalTint;
-    }, 100);
+    const timeout = EffectCleanupManager.registerTimeout(
+      setTimeout(() => {
+        EffectCleanupManager.clearTimeout(timeout);
+        if (!this.graphics.destroyed) {
+          this.graphics.tint = originalTint;
+        }
+      }, 100)
+    );
 
     // Emit sparks (primary effect)
     this.particles.emit(ParticleType.SPARKS, 0, 0, {

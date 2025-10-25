@@ -8,10 +8,13 @@
       "type": "chrome",
       "request": "launch",
       "name": "Launch Chrome with Vite",
-      "url": "http://localhost:8080",
+      "url": "http://localhost:8080?debug=true",
       "webRoot": "${workspaceFolder}",
       "sourceMaps": true,
-      "preLaunchTask": "npm: dev"
+      "preLaunchTask": "npm: dev",
+      "env": {
+        "DEBUG": "true"
+      }
     }
   ]
 }

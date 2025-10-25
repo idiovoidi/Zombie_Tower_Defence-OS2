@@ -3,6 +3,7 @@ import { IZombieRenderer, ZombieRenderState } from '../ZombieRenderer';
 import { ZombieAnimator } from '../ZombieAnimator';
 import { ParticleType, ZombieParticleSystem } from '../ZombieParticleSystem';
 import { GlowEffect, ShadowEffect } from '../components/ZombieEffects';
+import { EffectCleanupManager } from '../../../utils/EffectCleanupManager';
 
 export class StealthZombieRenderer implements IZombieRenderer {
   private graphics: Graphics;
@@ -207,9 +208,14 @@ export class StealthZombieRenderer implements IZombieRenderer {
     // Flash purple/white
     const originalTint = this.graphics.tint;
     this.graphics.tint = 0xaa88ff;
-    setTimeout(() => {
-      this.graphics.tint = originalTint;
-    }, 100);
+    const timeout = EffectCleanupManager.registerTimeout(
+      setTimeout(() => {
+        EffectCleanupManager.clearTimeout(timeout);
+        if (!this.graphics.destroyed) {
+          this.graphics.tint = originalTint;
+        }
+      }, 100)
+    );
 
     // Shadowy particles + some blood
     this.particles.emit(ParticleType.SMOKE, 0, 0, {

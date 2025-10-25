@@ -3,6 +3,7 @@ import { IZombieRenderer, ZombieRenderState } from '../ZombieRenderer';
 import { ZombieAnimator } from '../ZombieAnimator';
 import { ParticleType, ZombieParticleSystem } from '../ZombieParticleSystem';
 import { GlowEffect, ShadowEffect } from '../components/ZombieEffects';
+import { EffectCleanupManager } from '../../../utils/EffectCleanupManager';
 
 export class ArmoredZombieRenderer implements IZombieRenderer {
   private graphics: Graphics;
@@ -281,9 +282,14 @@ export class ArmoredZombieRenderer implements IZombieRenderer {
     // Flash gray/white (metal impact)
     const originalTint = this.graphics.tint;
     this.graphics.tint = 0xffffff;
-    setTimeout(() => {
-      this.graphics.tint = originalTint;
-    }, 100);
+    const timeout = EffectCleanupManager.registerTimeout(
+      setTimeout(() => {
+        EffectCleanupManager.clearTimeout(timeout);
+        if (!this.graphics.destroyed) {
+          this.graphics.tint = originalTint;
+        }
+      }, 100)
+    );
 
     // Emit metal sparks instead of blood
     this.particles.emit(ParticleType.SPARKS, 0, 0, {

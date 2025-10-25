@@ -265,15 +265,19 @@ export class Projectile extends Container {
         break;
       case 'tesla':
         this.visual.circle(0, 0, 10).fill({ color: 0x00bfff, alpha: 0.6 });
-        setTimeout(() => {
-          this.destroy();
-        }, 100);
+        EffectCleanupManager.registerTimeout(
+          setTimeout(() => {
+            this.destroy();
+          }, 100)
+        );
         break;
       default:
         this.visual.circle(0, 0, 5).fill({ color: 0xffff00, alpha: 0.6 });
-        setTimeout(() => {
-          this.destroy();
-        }, 100);
+        EffectCleanupManager.registerTimeout(
+          setTimeout(() => {
+            this.destroy();
+          }, 100)
+        );
     }
   }
 

@@ -1440,15 +1440,15 @@ export class Tower extends GameObject implements ITower, TowerEffects {
       highlight.scale.set(scale);
     };
 
-    // Store interval ID to clear later
-    this.pulseInterval = setInterval(pulse, 50);
+    // Store interval ID to clear later (tracked to prevent memory leaks)
+    this.pulseInterval = EffectCleanupManager.registerInterval(setInterval(pulse, 50));
   }
 
   // Hide selection visual effects
   public hideSelectionEffect(): void {
-    // Clear pulse animation first
+    // Clear pulse animation first (tracked to prevent memory leaks)
     if (this.pulseInterval) {
-      clearInterval(this.pulseInterval);
+      EffectCleanupManager.clearInterval(this.pulseInterval);
       delete this.pulseInterval;
     }
 

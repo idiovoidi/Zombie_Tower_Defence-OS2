@@ -18,6 +18,7 @@ import { MechanicalZombieRenderer } from '../renderers/zombies/types/MechanicalZ
 import { StealthZombieRenderer } from '../renderers/zombies/types/StealthZombieRenderer';
 import { SwarmZombieRenderer } from '../renderers/zombies/types/SwarmZombieRenderer';
 import { TankZombieRenderer } from '../renderers/zombies/types/TankZombieRenderer';
+import { EffectCleanupManager } from '../utils/EffectCleanupManager';
 
 export class Zombie extends GameObject {
   private type: string;
@@ -638,13 +639,18 @@ export class Zombie extends GameObject {
         clearTimeout(this.damageFlashTimeout);
       }
 
-      // Reset color after a short delay
-      this.damageFlashTimeout = setTimeout(() => {
-        if (this.visual) {
-          this.visual.tint = 0xffffff; // Reset to default
-        }
-        this.damageFlashTimeout = null;
-      }, 100);
+      // Reset color after a short delay (tracked to prevent memory leaks)
+      this.damageFlashTimeout = EffectCleanupManager.registerTimeout(
+        setTimeout(() => {
+          if (this.visual) {
+            this.visual.tint = 0xffffff; // Reset to default
+          }
+          if (this.damageFlashTimeout !== null) {
+            EffectCleanupManager.clearTimeout(this.damageFlashTimeout);
+            this.damageFlashTimeout = null;
+          }
+        }, 100)
+      );
     }
 
     // Check if zombie is dead
