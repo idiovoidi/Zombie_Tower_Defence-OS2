@@ -81,11 +81,6 @@ export class GameManager {
     this.waveManager = new WaveManager();
     this.mapManager = new MapManager();
     this.zombieManager = new ZombieManager(this.gameContainer, this.waveManager, this.mapManager);
-    this.towerPlacementManager = new TowerPlacementManager(
-      this.gameContainer,
-      this.towerManager,
-      this.mapManager
-    );
     this.levelManager = new LevelManager(this.mapManager);
     // VisualMapRenderer will be initialized after InputManager is set
     this.resourceManager = new ResourceManager();
@@ -93,6 +88,13 @@ export class GameManager {
     this.projectileManager = new ProjectileManager(this.gameContainer);
     // CRITICAL: Initialize EffectManager for shell casings, muzzle flashes, etc.
     this.effectManager = new EffectManager(this.gameContainer);
+    // Initialize TowerPlacementManager with EffectManager for visual effects
+    this.towerPlacementManager = new TowerPlacementManager(
+      this.gameContainer,
+      this.towerManager,
+      this.mapManager,
+      this.effectManager
+    );
     console.log('EffectManager initialized');
     // Initialize TowerCombatManager with world dimensions for spatial partitioning
     const worldWidth = 1024; // Play area width (excluding UI)

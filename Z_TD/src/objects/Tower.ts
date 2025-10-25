@@ -9,7 +9,7 @@ import { TowerManager } from '../managers/TowerManager';
 import { BarrelHeatGlow } from '../effects/BarrelHeatGlow';
 import { EffectCleanupManager } from '../utils/EffectCleanupManager';
 import { ResourceCleanupManager } from '../utils/ResourceCleanupManager';
-import type { MuzzleFlash, ShellCasing, TowerEffects } from '../types/tower-internal';
+import type { TowerEffects } from '../types/tower-internal';
 
 export class Tower extends GameObject implements ITower, TowerEffects {
   private type: string;
@@ -34,17 +34,17 @@ export class Tower extends GameObject implements ITower, TowerEffects {
 
   // Machine gun effects
   private barrelHeatGlow: BarrelHeatGlow | null = null;
-  private effectManager: Container | null = null; // Reference to effect manager container
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  private effectManager: any = null; // Reference to effect manager container (dynamically set)
 
   // Sniper effects
-  private laserSight: { destroy(): void; destroyed: boolean } | null = null; // LaserSight instance
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  private laserSight: any = null; // LaserSight instance (dynamically imported)
   private currentTarget: { x: number; y: number } | null = null;
 
   // Dynamic effect properties (from TowerEffects interface)
   public selectionHighlight?: Graphics;
   public pulseInterval?: NodeJS.Timeout;
-  public shellCasings?: ShellCasing[];
-  public muzzleFlashes?: MuzzleFlash[];
 
   constructor(type: string, x: number, y: number) {
     super();
@@ -1485,24 +1485,8 @@ export class Tower extends GameObject implements ITower, TowerEffects {
     // Calculate ejection angle (perpendicular to barrel, slightly upward)
     const ejectAngle = this.barrel.rotation + Math.PI / 2 - 0.3;
 
-    // Import and spawn shell casing
-    import('../effects/ShellCasing')
-      .then(({ ShellCasing }) => {
-        if (!this.effectManager) {
-          return;
-        }
-        const casing = new ShellCasing(ejectX, ejectY, ejectAngle);
-        this.effectManager.addChild(casing);
-
-        // Store reference for cleanup
-        if (!this.shellCasings) {
-          this.shellCasings = [];
-        }
-        this.shellCasings.push(casing);
-      })
-      .catch(() => {
-        // Silently fail if import fails
-      });
+    // Spawn shell casing through EffectManager
+    this.effectManager.spawnShellCasing(ejectX, ejectY, ejectAngle);
   }
 
   /**
@@ -1517,24 +1501,8 @@ export class Tower extends GameObject implements ITower, TowerEffects {
     const tipX = this.x + Math.cos(this.barrel.rotation) * gunTipOffset;
     const tipY = this.y + Math.sin(this.barrel.rotation) * gunTipOffset;
 
-    // Import and spawn muzzle flash light
-    import('../effects/MuzzleFlashLight')
-      .then(({ MuzzleFlashLight }) => {
-        if (!this.effectManager) {
-          return;
-        }
-        const flash = new MuzzleFlashLight(tipX, tipY, 30);
-        this.effectManager.addChild(flash);
-
-        // Store reference for cleanup
-        if (!this.muzzleFlashes) {
-          this.muzzleFlashes = [];
-        }
-        this.muzzleFlashes.push(flash);
-      })
-      .catch(() => {
-        // Silently fail if import fails
-      });
+    // Spawn muzzle flash through EffectManager
+    this.effectManager.spawnMuzzleFlashLight(tipX, tipY, 30);
   }
 
   /**
@@ -1548,17 +1516,8 @@ export class Tower extends GameObject implements ITower, TowerEffects {
     const scopeX = this.x;
     const scopeY = this.y - 15;
 
-    import('../effects/ScopeGlint')
-      .then(({ ScopeGlint }) => {
-        if (!this.effectManager) {
-          return;
-        }
-        const glint = new ScopeGlint(scopeX, scopeY);
-        this.effectManager.addChild(glint);
-      })
-      .catch(() => {
-        // Silently fail
-      });
+    // Spawn scope glint through EffectManager
+    this.effectManager.spawnScopeGlint(scopeX, scopeY);
   }
 
   /**
@@ -1578,29 +1537,9 @@ export class Tower extends GameObject implements ITower, TowerEffects {
     const startX = this.x + Math.cos(this.barrel.rotation) * rifleTip;
     const startY = this.y + Math.sin(this.barrel.rotation) * rifleTip;
 
-    import('../effects/BulletTrail')
-      .then(({ BulletTrail }) => {
-        if (!this.effectManager) {
-          return;
-        }
-        const trail = new BulletTrail(startX, startY, targetX, targetY);
-        this.effectManager.addChild(trail);
-      })
-      .catch(() => {
-        // Silently fail
-      });
-
-    import('../effects/ImpactFlash')
-      .then(({ ImpactFlash }) => {
-        if (!this.effectManager) {
-          return;
-        }
-        const flash = new ImpactFlash(targetX, targetY, isHeadshot);
-        this.effectManager.addChild(flash);
-      })
-      .catch(() => {
-        // Silently fail
-      });
+    // Spawn bullet trail and impact flash through EffectManager
+    this.effectManager.spawnBulletTrail(startX, startY, targetX, targetY);
+    this.effectManager.spawnImpactFlash(targetX, targetY, isHeadshot);
   }
 
   /**
@@ -1684,27 +1623,8 @@ export class Tower extends GameObject implements ITower, TowerEffects {
       this.laserSight = null;
     }
 
-    // Clean up shell casings
-    if (this.shellCasings) {
-      for (const casing of this.shellCasings) {
-        if (casing && !casing.destroyed && casing.parent) {
-          casing.parent.removeChild(casing);
-          casing.destroy();
-        }
-      }
-      delete this.shellCasings;
-    }
-
-    // Clean up muzzle flashes
-    if (this.muzzleFlashes) {
-      for (const flash of this.muzzleFlashes) {
-        if (flash && !flash.destroyed && flash.parent) {
-          flash.parent.removeChild(flash);
-          flash.destroy();
-        }
-      }
-      delete this.muzzleFlashes;
-    }
+    // Note: Shell casings and muzzle flashes are managed by EffectManager
+    // and will be cleaned up automatically
 
     // Call parent destroy which will destroy visual and barrel Graphics
     super.destroy();

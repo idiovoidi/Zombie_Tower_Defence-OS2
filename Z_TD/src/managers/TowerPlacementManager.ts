@@ -18,11 +18,20 @@ export class TowerPlacementManager {
   private onTowerSelectedCallback: ((tower: Tower | null) => void) | null = null;
   private canAffordTower: boolean = true;
   private towersDirty: boolean = false; // Track when tower array changes
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  private effectManager: any = null; // EffectManager for visual effects
 
-  constructor(container: Container, towerManager: TowerManager, mapManager: MapManager) {
+  constructor(
+    container: Container,
+    towerManager: TowerManager,
+    mapManager: MapManager,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    effectManager?: any
+  ) {
     this.container = container;
     this.towerManager = towerManager;
     this.mapManager = mapManager;
+    this.effectManager = effectManager || null;
   }
 
   // Start placement mode with selected tower type
@@ -210,6 +219,10 @@ export class TowerPlacementManager {
 
     const tower = TowerFactory.createTower(this.selectedTowerType, x, y);
     if (tower) {
+      // Set effect manager for visual effects (shell casings, muzzle flashes, etc.)
+      if (this.effectManager) {
+        tower.setEffectManager(this.effectManager);
+      }
       this.placedTowers.push(tower);
       this.towersDirty = true; // Mark towers as changed
       this.container.addChild(tower);

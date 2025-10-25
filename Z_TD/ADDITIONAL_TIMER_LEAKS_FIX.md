@@ -16,17 +16,20 @@ Multiple files had raw timer calls not using `EffectCleanupManager`:
 ## Files Fixed
 
 ### Zombie Renderers
+
 - `src/renderers/zombies/types/ArmoredZombieRenderer.ts`
 - `src/renderers/zombies/types/MechanicalZombieRenderer.ts`
 - `src/renderers/zombies/types/TankZombieRenderer.ts`
 - `src/renderers/zombies/types/StealthZombieRenderer.ts`
 
 ### Core Objects
+
 - `src/objects/Zombie.ts`
 - `src/objects/Projectile.ts`
 - `src/objects/Tower.ts`
 
 ### Configuration
+
 - `.vscode/launch.json` - Added debug mode for F5 debugging
 
 ## Changes Made
@@ -34,6 +37,7 @@ Multiple files had raw timer calls not using `EffectCleanupManager`:
 ### 1. Zombie Renderer Damage Effects
 
 **Before:**
+
 ```typescript
 showDamageEffect(): void {
   const originalTint = this.graphics.tint;
@@ -45,6 +49,7 @@ showDamageEffect(): void {
 ```
 
 **After:**
+
 ```typescript
 showDamageEffect(): void {
   const originalTint = this.graphics.tint;
@@ -63,6 +68,7 @@ showDamageEffect(): void {
 ### 2. Projectile Hit Effects
 
 **Before:**
+
 ```typescript
 case 'tesla':
   this.visual.circle(0, 0, 10).fill({ color: 0x00bfff, alpha: 0.6 });
@@ -73,6 +79,7 @@ case 'tesla':
 ```
 
 **After:**
+
 ```typescript
 case 'tesla':
   this.visual.circle(0, 0, 10).fill({ color: 0x00bfff, alpha: 0.6 });
@@ -87,6 +94,7 @@ case 'tesla':
 ### 3. Zombie Damage Flash
 
 **Before:**
+
 ```typescript
 this.damageFlashTimeout = setTimeout(() => {
   if (this.visual) {
@@ -97,6 +105,7 @@ this.damageFlashTimeout = setTimeout(() => {
 ```
 
 **After:**
+
 ```typescript
 this.damageFlashTimeout = EffectCleanupManager.registerTimeout(
   setTimeout(() => {
@@ -114,6 +123,7 @@ this.damageFlashTimeout = EffectCleanupManager.registerTimeout(
 ### 4. Tower Pulse Animation
 
 **Before:**
+
 ```typescript
 this.pulseInterval = setInterval(pulse, 50);
 
@@ -125,6 +135,7 @@ if (this.pulseInterval) {
 ```
 
 **After:**
+
 ```typescript
 this.pulseInterval = EffectCleanupManager.registerInterval(setInterval(pulse, 50));
 
@@ -138,6 +149,7 @@ if (this.pulseInterval) {
 ### 5. Debug Mode Configuration
 
 **Before:**
+
 ```json
 {
   "type": "chrome",
@@ -151,6 +163,7 @@ if (this.pulseInterval) {
 ```
 
 **After:**
+
 ```json
 {
   "type": "chrome",
@@ -184,6 +197,7 @@ if (this.pulseInterval) {
 ## Related Fixes
 
 This complements previous memory leak fixes:
+
 - `ZOMBIE_RENDERER_RAF_LEAK_FIX.md` - requestAnimationFrame cleanup
 - `CRITICAL_MEMORY_LEAK_FIX.md` - setInterval → setTimeout conversion
 - `GPU_MEMORY_LEAK_FIX.md` - Graphics.destroy({ children: true })
@@ -192,6 +206,7 @@ This complements previous memory leak fixes:
 ## Next Steps
 
 If memory usage is still high after these fixes, investigate:
+
 1. Particle system cleanup
 2. Graphics object pooling
 3. Texture/sprite caching

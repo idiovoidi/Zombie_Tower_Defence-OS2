@@ -82,7 +82,7 @@ export class ShellCasing extends Graphics {
     highlight.circle(0, -1, 1).fill({ color: 0xffffff, alpha: 0.8 });
     this.addChild(highlight);
 
-    // Remove highlight after brief moment
+    // Remove highlight after brief moment (no need to track - parent will be destroyed)
     setTimeout(() => {
       if (!this.destroyed && highlight.parent) {
         this.removeChild(highlight);
