@@ -135,6 +135,17 @@ export class TowerCombatManager {
     tower.shoot();
     tower.showShootingEffect();
 
+    // Enable laser sight for sniper towers (level 3+)
+    if (tower.getType() === 'Sniper' && tower.getUpgradeLevel() >= 3) {
+      tower.setTarget(target.position.x, target.position.y);
+      tower.setLaserSightEnabled(true);
+    }
+
+    // Spawn sniper hit effects (bullet trail and impact flash)
+    if (tower.getType() === 'Sniper') {
+      tower.spawnSniperHitEffects(target.position.x, target.position.y, false);
+    }
+
     if (!this.projectileManager) {
       return;
     }
