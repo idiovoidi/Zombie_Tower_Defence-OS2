@@ -1663,6 +1663,12 @@ export class Tower extends GameObject implements ITower, TowerEffects {
    * Clean up effects when tower is destroyed
    */
   public override destroy(): void {
+    // CRITICAL: Clear pulse interval to prevent memory leak
+    if (this.pulseInterval) {
+      clearInterval(this.pulseInterval);
+      delete this.pulseInterval;
+    }
+
     // Clean up barrel heat glow
     if (this.barrelHeatGlow) {
       this.barrelHeatGlow.destroy();
@@ -1700,6 +1706,7 @@ export class Tower extends GameObject implements ITower, TowerEffects {
       delete this.muzzleFlashes;
     }
 
+    // Call parent destroy which will destroy visual and barrel Graphics
     super.destroy();
   }
 }

@@ -57,11 +57,14 @@ export class GameObject extends Container {
   }
 
   // Destroy this game object and all its components
+  // CRITICAL: Must destroy children to prevent GPU memory leak
   public destroy(): void {
     for (const component of this.components.values()) {
       component.destroy();
     }
     this.components.clear();
-    super.destroy();
+    // CRITICAL: Pass { children: true } to destroy all Graphics objects
+    // Without this, Tower visual/barrel Graphics leak GPU memory
+    super.destroy({ children: true });
   }
 }
