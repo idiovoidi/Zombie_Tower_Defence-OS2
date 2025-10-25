@@ -6,7 +6,7 @@ import { ITower } from './Tower.interface';
 import { GameConfig } from '../config/gameConfig';
 import { TowerRangeVisualizer } from '../utils/TowerRangeVisualizer';
 import { TowerManager } from '../managers/TowerManager';
-import { BarrelHeatGlow } from '../effects/BarrelHeatGlow';
+import { BarrelHeatGlow } from '../renderers/effects/BarrelHeatGlow';
 import { EffectCleanupManager } from '../utils/EffectCleanupManager';
 import { ResourceCleanupManager } from '../utils/ResourceCleanupManager';
 import type { TowerEffects } from '../types/tower-internal';
@@ -1551,7 +1551,7 @@ export class Tower extends GameObject implements ITower, TowerEffects {
     }
 
     if (enabled && !this.laserSight && this.currentTarget) {
-      import('../effects/LaserSight')
+      import('../renderers/effects/LaserSight')
         .then(({ LaserSight }) => {
           if (!this.effectManager || !this.currentTarget) {
             return;

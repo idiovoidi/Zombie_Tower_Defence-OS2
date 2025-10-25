@@ -20,7 +20,7 @@ import { DebugConstants } from '../config/debugConstants';
 import { type GameLogEntry, LogExporter } from '../utils/LogExporter';
 import { StatTracker } from '../utils/StatTracker';
 import { EffectCleanupManager } from '../utils/EffectCleanupManager';
-import { EffectManager } from '../effects/EffectManager';
+import { EffectManager } from '../renderers/effects/EffectManager';
 import { ResourceCleanupManager } from '../utils/ResourceCleanupManager';
 import { PerformanceMonitor } from '../utils/PerformanceMonitor';
 import { OptimizationValidator } from '../utils/OptimizationValidator';
