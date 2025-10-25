@@ -9,6 +9,7 @@ export class BasicZombieRenderer implements IZombieRenderer {
   private graphics: Graphics;
   private animator: ZombieAnimator;
   private particles: ZombieParticleSystem;
+  private deathAnimationFrame: number | null = null;
 
   private readonly PRIMARY_COLOR = 0x2d5016; // Dark zombie green
   private readonly DARK_GREEN = 0x1a3010; // Very dark green for shadows
@@ -197,6 +198,12 @@ export class BasicZombieRenderer implements IZombieRenderer {
       const startTime = Date.now();
 
       const animate = () => {
+        // Safety check: stop if graphics destroyed
+        if (this.graphics.destroyed) {
+          resolve();
+          return;
+        }
+
         const elapsed = Date.now() - startTime;
 
         if (elapsed < 300) {
@@ -217,11 +224,12 @@ export class BasicZombieRenderer implements IZombieRenderer {
           this.graphics.y += t * 5;
         } else {
           // Done
+          this.deathAnimationFrame = null;
           resolve();
           return;
         }
 
-        requestAnimationFrame(animate);
+        this.deathAnimationFrame = requestAnimationFrame(animate);
       };
 
       // Emit death burst (simplified)
@@ -237,6 +245,11 @@ export class BasicZombieRenderer implements IZombieRenderer {
   }
 
   destroy(): void {
+    // Cancel death animation if running
+    if (this.deathAnimationFrame !== null) {
+      cancelAnimationFrame(this.deathAnimationFrame);
+      this.deathAnimationFrame = null;
+    }
     this.graphics.destroy();
     this.particles.destroy();
   }

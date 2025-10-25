@@ -9,6 +9,7 @@ export class FastZombieRenderer implements IZombieRenderer {
   private graphics: Graphics;
   private animator: ZombieAnimator;
   private particles: ZombieParticleSystem;
+  private deathAnimationFrame: number | null = null;
 
   // Orange color scheme for fast zombie
   private readonly PRIMARY_COLOR = 0x8b4513; // Dark orange-brown
@@ -198,6 +199,12 @@ export class FastZombieRenderer implements IZombieRenderer {
       const startTime = Date.now();
 
       const animate = () => {
+        // Safety check: stop if graphics destroyed
+        if (this.graphics.destroyed) {
+          resolve();
+          return;
+        }
+
         const elapsed = Date.now() - startTime;
 
         if (elapsed < 300) {
@@ -218,11 +225,12 @@ export class FastZombieRenderer implements IZombieRenderer {
           this.graphics.y += t * 5;
         } else {
           // Done
+          this.deathAnimationFrame = null;
           resolve();
           return;
         }
 
-        requestAnimationFrame(animate);
+        this.deathAnimationFrame = requestAnimationFrame(animate);
       };
 
       // Emit death burst
@@ -238,6 +246,11 @@ export class FastZombieRenderer implements IZombieRenderer {
   }
 
   destroy(): void {
+    // Cancel death animation if running
+    if (this.deathAnimationFrame !== null) {
+      cancelAnimationFrame(this.deathAnimationFrame);
+      this.deathAnimationFrame = null;
+    }
     this.graphics.destroy();
     this.particles.destroy();
   }

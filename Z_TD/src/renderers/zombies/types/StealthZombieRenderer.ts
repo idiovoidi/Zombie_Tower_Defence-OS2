@@ -9,6 +9,7 @@ export class StealthZombieRenderer implements IZombieRenderer {
   private animator: ZombieAnimator;
   private particles: ZombieParticleSystem;
   private fadePhase: number = 0; // For pulsing transparency effect
+  private deathAnimationFrame: number | null = null;
 
   // Purple/shadow color scheme for stealth zombie
   private readonly PRIMARY_COLOR = 0x3a2a4a; // Dark purple
@@ -231,6 +232,12 @@ export class StealthZombieRenderer implements IZombieRenderer {
       const startTime = Date.now();
 
       const animate = () => {
+        // Safety check: stop if graphics destroyed
+        if (this.graphics.destroyed) {
+          resolve();
+          return;
+        }
+
         const elapsed = Date.now() - startTime;
 
         if (elapsed < 300) {
@@ -248,11 +255,12 @@ export class StealthZombieRenderer implements IZombieRenderer {
           const t = (elapsed - 800) / 400;
           this.graphics.alpha = 0 + (1 - t) * 0.05;
         } else {
+          this.deathAnimationFrame = null;
           resolve();
           return;
         }
 
-        requestAnimationFrame(animate);
+        this.deathAnimationFrame = requestAnimationFrame(animate);
       };
 
       // Shadow burst (no blood, just wisps)
@@ -276,6 +284,11 @@ export class StealthZombieRenderer implements IZombieRenderer {
   }
 
   destroy(): void {
+    // Cancel death animation if running
+    if (this.deathAnimationFrame !== null) {
+      cancelAnimationFrame(this.deathAnimationFrame);
+      this.deathAnimationFrame = null;
+    }
     this.graphics.destroy();
     this.particles.destroy();
   }

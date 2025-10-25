@@ -8,6 +8,7 @@ export class TankZombieRenderer implements IZombieRenderer {
   private graphics: Graphics;
   private animator: ZombieAnimator;
   private particles: ZombieParticleSystem;
+  private deathAnimationFrame: number | null = null;
 
   // Dark red color scheme for tank zombie
   private readonly PRIMARY_COLOR = 0x5a1a1a; // Dark blood red
@@ -212,6 +213,12 @@ export class TankZombieRenderer implements IZombieRenderer {
       const startTime = Date.now();
 
       const animate = () => {
+        // Safety check: stop if graphics destroyed
+        if (this.graphics.destroyed) {
+          resolve();
+          return;
+        }
+
         const elapsed = Date.now() - startTime;
 
         if (elapsed < 400) {
@@ -231,11 +238,12 @@ export class TankZombieRenderer implements IZombieRenderer {
           this.graphics.alpha = 0.6 - t * 0.6;
           this.graphics.y += t * 3;
         } else {
+          this.deathAnimationFrame = null;
           resolve();
           return;
         }
 
-        requestAnimationFrame(animate);
+        this.deathAnimationFrame = requestAnimationFrame(animate);
       };
 
       // Massive death burst
@@ -251,6 +259,11 @@ export class TankZombieRenderer implements IZombieRenderer {
   }
 
   destroy(): void {
+    // Cancel death animation if running
+    if (this.deathAnimationFrame !== null) {
+      cancelAnimationFrame(this.deathAnimationFrame);
+      this.deathAnimationFrame = null;
+    }
     this.graphics.destroy();
     this.particles.destroy();
   }

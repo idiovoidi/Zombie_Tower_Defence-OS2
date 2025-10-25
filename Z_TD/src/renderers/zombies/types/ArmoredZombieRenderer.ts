@@ -8,6 +8,7 @@ export class ArmoredZombieRenderer implements IZombieRenderer {
   private graphics: Graphics;
   private animator: ZombieAnimator;
   private particles: ZombieParticleSystem;
+  private deathAnimationFrame: number | null = null;
 
   // Gray metallic color scheme for armored zombie
   private readonly PRIMARY_COLOR = 0x4a4a4a; // Dark gray (armor)
@@ -308,6 +309,12 @@ export class ArmoredZombieRenderer implements IZombieRenderer {
       const startTime = Date.now();
 
       const animate = () => {
+        // Safety check: stop if graphics destroyed
+        if (this.graphics.destroyed) {
+          resolve();
+          return;
+        }
+
         const elapsed = Date.now() - startTime;
 
         if (elapsed < 300) {
@@ -327,11 +334,12 @@ export class ArmoredZombieRenderer implements IZombieRenderer {
           this.graphics.alpha = 0.5 - t * 0.5;
           this.graphics.y += t * 5;
         } else {
+          this.deathAnimationFrame = null;
           resolve();
           return;
         }
 
-        requestAnimationFrame(animate);
+        this.deathAnimationFrame = requestAnimationFrame(animate);
       };
 
       // Death burst (metal shards + blood)
@@ -354,6 +362,11 @@ export class ArmoredZombieRenderer implements IZombieRenderer {
   }
 
   destroy(): void {
+    // Cancel death animation if running
+    if (this.deathAnimationFrame !== null) {
+      cancelAnimationFrame(this.deathAnimationFrame);
+      this.deathAnimationFrame = null;
+    }
     this.graphics.destroy();
     this.particles.destroy();
   }

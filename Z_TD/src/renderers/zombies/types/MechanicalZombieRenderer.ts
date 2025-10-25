@@ -9,6 +9,7 @@ export class MechanicalZombieRenderer implements IZombieRenderer {
   private animator: ZombieAnimator;
   private particles: ZombieParticleSystem;
   private sparkTimer: number = 0;
+  private deathAnimationFrame: number | null = null;
 
   // Cyan-gray metallic color scheme for mechanical zombie
   private readonly PRIMARY_COLOR = 0x3a4a5a; // Dark cyan-gray
@@ -304,6 +305,12 @@ export class MechanicalZombieRenderer implements IZombieRenderer {
       const startTime = Date.now();
 
       const animate = () => {
+        // Safety check: stop if graphics destroyed
+        if (this.graphics.destroyed) {
+          resolve();
+          return;
+        }
+
         const elapsed = Date.now() - startTime;
 
         if (elapsed < 300) {
@@ -324,11 +331,12 @@ export class MechanicalZombieRenderer implements IZombieRenderer {
           this.graphics.alpha = 0.6 - t * 0.6;
           this.graphics.y += t * 4;
         } else {
+          this.deathAnimationFrame = null;
           resolve();
           return;
         }
 
-        requestAnimationFrame(animate);
+        this.deathAnimationFrame = requestAnimationFrame(animate);
       };
 
       // Electrical explosion
@@ -360,6 +368,11 @@ export class MechanicalZombieRenderer implements IZombieRenderer {
   }
 
   destroy(): void {
+    // Cancel death animation if running
+    if (this.deathAnimationFrame !== null) {
+      cancelAnimationFrame(this.deathAnimationFrame);
+      this.deathAnimationFrame = null;
+    }
     this.graphics.destroy();
     this.particles.destroy();
   }

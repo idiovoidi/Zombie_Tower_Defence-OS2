@@ -9,6 +9,7 @@ export class SwarmZombieRenderer implements IZombieRenderer {
   private graphics: Graphics;
   private animator: ZombieAnimator;
   private particles: ZombieParticleSystem;
+  private deathAnimationFrame: number | null = null;
 
   // Yellow-green sickly color scheme for swarm zombie
   private readonly PRIMARY_COLOR = 0x6a7a2a; // Sickly yellow-green
@@ -204,6 +205,12 @@ export class SwarmZombieRenderer implements IZombieRenderer {
       const startTime = Date.now();
 
       const animate = () => {
+        // Safety check: stop if graphics destroyed
+        if (this.graphics.destroyed) {
+          resolve();
+          return;
+        }
+
         const elapsed = Date.now() - startTime;
 
         if (elapsed < 200) {
@@ -223,11 +230,12 @@ export class SwarmZombieRenderer implements IZombieRenderer {
           this.graphics.alpha = 0.4 - t * 0.4;
           this.graphics.y += t * 3;
         } else {
+          this.deathAnimationFrame = null;
           resolve();
           return;
         }
 
-        requestAnimationFrame(animate);
+        this.deathAnimationFrame = requestAnimationFrame(animate);
       };
 
       // Small death burst
@@ -243,6 +251,11 @@ export class SwarmZombieRenderer implements IZombieRenderer {
   }
 
   destroy(): void {
+    // Cancel death animation if running
+    if (this.deathAnimationFrame !== null) {
+      cancelAnimationFrame(this.deathAnimationFrame);
+      this.deathAnimationFrame = null;
+    }
     this.graphics.destroy();
     this.particles.destroy();
   }
