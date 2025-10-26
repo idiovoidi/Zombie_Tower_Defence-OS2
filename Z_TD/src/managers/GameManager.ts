@@ -336,12 +336,18 @@ export class GameManager {
 
   // Game over
   public gameOver(): void {
+    // Prevent multiple game over calls
+    if (this.currentState === GameConfig.GAME_STATES.GAME_OVER) {
+      return;
+    }
+
     this.currentState = GameConfig.GAME_STATES.GAME_OVER;
-    console.log('Game over');
+    console.log('🔴 GAME OVER - Lives: ' + this.lives);
 
     // Calculate final score based on wave reached and money remaining
     const finalScore = this.wave * 1000 + this.money;
     this.score = finalScore;
+    console.log('📊 Final Score: ' + this.score);
 
     // Perform end-game balance analysis
     if (this.balanceTrackingManager.isEnabled()) {
@@ -355,18 +361,23 @@ export class GameManager {
 
     // Trigger game over callback with score
     if (this.onGameOverCallback) {
+      console.log('🎮 Triggering game over UI callback');
       this.onGameOverCallback(this.score);
+    } else {
+      console.warn('⚠️ No game over callback registered!');
     }
 
-    // Clear game state to free memory (player can restart from menu)
-    console.log('🧹 Cleaning up game state after game over...');
-    this.clearGameState();
+    // Delay cleanup slightly to allow UI to update
+    setTimeout(() => {
+      console.log('🧹 Cleaning up game state after game over...');
+      this.clearGameState();
+    }, 100);
   }
 
   // Export game log for manual play
-  private exportManualGameLog(): void {
+  private async exportManualGameLog(): Promise<void> {
     // Import PerformanceMonitor for performance stats
-    const { PerformanceMonitor } = require('../utils/PerformanceMonitor');
+    const { PerformanceMonitor } = await import('../utils/PerformanceMonitor');
 
     const logEntry = {
       timestamp: new Date().toISOString(),
@@ -503,6 +514,7 @@ export class GameManager {
     }
 
     if (this.lives <= 0) {
+      console.log(`🔴 GAME OVER TRIGGERED - Lives: ${this.lives}`);
       this.lives = 0;
       this.gameOver();
     }
@@ -727,8 +739,10 @@ export class GameManager {
         if (zombie.hasReachedEnd()) {
           // Lose lives based on zombie damage
           const damage = zombie.getDamage();
+          console.log(
+            `💀 ${zombie.getType()} zombie reached camp! -${damage} survivors (current: ${this.lives})`
+          );
           this.loseLife(damage);
-          console.log(`💀 ${zombie.getType()} zombie reached camp! -${damage} survivors`);
 
           // Remove zombie after it reaches the end
           this.zombieManager.removeZombie(i);

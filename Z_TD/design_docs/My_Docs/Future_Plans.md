@@ -22,6 +22,10 @@ Remove obsolete code
 Corners of the screen should flash red when the survivor camp is damaged
 
 Fix the money animation MoneyAnimation.ts in the future
+
+Each tower should have 2 special effects you can upgrade that you have to choose between in addition to the main upgrade tree, these will more so change the functionality of the tower
+
+
 ---
 
 Implemented design plans
