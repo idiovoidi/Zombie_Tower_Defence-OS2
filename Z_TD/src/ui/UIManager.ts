@@ -18,6 +18,7 @@ const UI_STATE_CONFIG: StateVisibilityConfig = {
     towerShop: false,
     towerInfoPanel: false,
     statsPanel: false,
+    gameOverScreen: false,
   },
   [GameConfig.GAME_STATES.LEVEL_SELECT]: {
     mainMenu: false,
@@ -27,6 +28,7 @@ const UI_STATE_CONFIG: StateVisibilityConfig = {
     towerShop: false,
     towerInfoPanel: false,
     statsPanel: false,
+    gameOverScreen: false,
   },
   [GameConfig.GAME_STATES.PLAYING]: {
     mainMenu: false,
@@ -36,6 +38,7 @@ const UI_STATE_CONFIG: StateVisibilityConfig = {
     towerShop: true,
     towerInfoPanel: false,
     statsPanel: true,
+    gameOverScreen: false,
   },
   [GameConfig.GAME_STATES.WAVE_COMPLETE]: {
     mainMenu: false,
@@ -45,6 +48,7 @@ const UI_STATE_CONFIG: StateVisibilityConfig = {
     towerShop: true,
     towerInfoPanel: false,
     statsPanel: true,
+    gameOverScreen: false,
   },
   [GameConfig.GAME_STATES.PAUSED]: {
     mainMenu: false,
@@ -54,6 +58,7 @@ const UI_STATE_CONFIG: StateVisibilityConfig = {
     towerShop: false,
     towerInfoPanel: false,
     statsPanel: false,
+    gameOverScreen: false,
   },
   [GameConfig.GAME_STATES.GAME_OVER]: {
     mainMenu: false,
@@ -63,6 +68,7 @@ const UI_STATE_CONFIG: StateVisibilityConfig = {
     towerShop: false,
     towerInfoPanel: false,
     statsPanel: false,
+    gameOverScreen: true,
   },
   [GameConfig.GAME_STATES.VICTORY]: {
     mainMenu: false,
@@ -72,6 +78,7 @@ const UI_STATE_CONFIG: StateVisibilityConfig = {
     towerShop: false,
     towerInfoPanel: false,
     statsPanel: false,
+    gameOverScreen: false,
   },
 };
 

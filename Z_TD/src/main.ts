@@ -6,6 +6,7 @@ import { HUD } from './ui/HUD';
 import { BottomBar } from './ui/BottomBar';
 import { MainMenu } from './ui/MainMenu';
 import { LevelSelectMenu } from './ui/LevelSelectMenu';
+import { GameOverScreen } from './ui/GameOverScreen';
 import { TowerShop } from './ui/TowerShop';
 import { TowerInfoPanel } from './ui/TowerInfoPanel';
 import { DebugInfoPanel } from './ui/DebugInfoPanel';
@@ -108,6 +109,10 @@ import { VisualEffects } from './utils/VisualEffects';
   const levelSelectMenu = new LevelSelectMenu();
   uiManager.registerComponent('levelSelectMenu', levelSelectMenu);
 
+  // Create game over screen
+  const gameOverScreen = new GameOverScreen();
+  uiManager.registerComponent('gameOverScreen', gameOverScreen);
+
   // Create tower shop (positioned on the right side, full height)
   const towerShop = new TowerShop();
   towerShop.position.set(screenWidth - shopWidth, 0);
@@ -201,6 +206,12 @@ import { VisualEffects } from './utils/VisualEffects';
     VisualEffects.createDamageFlash(app.stage, GameConfig.SCREEN_WIDTH, GameConfig.SCREEN_HEIGHT);
   });
 
+  // Set up game over callback
+  gameManager.setGameOverCallback((score: number) => {
+    gameOverScreen.showGameOver(score);
+    uiManager.setState(GameConfig.GAME_STATES.GAME_OVER);
+  });
+
   // Set up camp click callback (will be set after map is loaded)
   const setupCampClickCallback = () => {
     const mapRenderer = gameManager.getMapRenderer();
@@ -236,6 +247,22 @@ import { VisualEffects } from './utils/VisualEffects';
 
   levelSelectMenu.setBackCallback(() => {
     DebugUtils.debug('Returning to main menu');
+    uiManager.setState(GameConfig.GAME_STATES.MAIN_MENU);
+  });
+
+  // Set up game over screen callbacks
+  gameOverScreen.setRestartCallback(() => {
+    DebugUtils.debug('Restarting game');
+    const currentLevel = gameManager.getLevelManager().getCurrentLevel();
+    if (currentLevel) {
+      gameManager.startGameWithLevel(currentLevel.id);
+      uiManager.setState(gameManager.getCurrentState());
+      setupCampClickCallback();
+    }
+  });
+
+  gameOverScreen.setMainMenuCallback(() => {
+    DebugUtils.debug('Returning to main menu from game over');
     uiManager.setState(GameConfig.GAME_STATES.MAIN_MENU);
   });
 

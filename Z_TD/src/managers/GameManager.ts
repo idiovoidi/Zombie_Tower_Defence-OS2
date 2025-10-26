@@ -51,6 +51,7 @@ export class GameManager {
   private inputManager: InputManager | null = null;
   private onMoneyGainCallback: ((amount: number) => void) | null = null;
   private onDamageFlashCallback: (() => void) | null = null;
+  private onGameOverCallback: ((score: number) => void) | null = null;
   private waveStartLives: number = 0;
 
   constructor(app: Application) {
@@ -180,8 +181,9 @@ export class GameManager {
         this.balanceTrackingManager.reset();
         this.balanceTrackingManager.enable();
 
-        // Reset wave counter
+        // Reset wave counter and score
         this.wave = DebugConstants.ENABLED ? DebugConstants.START_AT_WAVE : 1;
+        this.score = 0;
         this.waveManager.reset();
 
         // Set level-specific game parameters (unless debug mode overrides)
@@ -337,6 +339,10 @@ export class GameManager {
     this.currentState = GameConfig.GAME_STATES.GAME_OVER;
     console.log('Game over');
 
+    // Calculate final score based on wave reached and money remaining
+    const finalScore = this.wave * 1000 + this.money;
+    this.score = finalScore;
+
     // Perform end-game balance analysis
     if (this.balanceTrackingManager.isEnabled()) {
       this.balanceTrackingManager.performEndGameAnalysis();
@@ -345,6 +351,11 @@ export class GameManager {
     // Export log if not AI run (AI exports its own logs)
     if (!this.aiPlayerManager.isEnabled()) {
       this.exportManualGameLog();
+    }
+
+    // Trigger game over callback with score
+    if (this.onGameOverCallback) {
+      this.onGameOverCallback(this.score);
     }
 
     // Clear game state to free memory (player can restart from menu)
@@ -449,6 +460,11 @@ export class GameManager {
   // Set callback for damage flash effect
   public setDamageFlashCallback(callback: () => void): void {
     this.onDamageFlashCallback = callback;
+  }
+
+  // Set callback for game over
+  public setGameOverCallback(callback: (score: number) => void): void {
+    this.onGameOverCallback = callback;
   }
 
   public spendMoney(amount: number): boolean {
@@ -694,6 +710,9 @@ export class GameManager {
           // Award money for killing zombie
           const reward = zombie.getReward();
           this.addMoney(reward);
+
+          // Add score for killing zombie (10 points per zombie)
+          this.addScore(10);
 
           // Track money earned from zombie kill
           if (this.balanceTrackingManager.isEnabled()) {
