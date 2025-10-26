@@ -29,51 +29,83 @@ export class StructureRenderer {
    */
   private renderDestroyedHouses(): void {
     const houses = [
-      { x: 120, y: 20, width: 70, height: 60, destroyed: 0.8 },
-      { x: 280, y: 45, width: 80, height: 70, destroyed: 0.6 },
-      { x: 480, y: 15, width: 65, height: 55, destroyed: 0.9 },
-      { x: 650, y: 35, width: 75, height: 65, destroyed: 0.7 },
-      { x: 950, y: 50, width: 55, height: 58, destroyed: 0.75 },
+      { x: 120, y: 20, width: 75, height: 65, destroyed: 0.8, style: 'cottage' },
+      { x: 280, y: 45, width: 85, height: 70, destroyed: 0.6, style: 'townhouse' },
+      { x: 480, y: 15, width: 70, height: 60, destroyed: 0.9, style: 'cottage' },
+      { x: 650, y: 35, width: 80, height: 68, destroyed: 0.7, style: 'farmhouse' },
+      { x: 950, y: 50, width: 72, height: 62, destroyed: 0.75, style: 'cottage' },
     ];
 
     for (const house of houses) {
-      this.renderDestroyedHouse(house.x, house.y, house.width, house.height, house.destroyed);
+      this.renderDestroyedHouse(
+        house.x,
+        house.y,
+        house.width,
+        house.height,
+        house.destroyed,
+        house.style as 'cottage' | 'townhouse' | 'farmhouse'
+      );
     }
   }
 
   /**
-   * Render a single destroyed house
+   * Render a single destroyed house with architectural style
    */
   private renderDestroyedHouse(
     x: number,
     y: number,
     width: number,
     height: number,
-    destroyedLevel: number
+    destroyedLevel: number,
+    style: 'cottage' | 'townhouse' | 'farmhouse' = 'cottage'
   ): void {
-    const wallHeight = height * (1 - destroyedLevel * 0.5);
-    const wallThickness = 6;
+    const wallHeight = height * (1 - destroyedLevel * 0.4);
+    const wallThickness = 5;
 
-    // Floor/foundation
-    this.mapContainer.rect(x, y + height, width, 8).fill(0x696969);
-    this.mapContainer.stroke({ width: 1, color: 0x4a4a4a });
+    // Foundation/base - more prominent
+    const foundationHeight = 6;
+    this.mapContainer.rect(x - 2, y + height, width + 4, foundationHeight).fill(0x5a5a5a);
+    this.mapContainer.stroke({ width: 1, color: 0x3a3a3a });
 
-    // Back wall (solid, darkest for depth)
-    this.mapContainer.rect(x, y + height - wallHeight, width, wallHeight).fill(0x6b5d4f);
-    this.mapContainer.stroke({ width: 2, color: 0x4a3a2a });
-
-    // Left wall (damaged)
-    if (destroyedLevel < 0.85) {
-      const leftWallHeight = wallHeight * (1 - destroyedLevel * 0.3);
+    // Foundation cracks
+    for (let i = 0; i < 2; i++) {
+      const crackX = x + width * (0.3 + i * 0.4);
       this.mapContainer
-        .rect(x, y + height - leftWallHeight, wallThickness, leftWallHeight)
-        .fill(0x8b7355);
-      this.mapContainer.stroke({ width: 1, color: 0x654321 });
+        .moveTo(crackX, y + height)
+        .lineTo(crackX + (Math.random() - 0.5) * 4, y + height + foundationHeight)
+        .stroke({ width: 1, color: 0x2a2a2a, alpha: 0.5 });
     }
 
-    // Right wall (more damaged)
+    // Back wall (solid, darkest for depth) - consistent color
+    const backWallColor = style === 'townhouse' ? 0x7a6a5a : 0x6b5d4f;
+    this.mapContainer.rect(x, y + height - wallHeight, width, wallHeight).fill(backWallColor);
+    this.mapContainer.stroke({ width: 2, color: 0x4a3a2a });
+
+    // Side walls - consistent thickness and color
+    const sideWallColor = 0x8b7355;
+
+    // Left wall (damaged, jagged top)
+    if (destroyedLevel < 0.85) {
+      const leftWallHeight = wallHeight * (1 - destroyedLevel * 0.25);
+      this.mapContainer
+        .rect(x, y + height - leftWallHeight, wallThickness, leftWallHeight)
+        .fill(sideWallColor);
+      this.mapContainer.stroke({ width: 1, color: 0x654321 });
+
+      // Jagged damage at top
+      if (destroyedLevel > 0.6) {
+        for (let i = 0; i < 3; i++) {
+          const jagX = x + Math.random() * wallThickness;
+          const jagY = y + height - leftWallHeight + Math.random() * 8;
+          const jagSize = 2 + Math.random() * 3;
+          this.mapContainer.rect(jagX, jagY, jagSize, jagSize).fill(0x6a5a4a);
+        }
+      }
+    }
+
+    // Right wall (more damaged, jagged top)
     if (destroyedLevel < 0.75) {
-      const rightWallHeight = wallHeight * (1 - destroyedLevel * 0.5);
+      const rightWallHeight = wallHeight * (1 - destroyedLevel * 0.4);
       this.mapContainer
         .rect(
           x + width - wallThickness,
@@ -81,143 +113,301 @@ export class StructureRenderer {
           wallThickness,
           rightWallHeight
         )
-        .fill(0x8b7355);
+        .fill(sideWallColor);
       this.mapContainer.stroke({ width: 1, color: 0x654321 });
+
+      // Jagged damage at top
+      if (destroyedLevel > 0.5) {
+        for (let i = 0; i < 4; i++) {
+          const jagX = x + width - wallThickness + Math.random() * wallThickness;
+          const jagY = y + height - rightWallHeight + Math.random() * 10;
+          const jagSize = 2 + Math.random() * 3;
+          this.mapContainer.rect(jagX, jagY, jagSize, jagSize).fill(0x6a5a4a);
+        }
+      }
     }
 
-    // Front wall sections (with gaps)
-    const frontWallHeight = wallHeight * 0.9;
+    // Front wall sections (with gaps) - consistent color
+    const frontWallHeight = wallHeight * 0.88;
+    const frontWallColor = 0xa0826d;
+
     if (destroyedLevel < 0.8) {
-      // Left section
+      // Left section with brick texture
+      const leftSectionWidth = width * 0.32;
       this.mapContainer
-        .rect(x + wallThickness, y + height - frontWallHeight, width * 0.3, frontWallHeight)
-        .fill(0xa0826d);
+        .rect(x + wallThickness, y + height - frontWallHeight, leftSectionWidth, frontWallHeight)
+        .fill(frontWallColor);
       this.mapContainer.stroke({ width: 1, color: 0x654321 });
-      // Right section
+
+      // Add brick lines for texture
+      if (style === 'townhouse' || style === 'farmhouse') {
+        for (let i = 0; i < 4; i++) {
+          const brickY = y + height - frontWallHeight + (i * frontWallHeight) / 4;
+          this.mapContainer
+            .moveTo(x + wallThickness, brickY)
+            .lineTo(x + wallThickness + leftSectionWidth, brickY)
+            .stroke({ width: 1, color: 0x8a7a6a, alpha: 0.4 });
+        }
+      }
+
+      // Right section with brick texture
+      const rightSectionStart = x + width * 0.63;
+      const rightSectionWidth = width * 0.37 - wallThickness;
       this.mapContainer
-        .rect(
-          x + width * 0.65,
-          y + height - frontWallHeight,
-          width * 0.35 - wallThickness,
-          frontWallHeight
-        )
-        .fill(0xa0826d);
+        .rect(rightSectionStart, y + height - frontWallHeight, rightSectionWidth, frontWallHeight)
+        .fill(frontWallColor);
       this.mapContainer.stroke({ width: 1, color: 0x654321 });
+
+      // Add brick lines for texture
+      if (style === 'townhouse' || style === 'farmhouse') {
+        for (let i = 0; i < 4; i++) {
+          const brickY = y + height - frontWallHeight + (i * frontWallHeight) / 4;
+          this.mapContainer
+            .moveTo(rightSectionStart, brickY)
+            .lineTo(rightSectionStart + rightSectionWidth, brickY)
+            .stroke({ width: 1, color: 0x8a7a6a, alpha: 0.4 });
+        }
+      }
     }
 
-    // Collapsed roof
+    // Collapsed roof - more realistic structure
     if (destroyedLevel < 0.9) {
+      const roofColor = style === 'farmhouse' ? 0x7a4a3a : 0x8b4513;
+      const roofPeakHeight = style === 'townhouse' ? 15 : 12;
+
+      // Main roof section (collapsed/sagging)
       this.mapContainer
         .moveTo(x + wallThickness, y + height - wallHeight)
-        .lineTo(x + width * 0.4, y + height - wallHeight - 12)
-        .lineTo(x + width * 0.8, y + height - wallHeight + 8)
-        .lineTo(x + width - wallThickness, y + height - wallHeight * 0.6)
+        .lineTo(x + width * 0.35, y + height - wallHeight - roofPeakHeight)
+        .lineTo(x + width * 0.65, y + height - wallHeight - roofPeakHeight * 0.6)
+        .lineTo(x + width * 0.85, y + height - wallHeight + 6)
+        .lineTo(x + width - wallThickness, y + height - wallHeight * 0.5)
         .lineTo(x + wallThickness, y + height - wallHeight)
-        .fill({ color: 0x8b4513, alpha: 0.9 });
+        .fill({ color: roofColor, alpha: 0.9 });
       this.mapContainer.stroke({ width: 2, color: 0x654321 });
+
+      // Roof damage holes
+      if (destroyedLevel > 0.7) {
+        const holeX = x + width * 0.55;
+        const holeY = y + height - wallHeight - roofPeakHeight * 0.4;
+        this.mapContainer
+          .moveTo(holeX, holeY)
+          .lineTo(holeX + 8, holeY + 3)
+          .lineTo(holeX + 6, holeY + 8)
+          .lineTo(holeX - 2, holeY + 6)
+          .lineTo(holeX, holeY)
+          .fill({ color: 0x2a2a2a, alpha: 0.6 });
+      }
+
+      // Roof texture lines
+      for (let i = 0; i < 3; i++) {
+        const lineY = y + height - wallHeight - roofPeakHeight * 0.8 + i * 4;
+        this.mapContainer
+          .moveTo(x + width * 0.35, lineY)
+          .lineTo(x + width * 0.75, lineY + 2)
+          .stroke({ width: 1, color: 0x6a3a2a, alpha: 0.5 });
+      }
     }
 
-    // Window
+    // Windows - more detailed and consistent
     if (destroyedLevel < 0.75) {
-      const windowX = x + width * 0.2;
-      const windowY = y + height - frontWallHeight * 0.6;
-      this.mapContainer.rect(windowX, windowY, 14, 18).fill(0x1a1a1a);
-      this.mapContainer.stroke({ width: 2, color: 0x654321 });
-      // Broken glass
+      const windowWidth = 16;
+      const windowHeight = 20;
+
+      // Left window
+      const window1X = x + width * 0.18;
+      const window1Y = y + height - frontWallHeight * 0.65;
+
+      // Window frame
       this.mapContainer
-        .moveTo(windowX, windowY)
-        .lineTo(windowX + 14, windowY + 18)
-        .stroke({ width: 1, color: 0x4a4a4a });
+        .rect(window1X - 2, window1Y - 2, windowWidth + 4, windowHeight + 4)
+        .fill(0x654321);
+
+      // Window opening (dark)
+      this.mapContainer.rect(window1X, window1Y, windowWidth, windowHeight).fill(0x1a1a1a);
+
+      // Broken glass shards
       this.mapContainer
-        .moveTo(windowX + 14, windowY)
-        .lineTo(windowX, windowY + 18)
-        .stroke({ width: 1, color: 0x4a4a4a });
+        .moveTo(window1X, window1Y)
+        .lineTo(window1X + windowWidth, window1Y + windowHeight)
+        .stroke({ width: 1, color: 0x4a4a4a, alpha: 0.6 });
+      this.mapContainer
+        .moveTo(window1X + windowWidth, window1Y)
+        .lineTo(window1X, window1Y + windowHeight)
+        .stroke({ width: 1, color: 0x4a4a4a, alpha: 0.6 });
+
+      // Window divider (cross)
+      this.mapContainer
+        .moveTo(window1X + windowWidth / 2, window1Y)
+        .lineTo(window1X + windowWidth / 2, window1Y + windowHeight)
+        .stroke({ width: 2, color: 0x654321 });
+      this.mapContainer
+        .moveTo(window1X, window1Y + windowHeight / 2)
+        .lineTo(window1X + windowWidth, window1Y + windowHeight / 2)
+        .stroke({ width: 2, color: 0x654321 });
+
+      // Right window (if less destroyed)
+      if (destroyedLevel < 0.7 && style !== 'cottage') {
+        const window2X = x + width * 0.72;
+        const window2Y = y + height - frontWallHeight * 0.65;
+
+        // Window frame
+        this.mapContainer
+          .rect(window2X - 2, window2Y - 2, windowWidth + 4, windowHeight + 4)
+          .fill(0x654321);
+
+        // Window opening
+        this.mapContainer.rect(window2X, window2Y, windowWidth, windowHeight).fill(0x1a1a1a);
+
+        // Broken glass
+        this.mapContainer
+          .moveTo(window2X, window2Y + windowHeight)
+          .lineTo(window2X + windowWidth, window2Y)
+          .stroke({ width: 1, color: 0x4a4a4a, alpha: 0.6 });
+      }
     }
 
-    // Door
+    // Door - more detailed and realistic
     if (destroyedLevel < 0.8) {
-      const doorX = x + width * 0.45;
-      const doorY = y + height - frontWallHeight * 0.8;
-      const doorWidth = 18;
-      const doorHeight = frontWallHeight * 0.7;
-      // Frame
-      this.mapContainer.rect(doorX - 2, doorY, doorWidth + 4, doorHeight).fill(0x4a3a2a);
-      // Door (tilted)
+      const doorX = x + width * 0.44;
+      const doorY = y + height - frontWallHeight * 0.85;
+      const doorWidth = 20;
+      const doorHeight = frontWallHeight * 0.75;
+
+      // Door frame (thicker, more prominent)
+      this.mapContainer.rect(doorX - 3, doorY - 2, doorWidth + 6, doorHeight + 2).fill(0x4a3a2a);
+      this.mapContainer.stroke({ width: 1, color: 0x3a2a1a });
+
+      // Door (hanging off hinges, tilted)
+      const tiltOffset = destroyedLevel > 0.7 ? 6 : 3;
       this.mapContainer
         .moveTo(doorX, doorY)
-        .lineTo(doorX + doorWidth, doorY + 5)
-        .lineTo(doorX + doorWidth - 3, doorY + doorHeight)
-        .lineTo(doorX - 3, doorY + doorHeight - 5)
+        .lineTo(doorX + doorWidth, doorY + tiltOffset)
+        .lineTo(doorX + doorWidth - 4, doorY + doorHeight)
+        .lineTo(doorX - 4, doorY + doorHeight - tiltOffset)
         .lineTo(doorX, doorY)
         .fill(0x654321);
-      this.mapContainer.stroke({ width: 1, color: 0x4a3a2a });
+      this.mapContainer.stroke({ width: 2, color: 0x4a3a2a });
+
+      // Door panels (vertical planks)
+      for (let i = 1; i < 3; i++) {
+        const plankX = doorX + (i * doorWidth) / 3;
+        this.mapContainer
+          .moveTo(plankX, doorY)
+          .lineTo(plankX + (i * tiltOffset) / 3, doorY + doorHeight - tiltOffset)
+          .stroke({ width: 1, color: 0x5a4a3a, alpha: 0.6 });
+      }
+
+      // Door handle (broken)
+      if (destroyedLevel < 0.75) {
+        const handleX = doorX + doorWidth * 0.8;
+        const handleY = doorY + doorHeight * 0.5;
+        this.mapContainer.circle(handleX, handleY, 2).fill(0x3a3a3a);
+      }
     }
 
-    // Rubble - irregular chunks
-    const rubbleCount = Math.floor(8 + destroyedLevel * 15);
+    // Rubble - more varied and realistic
+    const rubbleCount = Math.floor(10 + destroyedLevel * 18);
+    const rubbleColors = [0x696969, 0x7a6a5a, 0x8b7355, 0x5a5a5a];
+
     for (let i = 0; i < rubbleCount; i++) {
-      const rx = x + Math.random() * width;
-      const ry = y + height + 8 + Math.random() * 12;
-      const size = 4 + Math.random() * 6;
-      // Irregular rubble shapes - use poly for closed shapes
-      const points = 3 + Math.floor(Math.random() * 3);
+      const rx = x - 5 + Math.random() * (width + 10);
+      const ry = y + height + 6 + Math.random() * 15;
+      const size = 3 + Math.random() * 7;
+
+      // Irregular rubble shapes
+      const points = 3 + Math.floor(Math.random() * 4);
       const rubblePath: number[] = [];
       for (let j = 0; j < points; j++) {
-        const angle = (j / points) * Math.PI * 2;
-        const radius = size * (0.7 + Math.random() * 0.5);
+        const angle = (j / points) * Math.PI * 2 + Math.random() * 0.3;
+        const radius = size * (0.6 + Math.random() * 0.6);
         rubblePath.push(rx + Math.cos(angle) * radius);
         rubblePath.push(ry + Math.sin(angle) * radius);
       }
-      this.mapContainer.poly(rubblePath).fill(0x696969);
-    }
 
-    // Burn marks - irregular scorch patterns using rectangles
-    if (destroyedLevel > 0.6) {
-      // Left burn mark - multiple overlapping rectangles for organic look
-      const burnX1 = x + width * 0.3;
-      const burnY1 = y + height - wallHeight * 0.5;
-      for (let i = 0; i < 5; i++) {
-        const offsetX = (Math.random() - 0.5) * 12;
-        const offsetY = (Math.random() - 0.5) * 12;
-        const burnSize = 8 + Math.random() * 8;
+      const rubbleColor = rubbleColors[Math.floor(Math.random() * rubbleColors.length)];
+      this.mapContainer.poly(rubblePath).fill(rubbleColor);
+
+      // Add shadow to rubble
+      if (size > 5) {
         this.mapContainer
-          .rect(
-            burnX1 + offsetX - burnSize / 2,
-            burnY1 + offsetY - burnSize / 2,
-            burnSize,
-            burnSize
-          )
+          .ellipse(rx + 1, ry + size * 0.5, size * 0.8, size * 0.4)
           .fill({ color: 0x1a1a1a, alpha: 0.3 });
       }
+    }
 
-      // Right burn mark
-      const burnX2 = x + width * 0.7;
-      const burnY2 = y + height - wallHeight * 0.3;
-      for (let i = 0; i < 4; i++) {
-        const offsetX = (Math.random() - 0.5) * 10;
-        const offsetY = (Math.random() - 0.5) * 10;
-        const burnSize = 6 + Math.random() * 6;
-        this.mapContainer
-          .rect(
-            burnX2 + offsetX - burnSize / 2,
-            burnY2 + offsetY - burnSize / 2,
-            burnSize,
-            burnSize
-          )
-          .fill({ color: 0x1a1a1a, alpha: 0.25 });
+    // Larger debris pieces
+    if (destroyedLevel > 0.7) {
+      for (let i = 0; i < 3; i++) {
+        const debrisX = x + width * (0.2 + i * 0.3);
+        const debrisY = y + height + 8;
+        const debrisW = 8 + Math.random() * 6;
+        const debrisH = 4 + Math.random() * 4;
+
+        // Broken wall piece
+        this.mapContainer.rect(debrisX, debrisY, debrisW, debrisH).fill(frontWallColor);
+        this.mapContainer.stroke({ width: 1, color: 0x654321 });
       }
     }
 
-    // Smoke - use ellipses for organic puffs
-    if (destroyedLevel > 0.7) {
-      for (let i = 0; i < 4; i++) {
-        const sx = x + width * 0.5 + (Math.random() - 0.5) * 25;
-        const sy = y + height - wallHeight - 15 - i * 10;
-        const smokeSize = 4 + i * 0.5;
-        // Use ellipse for organic smoke
+    // Burn marks - more realistic scorch patterns
+    if (destroyedLevel > 0.6) {
+      // Main burn area (left side)
+      const burnX1 = x + width * 0.25;
+      const burnY1 = y + height - wallHeight * 0.6;
+
+      // Large scorch mark
+      for (let i = 0; i < 6; i++) {
+        const offsetX = (Math.random() - 0.5) * 15;
+        const offsetY = (Math.random() - 0.5) * 15;
+        const burnSize = 10 + Math.random() * 10;
         this.mapContainer
-          .ellipse(sx, sy, smokeSize * 1.2, smokeSize * 0.8)
-          .fill({ color: 0x808080, alpha: 0.35 - i * 0.08 });
+          .ellipse(burnX1 + offsetX, burnY1 + offsetY, burnSize * 0.8, burnSize * 0.6)
+          .fill({ color: 0x1a1a1a, alpha: 0.35 - i * 0.03 });
+      }
+
+      // Secondary burn area (right side, smaller)
+      if (destroyedLevel > 0.7) {
+        const burnX2 = x + width * 0.75;
+        const burnY2 = y + height - wallHeight * 0.4;
+
+        for (let i = 0; i < 4; i++) {
+          const offsetX = (Math.random() - 0.5) * 12;
+          const offsetY = (Math.random() - 0.5) * 12;
+          const burnSize = 7 + Math.random() * 7;
+          this.mapContainer
+            .ellipse(burnX2 + offsetX, burnY2 + offsetY, burnSize * 0.7, burnSize * 0.5)
+            .fill({ color: 0x1a1a1a, alpha: 0.3 - i * 0.04 });
+        }
+      }
+
+      // Soot streaks running down walls
+      for (let i = 0; i < 3; i++) {
+        const streakX = x + width * (0.2 + Math.random() * 0.6);
+        const streakY = y + height - wallHeight * (0.4 + Math.random() * 0.3);
+        const streakLength = 15 + Math.random() * 10;
+
+        this.mapContainer
+          .moveTo(streakX, streakY)
+          .lineTo(streakX + (Math.random() - 0.5) * 3, streakY + streakLength)
+          .stroke({ width: 2 + Math.random() * 2, color: 0x2a2a2a, alpha: 0.4 });
+      }
+    }
+
+    // Smoke - rising from heavily damaged houses
+    if (destroyedLevel > 0.75) {
+      const smokeX = x + width * 0.5;
+      const smokeBaseY = y + height - wallHeight - 10;
+
+      for (let i = 0; i < 5; i++) {
+        const sx = smokeX + (Math.random() - 0.5) * 20;
+        const sy = smokeBaseY - i * 12;
+        const smokeSize = 5 + i * 1.2;
+        const drift = Math.sin(i * 0.5) * 8;
+
+        this.mapContainer
+          .ellipse(sx + drift, sy, smokeSize * 1.3, smokeSize * 0.9)
+          .fill({ color: 0x808080, alpha: 0.4 - i * 0.07 });
       }
     }
 
