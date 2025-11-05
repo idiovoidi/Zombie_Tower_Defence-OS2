@@ -574,10 +574,10 @@ export class Zombie extends GameObject {
     // OPTIMIZATION: Simplified sway calculation (single sine wave instead of two)
     // This reduces Math.sin() calls from 2 to 1 per zombie per frame
     this.swayTime += deltaTime / 1000;
-    const swayFrequency = 1.5; // Fixed frequency for consistency
+    const swayFrequency = 0.8; // Reduced from 1.5 for gentler movement
     const swayAmplitude = this.getSwayAmplitude();
 
-    // Single sine wave for sway (still looks good, much faster)
+    // Single sine wave for sway with random offset for desynchronization
     const swayValue = Math.sin(this.swayTime * swayFrequency * Math.PI * 2 + this.swayOffset);
 
     // Calculate perpendicular direction for sway (rotate 90 degrees)
@@ -596,25 +596,25 @@ export class Zombie extends GameObject {
     this.transformComponent.setPosition(this.position.x, this.position.y);
   }
 
-  // Get sway amplitude based on zombie type (increased for more shambling)
+  // Get sway amplitude based on zombie type (reduced for subtler movement)
   private getSwayAmplitude(): number {
     switch (this.type) {
       case GameConfig.ZOMBIE_TYPES.BASIC:
-        return 18; // Heavy shamble
+        return 8; // Subtle shamble
       case GameConfig.ZOMBIE_TYPES.FAST:
-        return 10; // Quick, darting movement
+        return 5; // Quick, darting movement
       case GameConfig.ZOMBIE_TYPES.TANK:
-        return 25; // Massive lumbering sway
+        return 12; // Lumbering sway
       case GameConfig.ZOMBIE_TYPES.ARMORED:
-        return 14; // Heavy armored shamble
+        return 7; // Heavy armored shamble
       case GameConfig.ZOMBIE_TYPES.SWARM:
-        return 22; // Very erratic, chaotic movement
+        return 10; // Erratic movement
       case GameConfig.ZOMBIE_TYPES.STEALTH:
-        return 12; // Weaving, unpredictable
+        return 6; // Weaving, unpredictable
       case GameConfig.ZOMBIE_TYPES.MECHANICAL:
-        return 8; // Slight mechanical drift
+        return 4; // Slight mechanical drift
       default:
-        return 18;
+        return 8;
     }
   }
 
