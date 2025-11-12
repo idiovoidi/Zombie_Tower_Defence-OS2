@@ -12,9 +12,9 @@
  * - Cleanup effectiveness: 80%+ memory reduction
  */
 
-import { PerformanceMonitor } from './PerformanceMonitor';
-import { ResourceCleanupManager } from './ResourceCleanupManager';
-import { EffectCleanupManager } from './EffectCleanupManager';
+import { PerformanceMonitor } from '../../src/utils/PerformanceMonitor';
+import { ResourceCleanupManager } from '../../src/utils/ResourceCleanupManager';
+import { EffectCleanupManager } from '../../src/utils/EffectCleanupManager';
 
 describe('Memory Leak Tests', () => {
   beforeEach(() => {

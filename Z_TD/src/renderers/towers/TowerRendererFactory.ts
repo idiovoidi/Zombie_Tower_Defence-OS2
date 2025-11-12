@@ -2,6 +2,9 @@ import { GameConfig } from '@config/gameConfig';
 import type { ITowerRenderer } from './ITowerRenderer';
 import { DefaultTowerRenderer } from './DefaultTowerRenderer';
 import { MachineGunRenderer } from './MachineGunRenderer';
+import { SniperRenderer } from './SniperRenderer';
+import { ShotgunRenderer } from './ShotgunRenderer';
+import { FlameRenderer } from './FlameRenderer';
 
 /**
  * Factory for creating tower renderers
@@ -19,19 +22,13 @@ export class TowerRendererFactory {
         return new MachineGunRenderer();
 
       case GameConfig.TOWER_TYPES.SNIPER:
-        // TODO: Implement SniperRenderer in Phase 2
-        console.warn(`SniperRenderer not yet implemented, using default`);
-        return new DefaultTowerRenderer();
+        return new SniperRenderer();
 
       case GameConfig.TOWER_TYPES.SHOTGUN:
-        // TODO: Implement ShotgunRenderer in Phase 2
-        console.warn(`ShotgunRenderer not yet implemented, using default`);
-        return new DefaultTowerRenderer();
+        return new ShotgunRenderer();
 
       case GameConfig.TOWER_TYPES.FLAME:
-        // TODO: Implement FlameRenderer in Phase 2
-        console.warn(`FlameRenderer not yet implemented, using default`);
-        return new DefaultTowerRenderer();
+        return new FlameRenderer();
 
       case GameConfig.TOWER_TYPES.TESLA:
         // TODO: Implement TeslaRenderer in Phase 2

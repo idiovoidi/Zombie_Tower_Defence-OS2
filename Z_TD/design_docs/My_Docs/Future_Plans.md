@@ -25,6 +25,7 @@ Fix the money animation MoneyAnimation.ts in the future
 
 Each tower should have 2 special effects you can upgrade that you have to choose between in addition to the main upgrade tree, these will more so change the functionality of the tower
 
+Add a user map creator system where maps can be built in game and saved to a file, the user should be able to configure the amount of zombies per wave to create their own custom scenarios.
 
 ---
 

@@ -50,6 +50,6 @@
       "@renderers/*": ["src/renderers/*"]
     }
   },
-  "include": ["src"],
+  "include": ["src", "tests/old_tests/StatisticalAnalyzer.test.ts", "tests/old_tests/PerformanceMonitor.test.ts", "tests/old_tests/OptimizationValidation.test.ts", "tests/old_tests/MemoryLeakTests.test.ts", "tests/old_tests/OptimizationValidator.test.ts"],
   "exclude": ["node_modules", "dist"]
 }

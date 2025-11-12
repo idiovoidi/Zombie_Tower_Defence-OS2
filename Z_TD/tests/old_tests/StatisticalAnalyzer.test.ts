@@ -5,7 +5,7 @@
  * trend analysis, predictive modeling, and statistical summaries.
  */
 
-import { StatisticalAnalyzer } from './StatisticalAnalyzer';
+import { StatisticalAnalyzer } from '../../src/utils/StatisticalAnalyzer';
 
 describe('StatisticalAnalyzer', () => {
   describe('detectOutliers', () => {

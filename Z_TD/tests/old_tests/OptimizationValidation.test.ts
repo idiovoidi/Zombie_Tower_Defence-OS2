@@ -9,10 +9,10 @@
  * Requirements: 5.1, 5.2, 6.1, 6.2, 6.4
  */
 
-import { SpatialGrid } from './SpatialGrid';
-import { ObjectPool } from './ObjectPool';
-import { ProjectileManager } from '../managers/ProjectileManager';
-import { TowerPlacementManager } from '../managers/TowerPlacementManager';
+import { SpatialGrid } from '../../src/utils/SpatialGrid';
+import { ObjectPool } from '../../src/utils/ObjectPool';
+import { ProjectileManager } from '../../src/managers/ProjectileManager';
+import { TowerPlacementManager } from '../../src/managers/TowerPlacementManager';
 import { Container } from 'pixi.js';
 
 // Mock entity for spatial grid tests

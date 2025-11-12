@@ -26,6 +26,8 @@ src/
 
 ## Architecture Patterns
 
+prefer "@/..." over deep relative paths ("../../...") to improve readability, refactor safety, and consistent navigation as the project grows.
+
 ### Manager Pattern
 
 Core game systems are organized as managers (GameManager, TowerManager, WaveManager, etc.). Each manager:
