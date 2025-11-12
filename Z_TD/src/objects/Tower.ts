@@ -325,20 +325,6 @@ export class Tower extends GameObject implements ITower, TowerEffects {
     this.rangeVisualizer.hideRange();
   }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
   /**
    * Get the tower type
    * @returns The tower type
@@ -469,36 +455,6 @@ export class Tower extends GameObject implements ITower, TowerEffects {
   public getHealthPercentage(): number {
     const healthComponent = this.getComponent<HealthComponent>('Health');
     return healthComponent ? healthComponent.getHealthPercentage() : 0;
-  }
-
-  // Add upgrade stars to show upgrade level
-  private addUpgradeStars(): void {
-    if (this.upgradeLevel <= 1) {
-      return;
-    }
-
-    const starCount = Math.min(this.upgradeLevel - 1, 5);
-    const starSize = 3;
-    const spacing = 8;
-    const startX = (-(starCount - 1) * spacing) / 2;
-
-    for (let i = 0; i < starCount; i++) {
-      const x = startX + i * spacing;
-      const y = -30;
-
-      // Draw a simple star
-      this.visual
-        .moveTo(x, y - starSize)
-        .lineTo(x + starSize * 0.3, y - starSize * 0.3)
-        .lineTo(x + starSize, y)
-        .lineTo(x + starSize * 0.3, y + starSize * 0.3)
-        .lineTo(x, y + starSize)
-        .lineTo(x - starSize * 0.3, y + starSize * 0.3)
-        .lineTo(x - starSize, y)
-        .lineTo(x - starSize * 0.3, y - starSize * 0.3)
-        .lineTo(x, y - starSize)
-        .fill(0xffd700); // Gold stars
-    }
   }
 
   // Update visual based on tower type
