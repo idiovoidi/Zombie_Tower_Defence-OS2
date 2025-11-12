@@ -1,11 +1,6 @@
 # Implementation Plan
 
 - [x] 1. Move effects folder to renderers directory
-
-
-
-
-
   - Move all files from `src/effects/` to `src/renderers/effects/`
   - Update imports in Tower.ts to reference new location
   - Update imports in tower-specific classes (FlameTower.ts, SniperTower.ts, etc.)
@@ -65,7 +60,7 @@
   - Implement destroy() to clean up barrelHeatGlow
   - _Requirements: 1.1, 2.1, 2.2, 3.1, 3.2, 3.3, 3.4, 6.1, 6.2, 6.3, 6.4, 6.5_
 
-- [ ]* 3.2 Write unit tests for MachineGunTowerRenderer
+- [ ]\* 3.2 Write unit tests for MachineGunTowerRenderer
   - Test constructor initializes correctly
   - Test createTowerVisual() creates appropriate graphics for each upgrade level
   - Test idle animation updates correctly
@@ -91,7 +86,7 @@
   - Implement destroy() to clean up laser sight
   - _Requirements: 1.1, 2.1, 2.2, 3.1, 3.2, 3.3, 3.4, 6.1, 6.2, 6.3, 6.4, 6.5_
 
-- [ ]* 4.2 Write unit tests for SniperTowerRenderer
+- [ ]\* 4.2 Write unit tests for SniperTowerRenderer
   - Test constructor initializes correctly
   - Test createTowerVisual() creates appropriate graphics for each upgrade level
   - Test idle animation breathing motion
@@ -110,7 +105,7 @@
   - Implement createShootingEffect() for dual-barrel muzzle flash
   - _Requirements: 1.1, 2.1, 2.2, 3.1, 3.2, 3.3, 6.1, 6.2, 6.3, 6.4, 6.5_
 
-- [ ]* 5.2 Write unit tests for ShotgunTowerRenderer
+- [ ]\* 5.2 Write unit tests for ShotgunTowerRenderer
   - Test constructor initializes correctly
   - Test createTowerVisual() creates appropriate graphics for each upgrade level
   - Test pump animation timing
@@ -128,7 +123,7 @@
   - Implement createShootingEffect() for multi-layered flame burst with particles
   - _Requirements: 1.1, 2.1, 2.2, 3.1, 3.2, 3.3, 6.1, 6.2, 6.3, 6.4, 6.5_
 
-- [ ]* 6.2 Write unit tests for FlameTowerRenderer
+- [ ]\* 6.2 Write unit tests for FlameTowerRenderer
   - Test constructor initializes correctly
   - Test createTowerVisual() creates appropriate graphics for each upgrade level
   - Test flickering animation
@@ -146,7 +141,7 @@
   - Implement createShootingEffect() for electric discharge with radiating sparks
   - _Requirements: 1.1, 2.1, 2.2, 3.1, 3.2, 3.3, 6.1, 6.2, 6.3, 6.4, 6.5_
 
-- [ ]* 7.2 Write unit tests for TeslaTowerRenderer
+- [ ]\* 7.2 Write unit tests for TeslaTowerRenderer
   - Test constructor initializes correctly
   - Test createTowerVisual() creates appropriate graphics for each upgrade level
   - Test rotation animation
@@ -164,7 +159,7 @@
   - Implement createShootingEffect() for launch flash with smoke puff
   - _Requirements: 1.1, 2.1, 2.2, 3.1, 3.2, 3.3, 6.1, 6.2, 6.3, 6.4, 6.5_
 
-- [ ]* 8.2 Write unit tests for GrenadeTowerRenderer
+- [ ]\* 8.2 Write unit tests for GrenadeTowerRenderer
   - Test constructor initializes correctly
   - Test createTowerVisual() creates appropriate graphics for each upgrade level
   - Test bobbing animation
@@ -182,7 +177,7 @@
   - Implement createShootingEffect() for toxic splash with drip particles
   - _Requirements: 1.1, 2.1, 2.2, 3.1, 3.2, 3.3, 6.1, 6.2, 6.3, 6.4, 6.5_
 
-- [ ]* 9.2 Write unit tests for SludgeTowerRenderer
+- [ ]\* 9.2 Write unit tests for SludgeTowerRenderer
   - Test constructor initializes correctly
   - Test createTowerVisual() creates appropriate graphics for each upgrade level
   - Test bubbling animation
@@ -224,7 +219,7 @@
   - Remove updateVisual() method (now handled by renderer)
   - _Requirements: 1.1, 1.2, 1.3, 1.4, 7.3, 7.4_
 
-- [ ]* 11.2 Update Tower.ts unit tests
+- [ ]\* 11.2 Update Tower.ts unit tests
   - Update tests to verify renderer is created correctly
   - Update tests to verify renderer methods are called appropriately
   - Update tests to verify renderer is destroyed with tower
@@ -239,7 +234,7 @@
   - Update imports to remove references to removed visual methods
   - _Requirements: 1.4, 2.3_
 
-- [ ]* 12.2 Update tower subclass tests
+- [ ]\* 12.2 Update tower subclass tests
   - Update tests to verify tower behavior without visual code
   - Verify renderer integration works correctly
   - _Requirements: 1.4_
@@ -252,7 +247,7 @@
   - Verify shooting effects are triggered through tower.shoot() method
   - _Requirements: 1.4, 7.3_
 
-- [ ]* 13.2 Update TowerCombatManager tests
+- [ ]\* 13.2 Update TowerCombatManager tests
   - Update tests to verify renderer integration
   - Test barrel rotation updates
   - Test effect triggering
@@ -272,7 +267,7 @@
   - Check test coverage meets 80% threshold
   - _Requirements: 1.4, 6.1, 6.2, 6.3, 6.4, 6.5_
 
-- [ ]* 14.3 Visual regression testing
+- [ ]\* 14.3 Visual regression testing
   - Manually test each tower type at each upgrade level
   - Verify all idle animations work correctly
   - Verify all shooting effects appear correctly
@@ -281,7 +276,7 @@
   - Compare visuals to pre-refactor screenshots if available
   - _Requirements: 6.1, 6.2, 6.3, 6.4, 6.5, 6.6_
 
-- [ ]* 14.4 Performance testing
+- [ ]\* 14.4 Performance testing
   - Monitor memory usage with multiple towers
   - Verify no memory leaks after wave cleanup
   - Check FPS with 10+ towers active

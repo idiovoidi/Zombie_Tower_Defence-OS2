@@ -12,30 +12,33 @@ Analysis of the codebase architecture to determine if it implements correct ECS 
 
 ## Architecture Comparison
 
-| Aspect | Current Implementation | True ECS |
-|--------|----------------------|----------|
-| **Entity** | `class GameObject extends Container` | Just an ID (number) |
-| **Component** | Classes with logic (`takeDamage()`) | Pure data structures |
-| **System** | Scattered across managers | Dedicated system classes |
-| **Inheritance** | `Tower extends GameObject` | No inheritance, pure composition |
-| **Component Access** | `entity.getComponent('Health')` | `world.getComponent(entityId, Component)` |
-| **Update Pattern** | Each entity updates components | Systems iterate matching entities |
+| Aspect               | Current Implementation               | True ECS                                  |
+| -------------------- | ------------------------------------ | ----------------------------------------- |
+| **Entity**           | `class GameObject extends Container` | Just an ID (number)                       |
+| **Component**        | Classes with logic (`takeDamage()`)  | Pure data structures                      |
+| **System**           | Scattered across managers            | Dedicated system classes                  |
+| **Inheritance**      | `Tower extends GameObject`           | No inheritance, pure composition          |
+| **Component Access** | `entity.getComponent('Health')`      | `world.getComponent(entityId, Component)` |
+| **Update Pattern**   | Each entity updates components       | Systems iterate matching entities         |
 
 ## Current Pattern: Component-Based OOP
 
 ### Entities
+
 - Extend `GameObject` which extends PixiJS `Container`
 - Store components in `Map<string, Component>`
 - Have their own `update()` methods
 - Use inheritance (`Tower extends GameObject`)
 
 ### Components
+
 - Are classes with both data AND logic
 - Example: `HealthComponent` has `takeDamage()` method
 - Retrieved by string name lookup
 - Have lifecycle methods (`init()`, `update()`, `destroy()`)
 
 ### Systems
+
 - No dedicated system classes
 - Logic distributed across managers:
   - `TowerCombatManager`
@@ -50,7 +53,7 @@ Analysis of the codebase architecture to determine if it implements correct ECS 
 ❌ Systems with component queries  
 ❌ Data-oriented design  
 ❌ Cache-coherent memory layout  
-❌ System-based update loops  
+❌ System-based update loops
 
 ## What You Have Instead
 
@@ -58,11 +61,12 @@ Analysis of the codebase architecture to determine if it implements correct ECS 
 ✅ Flexible entity configuration  
 ✅ Clean integration with PixiJS scene graph  
 ✅ Easier to understand and maintain  
-✅ Appropriate for game scale  
+✅ Appropriate for game scale
 
 ## Code Examples
 
 ### Current Implementation
+
 ```typescript
 // Entity with inheritance and logic
 class Tower extends GameObject {
@@ -91,15 +95,16 @@ class TowerCombatManager {
 ```
 
 ### True ECS Would Look Like
+
 ```typescript
 // Entity is just an ID
 const tower = world.createEntity();
 
 // Components are pure data
-world.addComponent(tower, { 
-  type: 'health', 
-  current: 100, 
-  max: 100 
+world.addComponent(tower, {
+  type: 'health',
+  current: 100,
+  max: 100,
 });
 
 // Systems contain all logic
@@ -124,12 +129,14 @@ class CombatSystem {
 5. **Performance**: Current performance is adequate for game requirements
 
 ### When True ECS Makes Sense
+
 - 10,000+ entities
 - Cache-coherent data access critical
 - Multi-threaded processing needed
 - Maximum performance optimization required
 
 ### Current Pattern Benefits
+
 - Simpler mental model
 - Better PixiJS integration
 - Easier debugging

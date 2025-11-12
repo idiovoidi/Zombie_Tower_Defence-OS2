@@ -18,8 +18,6 @@ if it is a summary , it goes in `task_reports/summary` directory
 
 Task reports to have date prefixed DD/MM/YYYY_[Filename]
 
-
 ## Task Report Format
 
 Ensure task reports are concise yet informative, favour tables over text when suitable
-

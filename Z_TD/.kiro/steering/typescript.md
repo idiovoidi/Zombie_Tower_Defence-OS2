@@ -7,6 +7,7 @@ inclusion: always
 ## Import Rules
 
 ### Path Aliases (REQUIRED)
+
 Always use `@/` path aliases for imports within `src/`:
 
 ```typescript
@@ -20,21 +21,24 @@ import type { Component } from '../../types/ComponentTypes';
 ```
 
 ### Type-Only Imports
+
 Use `type` keyword when importing only for type annotations:
 
 ```typescript
 // ✅ Type-only import (when used only in type positions)
 import type { Entity } from '@/core/Entity';
-function process(entity: Entity): void { }
+function process(entity: Entity): void {}
 
 // ✅ Value import (when using instanceof, static methods, or as value)
 import { Entity } from '@/core/Entity';
-if (obj instanceof Entity) { }
+if (obj instanceof Entity) {
+}
 ```
 
 ## Type vs Value Pattern
 
 ### Const Objects with Types
+
 When exporting const objects alongside types, use clear naming:
 
 ```typescript
@@ -44,7 +48,8 @@ export const LeaderboardCategory = {
   SPEED_RUN: 'speed_run',
 } as const;
 
-export type LeaderboardCategoryType = typeof LeaderboardCategory[keyof typeof LeaderboardCategory];
+export type LeaderboardCategoryType =
+  (typeof LeaderboardCategory)[keyof typeof LeaderboardCategory];
 
 // Usage in other files:
 import type { LeaderboardCategoryType } from '@/systems/social/LeaderboardSystem';
@@ -54,6 +59,7 @@ const category: LeaderboardCategoryType = LeaderboardCategory.ENDLESS_SURVIVAL;
 ```
 
 ### Component Types
+
 Use string literals with const assertions:
 
 ```typescript
@@ -77,6 +83,7 @@ export interface PositionComponent {
 ## Function Signatures
 
 ### Explicit Return Types (REQUIRED)
+
 Always specify return types for public functions and factories:
 
 ```typescript
@@ -92,6 +99,7 @@ export function createGuppy(x: number, y: number) {
 ```
 
 ### Unused Parameters
+
 Prefix intentionally unused parameters with underscore:
 
 ```typescript
@@ -109,6 +117,7 @@ public update(deltaTime: number): void {
 ## Config Objects
 
 ### Immutable Config
+
 Use `as const` for configuration objects:
 
 ```typescript
@@ -121,7 +130,7 @@ export const FISH_CONFIG = {
   carnivore: {
     baseHealth: 150,
     growthRate: 0.8,
-  }
+  },
 } as const;
 
 // Type inference works automatically
@@ -131,6 +140,7 @@ type FishType = keyof typeof FISH_CONFIG; // 'guppy' | 'carnivore'
 ## Event System
 
 ### Discriminated Unions
+
 Use discriminated unions for type-safe events:
 
 ```typescript
@@ -161,6 +171,7 @@ function handleEvent(event: GameEvent): void {
 ## Null Safety
 
 ### Strict Null Checks
+
 Leverage TypeScript's strict null checking:
 
 ```typescript
@@ -184,6 +195,7 @@ item.toUpperCase(); // Error if undefined
 ## Interface vs Type
 
 ### When to Use Each
+
 - **Interfaces**: For object shapes, can be extended
 - **Types**: For unions, intersections, primitives
 
@@ -198,7 +210,7 @@ export interface FishConfig {
 export type FishSpecies = 'guppy' | 'carnivore' | 'breeder';
 
 // ✅ Type for complex unions
-export type EntityType = 
+export type EntityType =
   | { kind: 'fish'; species: FishSpecies }
   | { kind: 'alien'; variant: AlienVariant }
   | { kind: 'pet'; name: string };
@@ -207,6 +219,7 @@ export type EntityType =
 ## Quick Checklist
 
 When writing new TypeScript code:
+
 - [ ] Use `@/` path aliases for all imports
 - [ ] Add `type` keyword to type-only imports
 - [ ] Specify explicit return types on functions
