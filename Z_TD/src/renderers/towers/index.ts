@@ -5,3 +5,7 @@ export { TowerRendererFactory } from './TowerRendererFactory';
 export { MachineGunRenderer } from './MachineGunRenderer';
 export { SniperRenderer } from './SniperRenderer';
 export { ShotgunRenderer } from './ShotgunRenderer';
+export { FlameRenderer } from './FlameRenderer';
+export { TeslaRenderer } from './TeslaRenderer';
+export { GrenadeRenderer } from './GrenadeRenderer';
+export { SludgeRenderer } from './SludgeRenderer';

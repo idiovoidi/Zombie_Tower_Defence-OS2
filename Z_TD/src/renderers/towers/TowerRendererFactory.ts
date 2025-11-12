@@ -5,6 +5,9 @@ import { MachineGunRenderer } from './MachineGunRenderer';
 import { SniperRenderer } from './SniperRenderer';
 import { ShotgunRenderer } from './ShotgunRenderer';
 import { FlameRenderer } from './FlameRenderer';
+import { TeslaRenderer } from './TeslaRenderer';
+import { GrenadeRenderer } from './GrenadeRenderer';
+import { SludgeRenderer } from './SludgeRenderer';
 
 /**
  * Factory for creating tower renderers
@@ -31,19 +34,13 @@ export class TowerRendererFactory {
         return new FlameRenderer();
 
       case GameConfig.TOWER_TYPES.TESLA:
-        // TODO: Implement TeslaRenderer in Phase 2
-        console.warn(`TeslaRenderer not yet implemented, using default`);
-        return new DefaultTowerRenderer();
+        return new TeslaRenderer();
 
       case GameConfig.TOWER_TYPES.GRENADE:
-        // TODO: Implement GrenadeRenderer in Phase 2
-        console.warn(`GrenadeRenderer not yet implemented, using default`);
-        return new DefaultTowerRenderer();
+        return new GrenadeRenderer();
 
       case GameConfig.TOWER_TYPES.SLUDGE:
-        // TODO: Implement SludgeRenderer in Phase 2
-        console.warn(`SludgeRenderer not yet implemented, using default`);
-        return new DefaultTowerRenderer();
+        return new SludgeRenderer();
 
       default:
         console.warn(`Unknown tower type: ${type}, using default renderer`);
