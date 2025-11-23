@@ -2,22 +2,53 @@
 inclusion: always
 ---
 
-## When to Create Documentation
+# Documentation Guidelines
 
-- **Only after verification**: Create task reports ONLY when the issue/feature is confirmed working
-- **On explicit request**: User asks for documentation or summary
-- **Never automatically**: Do not create summary files after completing work unless requested
+## Summary Creation
 
-## Documentation Location
+- Only create summaries when explicitly requested or after verifying a feature/fix is working
+- Merge new summaries into existing ones when they cover the same topic/feature
+- Include creation date at the top of each task report and prefixed to the filename
+- Place all task reports in `Docs/task_reports/` folder
 
-All task reports go in `task_reports` directory:
+For all summary documentation only these 4 following folders exist
+1. Art_Docs
+2. Code_Tech_Docs
+3. Design_Docs
+4. My_Docs
 
-If it is error and bug fix related, it goes in `task_reports/bugfix` directory
-If it is feature related, it goes in `task_reports/feature` directory
-if it is a summary , it goes in `task_reports/summary` directory
+- Place all gameplay design documents in `Docs/Design_Docs/` folder 
+- Place all technical code related documents in `Docs/Code_Tech_Docs/` folder
+- Place all visual design related art docs in `Docs/Art_Docs/` folder
+- `Docs/Design_Docs/` Are user created docs, these docs can be read but only modified by the user directly.
 
-Task reports to have date prefixed DD/MM/YYYY_[Filename]
+Use live links connecting the design, technical and art documents to the respective entity, feature or user interface.
 
-## Task Report Format
+Use live links to referenced files
+Markdown live link example:
+#[[file:<relative_file_name>]]
 
-Ensure task reports are concise yet informative, favour tables over text when suitable
+## Naming Convention
+
+**Required format:** `DD-MM-2025_[Filename].md`
+
+## Format
+
+Keep summaries concise and actionable. Focus on what changed, why, and any important context for future work.
+
+## Consolidation Guidelines
+
+When multiple documents cover overlapping topics:
+1. Create a new consolidated document with current date
+2. Merge content, removing duplicates
+3. Move old documents to appropriate Archive folder
+4. Update index files and READMEs to point to consolidated version
+
+## Index Files
+
+Maintain index files for easy navigation:
+- `task_reports/00_INDEX.md` - Task reports index
+- Each should reference consolidated guides as primary resources
+
+
+
