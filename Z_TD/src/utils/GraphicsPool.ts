@@ -10,52 +10,33 @@ export class GraphicsPool {
   private static rectanglePool: ObjectPool<Graphics>;
   private static linePool: ObjectPool<Graphics>;
 
+  private static resetGraphics(graphics: Graphics): void {
+    graphics.clear();
+    graphics.alpha = 1;
+    graphics.visible = true;
+    graphics.x = 0;
+    graphics.y = 0;
+    graphics.rotation = 0;
+    graphics.scale.set(1, 1);
+  }
+
   /**
    * Initialize the graphics pools
    */
   static initialize(): void {
-    // Pool for circle graphics (used in particles, explosions, etc.)
     this.circlePool = new ObjectPool<Graphics>(
       () => new Graphics(),
-      (graphics: Graphics) => {
-        graphics.clear();
-        graphics.alpha = 1;
-        graphics.visible = true;
-        graphics.x = 0;
-        graphics.y = 0;
-        graphics.rotation = 0;
-        graphics.scale.set(1, 1);
-      },
+      GraphicsPool.resetGraphics,
       100 // Max 100 pooled circle graphics
     );
-
-    // Pool for rectangle graphics (used in UI, effects, etc.)
     this.rectanglePool = new ObjectPool<Graphics>(
       () => new Graphics(),
-      (graphics: Graphics) => {
-        graphics.clear();
-        graphics.alpha = 1;
-        graphics.visible = true;
-        graphics.x = 0;
-        graphics.y = 0;
-        graphics.rotation = 0;
-        graphics.scale.set(1, 1);
-      },
+      GraphicsPool.resetGraphics,
       50 // Max 50 pooled rectangle graphics
     );
-
-    // Pool for line graphics (used in trails, connections, etc.)
     this.linePool = new ObjectPool<Graphics>(
       () => new Graphics(),
-      (graphics: Graphics) => {
-        graphics.clear();
-        graphics.alpha = 1;
-        graphics.visible = true;
-        graphics.x = 0;
-        graphics.y = 0;
-        graphics.rotation = 0;
-        graphics.scale.set(1, 1);
-      },
+      GraphicsPool.resetGraphics,
       50 // Max 50 pooled line graphics
     );
   }

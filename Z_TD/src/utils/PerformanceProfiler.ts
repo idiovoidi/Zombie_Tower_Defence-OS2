@@ -69,10 +69,18 @@ export class PerformanceProfiler {
   ): PerformanceMetrics {
     const executionTime = endTime - startTime;
     const passed = executionTime < threshold;
-    const metric: PerformanceMetrics = { operationName, executionTime, timestamp: startTime, passed, threshold };
+    const metric: PerformanceMetrics = {
+      operationName,
+      executionTime,
+      timestamp: startTime,
+      passed,
+      threshold,
+    };
     this.metrics.push(metric);
     const icon = passed ? '✅' : '❌';
-    console.log(`${icon} ${operationName}: ${executionTime.toFixed(3)}ms [${passed ? 'PASS' : 'FAIL'}] (threshold: ${threshold}ms)`);
+    console.log(
+      `${icon} ${operationName}: ${executionTime.toFixed(3)}ms [${passed ? 'PASS' : 'FAIL'}] (threshold: ${threshold}ms)`
+    );
     return metric;
   }
 

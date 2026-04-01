@@ -55,7 +55,7 @@ Status: [ ] Todo
 Files touched:
 - `src/renderers/zombies/ZombieCorpseRenderer.ts`
 
-Status: [ ] Todo
+Status: [x] Done — extracted `drawCorpseBody()` helper, each type now 2-5 lines
 
 ---
 
@@ -68,7 +68,7 @@ Status: [ ] Todo
 Files touched:
 - `src/renderers/map/TerrainRenderer.ts`
 
-Status: [ ] Todo
+Status: [x] Done — extracted `renderBlobPatches()` helper, 5 methods now 1 call each
 
 ---
 
@@ -95,7 +95,7 @@ Status: [ ] Todo
 Files touched:
 - `src/utils/PerformanceProfiler.ts`
 
-Status: [ ] Todo
+Status: [x] Done
 
 ---
 
@@ -108,7 +108,7 @@ Status: [ ] Todo
 Files touched:
 - `src/utils/GraphicsPool.ts`
 
-Status: [ ] Todo
+Status: [x] Done
 
 ---
 
@@ -121,7 +121,7 @@ Status: [ ] Todo
 Files touched:
 - `src/managers/WaveManager.ts`
 
-Status: [ ] Todo
+Status: [ ] Skipped — duplication is in wave data definitions (data, not logic), not worth refactoring
 
 ---
 
@@ -134,7 +134,7 @@ Status: [ ] Todo
 Files touched:
 - `src/managers/TowerCombatManager.ts`
 
-Status: [ ] Todo
+Status: [x] Done — extracted `applyDamageToZombie()` helper used by lightning arc and flame stream
 
 ---
 

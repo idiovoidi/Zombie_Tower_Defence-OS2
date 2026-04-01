@@ -68,11 +68,7 @@ export class ZombieCorpseRenderer {
 
   private renderCorpse(corpse: CorpseData): void {
     const { x, y, type, rotation, alpha } = corpse;
-
-    // Save current state
     this.graphics.save();
-
-    // Apply rotation (corpse lying on ground)
     const cos = Math.cos(rotation);
     const sin = Math.sin(rotation);
 
@@ -103,246 +99,98 @@ export class ZombieCorpseRenderer {
     this.graphics.restore();
   }
 
-  private renderBasicCorpse(x: number, y: number, cos: number, sin: number, alpha: number): void {
-    // Basic zombie corpse - green, humanoid shape lying down
-    const bodyWidth = 8;
-    const bodyHeight = 12;
-
-    // Body (flattened, lying down)
-    const points = [
-      { x: -bodyWidth / 2, y: -bodyHeight / 2 },
-      { x: bodyWidth / 2, y: -bodyHeight / 2 },
-      { x: bodyWidth / 2, y: bodyHeight / 2 },
-      { x: -bodyWidth / 2, y: bodyHeight / 2 },
+  /** Draw a rotated rectangular body and circular head, then fill with the given colors/alpha. */
+  private drawCorpseBody(
+    x: number,
+    y: number,
+    cos: number,
+    sin: number,
+    alpha: number,
+    bodyWidth: number,
+    bodyHeight: number,
+    bodyColor: number,
+    bodyAlpha: number,
+    headRadius: number,
+    headColor: number,
+    headAlpha: number,
+    headOffset: number
+  ): void {
+    const hw = bodyWidth / 2;
+    const hh = bodyHeight / 2;
+    const corners = [
+      { x: -hw, y: -hh },
+      { x: hw, y: -hh },
+      { x: hw, y: hh },
+      { x: -hw, y: hh },
     ];
-
-    const transformed = points.map(p => ({
+    const t = corners.map(p => ({
       x: x + p.x * cos - p.y * sin,
       y: y + p.x * sin + p.y * cos,
     }));
-
-    this.graphics.moveTo(transformed[0].x, transformed[0].y);
-    for (let i = 1; i < transformed.length; i++) {
-      this.graphics.lineTo(transformed[i].x, transformed[i].y);
+    this.graphics.moveTo(t[0].x, t[0].y);
+    for (let i = 1; i < t.length; i++) {
+      this.graphics.lineTo(t[i].x, t[i].y);
     }
-    this.graphics.lineTo(transformed[0].x, transformed[0].y);
-    this.graphics.fill({ color: 0x00aa00, alpha: alpha * 0.6 });
+    this.graphics.lineTo(t[0].x, t[0].y);
+    this.graphics.fill({ color: bodyColor, alpha: alpha * bodyAlpha });
 
-    // Head
-    const headX = x + 0 * cos - (-bodyHeight / 2 - 3) * sin;
-    const headY = y + 0 * sin + (-bodyHeight / 2 - 3) * cos;
-    this.graphics.circle(headX, headY, 3);
-    this.graphics.fill({ color: 0x00cc00, alpha: alpha * 0.6 });
+    const headX = x + 0 * cos - (-hh - headOffset) * sin;
+    const headY = y + 0 * sin + (-hh - headOffset) * cos;
+    this.graphics.circle(headX, headY, headRadius);
+    this.graphics.fill({ color: headColor, alpha: alpha * headAlpha });
+  }
 
-    // Blood pool
+  private renderBasicCorpse(x: number, y: number, cos: number, sin: number, alpha: number): void {
+    this.drawCorpseBody(x, y, cos, sin, alpha, 8, 12, 0x00aa00, 0.6, 3, 0x00cc00, 0.6, 3);
     this.graphics.circle(x, y, 8);
     this.graphics.fill({ color: 0x8b0000, alpha: alpha * 0.3 });
   }
 
   private renderFastCorpse(x: number, y: number, cos: number, sin: number, alpha: number): void {
-    // Fast zombie corpse - orange, streamlined
-    const bodyWidth = 7;
-    const bodyHeight = 11;
-
-    // Streamlined body
-    const points = [
-      { x: -bodyWidth / 2, y: -bodyHeight / 2 },
-      { x: bodyWidth / 2, y: -bodyHeight / 2 },
-      { x: bodyWidth / 2, y: bodyHeight / 2 },
-      { x: -bodyWidth / 2, y: bodyHeight / 2 },
-    ];
-
-    const transformed = points.map(p => ({
-      x: x + p.x * cos - p.y * sin,
-      y: y + p.x * sin + p.y * cos,
-    }));
-
-    this.graphics.moveTo(transformed[0].x, transformed[0].y);
-    for (let i = 1; i < transformed.length; i++) {
-      this.graphics.lineTo(transformed[i].x, transformed[i].y);
-    }
-    this.graphics.lineTo(transformed[0].x, transformed[0].y);
-    this.graphics.fill({ color: 0xff6600, alpha: alpha * 0.6 });
-
-    // Head (smaller)
-    const headX = x + 0 * cos - (-bodyHeight / 2 - 2.5) * sin;
-    const headY = y + 0 * sin + (-bodyHeight / 2 - 2.5) * cos;
-    this.graphics.circle(headX, headY, 2.5);
-    this.graphics.fill({ color: 0xff8800, alpha: alpha * 0.6 });
-
-    // Blood splatter (more spread from speed)
+    this.drawCorpseBody(x, y, cos, sin, alpha, 7, 11, 0xff6600, 0.6, 2.5, 0xff8800, 0.6, 2.5);
     for (let i = 0; i < 3; i++) {
       const angle = Math.random() * Math.PI * 2;
       const dist = 5 + Math.random() * 8;
-      const splatterX = x + Math.cos(angle) * dist;
-      const splatterY = y + Math.sin(angle) * dist;
-      this.graphics.circle(splatterX, splatterY, 2 + Math.random() * 2);
+      const r = 2 + Math.random() * 2;
+      this.graphics.circle(x + Math.cos(angle) * dist, y + Math.sin(angle) * dist, r);
       this.graphics.fill({ color: 0x8b0000, alpha: alpha * 0.4 });
     }
   }
 
   private renderTankCorpse(x: number, y: number, cos: number, sin: number, alpha: number): void {
-    // Tank zombie corpse - large, red, bulky
-    const bodyWidth = 12;
-    const bodyHeight = 18;
-
-    // Large bulky body
-    const points = [
-      { x: -bodyWidth / 2, y: -bodyHeight / 2 },
-      { x: bodyWidth / 2, y: -bodyHeight / 2 },
-      { x: bodyWidth / 2, y: bodyHeight / 2 },
-      { x: -bodyWidth / 2, y: bodyHeight / 2 },
-    ];
-
-    const transformed = points.map(p => ({
-      x: x + p.x * cos - p.y * sin,
-      y: y + p.x * sin + p.y * cos,
-    }));
-
-    this.graphics.moveTo(transformed[0].x, transformed[0].y);
-    for (let i = 1; i < transformed.length; i++) {
-      this.graphics.lineTo(transformed[i].x, transformed[i].y);
-    }
-    this.graphics.lineTo(transformed[0].x, transformed[0].y);
-    this.graphics.fill({ color: 0xcc0000, alpha: alpha * 0.7 });
-
-    // Large head
-    const headX = x + 0 * cos - (-bodyHeight / 2 - 4) * sin;
-    const headY = y + 0 * sin + (-bodyHeight / 2 - 4) * cos;
-    this.graphics.circle(headX, headY, 4.5);
-    this.graphics.fill({ color: 0xff0000, alpha: alpha * 0.7 });
-
-    // Large blood pool
+    this.drawCorpseBody(x, y, cos, sin, alpha, 12, 18, 0xcc0000, 0.7, 4.5, 0xff0000, 0.7, 4);
     this.graphics.circle(x, y, 15);
     this.graphics.fill({ color: 0x8b0000, alpha: alpha * 0.4 });
   }
 
   private renderArmoredCorpse(x: number, y: number, cos: number, sin: number, alpha: number): void {
-    // Armored zombie corpse - gray, metallic
-    const bodyWidth = 9;
-    const bodyHeight = 14;
-
-    // Armored body
-    const points = [
-      { x: -bodyWidth / 2, y: -bodyHeight / 2 },
-      { x: bodyWidth / 2, y: -bodyHeight / 2 },
-      { x: bodyWidth / 2, y: bodyHeight / 2 },
-      { x: -bodyWidth / 2, y: bodyHeight / 2 },
-    ];
-
-    const transformed = points.map(p => ({
-      x: x + p.x * cos - p.y * sin,
-      y: y + p.x * sin + p.y * cos,
-    }));
-
-    this.graphics.moveTo(transformed[0].x, transformed[0].y);
-    for (let i = 1; i < transformed.length; i++) {
-      this.graphics.lineTo(transformed[i].x, transformed[i].y);
-    }
-    this.graphics.lineTo(transformed[0].x, transformed[0].y);
-    this.graphics.fill({ color: 0x666666, alpha: alpha * 0.7 });
-
-    // Helmet
-    const headX = x + 0 * cos - (-bodyHeight / 2 - 3.5) * sin;
-    const headY = y + 0 * sin + (-bodyHeight / 2 - 3.5) * cos;
-    this.graphics.circle(headX, headY, 3.5);
-    this.graphics.fill({ color: 0x888888, alpha: alpha * 0.7 });
-
-    // Armor plates (scattered)
+    this.drawCorpseBody(x, y, cos, sin, alpha, 9, 14, 0x666666, 0.7, 3.5, 0x888888, 0.7, 3.5);
     for (let i = 0; i < 3; i++) {
       const plateX = x + (Math.random() - 0.5) * 10 * cos - (Math.random() - 0.5) * 10 * sin;
       const plateY = y + (Math.random() - 0.5) * 10 * sin + (Math.random() - 0.5) * 10 * cos;
       this.graphics.rect(plateX - 2, plateY - 1.5, 4, 3);
       this.graphics.fill({ color: 0x999999, alpha: alpha * 0.6 });
     }
-
-    // Blood pool (less blood due to armor)
     this.graphics.circle(x, y, 6);
     this.graphics.fill({ color: 0x8b0000, alpha: alpha * 0.25 });
   }
 
   private renderSwarmCorpse(x: number, y: number, cos: number, sin: number, alpha: number): void {
-    // Swarm zombie corpse - small, yellow
-    const bodyWidth = 4;
-    const bodyHeight = 6;
-
-    // Small body
-    const points = [
-      { x: -bodyWidth / 2, y: -bodyHeight / 2 },
-      { x: bodyWidth / 2, y: -bodyHeight / 2 },
-      { x: bodyWidth / 2, y: bodyHeight / 2 },
-      { x: -bodyWidth / 2, y: bodyHeight / 2 },
-    ];
-
-    const transformed = points.map(p => ({
-      x: x + p.x * cos - p.y * sin,
-      y: y + p.x * sin + p.y * cos,
-    }));
-
-    this.graphics.moveTo(transformed[0].x, transformed[0].y);
-    for (let i = 1; i < transformed.length; i++) {
-      this.graphics.lineTo(transformed[i].x, transformed[i].y);
-    }
-    this.graphics.lineTo(transformed[0].x, transformed[0].y);
-    this.graphics.fill({ color: 0xcccc00, alpha: alpha * 0.5 });
-
-    // Small head
-    const headX = x + 0 * cos - (-bodyHeight / 2 - 1.5) * sin;
-    const headY = y + 0 * sin + (-bodyHeight / 2 - 1.5) * cos;
-    this.graphics.circle(headX, headY, 1.5);
-    this.graphics.fill({ color: 0xffff00, alpha: alpha * 0.5 });
-
-    // Small blood pool
+    this.drawCorpseBody(x, y, cos, sin, alpha, 4, 6, 0xcccc00, 0.5, 1.5, 0xffff00, 0.5, 1.5);
     this.graphics.circle(x, y, 4);
     this.graphics.fill({ color: 0x8b0000, alpha: alpha * 0.2 });
   }
 
   private renderStealthCorpse(x: number, y: number, cos: number, sin: number, alpha: number): void {
-    // Stealth zombie corpse - purple, semi-transparent
-    const bodyWidth = 8;
-    const bodyHeight = 12;
-
-    // Semi-transparent body
-    const points = [
-      { x: -bodyWidth / 2, y: -bodyHeight / 2 },
-      { x: bodyWidth / 2, y: -bodyHeight / 2 },
-      { x: bodyWidth / 2, y: bodyHeight / 2 },
-      { x: -bodyWidth / 2, y: bodyHeight / 2 },
-    ];
-
-    const transformed = points.map(p => ({
-      x: x + p.x * cos - p.y * sin,
-      y: y + p.x * sin + p.y * cos,
-    }));
-
-    this.graphics.moveTo(transformed[0].x, transformed[0].y);
-    for (let i = 1; i < transformed.length; i++) {
-      this.graphics.lineTo(transformed[i].x, transformed[i].y);
-    }
-    this.graphics.lineTo(transformed[0].x, transformed[0].y);
-    this.graphics.fill({ color: 0x6600ff, alpha: alpha * 0.4 }); // More transparent
-
-    // Head
-    const headX = x + 0 * cos - (-bodyHeight / 2 - 3) * sin;
-    const headY = y + 0 * sin + (-bodyHeight / 2 - 3) * cos;
-    this.graphics.circle(headX, headY, 3);
-    this.graphics.fill({ color: 0x8800ff, alpha: alpha * 0.4 });
-
-    // Shadow wisps (fading)
+    this.drawCorpseBody(x, y, cos, sin, alpha, 8, 12, 0x6600ff, 0.4, 3, 0x8800ff, 0.4, 3);
     for (let i = 0; i < 3; i++) {
       const angle = (i / 3) * Math.PI * 2;
-      const dist = 6;
-      const wispX = x + Math.cos(angle) * dist;
-      const wispY = y + Math.sin(angle) * dist;
-      this.graphics.circle(wispX, wispY, 2);
+      this.graphics.circle(x + Math.cos(angle) * 6, y + Math.sin(angle) * 6, 2);
       this.graphics.fill({ color: 0x6600ff, alpha: alpha * 0.2 });
     }
-
-    // Blood pool (minimal)
     this.graphics.circle(x, y, 5);
     this.graphics.fill({ color: 0x8b0000, alpha: alpha * 0.2 });
   }
-
   private renderMechanicalCorpse(
     x: number,
     y: number,
@@ -350,55 +198,43 @@ export class ZombieCorpseRenderer {
     sin: number,
     alpha: number
   ): void {
-    // Mechanical zombie corpse - cyan, angular, with sparks
+    // Body + square head (mechanical, so we draw head manually after body)
     const bodyWidth = 10;
     const bodyHeight = 15;
-
-    // Angular mechanical body
-    const points = [
-      { x: -bodyWidth / 2, y: -bodyHeight / 2 },
-      { x: bodyWidth / 2, y: -bodyHeight / 2 },
-      { x: bodyWidth / 2, y: bodyHeight / 2 },
-      { x: -bodyWidth / 2, y: bodyHeight / 2 },
+    const hw = bodyWidth / 2;
+    const hh = bodyHeight / 2;
+    const corners = [
+      { x: -hw, y: -hh },
+      { x: hw, y: -hh },
+      { x: hw, y: hh },
+      { x: -hw, y: hh },
     ];
-
-    const transformed = points.map(p => ({
-      x: x + p.x * cos - p.y * sin,
-      y: y + p.x * sin + p.y * cos,
-    }));
-
-    this.graphics.moveTo(transformed[0].x, transformed[0].y);
-    for (let i = 1; i < transformed.length; i++) {
-      this.graphics.lineTo(transformed[i].x, transformed[i].y);
+    const t = corners.map(p => ({ x: x + p.x * cos - p.y * sin, y: y + p.x * sin + p.y * cos }));
+    this.graphics.moveTo(t[0].x, t[0].y);
+    for (let i = 1; i < t.length; i++) {
+      this.graphics.lineTo(t[i].x, t[i].y);
     }
-    this.graphics.lineTo(transformed[0].x, transformed[0].y);
+    this.graphics.lineTo(t[0].x, t[0].y);
     this.graphics.fill({ color: 0x006666, alpha: alpha * 0.7 });
 
-    // Mechanical head
-    const headX = x + 0 * cos - (-bodyHeight / 2 - 3.5) * sin;
-    const headY = y + 0 * sin + (-bodyHeight / 2 - 3.5) * cos;
+    // Square mechanical head
+    const headX = x + 0 * cos - (-hh - 3.5) * sin;
+    const headY = y + 0 * sin + (-hh - 3.5) * cos;
     this.graphics.rect(headX - 3, headY - 3, 6, 6);
     this.graphics.fill({ color: 0x00ffff, alpha: alpha * 0.6 });
 
-    // Broken parts (gears, wires)
     for (let i = 0; i < 4; i++) {
       const partX = x + (Math.random() - 0.5) * 12 * cos - (Math.random() - 0.5) * 12 * sin;
       const partY = y + (Math.random() - 0.5) * 12 * sin + (Math.random() - 0.5) * 12 * cos;
       this.graphics.circle(partX, partY, 1.5);
       this.graphics.fill({ color: 0x00aaaa, alpha: alpha * 0.5 });
     }
-
-    // Oil leak (instead of blood)
     this.graphics.circle(x, y, 10);
     this.graphics.fill({ color: 0x1a1a1a, alpha: alpha * 0.4 });
-
-    // Sparks (small yellow dots)
     for (let i = 0; i < 3; i++) {
       const angle = Math.random() * Math.PI * 2;
       const dist = 8 + Math.random() * 5;
-      const sparkX = x + Math.cos(angle) * dist;
-      const sparkY = y + Math.sin(angle) * dist;
-      this.graphics.circle(sparkX, sparkY, 1);
+      this.graphics.circle(x + Math.cos(angle) * dist, y + Math.sin(angle) * dist, 1);
       this.graphics.fill({ color: 0xffff00, alpha: alpha * 0.6 });
     }
   }

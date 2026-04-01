@@ -37,6 +37,36 @@ export class TerrainRenderer {
     this.renderUIPanel();
   }
 
+  /** Draw `count` randomised blob patches using the given GROUND_TEXTURE config prefix and color. */
+  private renderBlobPatches(
+    mapData: MapData,
+    count: number,
+    minSize: number,
+    maxSize: number,
+    minPoints: number,
+    maxPoints: number,
+    minRadius: number,
+    maxRadius: number,
+    color: number,
+    minAlpha: number,
+    maxAlpha: number,
+    angleJitter: number = 0
+  ): void {
+    for (let i = 0; i < count; i++) {
+      const x = Math.random() * mapData.width;
+      const y = Math.random() * mapData.height;
+      const size = minSize + Math.random() * (maxSize - minSize);
+      const points = minPoints + Math.floor(Math.random() * (maxPoints - minPoints));
+      this.graphics.moveTo(x, y);
+      for (let j = 0; j < points; j++) {
+        const angle = (j / points) * Math.PI * 2 + Math.random() * angleJitter;
+        const radius = size * (minRadius + Math.random() * (maxRadius - minRadius));
+        this.graphics.lineTo(x + Math.cos(angle) * radius, y + Math.sin(angle) * radius);
+      }
+      this.graphics.fill({ color, alpha: minAlpha + Math.random() * (maxAlpha - minAlpha) });
+    }
+  }
+
   private renderBaseLayer(mapData: MapData): void {
     // Base layer - darker, more desolate ground
     this.graphics.rect(0, 0, mapData.width, mapData.height);
@@ -44,152 +74,68 @@ export class TerrainRenderer {
   }
 
   private renderDirtPatches(mapData: MapData): void {
-    // Add varied dirt/mud patches for texture variation
-    for (let i = 0; i < GROUND_TEXTURE.DIRT_PATCH_COUNT; i++) {
-      const x = Math.random() * mapData.width;
-      const y = Math.random() * mapData.height;
-      const size =
-        GROUND_TEXTURE.DIRT_PATCH_MIN_SIZE +
-        Math.random() * (GROUND_TEXTURE.DIRT_PATCH_MAX_SIZE - GROUND_TEXTURE.DIRT_PATCH_MIN_SIZE);
-      const points =
-        GROUND_TEXTURE.DIRT_PATCH_MIN_POINTS +
-        Math.floor(
-          Math.random() *
-            (GROUND_TEXTURE.DIRT_PATCH_MAX_POINTS - GROUND_TEXTURE.DIRT_PATCH_MIN_POINTS)
-        );
-
-      this.graphics.moveTo(x, y);
-      for (let j = 0; j < points; j++) {
-        const angle = (j / points) * Math.PI * 2;
-        const radius =
-          size *
-          (GROUND_TEXTURE.DIRT_PATCH_MIN_RADIUS_FACTOR +
-            Math.random() *
-              (GROUND_TEXTURE.DIRT_PATCH_MAX_RADIUS_FACTOR -
-                GROUND_TEXTURE.DIRT_PATCH_MIN_RADIUS_FACTOR));
-        const px = x + Math.cos(angle) * radius;
-        const py = y + Math.sin(angle) * radius;
-        this.graphics.lineTo(px, py);
-      }
-      this.graphics.fill({
-        color: COLORS.GROUND_DIRT_PATCH,
-        alpha:
-          GROUND_TEXTURE.DIRT_PATCH_MIN_ALPHA +
-          Math.random() *
-            (GROUND_TEXTURE.DIRT_PATCH_MAX_ALPHA - GROUND_TEXTURE.DIRT_PATCH_MIN_ALPHA),
-      });
-    }
+    this.renderBlobPatches(
+      mapData,
+      GROUND_TEXTURE.DIRT_PATCH_COUNT,
+      GROUND_TEXTURE.DIRT_PATCH_MIN_SIZE,
+      GROUND_TEXTURE.DIRT_PATCH_MAX_SIZE,
+      GROUND_TEXTURE.DIRT_PATCH_MIN_POINTS,
+      GROUND_TEXTURE.DIRT_PATCH_MAX_POINTS,
+      GROUND_TEXTURE.DIRT_PATCH_MIN_RADIUS_FACTOR,
+      GROUND_TEXTURE.DIRT_PATCH_MAX_RADIUS_FACTOR,
+      COLORS.GROUND_DIRT_PATCH,
+      GROUND_TEXTURE.DIRT_PATCH_MIN_ALPHA,
+      GROUND_TEXTURE.DIRT_PATCH_MAX_ALPHA
+    );
   }
 
   private renderDeadGrassPatches(mapData: MapData): void {
-    // Dead grass patches (lighter, sparse)
-    for (let i = 0; i < GROUND_TEXTURE.DEAD_GRASS_COUNT; i++) {
-      const x = Math.random() * mapData.width;
-      const y = Math.random() * mapData.height;
-      const size =
-        GROUND_TEXTURE.DEAD_GRASS_MIN_SIZE +
-        Math.random() * (GROUND_TEXTURE.DEAD_GRASS_MAX_SIZE - GROUND_TEXTURE.DEAD_GRASS_MIN_SIZE);
-      const points =
-        GROUND_TEXTURE.DEAD_GRASS_MIN_POINTS +
-        Math.floor(
-          Math.random() *
-            (GROUND_TEXTURE.DEAD_GRASS_MAX_POINTS - GROUND_TEXTURE.DEAD_GRASS_MIN_POINTS)
-        );
-
-      this.graphics.moveTo(x, y);
-      for (let j = 0; j < points; j++) {
-        const angle = (j / points) * Math.PI * 2;
-        const radius =
-          size *
-          (GROUND_TEXTURE.DEAD_GRASS_MIN_RADIUS_FACTOR +
-            Math.random() *
-              (GROUND_TEXTURE.DEAD_GRASS_MAX_RADIUS_FACTOR -
-                GROUND_TEXTURE.DEAD_GRASS_MIN_RADIUS_FACTOR));
-        const px = x + Math.cos(angle) * radius;
-        const py = y + Math.sin(angle) * radius;
-        this.graphics.lineTo(px, py);
-      }
-      this.graphics.fill({
-        color: COLORS.GROUND_DEAD_GRASS,
-        alpha:
-          GROUND_TEXTURE.DEAD_GRASS_MIN_ALPHA +
-          Math.random() *
-            (GROUND_TEXTURE.DEAD_GRASS_MAX_ALPHA - GROUND_TEXTURE.DEAD_GRASS_MIN_ALPHA),
-      });
-    }
+    this.renderBlobPatches(
+      mapData,
+      GROUND_TEXTURE.DEAD_GRASS_COUNT,
+      GROUND_TEXTURE.DEAD_GRASS_MIN_SIZE,
+      GROUND_TEXTURE.DEAD_GRASS_MAX_SIZE,
+      GROUND_TEXTURE.DEAD_GRASS_MIN_POINTS,
+      GROUND_TEXTURE.DEAD_GRASS_MAX_POINTS,
+      GROUND_TEXTURE.DEAD_GRASS_MIN_RADIUS_FACTOR,
+      GROUND_TEXTURE.DEAD_GRASS_MAX_RADIUS_FACTOR,
+      COLORS.GROUND_DEAD_GRASS,
+      GROUND_TEXTURE.DEAD_GRASS_MIN_ALPHA,
+      GROUND_TEXTURE.DEAD_GRASS_MAX_ALPHA
+    );
   }
 
   private renderBarrenDirtPatches(mapData: MapData): void {
-    // Barren dirt patches (brown/tan)
-    for (let i = 0; i < GROUND_TEXTURE.BARREN_DIRT_COUNT; i++) {
-      const x = Math.random() * mapData.width;
-      const y = Math.random() * mapData.height;
-      const size =
-        GROUND_TEXTURE.BARREN_DIRT_MIN_SIZE +
-        Math.random() * (GROUND_TEXTURE.BARREN_DIRT_MAX_SIZE - GROUND_TEXTURE.BARREN_DIRT_MIN_SIZE);
-      const points =
-        GROUND_TEXTURE.BARREN_DIRT_MIN_POINTS +
-        Math.floor(
-          Math.random() *
-            (GROUND_TEXTURE.BARREN_DIRT_MAX_POINTS - GROUND_TEXTURE.BARREN_DIRT_MIN_POINTS)
-        );
-
-      this.graphics.moveTo(x, y);
-      for (let j = 0; j < points; j++) {
-        const angle = (j / points) * Math.PI * 2 + Math.random() * 0.5;
-        const radius =
-          size *
-          (GROUND_TEXTURE.BARREN_DIRT_MIN_RADIUS_FACTOR +
-            Math.random() *
-              (GROUND_TEXTURE.BARREN_DIRT_MAX_RADIUS_FACTOR -
-                GROUND_TEXTURE.BARREN_DIRT_MIN_RADIUS_FACTOR));
-        const px = x + Math.cos(angle) * radius;
-        const py = y + Math.sin(angle) * radius;
-        this.graphics.lineTo(px, py);
-      }
-      this.graphics.fill({
-        color: COLORS.GROUND_BARREN_DIRT,
-        alpha:
-          GROUND_TEXTURE.BARREN_DIRT_MIN_ALPHA +
-          Math.random() *
-            (GROUND_TEXTURE.BARREN_DIRT_MAX_ALPHA - GROUND_TEXTURE.BARREN_DIRT_MIN_ALPHA),
-      });
-    }
+    this.renderBlobPatches(
+      mapData,
+      GROUND_TEXTURE.BARREN_DIRT_COUNT,
+      GROUND_TEXTURE.BARREN_DIRT_MIN_SIZE,
+      GROUND_TEXTURE.BARREN_DIRT_MAX_SIZE,
+      GROUND_TEXTURE.BARREN_DIRT_MIN_POINTS,
+      GROUND_TEXTURE.BARREN_DIRT_MAX_POINTS,
+      GROUND_TEXTURE.BARREN_DIRT_MIN_RADIUS_FACTOR,
+      GROUND_TEXTURE.BARREN_DIRT_MAX_RADIUS_FACTOR,
+      COLORS.GROUND_BARREN_DIRT,
+      GROUND_TEXTURE.BARREN_DIRT_MIN_ALPHA,
+      GROUND_TEXTURE.BARREN_DIRT_MAX_ALPHA,
+      0.5 // angle jitter for barren dirt
+    );
   }
 
   private renderRocksAndDebris(mapData: MapData): void {
-    // Scattered rocks and debris
-    for (let i = 0; i < GROUND_TEXTURE.ROCK_COUNT; i++) {
-      const x = Math.random() * mapData.width;
-      const y = Math.random() * mapData.height;
-      const size =
-        GROUND_TEXTURE.ROCK_MIN_SIZE +
-        Math.random() * (GROUND_TEXTURE.ROCK_MAX_SIZE - GROUND_TEXTURE.ROCK_MIN_SIZE);
-      const points =
-        GROUND_TEXTURE.ROCK_MIN_POINTS +
-        Math.floor(
-          Math.random() * (GROUND_TEXTURE.ROCK_MAX_POINTS - GROUND_TEXTURE.ROCK_MIN_POINTS)
-        );
-
-      this.graphics.moveTo(x, y);
-      for (let j = 0; j < points; j++) {
-        const angle = (j / points) * Math.PI * 2;
-        const radius =
-          size *
-          (GROUND_TEXTURE.ROCK_MIN_RADIUS_FACTOR +
-            Math.random() *
-              (GROUND_TEXTURE.ROCK_MAX_RADIUS_FACTOR - GROUND_TEXTURE.ROCK_MIN_RADIUS_FACTOR));
-        const px = x + Math.cos(angle) * radius;
-        const py = y + Math.sin(angle) * radius;
-        this.graphics.lineTo(px, py);
-      }
-      this.graphics.fill({
-        color: COLORS.GROUND_ROCK,
-        alpha:
-          GROUND_TEXTURE.ROCK_MIN_ALPHA +
-          Math.random() * (GROUND_TEXTURE.ROCK_MAX_ALPHA - GROUND_TEXTURE.ROCK_MIN_ALPHA),
-      });
-    }
+    this.renderBlobPatches(
+      mapData,
+      GROUND_TEXTURE.ROCK_COUNT,
+      GROUND_TEXTURE.ROCK_MIN_SIZE,
+      GROUND_TEXTURE.ROCK_MAX_SIZE,
+      GROUND_TEXTURE.ROCK_MIN_POINTS,
+      GROUND_TEXTURE.ROCK_MAX_POINTS,
+      GROUND_TEXTURE.ROCK_MIN_RADIUS_FACTOR,
+      GROUND_TEXTURE.ROCK_MAX_RADIUS_FACTOR,
+      COLORS.GROUND_ROCK,
+      GROUND_TEXTURE.ROCK_MIN_ALPHA,
+      GROUND_TEXTURE.ROCK_MAX_ALPHA
+    );
   }
 
   private renderPebbles(mapData: MapData): void {
@@ -288,39 +234,19 @@ export class TerrainRenderer {
   }
 
   private renderGrassTufts(mapData: MapData): void {
-    // Add subtle grass tufts (small details)
-    for (let i = 0; i < GROUND_TEXTURE.GRASS_TUFT_COUNT; i++) {
-      const x = Math.random() * mapData.width;
-      const y = Math.random() * mapData.height;
-      const size =
-        GROUND_TEXTURE.GRASS_TUFT_MIN_SIZE +
-        Math.random() * (GROUND_TEXTURE.GRASS_TUFT_MAX_SIZE - GROUND_TEXTURE.GRASS_TUFT_MIN_SIZE);
-      // Small irregular shapes for grass
-      const points =
-        GROUND_TEXTURE.GRASS_TUFT_MIN_POINTS +
-        Math.floor(
-          Math.random() *
-            (GROUND_TEXTURE.GRASS_TUFT_MAX_POINTS - GROUND_TEXTURE.GRASS_TUFT_MIN_POINTS)
-        );
-      this.graphics.moveTo(x, y);
-      for (let j = 0; j < points; j++) {
-        const angle = (j / points) * Math.PI * 2;
-        const radius =
-          size *
-          (GROUND_TEXTURE.GRASS_TUFT_MIN_RADIUS_FACTOR +
-            Math.random() *
-              (GROUND_TEXTURE.GRASS_TUFT_MAX_RADIUS_FACTOR -
-                GROUND_TEXTURE.GRASS_TUFT_MIN_RADIUS_FACTOR));
-        this.graphics.lineTo(x + Math.cos(angle) * radius, y + Math.sin(angle) * radius);
-      }
-      this.graphics.fill({
-        color: COLORS.GROUND_GRASS_TUFT,
-        alpha:
-          GROUND_TEXTURE.GRASS_TUFT_MIN_ALPHA +
-          Math.random() *
-            (GROUND_TEXTURE.GRASS_TUFT_MAX_ALPHA - GROUND_TEXTURE.GRASS_TUFT_MIN_ALPHA),
-      });
-    }
+    this.renderBlobPatches(
+      mapData,
+      GROUND_TEXTURE.GRASS_TUFT_COUNT,
+      GROUND_TEXTURE.GRASS_TUFT_MIN_SIZE,
+      GROUND_TEXTURE.GRASS_TUFT_MAX_SIZE,
+      GROUND_TEXTURE.GRASS_TUFT_MIN_POINTS,
+      GROUND_TEXTURE.GRASS_TUFT_MAX_POINTS,
+      GROUND_TEXTURE.GRASS_TUFT_MIN_RADIUS_FACTOR,
+      GROUND_TEXTURE.GRASS_TUFT_MAX_RADIUS_FACTOR,
+      COLORS.GROUND_GRASS_TUFT,
+      GROUND_TEXTURE.GRASS_TUFT_MIN_ALPHA,
+      GROUND_TEXTURE.GRASS_TUFT_MAX_ALPHA
+    );
   }
 
   private renderUIPanel(): void {

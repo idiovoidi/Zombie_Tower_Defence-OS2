@@ -16,6 +16,22 @@ export class TowerCombatManager {
     | null = null;
   private zombieGrid: SpatialGrid<Zombie & { [key: string]: unknown }>;
 
+  /** Apply damage to a zombie, fire the damage callback, and return whether it was killed. */
+  private applyDamageToZombie(zombie: Zombie, tower: Tower, damage: number): boolean {
+    const modifier = zombie.getDamageModifier(tower.getType());
+    const modifiedDamage = damage * modifier;
+    const healthBefore = zombie.getHealth();
+    zombie.takeDamage(modifiedDamage);
+    const healthAfter = zombie.getHealth();
+    const actualDamage = healthBefore - healthAfter;
+    const killed = healthAfter <= 0;
+    const overkill = killed ? Math.abs(healthAfter) : 0;
+    if (this.onDamageCallback) {
+      this.onDamageCallback(actualDamage, tower.getType(), killed, overkill);
+    }
+    return killed;
+  }
+
   constructor(worldWidth: number = 1024, worldHeight: number = 768) {
     // Create spatial grid with 128px cells (optimal for typical tower ranges of 150-300px)
     this.zombieGrid = new SpatialGrid<Zombie & { [key: string]: unknown }>(
@@ -316,22 +332,7 @@ export class TowerCombatManager {
 
     // Chain through multiple targets
     for (let jump = 0; jump < maxJumps && currentTarget; jump++) {
-      // Apply damage modifier based on zombie type
-      const modifier = currentTarget.getDamageModifier(tower.getType());
-      const modifiedDamage = currentDamage * modifier;
-
-      // Apply damage instantly
-      const healthBefore = currentTarget.getHealth();
-      currentTarget.takeDamage(modifiedDamage);
-      const healthAfter = currentTarget.getHealth();
-      const actualDamage = healthBefore - healthAfter;
-      const killed = healthAfter <= 0;
-      const overkill = killed ? Math.abs(healthAfter) : 0;
-
-      // Track damage
-      if (this.onDamageCallback) {
-        this.onDamageCallback(actualDamage, tower.getType(), killed, overkill);
-      }
+      this.applyDamageToZombie(currentTarget, tower, currentDamage);
 
       // Mark this zombie as hit
       hitZombies.add(currentTarget);
@@ -343,7 +344,7 @@ export class TowerCombatManager {
       chainTargets.push({
         from: { x: currentSource.x, y: currentSource.y },
         to: currentTarget,
-        damage: modifiedDamage,
+        damage: currentDamage,
       });
 
       // Find next target for chain
@@ -525,22 +526,7 @@ export class TowerCombatManager {
     target: Zombie,
     damage: number
   ): void {
-    // Apply damage modifier based on zombie type
-    const modifier = target.getDamageModifier(tower.getType());
-    const modifiedDamage = damage * modifier;
-
-    // Apply damage instantly
-    const healthBefore = target.getHealth();
-    target.takeDamage(modifiedDamage);
-    const healthAfter = target.getHealth();
-    const actualDamage = healthBefore - healthAfter;
-    const killed = healthAfter <= 0;
-    const overkill = killed ? Math.abs(healthAfter) : 0;
-
-    // Track damage
-    if (this.onDamageCallback) {
-      this.onDamageCallback(actualDamage, tower.getType(), killed, overkill);
-    }
+    this.applyDamageToZombie(target, tower, damage);
 
     // Create visual flame stream effect
     const flameGraphics = new Graphics();
