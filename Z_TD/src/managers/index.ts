@@ -9,7 +9,7 @@ export { ResourceManager } from './ResourceManager';
 export { TowerCombatManager } from './TowerCombatManager';
 export { TowerManager } from './TowerManager';
 export { TowerPlacementManager } from './TowerPlacementManager';
-export { UpgradeSystem } from './UpgradeSystem';
+export { UpgradeSystem } from './UpgradeManager';
 export { WaveManager } from './WaveManager';
 export { ZombieManager } from './ZombieManager';
 export { CorpseManager } from './CorpseManager';

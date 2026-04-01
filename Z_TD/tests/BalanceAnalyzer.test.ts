@@ -3,7 +3,7 @@
  * These tests verify that all methods are implemented and produce reasonable results
  */
 
-import { BalanceAnalyzer } from './BalanceAnalyzer';
+import { BalanceAnalyzer } from '../src/utils/BalanceAnalyzer';
 
 describe('BalanceAnalyzer', () => {
   describe('canDefendWave', () => {

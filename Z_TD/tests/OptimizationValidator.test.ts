@@ -1,4 +1,4 @@
-import { OptimizationValidator } from '../../src/utils/OptimizationValidator';
+import { OptimizationValidator } from '../src/utils/OptimizationValidator';
 
 describe('OptimizationValidator', () => {
   beforeEach(() => {

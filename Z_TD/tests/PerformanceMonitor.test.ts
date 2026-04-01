@@ -11,7 +11,7 @@
  * - Wave 20+: 40+ FPS (25ms per frame)
  */
 
-import { PerformanceMonitor } from '../../src/utils/PerformanceMonitor';
+import { PerformanceMonitor } from '../src/utils/PerformanceMonitor';
 
 describe('Performance Benchmark Tests', () => {
   beforeEach(() => {

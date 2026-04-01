@@ -8,7 +8,7 @@ import { MapManager } from './MapManager';
 import { LevelManager } from './LevelManager';
 import { VisualMapRenderer } from '../renderers/VisualMapRenderer';
 import { ResourceManager } from './ResourceManager';
-import { UpgradeSystem } from './UpgradeSystem';
+import { UpgradeSystem } from './UpgradeManager';
 import { TowerCombatManager } from './TowerCombatManager';
 import { ProjectileManager } from './ProjectileManager';
 import { AIPlayerManager } from './AIPlayerManager';

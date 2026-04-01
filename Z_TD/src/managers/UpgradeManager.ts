@@ -1,7 +1,7 @@
 import { ResourceCost, ResourceManager } from './ResourceManager';
 import { ITower } from '../objects/Tower.interface';
 
-export class UpgradeSystem {
+export class UpgradeManager {
   private resourceManager: ResourceManager;
 
   constructor(resourceManager: ResourceManager) {
