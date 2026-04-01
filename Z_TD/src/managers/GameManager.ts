@@ -8,7 +8,7 @@ import { MapManager } from './MapManager';
 import { LevelManager } from './LevelManager';
 import { VisualMapRenderer } from '../renderers/VisualMapRenderer';
 import { ResourceManager } from './ResourceManager';
-import { UpgradeSystem } from './UpgradeManager';
+import { UpgradeManager } from './UpgradeManager';
 import { TowerCombatManager } from './TowerCombatManager';
 import { ProjectileManager } from './ProjectileManager';
 import { AIPlayerManager } from './AIPlayerManager';
@@ -40,7 +40,7 @@ export class GameManager {
   private levelManager: LevelManager;
   private visualMapRenderer: VisualMapRenderer | null = null;
   private resourceManager: ResourceManager;
-  private upgradeSystem: UpgradeSystem;
+  private upgradeSystem: UpgradeManager;
   private towerCombatManager: TowerCombatManager;
   private projectileManager: ProjectileManager;
   private effectManager: EffectManager; // CRITICAL: Manages shell casings, muzzle flashes, etc.
@@ -85,7 +85,7 @@ export class GameManager {
     this.levelManager = new LevelManager(this.mapManager);
     // VisualMapRenderer will be initialized after InputManager is set
     this.resourceManager = new ResourceManager();
-    this.upgradeSystem = new UpgradeSystem(this.resourceManager);
+    this.upgradeSystem = new UpgradeManager(this.resourceManager);
     this.projectileManager = new ProjectileManager(this.gameContainer);
     // CRITICAL: Initialize EffectManager for shell casings, muzzle flashes, etc.
     this.effectManager = new EffectManager(this.gameContainer);
@@ -574,7 +574,7 @@ export class GameManager {
     return this.resourceManager;
   }
 
-  public getUpgradeSystem(): UpgradeSystem {
+  public getUpgradeSystem(): UpgradeManager {
     return this.upgradeSystem;
   }
 
