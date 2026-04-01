@@ -1,9 +1,9 @@
 import { Container, Graphics } from 'pixi.js';
-import { IZombieRenderer, ZombieRenderState } from '../ZombieRenderer';
-import { ZombieAnimator } from '../ZombieAnimator';
-import { ParticleType, ZombieParticleSystem } from '../ZombieParticleSystem';
-import { GlowEffect, ShadowEffect } from '../components/ZombieEffects';
-import { EffectCleanupManager } from '../../../utils/EffectCleanupManager';
+import { IZombieRenderer, ZombieRenderState } from './ZombieRenderer';
+import { ZombieAnimator } from './ZombieAnimator';
+import { ParticleType, ZombieParticleSystem } from './ZombieParticleSystem';
+import { GlowEffect, ShadowEffect } from './components/ZombieEffects';
+import { EffectCleanupManager } from '../../utils/EffectCleanupManager';
 
 export class FastZombieRenderer implements IZombieRenderer {
   private graphics: Graphics;
@@ -14,9 +14,7 @@ export class FastZombieRenderer implements IZombieRenderer {
   // Orange color scheme for fast zombie
   private readonly PRIMARY_COLOR = 0x8b4513; // Dark orange-brown
   private readonly DARK_ORANGE = 0x5a2a0a; // Very dark orange for shadows
-  private readonly PALE_ORANGE = 0xa0522d; // Slightly lighter orange
   private readonly BLOOD_RED = 0x8b0000;
-  private readonly BONE_WHITE = 0xcccccc;
   private readonly EYE_GLOW = 0xff6600; // Orange glow
 
   constructor() {

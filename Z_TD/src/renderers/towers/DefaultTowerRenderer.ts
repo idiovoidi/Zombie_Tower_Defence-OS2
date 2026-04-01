@@ -6,7 +6,7 @@ import { BaseTowerRenderer } from './BaseTowerRenderer';
  * Renders a simple placeholder visual
  */
 export class DefaultTowerRenderer extends BaseTowerRenderer {
-  render(visual: Graphics, barrel: Graphics, type: string, upgradeLevel: number): void {
+  render(visual: Graphics, barrel: Graphics, _type: string, upgradeLevel: number): void {
     visual.clear();
     barrel.clear();
 

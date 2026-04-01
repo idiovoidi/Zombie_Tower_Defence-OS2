@@ -551,7 +551,7 @@ export class TowerShop extends UIComponent {
       if (button) {
         const frame = button.getChildAt(1) as Graphics;
         const led = (button as any).led as Graphics;
-        const bgGraphics = (button as unknown).bgGraphics as Graphics;
+        const bgGraphics = (button as any).bgGraphics as Graphics;
         frame.clear();
         frame.rect(0, 0, 184, 82).stroke({ width: 2, color: 0x3a3a3a });
         led.alpha = 0.5;
@@ -576,8 +576,8 @@ export class TowerShop extends UIComponent {
 
       // Update button visuals
       const frame = button.getChildAt(1) as Graphics;
-      const led = (button as unknown).led as Graphics;
-      const bgGraphics = (button as unknown).bgGraphics as Graphics;
+      const led = (button as any).led as Graphics;
+      const bgGraphics = (button as any).bgGraphics as Graphics;
 
       frame.clear();
       frame.rect(0, 0, 184, 82).stroke({ width: 3, color: 0x00ff00 });
@@ -604,8 +604,8 @@ export class TowerShop extends UIComponent {
       }
 
       const canAfford = currentMoney >= stats.cost;
-      const led = (button as unknown).led;
-      const costText = (button as unknown).costText;
+      const led = (button as any).led;
+      const costText = (button as any).costText;
 
       if (canAfford) {
         // Can afford - normal appearance

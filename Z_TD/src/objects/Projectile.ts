@@ -563,7 +563,7 @@ export class Projectile extends Container {
       // Each interval held references to ALL zombies, preventing garbage collection
 
       // Store pool data for potential future slow checking (if needed by game manager)
-      (sludgePool as unknown)._poolData = poolData;
+      (sludgePool as unknown as Record<string, unknown>)._poolData = poolData;
 
       // Single timeout to clean up after duration
       EffectCleanupManager.registerTimeout(

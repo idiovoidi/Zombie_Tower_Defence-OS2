@@ -771,7 +771,7 @@ export class AIPlayerManager {
   }
 
   // Track wave completion with economy data
-  private trackWaveCompletion(): void {
+  private _trackWaveCompletion(): void {
     const currentMoney = this.gameManager.getMoney();
 
     // Track money earned this wave

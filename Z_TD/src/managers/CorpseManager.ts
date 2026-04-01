@@ -1,11 +1,11 @@
 import { Container, Graphics } from 'pixi.js';
-import { BasicZombieRenderer } from '../renderers/zombies/types/BasicZombieRenderer';
-import { FastZombieRenderer } from '../renderers/zombies/types/FastZombieRenderer';
-import { TankZombieRenderer } from '../renderers/zombies/types/TankZombieRenderer';
-import { ArmoredZombieRenderer } from '../renderers/zombies/types/ArmoredZombieRenderer';
-import { SwarmZombieRenderer } from '../renderers/zombies/types/SwarmZombieRenderer';
-import { StealthZombieRenderer } from '../renderers/zombies/types/StealthZombieRenderer';
-import { MechanicalZombieRenderer } from '../renderers/zombies/types/MechanicalZombieRenderer';
+import { BasicZombieRenderer } from '../renderers/zombies/BasicZombieRenderer';
+import { FastZombieRenderer } from '../renderers/zombies/FastZombieRenderer';
+import { TankZombieRenderer } from '../renderers/zombies/TankZombieRenderer';
+import { ArmoredZombieRenderer } from '../renderers/zombies/ArmoredZombieRenderer';
+import { SwarmZombieRenderer } from '../renderers/zombies/SwarmZombieRenderer';
+import { StealthZombieRenderer } from '../renderers/zombies/StealthZombieRenderer';
+import { MechanicalZombieRenderer } from '../renderers/zombies/MechanicalZombieRenderer';
 import { IZombieRenderer, ZombieRenderState } from '../renderers/zombies/ZombieRenderer';
 
 interface Corpse {

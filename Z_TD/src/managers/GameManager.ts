@@ -48,7 +48,6 @@ export class GameManager {
   private balanceTrackingManager: BalanceTrackingManager;
   private statTracker: StatTracker;
   private gameContainer: Container;
-  private inputManager: InputManager | null = null;
   private onMoneyGainCallback: ((amount: number) => void) | null = null;
   private onDamageFlashCallback: (() => void) | null = null;
   private onGameOverCallback: ((score: number) => void) | null = null;
@@ -591,7 +590,6 @@ export class GameManager {
   }
 
   public setInputManager(inputManager: InputManager): void {
-    this.inputManager = inputManager;
     // Initialize VisualMapRenderer now that we have InputManager
     if (!this.visualMapRenderer) {
       this.visualMapRenderer = new VisualMapRenderer(this.app, this.mapManager, inputManager);

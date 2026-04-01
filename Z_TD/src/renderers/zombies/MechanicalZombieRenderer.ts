@@ -1,9 +1,9 @@
 import { Container, Graphics } from 'pixi.js';
-import { IZombieRenderer, ZombieRenderState } from '../ZombieRenderer';
-import { ZombieAnimator } from '../ZombieAnimator';
-import { ParticleType, ZombieParticleSystem } from '../ZombieParticleSystem';
-import { GlowEffect, ShadowEffect } from '../components/ZombieEffects';
-import { EffectCleanupManager } from '../../../utils/EffectCleanupManager';
+import { IZombieRenderer, ZombieRenderState } from './ZombieRenderer';
+import { ZombieAnimator } from './ZombieAnimator';
+import { ParticleType, ZombieParticleSystem } from './ZombieParticleSystem';
+import { GlowEffect, ShadowEffect } from './components/ZombieEffects';
+import { EffectCleanupManager } from '../../utils/EffectCleanupManager';
 
 export class MechanicalZombieRenderer implements IZombieRenderer {
   private graphics: Graphics;
@@ -18,7 +18,6 @@ export class MechanicalZombieRenderer implements IZombieRenderer {
   private readonly LIGHT_METAL = 0x5a6a7a; // Light metal
   private readonly RUST_COLOR = 0x8b4513; // Rust brown
   private readonly OIL_BLACK = 0x1a1a1a; // Oil/grease
-  private readonly BLOOD_RED = 0x8b0000;
   private readonly EYE_GLOW = 0x00ffff; // Cyan glow (robotic)
 
   constructor() {

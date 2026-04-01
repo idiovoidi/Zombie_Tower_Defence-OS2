@@ -40,7 +40,7 @@ describe('ShotgunRenderer', () => {
 
     it('should clear visual before rendering', () => {
       // Spy on visual.clear to verify it's called
-      const clearSpy = jest.spyOn(visual, 'clear');
+      const clearSpy = vi.spyOn(visual, 'clear');
 
       renderer.render(visual, barrel, GameConfig.TOWER_TYPES.SHOTGUN, 1);
 

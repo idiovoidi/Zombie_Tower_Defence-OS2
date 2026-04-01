@@ -27,7 +27,7 @@ export class Tower extends GameObject implements ITower, TowerEffects {
   private renderer: ITowerRenderer; // Renderer for visual representation
   private rangeVisualizer: TowerRangeVisualizer;
   private currentRotation: number = 0;
-  private static readonly MAX_UPGRADE_LEVEL: number = 5; // Maximum upgrade level
+  private static readonly _MAX_UPGRADE_LEVEL: number = 5; // Maximum upgrade level
 
   // Idle animation properties
   private idleTime: number = 0;
@@ -621,7 +621,7 @@ export class Tower extends GameObject implements ITower, TowerEffects {
   /**
    * Spawn a shell casing effect (Machine Gun)
    */
-  private spawnShellCasing(): void {
+  private _spawnShellCasing(): void {
     if (!this.effectManager) {
       return;
     }
@@ -640,7 +640,7 @@ export class Tower extends GameObject implements ITower, TowerEffects {
   /**
    * Spawn a muzzle flash light effect (Machine Gun)
    */
-  private spawnMuzzleFlashLight(gunTipOffset: number): void {
+  private _spawnMuzzleFlashLight(gunTipOffset: number): void {
     if (!this.effectManager) {
       return;
     }
@@ -656,7 +656,7 @@ export class Tower extends GameObject implements ITower, TowerEffects {
   /**
    * Spawn a scope glint effect (Sniper)
    */
-  private spawnScopeGlint(): void {
+  private _spawnScopeGlint(): void {
     if (!this.effectManager) {
       return;
     }

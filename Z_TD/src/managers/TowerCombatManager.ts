@@ -519,7 +519,7 @@ export class TowerCombatManager {
     }
   }
 
-  private createFlameStream(
+  private _createFlameStream(
     tower: Tower,
     spawnPos: { x: number; y: number },
     target: Zombie,

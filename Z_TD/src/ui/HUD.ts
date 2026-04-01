@@ -3,7 +3,6 @@ import { Container } from 'pixi.js';
 
 export class HUD extends UIComponent {
   private nextWaveButton: Container;
-  private nextWaveCallback: (() => void) | null = null;
 
   constructor() {
     super();
@@ -45,7 +44,7 @@ export class HUD extends UIComponent {
     // Button now in BottomBar
   }
 
-  public setNextWaveCallback(callback: () => void): void {
-    this.nextWaveCallback = callback;
+  public setNextWaveCallback(_callback: () => void): void {
+    // Callback stored for future use when next wave button is re-enabled
   }
 }

@@ -1,9 +1,9 @@
 import { Container, Graphics } from 'pixi.js';
-import { IZombieRenderer, ZombieRenderState } from '../ZombieRenderer';
-import { ZombieAnimator } from '../ZombieAnimator';
-import { ParticleType, ZombieParticleSystem } from '../ZombieParticleSystem';
-import { GlowEffect, ShadowEffect } from '../components/ZombieEffects';
-import { EffectCleanupManager } from '../../../utils/EffectCleanupManager';
+import { IZombieRenderer, ZombieRenderState } from './ZombieRenderer';
+import { ZombieAnimator } from './ZombieAnimator';
+import { ParticleType, ZombieParticleSystem } from './ZombieParticleSystem';
+import { GlowEffect, ShadowEffect } from './components/ZombieEffects';
+import { EffectCleanupManager } from '../../utils/EffectCleanupManager';
 
 export class StealthZombieRenderer implements IZombieRenderer {
   private graphics: Graphics;

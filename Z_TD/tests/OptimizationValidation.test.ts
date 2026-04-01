@@ -9,16 +9,16 @@
  * Requirements: 5.1, 5.2, 6.1, 6.2, 6.4
  */
 
-import { SpatialGrid } from '../../src/utils/SpatialGrid';
-import { ObjectPool } from '../../src/utils/ObjectPool';
-import { ProjectileManager } from '../../src/managers/ProjectileManager';
-import { TowerPlacementManager } from '../../src/managers/TowerPlacementManager';
+import { SpatialGrid } from '../src/utils/SpatialGrid';
+import { ObjectPool } from '../src/utils/ObjectPool';
+import { ProjectileManager } from '../src/managers/ProjectileManager';
 import { Container } from 'pixi.js';
 
 // Mock entity for spatial grid tests
 interface MockEntity {
   position: { x: number; y: number };
   id: number;
+  [key: string]: unknown;
 }
 
 describe('Optimization Effectiveness Validation', () => {
@@ -95,7 +95,7 @@ describe('Optimization Effectiveness Validation', () => {
 
       // Verify spatial grid shows improvement (may not always be faster for small counts due to overhead)
       // But should show better scaling characteristics
-      results.forEach((result, index) => {
+      results.forEach((result, _index) => {
         // For larger entity counts, grid should be faster
         if (result.count >= 75) {
           expect(result.gridTime).toBeLessThan(result.linearTime);
@@ -398,7 +398,7 @@ describe('Optimization Effectiveness Validation', () => {
       // Test WITH pooling
       const pool = new ObjectPool<PooledObject>(
         () => ({ x: 0, y: 0, active: false }),
-        obj => {
+        (obj: PooledObject) => {
           obj.x = 0;
           obj.y = 0;
           obj.active = false;
@@ -458,7 +458,7 @@ describe('Optimization Effectiveness Validation', () => {
 
       const pool = new ObjectPool<TestObject>(
         () => ({ value: 0 }),
-        obj => {
+        (obj: TestObject) => {
           obj.value = 0;
         },
         50
@@ -549,7 +549,7 @@ describe('Optimization Effectiveness Validation', () => {
       // WITH pooling - measure allocation rate
       const pool = new ObjectPool<ParticleObject>(
         () => ({ x: 0, y: 0, vx: 0, vy: 0, life: 1.0 }),
-        obj => {
+        (obj: ParticleObject) => {
           obj.x = 0;
           obj.y = 0;
           obj.vx = 0;
@@ -631,7 +631,7 @@ describe('Optimization Effectiveness Validation', () => {
 
       const effectPool = new ObjectPool<EffectObject>(
         () => ({ x: 0, y: 0, type: '' }),
-        obj => {
+        (obj: EffectObject) => {
           obj.x = 0;
           obj.y = 0;
           obj.type = '';

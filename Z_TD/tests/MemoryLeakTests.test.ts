@@ -302,14 +302,15 @@ describe('Memory Leak Tests', () => {
       // Create mock managers with cleanup methods
       const mockManagers = {
         projectileManager: {
-          clear: jest.fn(),
+          clear: vi.fn(),
         },
         effectManager: {
-          clear: jest.fn(),
+          clear: vi.fn(),
         },
         zombieManager: {
+          clear: vi.fn(),
           getBloodParticleSystem: () => ({
-            clear: jest.fn(),
+            clear: vi.fn(),
           }),
         },
       };
@@ -327,7 +328,7 @@ describe('Memory Leak Tests', () => {
         const mockGraphics = {
           destroyed: false,
           parent: null,
-          destroy: jest.fn(),
+          destroy: vi.fn(),
         } as any;
 
         ResourceCleanupManager.registerPersistentEffect(mockGraphics, {
@@ -383,10 +384,11 @@ describe('Memory Leak Tests', () => {
     test('should complete cleanup within 200 milliseconds', () => {
       // Create mock managers
       const mockManagers = {
-        projectileManager: { clear: jest.fn() },
-        effectManager: { clear: jest.fn() },
+        projectileManager: { clear: vi.fn() },
+        effectManager: { clear: vi.fn() },
         zombieManager: {
-          getBloodParticleSystem: () => ({ clear: jest.fn() }),
+          clear: vi.fn(),
+          getBloodParticleSystem: () => ({ clear: vi.fn() }),
         },
       };
 
@@ -395,7 +397,7 @@ describe('Memory Leak Tests', () => {
         const mockGraphics = {
           destroyed: false,
           parent: null,
-          destroy: jest.fn(),
+          destroy: vi.fn(),
         } as any;
 
         ResourceCleanupManager.registerPersistentEffect(mockGraphics, {
@@ -428,23 +430,24 @@ describe('Memory Leak Tests', () => {
       const validGraphics = {
         destroyed: false,
         parent: null,
-        destroy: jest.fn(),
+        destroy: vi.fn(),
       } as any;
 
       const destroyedGraphics = {
         destroyed: true,
         parent: null,
-        destroy: jest.fn(),
+        destroy: vi.fn(),
       } as any;
 
       ResourceCleanupManager.registerPersistentEffect(validGraphics, { type: 'valid' });
       ResourceCleanupManager.registerPersistentEffect(destroyedGraphics, { type: 'destroyed' });
 
       const mockManagers = {
-        projectileManager: { clear: jest.fn() },
-        effectManager: { clear: jest.fn() },
+        projectileManager: { clear: vi.fn() },
+        effectManager: { clear: vi.fn() },
         zombieManager: {
-          getBloodParticleSystem: () => ({ clear: jest.fn() }),
+          clear: vi.fn(),
+          getBloodParticleSystem: () => ({ clear: vi.fn() }),
         },
       };
 
@@ -589,8 +592,8 @@ describe('Memory Leak Tests', () => {
         const mockGraphics = {
           destroyed: false,
           parent: null,
-          destroy: jest.fn(),
-        } as unknown;
+          destroy: vi.fn(),
+        } as unknown as import('pixi.js').Graphics;
 
         ResourceCleanupManager.registerPersistentEffect(mockGraphics, {
           type: 'test_effect',

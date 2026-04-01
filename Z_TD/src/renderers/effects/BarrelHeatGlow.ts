@@ -102,7 +102,7 @@ export class BarrelHeatGlow {
   /**
    * Linear interpolation between two colors
    */
-  private lerpColor(color1: number, color2: number, t: number): number {
+  private _lerpColor(color1: number, color2: number, t: number): number {
     const r1 = (color1 >> 16) & 0xff;
     const g1 = (color1 >> 8) & 0xff;
     const b1 = color1 & 0xff;

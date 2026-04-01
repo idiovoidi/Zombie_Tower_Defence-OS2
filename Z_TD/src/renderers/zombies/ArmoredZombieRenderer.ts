@@ -1,9 +1,9 @@
 import { Container, Graphics } from 'pixi.js';
-import { IZombieRenderer, ZombieRenderState } from '../ZombieRenderer';
-import { ZombieAnimator } from '../ZombieAnimator';
-import { ParticleType, ZombieParticleSystem } from '../ZombieParticleSystem';
-import { GlowEffect, ShadowEffect } from '../components/ZombieEffects';
-import { EffectCleanupManager } from '../../../utils/EffectCleanupManager';
+import { IZombieRenderer, ZombieRenderState } from './ZombieRenderer';
+import { ZombieAnimator } from './ZombieAnimator';
+import { ParticleType, ZombieParticleSystem } from './ZombieParticleSystem';
+import { GlowEffect, ShadowEffect } from './components/ZombieEffects';
+import { EffectCleanupManager } from '../../utils/EffectCleanupManager';
 
 export class ArmoredZombieRenderer implements IZombieRenderer {
   private graphics: Graphics;
@@ -18,7 +18,6 @@ export class ArmoredZombieRenderer implements IZombieRenderer {
   private readonly ZOMBIE_GREEN = 0x2d5016; // Zombie flesh showing through
   private readonly RUST_COLOR = 0x8b4513; // Rust brown
   private readonly BLOOD_RED = 0x8b0000;
-  private readonly BONE_WHITE = 0xcccccc;
   private readonly EYE_GLOW = 0xff6600; // Orange glow (through visor)
 
   constructor() {

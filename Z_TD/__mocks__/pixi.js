@@ -1,65 +1,65 @@
 // Mock for pixi.js to avoid issues with ES modules in tests
-const mockContainer = jest.fn().mockImplementation(() => {
+import { vi } from 'vitest';
+
+const mockContainer = vi.fn().mockImplementation(() => {
   const children = [];
   return {
     children,
-    addChild: jest.fn(child => children.push(child)),
-    removeChild: jest.fn(child => {
+    addChild: vi.fn(child => children.push(child)),
+    removeChild: vi.fn(child => {
       const index = children.indexOf(child);
       if (index > -1) children.splice(index, 1);
     }),
-    destroy: jest.fn(),
-    position: { set: jest.fn(), x: 0, y: 0 },
-    anchor: { set: jest.fn() },
-    on: jest.fn(),
-    clear: jest.fn(),
-    circle: jest.fn().mockReturnThis(),
-    fill: jest.fn().mockReturnThis(),
-    stroke: jest.fn().mockReturnThis(),
-    roundRect: jest.fn().mockReturnThis(),
+    destroy: vi.fn(),
+    position: { set: vi.fn(), x: 0, y: 0 },
+    anchor: { set: vi.fn() },
+    on: vi.fn(),
+    clear: vi.fn(),
+    circle: vi.fn().mockReturnThis(),
+    fill: vi.fn().mockReturnThis(),
+    stroke: vi.fn().mockReturnThis(),
+    roundRect: vi.fn().mockReturnThis(),
     visible: true,
     alpha: 1,
     rotation: 0,
   };
 });
 
-const mockGraphics = jest.fn().mockImplementation(() => {
+const mockGraphics = vi.fn().mockImplementation(() => {
   const children = [];
   return {
     children,
-    addChild: jest.fn(child => children.push(child)),
-    removeChild: jest.fn(child => {
+    addChild: vi.fn(child => children.push(child)),
+    removeChild: vi.fn(child => {
       const index = children.indexOf(child);
       if (index > -1) children.splice(index, 1);
     }),
-    destroy: jest.fn(),
-    clear: jest.fn(),
-    circle: jest.fn().mockReturnThis(),
-    ellipse: jest.fn().mockReturnThis(),
-    rect: jest.fn().mockReturnThis(),
-    fill: jest.fn().mockReturnThis(),
-    stroke: jest.fn().mockReturnThis(),
-    roundRect: jest.fn().mockReturnThis(),
-    moveTo: jest.fn().mockReturnThis(),
-    lineTo: jest.fn().mockReturnThis(),
-    position: { set: jest.fn(), x: 0, y: 0 },
+    destroy: vi.fn(),
+    clear: vi.fn(),
+    circle: vi.fn().mockReturnThis(),
+    ellipse: vi.fn().mockReturnThis(),
+    rect: vi.fn().mockReturnThis(),
+    fill: vi.fn().mockReturnThis(),
+    stroke: vi.fn().mockReturnThis(),
+    roundRect: vi.fn().mockReturnThis(),
+    moveTo: vi.fn().mockReturnThis(),
+    lineTo: vi.fn().mockReturnThis(),
+    position: { set: vi.fn(), x: 0, y: 0 },
     alpha: 1,
     rotation: 0,
     tint: 0xffffff,
   };
 });
 
-const mockText = jest.fn().mockImplementation(options => {
+const mockText = vi.fn().mockImplementation(options => {
   return {
-    text: options.text,
-    style: options.style,
-    position: { set: jest.fn() },
-    anchor: { set: jest.fn() },
+    text: options?.text,
+    style: options?.style,
+    position: { set: vi.fn() },
+    anchor: { set: vi.fn() },
   };
 });
 
-module.exports = {
-  Container: mockContainer,
-  Graphics: mockGraphics,
-  Text: mockText,
-};
+export const Container = mockContainer;
+export const Graphics = mockGraphics;
+export const Text = mockText;

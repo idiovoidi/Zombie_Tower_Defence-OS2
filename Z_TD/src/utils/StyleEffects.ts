@@ -6,14 +6,13 @@ import { DebugUtils } from './DebugUtils';
  * This is the easiest way to get pixel-perfect rendering
  */
 export class PixelPerfectMode {
-  private static originalScaleModes: Map<Texture, string> = new Map();
-
   /**
    * Enable pixel-perfect mode by disabling texture smoothing
    */
   static enable(): void {
-    // Set default scale mode for new textures
-    Texture.defaultOptions.scaleMode = 'nearest';
+    // Pixi.js v8: set scaleMode via TextureSource defaults
+    (Texture as unknown as { defaultOptions: { scaleMode: string } }).defaultOptions.scaleMode =
+      'nearest';
     DebugUtils.debug('Pixel-Perfect Mode enabled (nearest-neighbor filtering)');
   }
 
@@ -21,7 +20,8 @@ export class PixelPerfectMode {
    * Disable pixel-perfect mode
    */
   static disable(): void {
-    Texture.defaultOptions.scaleMode = 'linear';
+    (Texture as unknown as { defaultOptions: { scaleMode: string } }).defaultOptions.scaleMode =
+      'linear';
     DebugUtils.debug('Pixel-Perfect Mode disabled (linear filtering)');
   }
 }

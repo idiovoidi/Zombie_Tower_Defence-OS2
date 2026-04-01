@@ -1,9 +1,9 @@
 import { Container, Graphics } from 'pixi.js';
-import { IZombieRenderer, ZombieRenderState } from '../ZombieRenderer';
-import { ZombieAnimator } from '../ZombieAnimator';
-import { ParticleType, ZombieParticleSystem } from '../ZombieParticleSystem';
-import { GlowEffect, ShadowEffect } from '../components/ZombieEffects';
-import { EffectCleanupManager } from '../../../utils/EffectCleanupManager';
+import { IZombieRenderer, ZombieRenderState } from './ZombieRenderer';
+import { ZombieAnimator } from './ZombieAnimator';
+import { ParticleType, ZombieParticleSystem } from './ZombieParticleSystem';
+import { GlowEffect, ShadowEffect } from './components/ZombieEffects';
+import { EffectCleanupManager } from '../../utils/EffectCleanupManager';
 
 export class BasicZombieRenderer implements IZombieRenderer {
   private graphics: Graphics;
@@ -13,9 +13,7 @@ export class BasicZombieRenderer implements IZombieRenderer {
 
   private readonly PRIMARY_COLOR = 0x2d5016; // Dark zombie green
   private readonly DARK_GREEN = 0x1a3010; // Very dark green for shadows
-  private readonly PALE_GREEN = 0x3d6020; // Slightly lighter green
   private readonly BLOOD_RED = 0x8b0000;
-  private readonly BONE_WHITE = 0xcccccc;
   private readonly EYE_GLOW = 0xff0000;
 
   constructor() {

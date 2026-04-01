@@ -11,13 +11,13 @@ import {
   getDamageModifier,
 } from '../config/zombieResistances';
 import { IZombieRenderer, ZombieRenderState } from '../renderers/zombies/ZombieRenderer';
-import { ArmoredZombieRenderer } from '../renderers/zombies/types/ArmoredZombieRenderer';
-import { BasicZombieRenderer } from '../renderers/zombies/types/BasicZombieRenderer';
-import { FastZombieRenderer } from '../renderers/zombies/types/FastZombieRenderer';
-import { MechanicalZombieRenderer } from '../renderers/zombies/types/MechanicalZombieRenderer';
-import { StealthZombieRenderer } from '../renderers/zombies/types/StealthZombieRenderer';
-import { SwarmZombieRenderer } from '../renderers/zombies/types/SwarmZombieRenderer';
-import { TankZombieRenderer } from '../renderers/zombies/types/TankZombieRenderer';
+import { ArmoredZombieRenderer } from '../renderers/zombies/ArmoredZombieRenderer';
+import { BasicZombieRenderer } from '../renderers/zombies/BasicZombieRenderer';
+import { FastZombieRenderer } from '../renderers/zombies/FastZombieRenderer';
+import { MechanicalZombieRenderer } from '../renderers/zombies/MechanicalZombieRenderer';
+import { StealthZombieRenderer } from '../renderers/zombies/StealthZombieRenderer';
+import { SwarmZombieRenderer } from '../renderers/zombies/SwarmZombieRenderer';
+import { TankZombieRenderer } from '../renderers/zombies/TankZombieRenderer';
 import { EffectCleanupManager } from '../utils/EffectCleanupManager';
 
 export class Zombie extends GameObject {

@@ -80,7 +80,7 @@ export class SpatialGrid<T extends SpatialEntity> {
   /**
    * Get cell coordinates from cell index
    */
-  private getCellCoords(cellIndex: number): { col: number; row: number } {
+  private _getCellCoords(cellIndex: number): { col: number; row: number } {
     const col = cellIndex % this.cols;
     const row = Math.floor(cellIndex / this.cols);
     return { col, row };

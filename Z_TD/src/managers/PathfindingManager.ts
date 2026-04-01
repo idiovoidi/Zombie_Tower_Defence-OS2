@@ -6,14 +6,14 @@ export interface Waypoint {
 
 export class PathfindingManager {
   private waypoints: Waypoint[];
-  private gridWidth: number;
-  private gridHeight: number;
-  private cellSize: number;
+  private _gridWidth: number;
+  private _gridHeight: number;
+  private _cellSize: number;
 
   constructor(gridWidth: number = 1024, gridHeight: number = 768, cellSize: number = 32) {
-    this.gridWidth = gridWidth;
-    this.gridHeight = gridHeight;
-    this.cellSize = cellSize;
+    this._gridWidth = gridWidth;
+    this._gridHeight = gridHeight;
+    this._cellSize = cellSize;
     this.waypoints = [];
   }
 

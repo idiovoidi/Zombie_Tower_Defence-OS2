@@ -1,23 +1,23 @@
-import { WaveManager } from './WaveManager';
-import { GameConfig } from '../config/gameConfig';
+import { WaveManager } from '../src/managers/WaveManager';
+import { GameConfig } from '../src/config/gameConfig';
 
 // Mock ZombieFactory to avoid Pixi.js dependencies
-jest.mock('../objects/ZombieFactory', () => {
+vi.mock('../src/objects/ZombieFactory', () => {
   return {
     ZombieFactory: {
-      createZombie: jest.fn().mockImplementation((type, x, y, wave) => {
+      createZombie: vi.fn().mockImplementation((type, x, y, wave) => {
         return {
           type,
           x,
           y,
           wave,
           // Mock zombie methods that might be called
-          update: jest.fn(),
-          takeDamage: jest.fn().mockReturnValue(10),
-          hasReachedEnd: jest.fn().mockReturnValue(false),
-          getType: jest.fn().mockReturnValue(type),
-          getReward: jest.fn().mockReturnValue(10),
-          getSpeed: jest.fn().mockReturnValue(50),
+          update: vi.fn(),
+          takeDamage: vi.fn().mockReturnValue(10),
+          hasReachedEnd: vi.fn().mockReturnValue(false),
+          getType: vi.fn().mockReturnValue(type),
+          getReward: vi.fn().mockReturnValue(10),
+          getSpeed: vi.fn().mockReturnValue(50),
         };
       }),
     },

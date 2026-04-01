@@ -10,7 +10,7 @@ export class ShaderTestPanel extends UIComponent {
   private toggleButton!: Container;
   private currentFilter: ColorMatrixFilter | SimpleRetroFilter | null = null;
   private gameStage: Container | null = null;
-  private gameManager: unknown = null;
+  private _gameManager: unknown = null;
   private sliders: Map<string, Container> = new Map();
   private settingTexts: Map<string, Text> = new Map();
   private pixelArtRenderer: unknown = null;
@@ -27,7 +27,7 @@ export class ShaderTestPanel extends UIComponent {
   }
 
   public setGameManager(gameManager: unknown): void {
-    this.gameManager = gameManager;
+    this._gameManager = gameManager;
   }
 
   public setPixelArtRenderer(renderer: unknown): void {
@@ -367,7 +367,7 @@ export class ShaderTestPanel extends UIComponent {
     this.settingTexts.clear();
   }
 
-  private createSimpleRetroSliders(filter: SimpleRetroFilter): void {
+  private _createSimpleRetroSliders(filter: SimpleRetroFilter): void {
     let yPos = 180; // Start position for sliders
 
     // Clear existing sliders first
@@ -503,7 +503,7 @@ export class ShaderTestPanel extends UIComponent {
   }
 
   private createSlider(
-    name: string,
+    _name: string,
     initialValue: number,
     min: number,
     max: number,

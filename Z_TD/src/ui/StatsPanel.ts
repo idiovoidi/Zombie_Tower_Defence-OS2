@@ -8,11 +8,11 @@ export class StatsPanel extends UIComponent {
   private titleText!: Text;
   private statsTexts: Map<string, Text> = new Map();
   private exportButton!: Container;
-  private exportButtonBg!: Graphics;
+  private _exportButtonBg!: Graphics;
   private exportButtonText!: Text;
   private isCollapsed: boolean = false;
   private collapseButton!: Container;
-  private collapseButtonBg!: Graphics;
+  private _collapseButtonBg!: Graphics;
   private collapseButtonText!: Text;
   private contentContainer!: Container;
 
@@ -93,7 +93,7 @@ export class StatsPanel extends UIComponent {
       bg.stroke({ width: 1, color: 0x666666 });
     });
 
-    this.collapseButtonBg = bg;
+    this._collapseButtonBg = bg;
     this.collapseButtonText = text;
 
     return button;
@@ -180,7 +180,7 @@ export class StatsPanel extends UIComponent {
       bg.stroke({ width: 2, color: 0x45a049 });
     });
 
-    this.exportButtonBg = bg;
+    this._exportButtonBg = bg;
     this.exportButtonText = text;
 
     return button;

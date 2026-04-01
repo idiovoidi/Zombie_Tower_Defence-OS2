@@ -150,7 +150,7 @@ export class ZombieManager {
     if (zombie) {
       // Set waypoints for zombie path
       if (waypoints.length > 0) {
-        (zombie as HasWaypoints).waypoints = waypoints;
+        (zombie as unknown as HasWaypoints).waypoints = waypoints;
         console.log(`Zombie waypoints set: ${waypoints.length} waypoints`);
       }
 

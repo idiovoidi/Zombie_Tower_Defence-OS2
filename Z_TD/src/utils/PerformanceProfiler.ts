@@ -268,7 +268,7 @@ class FrameRateMonitor {
   private testFPS: number = 0;
   private frameCount: number = 0;
   private startTime: number = 0;
-  private lastFrameTime: number = 0;
+  private _lastFrameTime: number = 0;
   private isMonitoring: boolean = false;
   private animationFrameId: number | null = null;
 
@@ -279,7 +279,7 @@ class FrameRateMonitor {
     this.isMonitoring = true;
     this.frameCount = 0;
     this.startTime = performance.now();
-    this.lastFrameTime = this.startTime;
+    this._lastFrameTime = this.startTime;
 
     // Measure baseline FPS (first 1 second)
     this.measureBaseline();

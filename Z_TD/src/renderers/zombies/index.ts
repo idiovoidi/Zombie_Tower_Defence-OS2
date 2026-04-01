@@ -1,11 +1,11 @@
 export { AnimationState, type IZombieRenderer, type ZombieRenderState } from './ZombieRenderer';
 export { type AnimationData, ZombieAnimator } from './ZombieAnimator';
 export { type ParticleConfig, ParticleType, ZombieParticleSystem } from './ZombieParticleSystem';
-export { ArmoredZombieRenderer } from './types/ArmoredZombieRenderer';
-export { BasicZombieRenderer } from './types/BasicZombieRenderer';
-export { FastZombieRenderer } from './types/FastZombieRenderer';
-export { MechanicalZombieRenderer } from './types/MechanicalZombieRenderer';
-export { StealthZombieRenderer } from './types/StealthZombieRenderer';
-export { SwarmZombieRenderer } from './types/SwarmZombieRenderer';
-export { TankZombieRenderer } from './types/TankZombieRenderer';
+export { ArmoredZombieRenderer } from './ArmoredZombieRenderer';
+export { BasicZombieRenderer } from './BasicZombieRenderer';
+export { FastZombieRenderer } from './FastZombieRenderer';
+export { MechanicalZombieRenderer } from './MechanicalZombieRenderer';
+export { StealthZombieRenderer } from './StealthZombieRenderer';
+export { SwarmZombieRenderer } from './SwarmZombieRenderer';
+export { TankZombieRenderer } from './TankZombieRenderer';
 export { GlowEffect, OutlineEffect, ShadowEffect } from './components/ZombieEffects';
