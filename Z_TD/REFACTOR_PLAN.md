@@ -28,7 +28,7 @@ Files touched:
 - `src/renderers/zombies/BaseZombieRenderer.ts` (new)
 - All 7 zombie renderer files
 
-Status: [ ] Todo
+Status: [x] Done — `BaseZombieRenderer` provides constructor, `update`, `showDamageEffect`, `playDeathAnimation`, `destroy`, `getGraphics`. Each renderer declares config via protected readonly properties. Stealth and Mechanical override `playDeathAnimation` for their unique animations.
 
 ---
 
@@ -42,7 +42,7 @@ Files touched:
 - `src/renderers/towers/BaseTowerRenderer.ts`
 - All 7 tower renderer files
 
-Status: [ ] Todo
+Status: [x] Done — `applyShootingEffect(barrel, flash)` added to `BaseTowerRenderer`. All 7 renderers now call it instead of duplicating the 12-line recoil/cleanup block. `EffectCleanupManager` import removed from all 7 renderers.
 
 ---
 

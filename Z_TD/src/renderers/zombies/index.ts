@@ -1,6 +1,7 @@
 export { AnimationState, type IZombieRenderer, type ZombieRenderState } from './ZombieRenderer';
 export { type AnimationData, ZombieAnimator } from './ZombieAnimator';
 export { type ParticleConfig, ParticleType, ZombieParticleSystem } from './ZombieParticleSystem';
+export { BaseZombieRenderer } from './BaseZombieRenderer';
 export { ArmoredZombieRenderer } from './ArmoredZombieRenderer';
 export { BasicZombieRenderer } from './BasicZombieRenderer';
 export { FastZombieRenderer } from './FastZombieRenderer';

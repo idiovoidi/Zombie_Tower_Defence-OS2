@@ -1,5 +1,6 @@
 import type { Graphics } from 'pixi.js';
 import type { ITowerRenderer } from './ITowerRenderer';
+import { EffectCleanupManager } from '@/utils/EffectCleanupManager';
 
 /**
  * Base class for tower renderers
@@ -11,9 +12,26 @@ export abstract class BaseTowerRenderer implements ITowerRenderer {
   abstract renderShootingEffect(barrel: Graphics, type: string, upgradeLevel: number): void;
 
   /**
+   * Attach a pre-built flash graphic to the barrel, apply recoil, and auto-remove after 100ms.
+   * Call this at the end of every renderShootingEffect implementation.
+   */
+  protected applyShootingEffect(barrel: Graphics, flash: Graphics): void {
+    barrel.addChild(flash);
+    const originalY = barrel.y;
+    barrel.y = 2;
+    EffectCleanupManager.registerTimeout(
+      setTimeout(() => {
+        if (barrel && !barrel.destroyed) {
+          barrel.removeChild(flash);
+          flash.destroy();
+          barrel.y = originalY;
+        }
+      }, 100)
+    );
+  }
+
+  /**
    * Helper method to add upgrade stars above the tower
-   * @param visual - The visual Graphics container
-   * @param upgradeLevel - Current upgrade level (1-5)
    */
   protected addUpgradeStars(visual: Graphics, upgradeLevel: number): void {
     if (upgradeLevel <= 1) {

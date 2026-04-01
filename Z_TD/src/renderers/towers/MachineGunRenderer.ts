@@ -1,6 +1,5 @@
 import { Graphics } from 'pixi.js';
 import { BaseTowerRenderer } from './BaseTowerRenderer';
-import { EffectCleanupManager } from '@/utils/EffectCleanupManager';
 
 export class MachineGunRenderer extends BaseTowerRenderer {
   public render(visual: Graphics, barrel: Graphics, _type: string, upgradeLevel: number): void {
@@ -124,21 +123,6 @@ export class MachineGunRenderer extends BaseTowerRenderer {
     flash.circle(0, mgGunTip, 7).fill({ color: 0xff9933, alpha: 0.3 });
 
     barrel.addChild(flash);
-
-    // Apply recoil animation (little man recoils back slightly)
-    const originalY = barrel.y;
-    barrel.y = 2;
-
-    // Reset after a short delay (tracked to prevent memory leaks)
-    EffectCleanupManager.registerTimeout(
-      setTimeout(() => {
-        if (barrel && !barrel.destroyed) {
-          barrel.removeChild(flash);
-          flash.destroy();
-          // Return to original position
-          barrel.y = originalY;
-        }
-      }, 100)
-    );
+    this.applyShootingEffect(barrel, flash);
   }
 }

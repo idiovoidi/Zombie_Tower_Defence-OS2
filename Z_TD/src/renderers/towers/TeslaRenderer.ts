@@ -1,6 +1,5 @@
 import { Graphics } from 'pixi.js';
 import { BaseTowerRenderer } from './BaseTowerRenderer';
-import { EffectCleanupManager } from '@/utils/EffectCleanupManager';
 
 export class TeslaRenderer extends BaseTowerRenderer {
   public render(visual: Graphics, barrel: Graphics, _type: string, upgradeLevel: number): void {
@@ -161,21 +160,6 @@ export class TeslaRenderer extends BaseTowerRenderer {
     }
 
     barrel.addChild(flash);
-
-    // Apply recoil animation
-    const originalY = barrel.y;
-    barrel.y = 2;
-
-    // Reset after a short delay (tracked to prevent memory leaks)
-    EffectCleanupManager.registerTimeout(
-      setTimeout(() => {
-        if (barrel && !barrel.destroyed) {
-          barrel.removeChild(flash);
-          flash.destroy();
-          // Return to original position
-          barrel.y = originalY;
-        }
-      }, 100)
-    );
+    this.applyShootingEffect(barrel, flash);
   }
 }
