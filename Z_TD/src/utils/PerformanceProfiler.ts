@@ -59,6 +59,24 @@ export class PerformanceProfiler {
   }
 
   /**
+   * Build a metric record, push it, and log the result
+   */
+  private recordMetric(
+    operationName: string,
+    startTime: number,
+    endTime: number,
+    threshold: number
+  ): PerformanceMetrics {
+    const executionTime = endTime - startTime;
+    const passed = executionTime < threshold;
+    const metric: PerformanceMetrics = { operationName, executionTime, timestamp: startTime, passed, threshold };
+    this.metrics.push(metric);
+    const icon = passed ? '✅' : '❌';
+    console.log(`${icon} ${operationName}: ${executionTime.toFixed(3)}ms [${passed ? 'PASS' : 'FAIL'}] (threshold: ${threshold}ms)`);
+    return metric;
+  }
+
+  /**
    * Profile a single operation
    */
   public profileOperation(
@@ -67,35 +85,12 @@ export class PerformanceProfiler {
     threshold: number = 5
   ): PerformanceMetrics {
     const startTime = performance.now();
-
     try {
       operation();
     } catch (error) {
       console.error(`❌ Error in operation ${operationName}:`, error);
     }
-
-    const endTime = performance.now();
-    const executionTime = endTime - startTime;
-    const passed = executionTime < threshold;
-
-    const metric: PerformanceMetrics = {
-      operationName,
-      executionTime,
-      timestamp: startTime,
-      passed,
-      threshold,
-    };
-
-    this.metrics.push(metric);
-
-    // Log result
-    const icon = passed ? '✅' : '❌';
-    const status = passed ? 'PASS' : 'FAIL';
-    console.log(
-      `${icon} ${operationName}: ${executionTime.toFixed(3)}ms [${status}] (threshold: ${threshold}ms)`
-    );
-
-    return metric;
+    return this.recordMetric(operationName, startTime, performance.now(), threshold);
   }
 
   /**
@@ -107,35 +102,12 @@ export class PerformanceProfiler {
     threshold: number = 5
   ): Promise<PerformanceMetrics> {
     const startTime = performance.now();
-
     try {
       await operation();
     } catch (error) {
       console.error(`❌ Error in async operation ${operationName}:`, error);
     }
-
-    const endTime = performance.now();
-    const executionTime = endTime - startTime;
-    const passed = executionTime < threshold;
-
-    const metric: PerformanceMetrics = {
-      operationName,
-      executionTime,
-      timestamp: startTime,
-      passed,
-      threshold,
-    };
-
-    this.metrics.push(metric);
-
-    // Log result
-    const icon = passed ? '✅' : '❌';
-    const status = passed ? 'PASS' : 'FAIL';
-    console.log(
-      `${icon} ${operationName}: ${executionTime.toFixed(3)}ms [${status}] (threshold: ${threshold}ms)`
-    );
-
-    return metric;
+    return this.recordMetric(operationName, startTime, performance.now(), threshold);
   }
 
   /**
