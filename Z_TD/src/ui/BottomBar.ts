@@ -206,10 +206,6 @@ export class BottomBar extends UIComponent {
     text.position.set(width / 2, height / 2);
     button.addChild(text);
 
-    // Store references for hover effects
-    (button as any).frame = frame;
-    (button as unknown).text = text;
-
     // Hover effects
     button.on('pointerover', () => {
       frame.clear();
