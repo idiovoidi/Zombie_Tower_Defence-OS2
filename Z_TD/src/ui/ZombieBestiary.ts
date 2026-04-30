@@ -1,5 +1,5 @@
-import { UIComponent } from './UIComponent';
 import { Container, Graphics, Text } from 'pixi.js';
+import { UIPanel } from './UIPanel';
 import { GameConfig } from '../config/gameConfig';
 import {
   ArmoredZombieRenderer,
@@ -23,11 +23,7 @@ interface ZombieInfo {
   characteristics: string[];
 }
 
-export class ZombieBestiary extends UIComponent {
-  private background!: Graphics;
-  private isOpen: boolean = false;
-  private toggleButton!: Container;
-  private contentContainer!: Container;
+export class ZombieBestiary extends UIPanel {
   private zombieCards: Container[] = [];
   private onSpawnZombie?: (type: string) => void;
 
@@ -113,48 +109,13 @@ export class ZombieBestiary extends UIComponent {
 
   constructor() {
     super();
-    this.createBestiary();
-  }
-
-  private createBestiary(): void {
-    // Toggle button
-    this.toggleButton = new Container();
-    this.toggleButton.eventMode = 'static';
-    this.toggleButton.cursor = 'pointer';
-
-    const buttonBg = new Graphics();
-    buttonBg.roundRect(0, 0, 140, 35, 5).fill({ color: 0x1a1a1a, alpha: 0.9 });
-    buttonBg.stroke({ width: 2, color: 0xff0000 });
-    this.toggleButton.addChild(buttonBg);
-
-    const buttonText = new Text({
-      text: '📖 Bestiary',
-      style: {
-        fontFamily: 'Arial',
-        fontSize: 16,
-        fill: 0xff0000,
-        fontWeight: 'bold',
-      },
-    });
-    buttonText.anchor.set(0.5);
-    buttonText.position.set(70, 17.5);
-    this.toggleButton.addChild(buttonText);
-
-    this.toggleButton.on('pointerdown', () => {
-      this.toggle();
-    });
-
-    this.addChild(this.toggleButton);
-
-    // Main content container - will be added to stage separately
+    this.createToggleButton('📖 Bestiary', 140, 0xff0000);
+    // Content container is positioned differently (top-left, not centered)
+    this.background = new Graphics();
     this.contentContainer = new Container();
     this.contentContainer.visible = false;
     this.createContent();
-  }
-
-  // Get the content container to add it to the stage separately
-  public getContentContainer(): Container {
-    return this.contentContainer;
+    this.addChild(this.contentContainer);
   }
 
   private createContent(): void {
@@ -440,21 +401,8 @@ export class ZombieBestiary extends UIComponent {
   }
 
   public toggle(): void {
-    this.isOpen = !this.isOpen;
-    this.contentContainer.visible = this.isOpen;
+    this.togglePanel();
   }
 
-  public open(): void {
-    this.isOpen = true;
-    this.contentContainer.visible = true;
-  }
-
-  public close(): void {
-    this.isOpen = false;
-    this.contentContainer.visible = false;
-  }
-
-  public update(_deltaTime: number): void {
-    // Update logic if needed
-  }
+  public update(_deltaTime: number): void {}
 }

@@ -1,12 +1,8 @@
-import { UIComponent } from './UIComponent';
 import { Container, Graphics, Text } from 'pixi.js';
+import { UIPanel } from './UIPanel';
 
-export class DebugInfoPanel extends UIComponent {
-  private background!: Graphics;
+export class DebugInfoPanel extends UIPanel {
   private titleText!: Text;
-  private contentContainer!: Container;
-  private isExpanded: boolean = false;
-  private toggleButton!: Container;
   private onOpenShaderTest?: () => void;
   private onOpenWaveInfo?: () => void;
   private onOpenBestiary?: () => void;
@@ -15,185 +11,97 @@ export class DebugInfoPanel extends UIComponent {
 
   constructor() {
     super();
-    this.createPanel();
+    this.createToggleButton('🐛 Debug Info', 120, 0x00ff00);
+    this.createPanelFrame(280, 500, 'Debug Information', '', 0x00ff00);
+    this.buildPanelContent();
   }
 
-  // Set callbacks for opening debug panels
   public setShaderTestCallback(callback: () => void): void {
     this.onOpenShaderTest = callback;
   }
-
   public setWaveInfoCallback(callback: () => void): void {
     this.onOpenWaveInfo = callback;
   }
-
   public setBestiaryCallback(callback: () => void): void {
     this.onOpenBestiary = callback;
   }
-
   public setStatsCallback(callback: () => void): void {
     this.onOpenStats = callback;
   }
-
   public setAIControlCallback(callback: () => void): void {
     this.onOpenAIControl = callback;
   }
 
-  private createPanel(): void {
-    // Toggle button (always visible)
-    this.toggleButton = new Container();
-    this.toggleButton.eventMode = 'static';
-    this.toggleButton.cursor = 'pointer';
-
-    const buttonBg = new Graphics();
-    buttonBg.roundRect(0, 0, 120, 30, 5).fill({ color: 0x1a1a1a, alpha: 0.9 });
-    buttonBg.stroke({ width: 2, color: 0x00ff00 });
-    this.toggleButton.addChild(buttonBg);
-
-    const buttonText = new Text({
-      text: '🐛 Debug Info',
-      style: {
-        fontFamily: 'Arial',
-        fontSize: 14,
-        fill: 0x00ff00,
-        fontWeight: 'bold',
-      },
-    });
-    buttonText.anchor.set(0.5);
-    buttonText.position.set(60, 15);
-    this.toggleButton.addChild(buttonText);
-
-    this.toggleButton.on('pointerdown', () => {
-      this.togglePanel();
-    });
-
-    this.addChild(this.toggleButton);
-
-    // Main panel (hidden by default) - will be added to stage separately
-    this.background = new Graphics();
-    this.contentContainer = new Container();
-    this.contentContainer.visible = false;
-
-    this.createPanelContent();
-  }
-
-  // Get the content container to add it to the stage separately
-  public getContentContainer(): Container {
-    return this.contentContainer;
-  }
-
-  private createPanelContent(): void {
-    // Position at absolute screen coordinates (centered)
+  private buildPanelContent(): void {
     const panelWidth = 280;
-    const panelHeight = 500;
-    this.contentContainer.position.set(640 - panelWidth / 2, 384 - panelHeight / 2);
+    let yPos = 45;
 
-    // Background - simple positioning from (0,0)
-    const panelLeft = 0;
-    const panelTop = 0;
-
-    this.background
-      .roundRect(panelLeft, panelTop, panelWidth, panelHeight, 10)
-      .fill({ color: 0x1a1a1a, alpha: 0.95 });
-    this.background.stroke({ width: 2, color: 0x00ff00 });
-    this.contentContainer.addChild(this.background);
-
-    // Title
-    this.titleText = new Text({
-      text: 'Debug Information',
-      style: {
-        fontFamily: 'Arial',
-        fontSize: 16,
-        fill: 0x00ff00,
-        fontWeight: 'bold',
-      },
-    });
-    this.titleText.position.set(panelLeft + 10, panelTop + 10);
-    this.contentContainer.addChild(this.titleText);
-
-    let yPos = panelTop + 45;
-
-    // Debug Panels Section
     const panelsTitle = new Text({
       text: '🔧 Debug Panels:',
-      style: {
-        fontFamily: 'Arial',
-        fontSize: 14,
-        fill: 0xffff00,
-        fontWeight: 'bold',
-      },
+      style: { fontFamily: 'Arial', fontSize: 14, fill: 0xffff00, fontWeight: 'bold' },
     });
-    panelsTitle.position.set(panelLeft + 10, yPos);
+    panelsTitle.position.set(10, yPos);
     this.contentContainer.addChild(panelsTitle);
     yPos += 30;
 
-    // Performance Stats Button
-    const statsButton = this.createPanelButton('📊 Performance Stats', 0x4caf50, () => {
-      if (this.onOpenStats) {
-        this.onOpenStats();
-      }
-      this.close();
-    });
-    statsButton.position.set(panelLeft + 20, yPos);
-    this.contentContainer.addChild(statsButton);
-    yPos += 40;
+    const buttons: Array<[string, number, () => void]> = [
+      [
+        '📊 Performance Stats',
+        0x4caf50,
+        () => {
+          this.onOpenStats?.();
+          this.close();
+        },
+      ],
+      [
+        '🎨 Shader Test',
+        0x9966ff,
+        () => {
+          this.onOpenShaderTest?.();
+          this.close();
+        },
+      ],
+      [
+        '📊 Wave Info',
+        0xffcc00,
+        () => {
+          this.onOpenWaveInfo?.();
+          this.close();
+        },
+      ],
+      [
+        '📖 Bestiary',
+        0xff0000,
+        () => {
+          this.onOpenBestiary?.();
+          this.close();
+        },
+      ],
+      [
+        '🤖 AI Control',
+        0x00aaff,
+        () => {
+          this.onOpenAIControl?.();
+          this.close();
+        },
+      ],
+    ];
 
-    // Shader Test Button
-    const shaderButton = this.createPanelButton('🎨 Shader Test', 0x9966ff, () => {
-      if (this.onOpenShaderTest) {
-        this.onOpenShaderTest();
-      }
-      this.close();
-    });
-    shaderButton.position.set(panelLeft + 20, yPos);
-    this.contentContainer.addChild(shaderButton);
-    yPos += 40;
+    for (const [label, color, handler] of buttons) {
+      const btn = this.createActionButton(label, 240, 30, color, handler);
+      btn.position.set(20, yPos);
+      this.contentContainer.addChild(btn);
+      yPos += 40;
+    }
 
-    // Wave Info Button
-    const waveButton = this.createPanelButton('📊 Wave Info', 0xffcc00, () => {
-      if (this.onOpenWaveInfo) {
-        this.onOpenWaveInfo();
-      }
-      this.close();
-    });
-    waveButton.position.set(panelLeft + 20, yPos);
-    this.contentContainer.addChild(waveButton);
-    yPos += 40;
-
-    // Bestiary Button
-    const bestiaryButton = this.createPanelButton('📖 Bestiary', 0xff0000, () => {
-      if (this.onOpenBestiary) {
-        this.onOpenBestiary();
-      }
-      this.close();
-    });
-    bestiaryButton.position.set(panelLeft + 20, yPos);
-    this.contentContainer.addChild(bestiaryButton);
-    yPos += 40;
-
-    // AI Control Button
-    const aiButton = this.createPanelButton('🤖 AI Control', 0x00aaff, () => {
-      if (this.onOpenAIControl) {
-        this.onOpenAIControl();
-      }
-      this.close();
-    });
-    aiButton.position.set(panelLeft + 20, yPos);
-    this.contentContainer.addChild(aiButton);
-    yPos += 50;
-
-    // Controls Section
+    yPos += 10;
     const controlsTitle = new Text({
       text: '⌨️ Debug Controls:',
-      style: {
-        fontFamily: 'Arial',
-        fontSize: 14,
-        fill: 0xffff00,
-        fontWeight: 'bold',
-      },
+      style: { fontFamily: 'Arial', fontSize: 14, fill: 0xffff00, fontWeight: 'bold' },
     });
-    controlsTitle.position.set(panelLeft + 10, yPos + 20);
+    controlsTitle.position.set(10, yPos);
     this.contentContainer.addChild(controlsTitle);
+    yPos += 25;
 
     const controls = [
       'D - Toggle Debug Info',
@@ -203,97 +111,36 @@ export class DebugInfoPanel extends UIComponent {
       'M - Add $1000',
       'R - Show Ranges',
     ];
-
-    yPos += 45;
-    controls.forEach(control => {
+    for (const control of controls) {
       const text = new Text({
         text: control,
-        style: {
-          fontFamily: 'Arial',
-          fontSize: 11,
-          fill: 0xcccccc,
-        },
+        style: { fontFamily: 'Arial', fontSize: 11, fill: 0xcccccc },
       });
-      text.position.set(panelLeft + 20, yPos);
+      text.position.set(20, yPos);
       this.contentContainer.addChild(text);
       yPos += 18;
-    });
+    }
 
-    // Config Info
+    yPos += 20;
     const configTitle = new Text({
       text: '⚙️ Debug Config:',
-      style: {
-        fontFamily: 'Arial',
-        fontSize: 14,
-        fill: 0xffff00,
-        fontWeight: 'bold',
-      },
+      style: { fontFamily: 'Arial', fontSize: 14, fill: 0xffff00, fontWeight: 'bold' },
     });
-    configTitle.position.set(panelLeft + 10, yPos + 20);
+    configTitle.position.set(10, yPos);
     this.contentContainer.addChild(configTitle);
 
     const configText = new Text({
       text: 'Edit: src/config/debugConstants.ts',
-      style: {
-        fontFamily: 'Arial',
-        fontSize: 10,
-        fill: 0x00ff00,
-        fontStyle: 'italic',
-      },
+      style: { fontFamily: 'Arial', fontSize: 10, fill: 0x00ff00, fontStyle: 'italic' },
     });
-    configText.position.set(panelLeft + 20, yPos + 45);
+    configText.position.set(20, yPos + 25);
     this.contentContainer.addChild(configText);
-
-    this.addChild(this.contentContainer);
   }
 
+  // Keep the old createPanelButton name for any external callers
   private createPanelButton(label: string, color: number, onClick: () => void): Container {
-    const button = new Container();
-    button.eventMode = 'static';
-    button.cursor = 'pointer';
-
-    const bg = new Graphics();
-    bg.roundRect(0, 0, 240, 30, 5).fill({ color: 0x2a2a2a, alpha: 0.9 });
-    bg.stroke({ width: 2, color: color });
-    button.addChild(bg);
-
-    const text = new Text({
-      text: label,
-      style: {
-        fontFamily: 'Arial',
-        fontSize: 13,
-        fill: color,
-        fontWeight: 'bold',
-      },
-    });
-    text.anchor.set(0.5);
-    text.position.set(120, 15);
-    button.addChild(text);
-
-    button.on('pointerdown', onClick);
-
-    return button;
+    return this.createActionButton(label, 240, 30, color, onClick);
   }
 
-  private togglePanel(): void {
-    this.isExpanded = !this.isExpanded;
-    this.contentContainer.visible = this.isExpanded;
-  }
-
-  public close(): void {
-    this.isExpanded = false;
-    this.contentContainer.visible = false;
-  }
-
-  public show(): void {
-    this.visible = true;
-  }
-
-  public hide(): void {
-    this.visible = false;
-  }
-
-  public update(_deltaTime: number): void {
-    // Update logic if needed
-  }
+  public update(_deltaTime: number): void {}
 }

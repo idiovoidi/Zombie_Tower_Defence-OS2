@@ -1,19 +1,16 @@
-import { UIComponent } from './UIComponent';
-import { Container, Graphics, Text } from 'pixi.js';
+import { Container, Text } from 'pixi.js';
+import { UIPanel } from './UIPanel';
 import { WaveManager, ZombieGroup } from '../managers/WaveManager';
 
-export class WaveInfoPanel extends UIComponent {
-  private background!: Graphics;
-  private contentContainer!: Container;
-  private isExpanded: boolean = false;
-  private toggleButton!: Container;
+export class WaveInfoPanel extends UIPanel {
   private waveManager: WaveManager | null = null;
   private currentWave: number = 1;
   private waveInfoTexts: Text[] = [];
 
   constructor() {
     super();
-    this.createPanel();
+    this.createToggleButton('📊 Wave Info', 120, 0xffcc00);
+    this.createPanelFrame(320, 600, 'Wave Information', 'Upcoming Wave Composition', 0xffcc00);
   }
 
   public setWaveManager(waveManager: WaveManager): void {
@@ -21,140 +18,8 @@ export class WaveInfoPanel extends UIComponent {
     this.updateWaveInfo();
   }
 
-  private createPanel(): void {
-    // Toggle button (always visible)
-    this.toggleButton = new Container();
-    this.toggleButton.eventMode = 'static';
-    this.toggleButton.cursor = 'pointer';
-
-    const buttonBg = new Graphics();
-    buttonBg.roundRect(0, 0, 120, 30, 5).fill({ color: 0x1a1a1a, alpha: 0.9 });
-    buttonBg.stroke({ width: 2, color: 0xffcc00 });
-    this.toggleButton.addChild(buttonBg);
-
-    const buttonText = new Text({
-      text: '📊 Wave Info',
-      style: {
-        fontFamily: 'Arial',
-        fontSize: 14,
-        fill: 0xffcc00,
-        fontWeight: 'bold',
-      },
-    });
-    buttonText.anchor.set(0.5);
-    buttonText.position.set(60, 15);
-    this.toggleButton.addChild(buttonText);
-
-    this.toggleButton.on('pointerdown', () => {
-      this.togglePanel();
-    });
-
-    this.addChild(this.toggleButton);
-
-    // Main panel (hidden by default)
-    this.background = new Graphics();
-    this.contentContainer = new Container();
-    this.contentContainer.visible = false;
-
-    this.createPanelContent();
-  }
-
-  public getContentContainer(): Container {
-    return this.contentContainer;
-  }
-
-  private createPanelContent(): void {
-    // Position at absolute screen coordinates
-    const panelWidth = 320;
-    const panelHeight = 600;
-    this.contentContainer.position.set(640 - panelWidth / 2, 384 - panelHeight / 2);
-
-    const panelLeft = 0;
-    const panelTop = 0;
-
-    // Background
-    this.background
-      .roundRect(panelLeft, panelTop, panelWidth, panelHeight, 10)
-      .fill({ color: 0x1a1a1a, alpha: 0.95 });
-    this.background.stroke({ width: 3, color: 0xffcc00 });
-    this.contentContainer.addChild(this.background);
-
-    // Title
-    const titleText = new Text({
-      text: 'Wave Information',
-      style: {
-        fontFamily: 'Impact, Arial Black, sans-serif',
-        fontSize: 18,
-        fill: 0xffcc00,
-        fontWeight: 'bold',
-        letterSpacing: 1,
-      },
-    });
-    titleText.position.set(panelLeft + 10, panelTop + 10);
-    this.contentContainer.addChild(titleText);
-
-    // Subtitle
-    const subtitle = new Text({
-      text: 'Upcoming Wave Composition',
-      style: {
-        fontFamily: 'Arial',
-        fontSize: 11,
-        fill: 0xcccccc,
-        fontStyle: 'italic',
-      },
-    });
-    subtitle.position.set(panelLeft + 10, panelTop + 35);
-    this.contentContainer.addChild(subtitle);
-
-    // Close button
-    const closeButton = new Container();
-    closeButton.eventMode = 'static';
-    closeButton.cursor = 'pointer';
-
-    const closeBg = new Graphics();
-    closeBg.circle(0, 0, 20).fill({ color: 0xffcc00, alpha: 0.9 });
-    closeBg.stroke({ width: 2, color: 0xffffff });
-    closeButton.addChild(closeBg);
-
-    const closeText = new Text({
-      text: '✕',
-      style: {
-        fontFamily: 'Arial',
-        fontSize: 20,
-        fill: 0xffffff,
-        fontWeight: 'bold',
-      },
-    });
-    closeText.anchor.set(0.5);
-    closeButton.addChild(closeText);
-
-    closeButton.position.set(panelLeft + panelWidth - 30, panelTop + 20);
-    closeButton.on('pointerdown', () => {
-      this.close();
-    });
-    this.contentContainer.addChild(closeButton);
-
-    // Wave info will be dynamically added here
-    this.addChild(this.contentContainer);
-  }
-
-  private togglePanel(): void {
-    this.isExpanded = !this.isExpanded;
-    this.contentContainer.visible = this.isExpanded;
-    if (this.isExpanded) {
-      this.updateWaveInfo();
-    }
-  }
-
-  public open(): void {
-    this.isExpanded = true;
-    this.contentContainer.visible = true;
+  protected override onOpen(): void {
     this.updateWaveInfo();
-  }
-
-  public close(): void {
-    this.isExpanded = false;
-    this.contentContainer.visible = false;
   }
 
   public updateCurrentWave(wave: number): void {
@@ -382,14 +247,6 @@ export class WaveInfoPanel extends UIComponent {
       default:
         return '❓';
     }
-  }
-
-  public show(): void {
-    this.visible = true;
-  }
-
-  public hide(): void {
-    this.visible = false;
   }
 
   public update(_deltaTime: number): void {

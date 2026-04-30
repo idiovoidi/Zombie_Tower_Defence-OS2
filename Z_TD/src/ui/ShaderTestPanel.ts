@@ -1,13 +1,9 @@
-import { UIComponent } from './UIComponent';
-import { ColorMatrixFilter, Container, Graphics, Text } from 'pixi.js';
+import { Container, ColorMatrixFilter, Graphics, Text } from 'pixi.js';
+import { UIPanel } from './UIPanel';
 import { SimpleRetroFilter } from './shaders/filters/SimpleRetroFilter';
 import { VisualPresets } from '../utils/VisualPresets';
 
-export class ShaderTestPanel extends UIComponent {
-  private background!: Graphics;
-  private contentContainer!: Container;
-  private isExpanded: boolean = false;
-  private toggleButton!: Container;
+export class ShaderTestPanel extends UIPanel {
   private currentFilter: ColorMatrixFilter | SimpleRetroFilter | null = null;
   private gameStage: Container | null = null;
   private _gameManager: unknown = null;
@@ -18,7 +14,15 @@ export class ShaderTestPanel extends UIComponent {
 
   constructor() {
     super();
-    this.createPanel();
+    this.createToggleButton('🎨 Shader Test', 140, 0x9966ff);
+    this.createPanelFrame(
+      380,
+      600,
+      'Shader Test Panel',
+      'Test and adjust retro shader effects',
+      0x9966ff
+    );
+    this.buildPanelContent();
   }
 
   public setGameStage(stage: Container): void {
@@ -34,120 +38,9 @@ export class ShaderTestPanel extends UIComponent {
     this.pixelArtRenderer = renderer;
   }
 
-  private createPanel(): void {
-    // Toggle button (always visible)
-    this.toggleButton = new Container();
-    this.toggleButton.eventMode = 'static';
-    this.toggleButton.cursor = 'pointer';
-
-    const buttonBg = new Graphics();
-    buttonBg.roundRect(0, 0, 140, 30, 5).fill({ color: 0x1a1a1a, alpha: 0.9 });
-    buttonBg.stroke({ width: 2, color: 0x9966ff });
-    this.toggleButton.addChild(buttonBg);
-
-    const buttonText = new Text({
-      text: '🎨 Shader Test',
-      style: {
-        fontFamily: 'Arial',
-        fontSize: 14,
-        fill: 0x9966ff,
-        fontWeight: 'bold',
-      },
-    });
-    buttonText.anchor.set(0.5);
-    buttonText.position.set(70, 15);
-    this.toggleButton.addChild(buttonText);
-
-    this.toggleButton.on('pointerdown', () => {
-      this.togglePanel();
-    });
-
-    this.addChild(this.toggleButton);
-
-    // Main panel (hidden by default)
-    this.background = new Graphics();
-    this.contentContainer = new Container();
-    this.contentContainer.visible = false;
-
-    this.createPanelContent();
-  }
-
-  public getContentContainer(): Container {
-    return this.contentContainer;
-  }
-
-  private createPanelContent(): void {
-    // Position at absolute screen coordinates
+  private buildPanelContent(): void {
     const panelWidth = 380;
-    const panelHeight = 600;
-    this.contentContainer.position.set(640 - panelWidth / 2, 384 - panelHeight / 2);
-
-    const panelLeft = 0;
-    const panelTop = 0;
-
-    // Background
-    this.background
-      .roundRect(panelLeft, panelTop, panelWidth, panelHeight, 10)
-      .fill({ color: 0x1a1a1a, alpha: 0.95 });
-    this.background.stroke({ width: 3, color: 0x9966ff });
-    this.contentContainer.addChild(this.background);
-
-    // Title
-    const titleText = new Text({
-      text: 'Shader Test Panel',
-      style: {
-        fontFamily: 'Impact, Arial Black, sans-serif',
-        fontSize: 18,
-        fill: 0x9966ff,
-        fontWeight: 'bold',
-        letterSpacing: 1,
-      },
-    });
-    titleText.position.set(panelLeft + 10, panelTop + 10);
-    this.contentContainer.addChild(titleText);
-
-    // Subtitle
-    const subtitle = new Text({
-      text: 'Test and adjust retro shader effects',
-      style: {
-        fontFamily: 'Arial',
-        fontSize: 11,
-        fill: 0xcccccc,
-        fontStyle: 'italic',
-      },
-    });
-    subtitle.position.set(panelLeft + 10, panelTop + 35);
-    this.contentContainer.addChild(subtitle);
-
-    // Close button
-    const closeButton = new Container();
-    closeButton.eventMode = 'static';
-    closeButton.cursor = 'pointer';
-
-    const closeBg = new Graphics();
-    closeBg.circle(0, 0, 20).fill({ color: 0x9966ff, alpha: 0.9 });
-    closeBg.stroke({ width: 2, color: 0xffffff });
-    closeButton.addChild(closeBg);
-
-    const closeText = new Text({
-      text: '✕',
-      style: {
-        fontFamily: 'Arial',
-        fontSize: 20,
-        fill: 0xffffff,
-        fontWeight: 'bold',
-      },
-    });
-    closeText.anchor.set(0.5);
-    closeButton.addChild(closeText);
-
-    closeButton.position.set(panelLeft + panelWidth - 30, panelTop + 20);
-    closeButton.on('pointerdown', () => {
-      this.closePanel();
-    });
-    this.contentContainer.addChild(closeButton);
-
-    let yPos = panelTop + 65;
+    let yPos = 65;
 
     // Pixel Art Renderer Toggle
     const pixelArtTitle = new Text({
@@ -159,12 +52,12 @@ export class ShaderTestPanel extends UIComponent {
         fontWeight: 'bold',
       },
     });
-    pixelArtTitle.position.set(panelLeft + 15, yPos);
+    pixelArtTitle.position.set(15, yPos);
     this.contentContainer.addChild(pixelArtTitle);
     yPos += 20;
 
     const pixelArtToggle = this.createPixelArtToggle();
-    pixelArtToggle.position.set(panelLeft + 15, yPos);
+    pixelArtToggle.position.set(15, yPos);
     this.contentContainer.addChild(pixelArtToggle);
     yPos += 45;
 
@@ -178,7 +71,7 @@ export class ShaderTestPanel extends UIComponent {
         fontWeight: 'bold',
       },
     });
-    presetTitle.position.set(panelLeft + 15, yPos);
+    presetTitle.position.set(15, yPos);
     this.contentContainer.addChild(presetTitle);
     yPos += 25;
 
@@ -204,7 +97,7 @@ export class ShaderTestPanel extends UIComponent {
 
     presetButtons.forEach((preset, index) => {
       const button = this.createShaderButton(preset.name, preset.color);
-      button.position.set(panelLeft + 15 + (index % 3) * 110, yPos + Math.floor(index / 3) * 40);
+      button.position.set(15 + (index % 3) * 110, yPos + Math.floor(index / 3) * 40);
       this.contentContainer.addChild(button);
     });
     yPos += 240;
@@ -219,7 +112,7 @@ export class ShaderTestPanel extends UIComponent {
         fontWeight: 'bold',
       },
     });
-    settingsTitle.position.set(panelLeft + 15, yPos);
+    settingsTitle.position.set(15, yPos);
     this.contentContainer.addChild(settingsTitle);
     yPos += 30;
 
@@ -235,7 +128,7 @@ export class ShaderTestPanel extends UIComponent {
         wordWrapWidth: panelWidth - 30,
       },
     });
-    instructions.position.set(panelLeft + 15, yPos);
+    instructions.position.set(15, yPos);
     this.contentContainer.addChild(instructions);
 
     this.addChild(this.contentContainer);
@@ -588,26 +481,7 @@ export class ShaderTestPanel extends UIComponent {
     return button;
   }
 
-  private togglePanel(): void {
-    this.isExpanded = !this.isExpanded;
-    this.contentContainer.visible = this.isExpanded;
-  }
-
-  private closePanel(): void {
-    this.isExpanded = false;
-    this.contentContainer.visible = false;
-  }
-
-  public show(): void {
-    this.visible = true;
-  }
-
-  public hide(): void {
-    this.visible = false;
-  }
-
   public update(deltaTime: number): void {
-    // Update animated filters
     if (this.visualPresets) {
       this.visualPresets.update(deltaTime);
     }
