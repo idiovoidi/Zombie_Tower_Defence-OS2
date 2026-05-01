@@ -21,6 +21,7 @@
     "test:watch": "vitest",
     "test:coverage": "vitest --run --coverage",
     "type-check": "tsc --noEmit",
+    "dupcheck": "jscpd src --format \"typescript,javascript\" --gitignore --min-lines 8 --min-tokens 60 --reporters console",
     "dev:debug": "vite --debug",
     "clean": "rimraf dist node_modules/.vite"
   },
@@ -39,6 +40,7 @@
     "eslint": "^9.21.0",
     "eslint-config-prettier": "^10.1.2",
     "eslint-plugin-prettier": "^5.2.6",
+    "jscpd": "^4.0.9",
     "prettier": "^3.5.3",
     "typescript": "~5.7.3",
     "typescript-eslint": "^8.25.0",

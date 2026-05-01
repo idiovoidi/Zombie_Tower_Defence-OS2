@@ -147,6 +147,40 @@ export class TowerCombatManager {
     return closest;
   }
 
+  private createTargetedProjectile(
+    tower: Tower,
+    spawnPos: { x: number; y: number },
+    targetPos: { x: number; y: number },
+    damage: number,
+    speed: number,
+    projectileType: string,
+    target: Zombie | null,
+    includeUpgradeLevel: boolean = false
+  ) {
+    if (!this.projectileManager) {
+      return null;
+    }
+
+    const projectile = this.projectileManager.createProjectile(
+      spawnPos.x,
+      spawnPos.y,
+      targetPos.x,
+      targetPos.y,
+      damage,
+      speed,
+      projectileType,
+      target
+    );
+    projectile.setTowerType(tower.getType());
+    if (includeUpgradeLevel) {
+      projectile.setUpgradeLevel(tower.getUpgradeLevel());
+    }
+    if (this.onDamageCallback) {
+      projectile.setOnDamageCallback(this.onDamageCallback);
+    }
+    return projectile;
+  }
+
   private shootAtTarget(tower: Tower, target: Zombie): void {
     tower.shoot();
     tower.showShootingEffect();
@@ -182,62 +216,47 @@ export class TowerCombatManager {
     // Flame tower shoots fireball projectile
     if (projectileType === 'flame') {
       const speed = 400;
-      const projectile = this.projectileManager.createProjectile(
-        spawnPos.x,
-        spawnPos.y,
-        target.position.x,
-        target.position.y,
+      this.createTargetedProjectile(
+        tower,
+        spawnPos,
+        target.position,
         damage,
         speed,
         projectileType,
         target
       );
-      projectile.setTowerType(tower.getType());
-      if (this.onDamageCallback) {
-        projectile.setOnDamageCallback(this.onDamageCallback);
-      }
       return;
     }
 
     // Grenade tower shoots explosive projectile with arc trajectory
     if (projectileType === 'grenade') {
       const speed = 350; // Slower than bullets
-      const projectile = this.projectileManager.createProjectile(
-        spawnPos.x,
-        spawnPos.y,
-        target.position.x,
-        target.position.y,
+      this.createTargetedProjectile(
+        tower,
+        spawnPos,
+        target.position,
         damage,
         speed,
         projectileType,
-        target
+        target,
+        true
       );
-      projectile.setTowerType(tower.getType());
-      projectile.setUpgradeLevel(tower.getUpgradeLevel()); // Pass upgrade level for explosion scaling
-      if (this.onDamageCallback) {
-        projectile.setOnDamageCallback(this.onDamageCallback);
-      }
       return;
     }
 
     // Sludge tower shoots toxic barrel with arc trajectory
     if (projectileType === 'sludge') {
       const speed = 300; // Similar to grenade but slightly slower
-      const projectile = this.projectileManager.createProjectile(
-        spawnPos.x,
-        spawnPos.y,
-        target.position.x,
-        target.position.y,
+      this.createTargetedProjectile(
+        tower,
+        spawnPos,
+        target.position,
         damage, // 0 damage - pure crowd control
         speed,
         projectileType,
-        target
+        target,
+        true
       );
-      projectile.setTowerType(tower.getType());
-      projectile.setUpgradeLevel(tower.getUpgradeLevel()); // Pass upgrade level for pool scaling
-      if (this.onDamageCallback) {
-        projectile.setOnDamageCallback(this.onDamageCallback);
-      }
       return;
     }
 
@@ -272,37 +291,27 @@ export class TowerCombatManager {
         const targetX = spawnPos.x + Math.cos(adjustedAngle) * shotgunRange;
         const targetY = spawnPos.y + Math.sin(adjustedAngle) * shotgunRange;
 
-        const projectile = this.projectileManager.createProjectile(
-          spawnPos.x,
-          spawnPos.y,
-          targetX,
-          targetY,
+        this.createTargetedProjectile(
+          tower,
+          spawnPos,
+          { x: targetX, y: targetY },
           damagePerPellet,
           speed,
           projectileType,
           null // No specific target - pellets hit whatever they encounter
         );
-        projectile.setTowerType(tower.getType());
-        if (this.onDamageCallback) {
-          projectile.setOnDamageCallback(this.onDamageCallback);
-        }
       }
     } else {
       // Single projectile
-      const projectile = this.projectileManager.createProjectile(
-        spawnPos.x,
-        spawnPos.y,
-        target.position.x,
-        target.position.y,
+      this.createTargetedProjectile(
+        tower,
+        spawnPos,
+        target.position,
         damage,
         speed,
         projectileType,
         target
       );
-      projectile.setTowerType(tower.getType());
-      if (this.onDamageCallback) {
-        projectile.setOnDamageCallback(this.onDamageCallback);
-      }
     }
   }
 
