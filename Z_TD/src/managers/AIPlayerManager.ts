@@ -84,3 +84,28 @@ export class AIPlayerManager {
       console.log('🤖 ═══════════════════════════════════════════════════════');
     }
   }
+
+  public isEnabled(): boolean {
+    return this.enabled;
+  }
+
+  public update(deltaTime: number): void {
+    if (!this.enabled) {
+      return;
+    }
+
+    this.updateTimer += deltaTime;
+    if (this.updateTimer >= this.updateInterval) {
+      this.updateTimer = 0;
+      this.currentWaveDecisions++;
+    }
+  }
+
+  private logFinalStats(): void {
+    console.log('🤖 Final AI stats:');
+    console.log(`🤖   Decisions made: ${this.currentWaveDecisions}`);
+    console.log(`🤖   Current wave: ${this.gameManager.getWave()}`);
+    console.log(`🤖   Money: ${this.gameManager.getMoney()}`);
+    console.log(`🤖   Lives: ${this.gameManager.getLives()}`);
+  }
+}
