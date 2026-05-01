@@ -20,29 +20,29 @@ export const LAYER_INDICES = {
 // COLORS
 // ============================================================================
 export const COLORS = {
-  // Ground colors
-  GROUND_BASE: 0x3a4a2a, // Darker olive green
-  GROUND_DIRT_PATCH: 0x4a5a3a,
-  GROUND_DEAD_GRASS: 0x5a6a4a,
-  GROUND_BARREN_DIRT: 0x6a5a4a,
-  GROUND_ROCK: 0x5a5a5a,
-  GROUND_PEBBLE: 0x6a6a6a,
-  GROUND_CRACK: 0x2a2a1a,
-  GROUND_STAIN: 0x2a3a1a,
-  GROUND_GRASS_TUFT: 0x4a5a3a,
+  // Ground colors - enhanced contrast with darker, more desaturated tones
+  GROUND_BASE: 0x2d3d22, // Darker, more desaturated olive for better contrast
+  GROUND_DIRT_PATCH: 0x3d4d32,
+  GROUND_DEAD_GRASS: 0x4a5a3f,
+  GROUND_BARREN_DIRT: 0x5a4a3f,
+  GROUND_ROCK: 0x4a4a4a,
+  GROUND_PEBBLE: 0x5a5a5a,
+  GROUND_CRACK: 0x1a1a12,
+  GROUND_STAIN: 0x1f2f15,
+  GROUND_GRASS_TUFT: 0x3d4d32,
 
   // UI colors
   UI_PANEL_BG: 0x2a2a2a,
   UI_SEPARATOR: 0x654321,
 
-  // Path colors
-  PATH_OUTER: 0x4a3a2a,
-  PATH_INNER: 0x5a4a3a,
-  PATH_TRACK: 0x4a3a2a,
-  PATH_DIRT: 0x4a3a2a,
-  PATH_ROCK: 0x5a5a5a,
-  PATH_FOOTPRINT: 0x3a2a1a,
-  PATH_HIGHLIGHT: 0x7a6a5a,
+  // Path colors - enhanced contrast with darker edges and warmer center
+  PATH_OUTER: 0x3d2d1f, // Darker border for more contrast
+  PATH_INNER: 0x6b5a4a, // Lighter worn track center
+  PATH_TRACK: 0x5a4a3a,
+  PATH_DIRT: 0x5a4a3a,
+  PATH_ROCK: 0x6a6a6a,
+  PATH_FOOTPRINT: 0x2d1f12,
+  PATH_HIGHLIGHT: 0x8a7a6a, // Brighter edge highlight
 
   // Tree colors
   TREE_TRUNK: 0x4a3a2a,
