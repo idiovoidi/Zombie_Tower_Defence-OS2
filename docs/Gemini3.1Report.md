@@ -13,12 +13,6 @@ Ranked Findings (Code Smells & Architectural Issues)
 
 
 5. Incomplete Refactoring & Dead Code
-Severity: Low
-Locations: src/objects/Zombie.ts
-Why it's a problem: Zombie.ts has successfully started using a new modular renderer system (this.renderer.update()), but it still retains massive blocks of legacy, hardcoded drawing methods (createBasicZombieVisual, createFastZombieVisual, etc.). This causes confusion regarding which system is actively driving the game and clutters the codebase.
-Quick Win: Delete all legacy create*ZombieVisual() methods and rely exclusively on the modular ZombieRenderer classes.
-Top 3 Leverage Refactors
-Extract Rendering from Game Logic (Event-Driven Visuals)
 
 Impact: Highest leverage for testability and maintainability.
 Action: Strip all PixiJS Graphics imports and drawing logic out of TowerCombatManager and Tower. Create an Event Bus. When combat occurs, emit a TargetHitEvent. A dedicated CombatRenderer listens to these events and handles drawing lightning arcs, flames, and particles.

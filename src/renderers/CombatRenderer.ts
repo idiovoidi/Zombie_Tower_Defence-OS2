@@ -53,6 +53,11 @@ export interface TowerRotationEventData {
   rotation: number;
 }
 
+export interface TowerDamagedEventData {
+  tower: Tower;
+  damage: number;
+}
+
 export class CombatRenderer {
   private effectManager: EffectManager | null = null;
   private eventSubscriptions: EventSubscription[] = [];
@@ -124,6 +129,15 @@ export class CombatRenderer {
         }
       })
     );
+
+    // Listen for tower damaged events
+    this.eventSubscriptions.push(
+      eventBus.on<TowerDamagedEventData>(GameEvents.TOWER_DAMAGED, (data) => {
+        if (data && this.enabled) {
+          this.onTowerDamaged(data);
+        }
+      })
+    );
   }
 
   private onTargetHit(data: TargetHitEventData): void {
@@ -173,6 +187,15 @@ export class CombatRenderer {
   private onShootingEffect(data: ShootingEffectEventData): void {
     // The actual shooting effect is rendered by the Tower's renderer
     // This event is for additional global effects if needed
+  }
+
+  private onTowerDamaged(data: TowerDamagedEventData): void {
+    if (!this.effectManager) {
+      return;
+    }
+
+    // Spawn damage flash effect on tower
+    this.effectManager.spawnDamageFlash(data.tower, 30);
   }
 
   /**

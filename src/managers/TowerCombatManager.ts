@@ -15,7 +15,7 @@ export class TowerCombatManager {
   private zombieGrid: SpatialGrid<Zombie & { [key: string]: unknown }>;
   private eventBus: EventBus;
 
-  /** Apply damage to a zombie, fire the damage callback, and return whether it was killed. */
+  /** Apply damage to a zombie, emit DAMAGE_DEALT event, and return whether it was killed. */
   private applyDamageToZombie(zombie: Zombie, tower: Tower, damage: number): boolean {
     const modifier = zombie.getDamageModifier(tower.getType());
     const modifiedDamage = damage * modifier;
@@ -25,6 +25,16 @@ export class TowerCombatManager {
     const actualDamage = healthBefore - healthAfter;
     const killed = healthAfter <= 0;
     const overkill = killed ? Math.abs(healthAfter) : 0;
+
+    // Emit DAMAGE_DEALT event for tracking and analytics
+    this.eventBus.emit(GameEvents.DAMAGE_DEALT, {
+      damage: actualDamage,
+      towerType: tower.getType(),
+      killed,
+      overkill,
+    });
+
+    // Legacy callback support (deprecated, for backward compatibility)
     if (this.onDamageCallback) {
       this.onDamageCallback(actualDamage, tower.getType(), killed, overkill);
     }

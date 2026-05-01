@@ -388,7 +388,13 @@ export class Tower extends GameObject implements ITower, TowerEffects {
     if (healthComponent) {
       const actualDamage = healthComponent.takeDamage(damage);
 
-      // Visual feedback for damage via EffectManager
+      // Emit TOWER_DAMAGED event for CombatRenderer to handle visuals
+      this.eventBus.emit(GameEvents.TOWER_DAMAGED, {
+        tower: this,
+        damage: actualDamage,
+      });
+
+      // Legacy: Also call EffectManager directly if available (backward compatibility)
       if (this.effectManager) {
         this.effectManager.spawnDamageFlash(this, 30);
       }

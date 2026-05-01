@@ -146,6 +146,7 @@ export const GameEvents = {
   TOWER_PLACED: 'combat:tower:placed',
   TOWER_SOLD: 'combat:tower:sold',
   TOWER_UPGRADED: 'combat:tower:upgraded',
+  TOWER_DAMAGED: 'combat:tower:damaged',  // { tower: Tower, damage: number }
   DAMAGE_DEALT: 'combat:damage:dealt',
 
   // Combat visualization events (headless simulation support)

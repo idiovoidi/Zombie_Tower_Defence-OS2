@@ -1,6 +1,7 @@
 import { Container, Graphics } from 'pixi.js';
 import { EffectCleanupManager } from '../utils/EffectCleanupManager';
 import { ResourceCleanupManager } from '../utils/ResourceCleanupManager';
+import { EventBus, GameEvents } from '../utils/EventBus';
 import type { Zombie } from './Zombie';
 
 export class Projectile extends Container {
@@ -225,7 +226,15 @@ export class Projectile extends Container {
       const killed = healthAfter <= 0;
       const overkill = killed ? Math.abs(healthAfter) : 0;
 
-      // Notify callback
+      // Emit DAMAGE_DEALT event for tracking and analytics
+      EventBus.getInstance().emit(GameEvents.DAMAGE_DEALT, {
+        damage: actualDamage,
+        towerType: this.towerType,
+        killed,
+        overkill,
+      });
+
+      // Legacy callback support (deprecated, for backward compatibility)
       if (this.onDamageCallback) {
         this.onDamageCallback(actualDamage, this.towerType, killed, overkill);
       }
@@ -317,7 +326,15 @@ export class Projectile extends Container {
         const killed = healthAfter <= 0;
         const overkill = killed ? Math.abs(healthAfter) : 0;
 
-        // Notify callback for each zombie hit
+        // Emit DAMAGE_DEALT event for splash damage tracking
+        EventBus.getInstance().emit(GameEvents.DAMAGE_DEALT, {
+          damage: actualDamage,
+          towerType: this.towerType,
+          killed,
+          overkill,
+        });
+
+        // Legacy callback support (deprecated, for backward compatibility)
         if (this.onDamageCallback) {
           this.onDamageCallback(actualDamage, this.towerType, killed, overkill);
         }
