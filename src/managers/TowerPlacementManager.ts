@@ -3,7 +3,8 @@ import type { TransformComponent } from '../components/TransformComponent';
 import type { Tower } from '../objects/Tower';
 import { TowerFactory } from '../objects/TowerFactory';
 import type { MapManager } from './MapManager';
-import type { TowerManager } from './TowerManager';
+import { TowerManager } from './TowerManager';
+import type { EffectManager } from '../renderers/effects/EffectManager';
 
 export class TowerPlacementManager {
   private container: Container;
@@ -18,15 +19,13 @@ export class TowerPlacementManager {
   private onTowerSelectedCallback: ((tower: Tower | null) => void) | null = null;
   private canAffordTower: boolean = true;
   private towersDirty: boolean = false; // Track when tower array changes
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  private effectManager: any = null; // EffectManager for visual effects
+  private effectManager: EffectManager | null = null; // EffectManager for visual effects
 
   constructor(
     container: Container,
     towerManager: TowerManager,
     mapManager: MapManager,
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    effectManager?: any
+    effectManager?: EffectManager
   ) {
     this.container = container;
     this.towerManager = towerManager;

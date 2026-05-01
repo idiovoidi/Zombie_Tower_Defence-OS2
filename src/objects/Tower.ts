@@ -6,9 +6,9 @@ import { TransformComponent } from '../components/TransformComponent';
 import { GameConfig } from '../config/gameConfig';
 import { TowerManager } from '../managers/TowerManager';
 import { BarrelHeatGlow } from '../renderers/effects/BarrelHeatGlow';
+import type { EffectManager } from '../renderers/effects/EffectManager';
 import type { TowerEffects } from '../types/tower-internal';
 import { EffectCleanupManager } from '../utils/EffectCleanupManager';
-import { ResourceCleanupManager } from '../utils/ResourceCleanupManager';
 import { TowerRangeVisualizer } from '../utils/TowerRangeVisualizer';
 import { GameObject } from './GameObject';
 import type { ITower } from './Tower.interface';
@@ -36,12 +36,11 @@ export class Tower extends GameObject implements ITower, TowerEffects {
 
   // Machine gun effects
   private barrelHeatGlow: BarrelHeatGlow | null = null;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  private effectManager: any = null; // Reference to effect manager container (dynamically set)
+  private effectManager: EffectManager | null = null; // Reference to effect manager
 
   // Sniper effects
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  private laserSight: any = null; // LaserSight instance (dynamically imported)
+  // biome-ignore lint/suspicious/noExplicitAny: PixiJS Filter API uses complex types
+  private laserSight: any = null;
   private currentTarget: { x: number; y: number } | null = null;
 
   // Dynamic effect properties (from TowerEffects interface)
@@ -404,28 +403,10 @@ export class Tower extends GameObject implements ITower, TowerEffects {
     if (healthComponent) {
       const actualDamage = healthComponent.takeDamage(damage);
 
-      // Visual feedback for damage - flash the tower red
-      const damageFlash = new Graphics();
-      damageFlash.circle(0, 0, 30).fill({ color: 0xff0000, alpha: 0.5 });
-      this.addChild(damageFlash);
-
-      // Register as persistent effect for immediate cleanup
-      ResourceCleanupManager.registerPersistentEffect(damageFlash, {
-        type: 'tower_damage_flash',
-        duration: 100,
-      });
-
-      // Remove flash after a short delay (tracked to prevent memory leaks)
-      const timeout = EffectCleanupManager.registerTimeout(
-        setTimeout(() => {
-          EffectCleanupManager.clearTimeout(timeout);
-          ResourceCleanupManager.unregisterPersistentEffect(damageFlash);
-          if (damageFlash && !damageFlash.destroyed) {
-            this.removeChild(damageFlash);
-            damageFlash.destroy();
-          }
-        }, 100)
-      );
+      // Visual feedback for damage via EffectManager
+      if (this.effectManager) {
+        this.effectManager.spawnDamageFlash(this, 30);
+      }
 
       return actualDamage;
     }
@@ -611,10 +592,10 @@ export class Tower extends GameObject implements ITower, TowerEffects {
   }
 
   /**
-   * Set the effect manager container for spawning effects
+   * Set the effect manager for spawning effects
    */
-  public setEffectManager(container: Container): void {
-    this.effectManager = container;
+  public setEffectManager(effectManager: EffectManager): void {
+    this.effectManager = effectManager;
   }
 
   /**
@@ -665,14 +646,14 @@ export class Tower extends GameObject implements ITower, TowerEffects {
             this.currentTarget.x,
             this.currentTarget.y
           );
-          this.effectManager.addChild(this.laserSight);
+          this.effectManager.getContainer().addChild(this.laserSight);
         })
         .catch(() => {
           // Silently fail
         });
     } else if (!enabled && this.laserSight) {
       if (this.effectManager && this.laserSight.parent) {
-        this.effectManager.removeChild(this.laserSight);
+        this.effectManager.getContainer().removeChild(this.laserSight);
       }
       this.laserSight.destroy();
       this.laserSight = null;

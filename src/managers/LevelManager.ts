@@ -81,7 +81,11 @@ export class LevelManager {
     }
 
     this.currentLevel = levelId;
-    const level = this.levels.get(levelId)!;
+    const level = this.levels.get(levelId);
+    if (!level) {
+      console.error(`Level ${levelId} not found`);
+      return false;
+    }
 
     // Load the map for this level
     this.mapManager.loadMap(level.map);

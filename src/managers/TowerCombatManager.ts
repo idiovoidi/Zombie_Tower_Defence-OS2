@@ -1,11 +1,9 @@
-import { Graphics } from 'pixi.js';
 import type { Tower } from '../objects/Tower';
 import type { Zombie } from '../objects/Zombie';
-import { EffectCleanupManager } from '../utils/EffectCleanupManager';
 import { OptimizationValidator } from '../utils/OptimizationValidator';
-import { ResourceCleanupManager } from '../utils/ResourceCleanupManager';
 import { SpatialGrid } from '../utils/SpatialGrid';
 import type { ProjectileManager } from './ProjectileManager';
+import type { EffectManager } from '../renderers/effects/EffectManager';
 
 export class TowerCombatManager {
   private towers: Tower[] = [];
@@ -14,6 +12,7 @@ export class TowerCombatManager {
   private onDamageCallback:
     | ((damage: number, towerType: string, killed: boolean, overkill: number) => void)
     | null = null;
+  private effectManager: EffectManager | null = null;
   private zombieGrid: SpatialGrid<Zombie & { [key: string]: unknown }>;
 
   /** Apply damage to a zombie, fire the damage callback, and return whether it was killed. */
@@ -43,6 +42,10 @@ export class TowerCombatManager {
 
   public setProjectileManager(projectileManager: ProjectileManager): void {
     this.projectileManager = projectileManager;
+  }
+
+  public setEffectManager(effectManager: EffectManager): void {
+    this.effectManager = effectManager;
   }
 
   public setTowers(towers: Tower[]): void {
@@ -336,9 +339,6 @@ export class TowerCombatManager {
     let currentSource = spawnPos;
     let currentTarget: Zombie | null = target;
 
-    // Create visual lightning graphics
-    const lightningGraphics = new Graphics();
-
     // Chain through multiple targets
     for (let jump = 0; jump < maxJumps && currentTarget; jump++) {
       this.applyDamageToZombie(currentTarget, tower, currentDamage);
@@ -347,7 +347,9 @@ export class TowerCombatManager {
       hitZombies.add(currentTarget);
 
       // Add electric particle effect to zombie
-      this.createElectricParticles(currentTarget, jump === 0);
+      if (this.effectManager) {
+        this.effectManager.spawnElectricParticles(currentTarget, jump === 0);
+      }
 
       // Store chain info for visual
       chainTargets.push({
@@ -375,42 +377,20 @@ export class TowerCombatManager {
       }
     }
 
-    // Draw all lightning arcs
-    for (let i = 0; i < chainTargets.length; i++) {
-      const chain = chainTargets[i];
-      const isFirstArc = i === 0;
-      this.drawLightningBolt(
-        lightningGraphics,
-        chain.from.x,
-        chain.from.y,
-        chain.to.position.x,
-        chain.to.position.y,
-        isFirstArc
-      );
+    // Spawn all lightning arcs via EffectManager
+    if (this.effectManager) {
+      for (let i = 0; i < chainTargets.length; i++) {
+        const chain = chainTargets[i];
+        const isFirstArc = i === 0;
+        this.effectManager.spawnLightningArc(
+          chain.from.x,
+          chain.from.y,
+          chain.to.position.x,
+          chain.to.position.y,
+          isFirstArc
+        );
+      }
     }
-
-    // Add to tower's parent container
-    if (tower.parent) {
-      tower.parent.addChild(lightningGraphics);
-    }
-
-    // Register lightning as persistent effect for immediate cleanup
-    ResourceCleanupManager.registerPersistentEffect(lightningGraphics, {
-      type: 'tesla_lightning',
-      duration: 150,
-    });
-
-    // Remove lightning after short duration (tracked to prevent memory leaks)
-    const timeout = EffectCleanupManager.registerTimeout(
-      setTimeout(() => {
-        EffectCleanupManager.clearTimeout(timeout);
-        ResourceCleanupManager.unregisterPersistentEffect(lightningGraphics);
-        if (lightningGraphics.parent) {
-          lightningGraphics.parent.removeChild(lightningGraphics);
-        }
-        lightningGraphics.destroy();
-      }, 150)
-    ); // Lightning lasts 150ms for chain effect
   }
 
   /**
@@ -440,194 +420,5 @@ export class TowerCombatManager {
     }
 
     return nearestZombie;
-  }
-
-  /**
-   * Draw a lightning bolt between two points
-   */
-  private drawLightningBolt(
-    graphics: Graphics,
-    startX: number,
-    startY: number,
-    endX: number,
-    endY: number,
-    isPrimary: boolean
-  ): void {
-    // Calculate segments for the arc
-    const segments = 8;
-    const points: { x: number; y: number }[] = [];
-
-    for (let i = 0; i <= segments; i++) {
-      const t = i / segments;
-      const x = startX + (endX - startX) * t;
-      const y = startY + (endY - startY) * t;
-
-      // Add random offset perpendicular to the line (except for start and end)
-      if (i > 0 && i < segments) {
-        const perpX = -(endY - startY);
-        const perpY = endX - startX;
-        const length = Math.sqrt(perpX * perpX + perpY * perpY);
-        const normalizedPerpX = perpX / length;
-        const normalizedPerpY = perpY / length;
-
-        const offset = (Math.random() - 0.5) * (isPrimary ? 20 : 15); // Smaller offset for chain arcs
-        points.push({
-          x: x + normalizedPerpX * offset,
-          y: y + normalizedPerpY * offset,
-        });
-      } else {
-        points.push({ x, y });
-      }
-    }
-
-    // Draw main lightning bolt (bright cyan for primary, dimmer for chains)
-    const mainColor = isPrimary ? 0x00ffff : 0x00ccff;
-    const mainWidth = isPrimary ? 3 : 2;
-    graphics.moveTo(points[0].x, points[0].y);
-    for (let i = 1; i < points.length; i++) {
-      graphics.lineTo(points[i].x, points[i].y);
-    }
-    graphics.stroke({ width: mainWidth, color: mainColor });
-
-    // Draw glow effect (wider, semi-transparent)
-    graphics.moveTo(points[0].x, points[0].y);
-    for (let i = 1; i < points.length; i++) {
-      graphics.lineTo(points[i].x, points[i].y);
-    }
-    graphics.stroke({ width: mainWidth * 2, color: mainColor, alpha: 0.5 });
-
-    // Draw outer glow (even wider, more transparent)
-    graphics.moveTo(points[0].x, points[0].y);
-    for (let i = 1; i < points.length; i++) {
-      graphics.lineTo(points[i].x, points[i].y);
-    }
-    graphics.stroke({ width: mainWidth * 3, color: 0xffffff, alpha: 0.3 });
-
-    // Add bright flash at start and end points
-    const flashSize = isPrimary ? 8 : 6;
-    graphics.circle(startX, startY, flashSize).fill({ color: 0xffffff, alpha: 0.8 });
-    graphics.circle(startX, startY, flashSize * 1.5).fill({ color: 0x00ffff, alpha: 0.5 });
-    graphics.circle(endX, endY, flashSize).fill({ color: 0xffffff, alpha: 0.8 });
-    graphics.circle(endX, endY, flashSize * 1.5).fill({ color: 0x00ffff, alpha: 0.5 });
-
-    // Add branching arcs (smaller side bolts) - only for primary arc
-    if (isPrimary) {
-      for (let i = 2; i < points.length - 2; i += 2) {
-        if (Math.random() > 0.5) {
-          const branchLength = 15 + Math.random() * 20;
-          const angle = Math.random() * Math.PI * 2;
-          const branchEndX = points[i].x + Math.cos(angle) * branchLength;
-          const branchEndY = points[i].y + Math.sin(angle) * branchLength;
-
-          graphics.moveTo(points[i].x, points[i].y);
-          graphics.lineTo(branchEndX, branchEndY);
-          graphics.stroke({ width: 2, color: mainColor, alpha: 0.7 });
-        }
-      }
-    }
-  }
-
-  /**
-   * Create electric particle effects on a zombie when hit by lightning
-   */
-  private createElectricParticles(zombie: Zombie, isPrimary: boolean): void {
-    if (!zombie.parent) {
-      return;
-    }
-
-    // Create particle container as a child of the zombie so it moves with it
-    const particleContainer = new Graphics();
-    zombie.addChild(particleContainer);
-
-    // Register particle container as persistent effect for immediate cleanup
-    ResourceCleanupManager.registerPersistentEffect(particleContainer, {
-      type: 'tesla_particles',
-      duration: isPrimary ? 250 : 180,
-    });
-
-    // Number of particles based on whether it's primary or chain hit
-    const particleCount = isPrimary ? 12 : 8;
-    const particleSize = isPrimary ? 3 : 2;
-    const spreadRadius = isPrimary ? 20 : 15;
-
-    // Create electric sparks around the zombie (relative to zombie position)
-    for (let i = 0; i < particleCount; i++) {
-      const angle = (i / particleCount) * Math.PI * 2;
-      const distance = Math.random() * spreadRadius;
-      const x = Math.cos(angle) * distance;
-      const y = Math.sin(angle) * distance;
-
-      // Bright cyan spark
-      particleContainer.circle(x, y, particleSize).fill({ color: 0x00ffff, alpha: 0.9 });
-
-      // Glow around spark
-      particleContainer.circle(x, y, particleSize * 2).fill({ color: 0xffffff, alpha: 0.5 });
-    }
-
-    // Electric ring around zombie (centered at 0,0 since it's a child)
-    const ringRadius = isPrimary ? 18 : 14;
-    particleContainer.circle(0, 0, ringRadius).stroke({ width: 2, color: 0x00ffff, alpha: 0.8 });
-    particleContainer
-      .circle(0, 0, ringRadius + 3)
-      .stroke({ width: 1, color: 0xffffff, alpha: 0.4 });
-
-    // Electric arcs emanating from zombie center
-    const arcCount = isPrimary ? 6 : 4;
-    for (let i = 0; i < arcCount; i++) {
-      const angle = (i / arcCount) * Math.PI * 2 + Math.random() * 0.5;
-      const length = 10 + Math.random() * 15;
-      const startX = Math.cos(angle) * 8;
-      const startY = Math.sin(angle) * 8;
-      const endX = startX + Math.cos(angle) * length;
-      const endY = startY + Math.sin(angle) * length;
-
-      // Jagged lightning arc
-      const segments = 3;
-      particleContainer.moveTo(startX, startY);
-      for (let j = 1; j <= segments; j++) {
-        const t = j / segments;
-        const midX = startX + (endX - startX) * t;
-        const midY = startY + (endY - startY) * t;
-        const offset = (Math.random() - 0.5) * 8;
-        const perpX = -(endY - startY);
-        const perpY = endX - startX;
-        const perpLength = Math.sqrt(perpX * perpX + perpY * perpY);
-        const normalizedPerpX = perpX / perpLength;
-        const normalizedPerpY = perpY / perpLength;
-
-        particleContainer.lineTo(midX + normalizedPerpX * offset, midY + normalizedPerpY * offset);
-      }
-      particleContainer.stroke({ width: 1.5, color: 0x00ffff, alpha: 0.8 });
-    }
-
-    // OPTIMIZATION: Use single timeout instead of setInterval (prevents memory leak)
-    // Make zombie glow blue/cyan
-    if (zombie.visual) {
-      const originalTint = zombie.visual.tint;
-      zombie.visual.tint = 0x00ffff; // Cyan/electric blue tint
-
-      // Single timeout to restore color
-      const tintDuration = isPrimary ? 300 : 200;
-      EffectCleanupManager.registerTimeout(
-        setTimeout(() => {
-          if (zombie.visual && !zombie.visual.destroyed) {
-            zombie.visual.tint = originalTint;
-          }
-        }, tintDuration)
-      );
-    }
-
-    // OPTIMIZATION: Use single timeout instead of setInterval (prevents memory leak)
-    // Clean up particles after duration
-    const duration = isPrimary ? 250 : 180;
-    EffectCleanupManager.registerTimeout(
-      setTimeout(() => {
-        ResourceCleanupManager.unregisterPersistentEffect(particleContainer);
-        if (particleContainer.parent) {
-          particleContainer.parent.removeChild(particleContainer);
-        }
-        particleContainer.destroy();
-      }, duration)
-    );
   }
 }

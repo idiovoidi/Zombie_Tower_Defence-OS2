@@ -319,7 +319,6 @@ export class CRTFilter extends BaseRetroFilter {
    * Override apply method to update time uniform
    */
   // biome-ignore lint/suspicious/noExplicitAny: PixiJS Filter API uses complex types
-  // biome-ignore lint/style/noNonNullAssertion: PixiJS types required by parent class
   apply(filterManager: any, input: any, output: any, clearMode?: any): void {
     this.updateTime();
     super.apply(filterManager, input, output, clearMode);

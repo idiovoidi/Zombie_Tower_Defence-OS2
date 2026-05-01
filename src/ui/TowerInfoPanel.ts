@@ -175,11 +175,11 @@ export class TowerInfoPanel extends UIComponent {
     if (canUpgrade) {
       upgradeText.text = `Upgrade ($${upgradeCost})`;
       this.upgradeButton.alpha = 1;
-      (this.upgradeButton as any).interactive = true;
+      this.upgradeButton.eventMode = 'static';
     } else {
       upgradeText.text = 'Max Level';
       this.upgradeButton.alpha = 0.5;
-      (this.upgradeButton as any).interactive = false;
+      this.upgradeButton.eventMode = 'none';
     }
 
     // Update sell button (sell for 75% of total cost)

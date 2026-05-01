@@ -5,6 +5,7 @@ import { DebugUtils } from './DebugUtils';
  * Simple approach: Just disable texture smoothing on all textures
  * This is the easiest way to get pixel-perfect rendering
  */
+// biome-ignore lint/complexity/noStaticOnlyClass: Stateless utility configuration
 export class PixelPerfectMode {
   /**
    * Enable pixel-perfect mode by disabling texture smoothing

@@ -7,6 +7,7 @@
  */
 
 import { GameConfig } from '../config/gameConfig';
+import type { Zombie } from '../objects/Zombie';
 import { ZombieFactory } from '../objects/ZombieFactory';
 import { ZombieStats } from '../utils/ZombieStats';
 
@@ -678,8 +679,8 @@ export class WaveManager {
   }
 
   // Create zombies for current wave
-  public createWaveZombies(): any[] {
-    const zombies: any[] = [];
+  public createWaveZombies(): Zombie[] {
+    const zombies: Zombie[] = [];
     const zombieGroups = this.getCurrentWaveZombies();
 
     for (const group of zombieGroups) {

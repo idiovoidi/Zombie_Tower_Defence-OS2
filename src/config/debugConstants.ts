@@ -66,6 +66,7 @@ export const DebugConstants = {
  * Apply debug constants to game config
  * Call this at game initialization if debug mode is enabled
  */
+// biome-ignore lint/suspicious/noExplicitAny: GameManager import would cause circular dependency
 export function applyDebugConstants(gameManager: any): void {
   if (!DebugConstants.ENABLED) {
     return;

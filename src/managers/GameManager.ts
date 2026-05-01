@@ -101,6 +101,7 @@ export class GameManager {
     const worldHeight = 768; // Full height
     this.towerCombatManager = new TowerCombatManager(worldWidth, worldHeight);
     this.towerCombatManager.setProjectileManager(this.projectileManager);
+    this.towerCombatManager.setEffectManager(this.effectManager);
     this.statTracker = new StatTracker(this);
     this.aiPlayerManager = new AIPlayerManager(this);
     this.balanceTrackingManager = new BalanceTrackingManager(this);
