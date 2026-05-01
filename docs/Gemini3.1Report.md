@@ -8,20 +8,8 @@ The most critical health issue is the tight coupling between game logic and rend
 Overall Health: Fair to Moderate. The game is functional and uses some modern patterns (like modular renderers for UI and Zombies), but it needs structural refactoring to support long-term extensibility and testability.
 
 Ranked Findings (Code Smells & Architectural Issues)
-1. Poor Separation of Concerns: Rendering Mixed with Game Logic
-Severity: High
-Locations:
-src/managers/TowerCombatManager.ts (e.g., drawLightningBolt, _createFlameStream, createElectricParticles)
-src/objects/Tower.ts (e.g., updateIdleAnimation, takeDamage creating damage flashes)
-Why it's a problem: The combat manager's responsibility should be restricted to evaluating targets, calculating damage, and spawning logical projectiles. By directly instantiating Graphics objects and drawing lightning arcs within the combat loop, game logic becomes inseparable from the presentation layer. This makes headless automated testing impossible and bloats the simulation logic with visual details.
-Quick Win: Extract visual effects into a CombatVisualizer or utilize the existing EffectManager. Call methods like effectManager.spawnLightningArc(source, target) instead of drawing it inside the combat loop.
-Larger Structural Change: Implement a strict Model-View-Controller (MVC) or Entity-Component-System (ECS) architecture where managers only mutate raw state data, and independent renderer systems observe that data to update PixiJS display objects.
-2. God Object & High Coupling
-Severity: High
-Locations: src/managers/GameManager.ts
-Why it's a problem: GameManager is nearly 900 lines long and directly orchestrates over 15 distinct managers (Tower, Zombie, Map, Wave, Combat, UI, Stats, etc.). It acts as a central hub where everything is wired together manually. This makes the class fragile, extremely difficult to test in isolation, and highly susceptible to merge conflicts.
-Quick Win: Group related sub-managers into contextual objects (e.g., encapsulate TowerManager, ZombieManager, and WaveManager into a LevelState object) to reduce the sheer number of direct dependencies in GameManager.
-Larger Structural Change: Introduce an Event Bus. Let managers communicate via events (e.g., EventBus.emit('waveStart')) rather than GameManager explicitly calling lifecycle methods on every single manager.
+
+
 3. Open-Closed Principle (OCP) Violation & Feature Envy (Shotgun Surgery)
 Severity: Medium
 Locations:

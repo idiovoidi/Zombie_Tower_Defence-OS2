@@ -48,6 +48,22 @@ export class Tower extends GameObject implements ITower, TowerEffects {
   public selectionHighlight?: Graphics;
   public pulseInterval?: NodeJS.Timeout;
 
+  // Static animation handler map - Strategy pattern implementation
+  // Defined once at class level to avoid recreating on every frame
+  private static readonly idleAnimationHandlers: Record<
+    IdleAnimationType,
+    (tower: Tower, deltaTime: number) => void
+  > = {
+    none: () => {},
+    machineGun: (tower, dt) => tower.idleAnimationMachineGun(dt),
+    sniper: (tower, dt) => tower.idleAnimationSniper(dt),
+    shotgun: (tower, dt) => tower.idleAnimationShotgun(dt),
+    flame: (tower, dt) => tower.idleAnimationFlame(dt),
+    tesla: (tower, dt) => tower.idleAnimationTesla(dt),
+    grenade: (tower, dt) => tower.idleAnimationGrenade(dt),
+    sludge: (tower, dt) => tower.idleAnimationSludge(dt),
+  };
+
   constructor(type: string, x: number, y: number) {
     super();
     this.type = type;
@@ -142,19 +158,8 @@ export class Tower extends GameObject implements ITower, TowerEffects {
   }
 
   private executeIdleAnimation(type: IdleAnimationType, deltaTime: number): void {
-    // Strategy pattern: map animation types to their handlers
-    const animationHandlers: Record<IdleAnimationType, (dt: number) => void> = {
-      none: () => {},
-      machineGun: (dt) => this.idleAnimationMachineGun(dt),
-      sniper: (dt) => this.idleAnimationSniper(dt),
-      shotgun: (dt) => this.idleAnimationShotgun(dt),
-      flame: (dt) => this.idleAnimationFlame(dt),
-      tesla: (dt) => this.idleAnimationTesla(dt),
-      grenade: (dt) => this.idleAnimationGrenade(dt),
-      sludge: (dt) => this.idleAnimationSludge(dt),
-    };
-
-    animationHandlers[type]?.(deltaTime);
+    // Use static handler map for O(1) lookup without allocation
+    Tower.idleAnimationHandlers[type]?.(this, deltaTime);
   }
 
   // Grenade: Subtle loading animation
