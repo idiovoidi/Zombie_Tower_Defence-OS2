@@ -85,10 +85,10 @@ const ghostDrawSludge = (g: Graphics) => {
 export const TowerConstants = {
   // Machine Gun Tower - High fire rate, good against swarms
   // Upgrades focus on fire rate rather than damage
-  // BALANCED: Reduced damage from 12 to 8 (33% nerf) based on simulation showing 227% above avg efficiency
+  // BALANCED: Reduced damage from 12 to 6 (50% nerf) - advanced sim showed 8.3x more efficient than Grenade
   MACHINE_GUN: {
     cost: 250,
-    damage: 8,
+    damage: 6,
     range: 150,
     fireRate: 8,
     health: 120,
@@ -102,10 +102,11 @@ export const TowerConstants = {
   } as TowerStats,
 
   // Sniper Tower - High single-target damage, armor-piercing
-  // BALANCED: Increased damage from 150 to 225 (50% buff) based on simulation showing 51% below avg efficiency
+  // BALANCED: Reduced damage from 225 to 140 (-38%) - advanced sim showed 79.8% overkill waste on normal zombies
+  // Snipers should excel vs tanks/elites, not overkill swarms. Lower damage = less waste, faster fire rate compensates
   SNIPER: {
     cost: 900,
-    damage: 225,
+    damage: 140,
     range: 400,
     fireRate: 1,
     health: 80,
@@ -135,10 +136,10 @@ export const TowerConstants = {
   } as TowerStats,
 
   // Flame Tower - Area damage over time, burning effect
-  // BALANCED: Increased damage from 200 to 300 (50% buff) based on simulation showing 54% below avg efficiency
+  // BALANCED: Reduced damage from 300 to 180 (-40%) - advanced sim showed 83.3% overkill, DoT towers should tick slowly
   FLAME: {
     cost: 750,
-    damage: 300,
+    damage: 180,
     range: 120,
     fireRate: 0.75,
     health: 90,
@@ -169,10 +170,10 @@ export const TowerConstants = {
   } as TowerStats,
 
   // Grenade Tower - Explosive area damage with arc trajectory
-  // BALANCED: Increased damage from 90 to 195 (117% buff) based on simulation showing 87% below avg efficiency
+
   GRENADE: {
     cost: 1250,
-    damage: 195,
+    damage: 90,
     range: 180,
     fireRate: 0.3,
     health: 95,
