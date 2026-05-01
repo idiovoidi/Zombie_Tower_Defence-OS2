@@ -11,12 +11,7 @@ Ranked Findings (Code Smells & Architectural Issues)
 
 
 
-4. Leaky Abstractions & Cyclic Dependency Workarounds
-Severity: Medium
-Locations: src/managers/IGameManager.ts, src/managers/AIPlayerManager.ts, src/managers/BalanceTrackingManager.ts
-Why it's a problem: To prevent circular imports, IGameManager was introduced. However, it returns unknown for all sub-managers (e.g., getWaveManager(): unknown), forcing callers to explicitly cast types. This completely bypasses TypeScript's type safety and is a clear indicator that the architecture forces managers to be too deeply intertwined with the central GameManager.
-Quick Win: Define granular interfaces for the exact subsets of functionality that other managers need (e.g., IWaveStateProvider, IEconomyProvider) and inject those specific interfaces instead of passing around a monolithic IGameManager.
-Larger Structural Change: Decouple the managers completely using a centralized state store or an Event Bus. Managers should react to state changes and dispatch actions rather than directly querying a monolithic manager.
+
 5. Incomplete Refactoring & Dead Code
 Severity: Low
 Locations: src/objects/Zombie.ts
