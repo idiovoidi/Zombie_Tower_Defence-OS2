@@ -58,6 +58,16 @@ export interface TowerDamagedEventData {
   damage: number;
 }
 
+export interface DamageDealtEventData {
+  damage: number;
+  towerType: string;
+  killed: boolean;
+  overkill: number;
+  zombieX?: number;
+  zombieY?: number;
+  zombieId?: string;
+}
+
 export class CombatRenderer {
   private effectManager: EffectManager | null = null;
   private eventSubscriptions: EventSubscription[] = [];
@@ -138,6 +148,15 @@ export class CombatRenderer {
         }
       })
     );
+
+    // Listen for damage dealt events (for overkill gib explosions)
+    this.eventSubscriptions.push(
+      eventBus.on<DamageDealtEventData>(GameEvents.DAMAGE_DEALT, (data) => {
+        if (data && this.enabled) {
+          this.onDamageDealt(data);
+        }
+      })
+    );
   }
 
   private onTargetHit(data: TargetHitEventData): void {
@@ -196,6 +215,34 @@ export class CombatRenderer {
 
     // Spawn damage flash effect on tower
     this.effectManager.spawnDamageFlash(data.tower, 30);
+  }
+
+  private onDamageDealt(data: DamageDealtEventData): void {
+    if (!this.effectManager) {
+      return;
+    }
+
+    // Check for 100%+ overkill (overkill >= damage = zombie gibbed/exploded)
+    // This creates satisfying "overkill" moments and prevents corpse spawning
+    if (data.killed && data.overkill >= data.damage && data.zombieX !== undefined && data.zombieY !== undefined) {
+      // Spawn explosion effect for satisfying overkill
+      this.effectManager.spawnImpactFlash(data.zombieX, data.zombieY, true);
+
+      // Spawn additional explosion particles for dramatic effect
+      // (Could add spawnExplosion or spawnGibs method to EffectManager)
+
+      // Emit event for corpse manager to skip spawning corpse
+      // This is visual-only and doesn't affect headless simulation
+      EventBus.getInstance().emit('zombie:gibbed', {
+        zombieId: data.zombieId,
+        x: data.zombieX,
+        y: data.zombieY,
+        overkill: data.overkill,
+        towerType: data.towerType,
+      });
+
+      console.log(`💥 ${data.towerType} gibbed a zombie with ${data.overkill.toFixed(0)} overkill damage!`);
+    }
   }
 
   /**

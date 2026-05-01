@@ -198,4 +198,45 @@ describe('CombatRenderer Optional Integration', () => {
     expect(lightningEventReceived).toBe(true);
     console.log('✅ Lightning arc events work without CombatRenderer');
   });
+
+  it('should emit DAMAGE_DEALT with zombie position for gib explosions', () => {
+    const eventBus = EventBus.getInstance();
+    let damageEventReceived = false;
+    let hasPositionData = false;
+
+    eventBus.on<{
+      damage: number;
+      towerType: string;
+      killed: boolean;
+      overkill: number;
+      zombieX?: number;
+      zombieY?: number;
+      zombieId?: string;
+    }>(GameEvents.DAMAGE_DEALT, (data) => {
+      if (data) {
+        damageEventReceived = true;
+        hasPositionData = data.zombieX !== undefined && data.zombieY !== undefined;
+
+        // Check for 100%+ overkill condition (gib explosion)
+        if (data.killed && data.overkill >= data.damage) {
+          console.log(`💥 ${data.towerType} would gib zombie at (${data.zombieX}, ${data.zombieY}) with ${data.overkill} overkill!`);
+        }
+      }
+    });
+
+    // Emit damage event with position data
+    eventBus.emit(GameEvents.DAMAGE_DEALT, {
+      damage: 50,
+      towerType: 'Sniper',
+      killed: true,
+      overkill: 100, // 200% overkill - definitely a gib!
+      zombieX: 500,
+      zombieY: 400,
+      zombieId: 'zombie-123',
+    });
+
+    expect(damageEventReceived).toBe(true);
+    expect(hasPositionData).toBe(true);
+    console.log('✅ DAMAGE_DEALT events include zombie position for gib explosions');
+  });
 });

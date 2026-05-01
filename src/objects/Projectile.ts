@@ -227,11 +227,15 @@ export class Projectile extends Container {
       const overkill = killed ? Math.abs(healthAfter) : 0;
 
       // Emit DAMAGE_DEALT event for tracking and analytics
+      // Include zombie position for overkill gib explosion effects
       EventBus.getInstance().emit(GameEvents.DAMAGE_DEALT, {
         damage: actualDamage,
         towerType: this.towerType,
         killed,
         overkill,
+        zombieX: this.target.position.x,
+        zombieY: this.target.position.y,
+        zombieId: (this.target as { id?: string }).id || 'unknown',
       });
 
       // Legacy callback support (deprecated, for backward compatibility)
@@ -327,11 +331,15 @@ export class Projectile extends Container {
         const overkill = killed ? Math.abs(healthAfter) : 0;
 
         // Emit DAMAGE_DEALT event for splash damage tracking
+        // Include zombie position for overkill gib explosion effects
         EventBus.getInstance().emit(GameEvents.DAMAGE_DEALT, {
           damage: actualDamage,
           towerType: this.towerType,
           killed,
           overkill,
+          zombieX: zombie.position.x,
+          zombieY: zombie.position.y,
+          zombieId: (zombie as { id?: string }).id || 'unknown',
         });
 
         // Legacy callback support (deprecated, for backward compatibility)
