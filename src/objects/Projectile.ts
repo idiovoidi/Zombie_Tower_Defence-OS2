@@ -427,85 +427,12 @@ export class Projectile extends Container {
   }
 
   private createFirePool(): void {
-    // Create lingering fire pool on the ground
-    const firePool = new Graphics();
-
-    // Draw fire pool with multiple layers
-    const poolSize = 25;
-
-    // Outer smoke/heat distortion
-    for (let i = 0; i < 8; i++) {
-      const angle = (i / 8) * Math.PI * 2;
-      const dist = poolSize * 0.8 + Math.random() * 5;
-      const x = Math.cos(angle) * dist;
-      const y = Math.sin(angle) * dist;
-      const size = 6 + Math.random() * 4;
-      firePool.circle(x, y, size).fill({ color: 0x4a4a4a, alpha: 0.3 });
-    }
-
-    // Fire particles
-    for (let i = 0; i < 15; i++) {
-      const angle = Math.random() * Math.PI * 2;
-      const dist = Math.random() * poolSize;
-      const x = Math.cos(angle) * dist;
-      const y = Math.sin(angle) * dist;
-      const size = 3 + Math.random() * 5;
-
-      // Color varies from yellow center to red edges
-      const distRatio = dist / poolSize;
-      let color: number;
-      if (distRatio < 0.3) {
-        color = Math.random() > 0.5 ? 0xffff00 : 0xffffff; // Hot center
-      } else if (distRatio < 0.6) {
-        color = Math.random() > 0.5 ? 0xffa500 : 0xff8c00; // Orange middle
-      } else {
-        color = Math.random() > 0.5 ? 0xff4500 : 0xff6347; // Red edges
-      }
-
-      firePool.circle(x, y, size).fill({ color, alpha: 0.7 + Math.random() * 0.3 });
-    }
-
-    // Hot core
-    firePool.circle(0, 0, 8).fill({ color: 0xffffff, alpha: 0.9 });
-    firePool.circle(0, 0, 12).fill({ color: 0xffff00, alpha: 0.7 });
-    firePool.circle(0, 0, 16).fill({ color: 0xffa500, alpha: 0.5 });
-
-    // Add fire pool to parent at current position
-    if (this.parent) {
-      firePool.position.set(this.position.x, this.position.y);
-      this.parent.addChild(firePool);
-
-      // Register fire pool as persistent effect for immediate cleanup
-      ResourceCleanupManager.registerPersistentEffect(firePool, {
-        type: 'fire_pool',
-        duration: 2000,
-      });
-
-      // OPTIMIZATION: Use single timeout instead of interval (prevents memory leak)
-      const duration = 2000;
-      const startTime = Date.now();
-
-      // Store fade data on graphics object
-      interface FadeData {
-        startTime: number;
-        duration: number;
-      }
-      (firePool as unknown as { _fadeData: FadeData })._fadeData = {
-        startTime,
-        duration,
-      };
-
-      // Single timeout to clean up after duration
-      EffectCleanupManager.registerTimeout(
-        setTimeout(() => {
-          ResourceCleanupManager.unregisterPersistentEffect(firePool);
-          if (firePool.parent) {
-            firePool.parent.removeChild(firePool);
-          }
-          firePool.destroy();
-        }, duration)
-      );
-    }
+    // Emit event to spawn animated burning ground effect
+    EventBus.getInstance().emit(GameEvents.FLAME_GROUND_HIT, {
+      x: this.position.x,
+      y: this.position.y,
+      upgradeLevel: this.upgradeLevel,
+    });
 
     // Destroy the projectile immediately
     this.destroy();

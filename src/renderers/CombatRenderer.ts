@@ -77,6 +77,12 @@ export interface GibDeathEventData {
   gibType: 'small' | 'medium' | 'large' | 'massive'; // Based on overkill amount
 }
 
+export interface FlameGroundHitEventData {
+  x: number;
+  y: number;
+  upgradeLevel: number;
+}
+
 export class CombatRenderer {
   private effectManager: EffectManager | null = null;
   private eventSubscriptions: EventSubscription[] = [];
@@ -172,6 +178,15 @@ export class CombatRenderer {
       eventBus.on<GibDeathEventData>(GameEvents.GIB_DEATH, (data) => {
         if (data && this.enabled) {
           this.onGibDeath(data);
+        }
+      })
+    );
+
+    // Listen for flame ground hit events (Flame tower fire pools)
+    this.eventSubscriptions.push(
+      eventBus.on<FlameGroundHitEventData>(GameEvents.FLAME_GROUND_HIT, (data) => {
+        if (data && this.enabled) {
+          this.onFlameGroundHit(data);
         }
       })
     );
@@ -303,6 +318,15 @@ export class CombatRenderer {
 
     // Notify corpse manager to NOT spawn a corpse (zombie was vaporized)
     // This is handled by the gibbed event being distinct from regular death
+  }
+
+  private onFlameGroundHit(data: FlameGroundHitEventData): void {
+    if (!this.effectManager) {
+      return;
+    }
+
+    // Spawn animated burning ground effect
+    this.effectManager.spawnBurningGround(data.x, data.y, data.upgradeLevel);
   }
 
   /**

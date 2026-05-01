@@ -156,6 +156,7 @@ export const GameEvents = {
   SNIPER_HIT: 'combat:sniper:hit',
   SHOOTING_EFFECT: 'combat:shooting:effect',
   TOWER_ROTATION: 'combat:tower:rotation',
+  FLAME_GROUND_HIT: 'combat:flame:ground:hit',
 
   // Cleanup events
   CLEANUP_GAME: 'cleanup:game',
