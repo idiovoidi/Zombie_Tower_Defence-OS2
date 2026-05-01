@@ -22,6 +22,8 @@
     "test:coverage": "vitest --run --coverage",
     "type-check": "tsc --noEmit",
     "dupcheck": "jscpd src --format \"typescript,javascript\" --gitignore --min-lines 8 --min-tokens 60 --reporters console",
+    "deps:check": "depcruise src --config .dependency-cruiser.cjs",
+    "deps:report": "depcruise src --config .dependency-cruiser.cjs --output-type html > dependency-report.html",
     "dev:debug": "vite --debug",
     "clean": "rimraf dist node_modules/.vite"
   },
@@ -37,6 +39,7 @@
     "@eslint/js": "^9.21.0",
     "@vitest/coverage-v8": "^3.2.4",
     "concurrently": "^8.2.2",
+    "dependency-cruiser": "^17.3.10",
     "eslint": "^9.21.0",
     "eslint-config-prettier": "^10.1.2",
     "eslint-plugin-prettier": "^5.2.6",

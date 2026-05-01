@@ -102,12 +102,12 @@ describe('WaveManager', () => {
 
   describe('Zombie Stats Calculation', () => {
     test('should calculate correct health for Basic Zombie', () => {
-      const health = waveManager.calculateZombieHealth(GameConfig.ZOMBIE_TYPES.BASIC, 1);
+      const health = WaveManager.calculateZombieHealth(GameConfig.ZOMBIE_TYPES.BASIC, 1);
       expect(health).toBe(101); // 100 + (1 * 1.8) = 101.8, floored to 101
     });
 
     test('should calculate correct health for Tank Zombie', () => {
-      const health = waveManager.calculateZombieHealth(GameConfig.ZOMBIE_TYPES.TANK, 5);
+      const health = WaveManager.calculateZombieHealth(GameConfig.ZOMBIE_TYPES.TANK, 5);
       expect(health).toBe(509); // 500 + (5 * 1.8) = 509
     });
 

@@ -20,6 +20,8 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+dependency-report.html
+^warn
 
 # Test coverage
 coverage/

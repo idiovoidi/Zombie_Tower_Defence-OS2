@@ -1,4 +1,5 @@
 import type { IGameManager } from './IGameManager';
+import type { StatTracker } from '../utils/StatTracker';
 import { GameConfig } from '../config/gameConfig';
 import { Tower } from '../objects/Tower';
 
@@ -62,7 +63,7 @@ export class AIPlayerManager {
   // Enable or disable the AI
   public setEnabled(enabled: boolean): void {
     this.enabled = enabled;
-    const statTracker = this.gameManager.getStatTracker();
+    const statTracker = this.gameManager.getStatTracker() as StatTracker;
     if (enabled) {
       statTracker.startTracking(true);
       this.lastLogTime = Date.now();
