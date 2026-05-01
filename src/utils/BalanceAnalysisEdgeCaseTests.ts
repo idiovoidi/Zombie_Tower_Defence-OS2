@@ -560,7 +560,9 @@ export class BalanceAnalysisEdgeCaseTests {
         .filter(r => !r.passed)
         .forEach(r => {
           console.log(`   - ${r.testName}`);
-          r.errors.forEach(err => console.log(`     ${err}`));
+          r.errors.forEach(err => {
+            console.log(`     ${err}`);
+          });
         });
       console.log('');
     }
@@ -581,6 +583,6 @@ export async function runEdgeCaseTests(): Promise<EdgeCaseTestSuite> {
 
 // Make available globally for console testing
 if (typeof window !== 'undefined') {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  (window as any).runEdgeCaseTests = runEdgeCaseTests;
+  (window as unknown as { runEdgeCaseTests: typeof runEdgeCaseTests }).runEdgeCaseTests =
+    runEdgeCaseTests;
 }

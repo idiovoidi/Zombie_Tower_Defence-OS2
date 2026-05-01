@@ -28,7 +28,7 @@ export class DebugUtils {
    * @param message The message to log
    * @param data Optional data to log
    */
-  public static debug(message: string, ...data: any[]): void {
+  public static debug(message: string, ...data: unknown[]): void {
     if (DebugUtils.enabled && DebugUtils.shouldLog('debug')) {
       console.debug(`[DEBUG] ${message}`, ...data);
     }
@@ -39,7 +39,7 @@ export class DebugUtils {
    * @param message The message to log
    * @param data Optional data to log
    */
-  public static info(message: string, ...data: any[]): void {
+  public static info(message: string, ...data: unknown[]): void {
     if (DebugUtils.enabled && DebugUtils.shouldLog('info')) {
       console.info(`[INFO] ${message}`, ...data);
     }
@@ -50,7 +50,7 @@ export class DebugUtils {
    * @param message The message to log
    * @param data Optional data to log
    */
-  public static warn(message: string, ...data: any[]): void {
+  public static warn(message: string, ...data: unknown[]): void {
     if (DebugUtils.enabled && DebugUtils.shouldLog('warn')) {
       console.warn(`[WARN] ${message}`, ...data);
     }
@@ -61,7 +61,7 @@ export class DebugUtils {
    * @param message The message to log
    * @param data Optional data to log
    */
-  public static error(message: string, ...data: any[]): void {
+  public static error(message: string, ...data: unknown[]): void {
     if (DebugUtils.enabled && DebugUtils.shouldLog('error')) {
       console.error(`[ERROR] ${message}`, ...data);
     }

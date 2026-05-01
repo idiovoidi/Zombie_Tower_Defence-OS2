@@ -739,7 +739,7 @@ export class StructureRenderer {
       param = dot / lenSq;
     }
 
-    let xx, yy;
+    let xx: number, yy: number;
 
     if (param < 0) {
       xx = x1;

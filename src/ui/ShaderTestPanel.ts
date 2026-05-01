@@ -3,12 +3,17 @@ import { VisualPresets } from '../utils/VisualPresets';
 import type { SimpleRetroFilter } from './shaders/filters/SimpleRetroFilter';
 import { UIPanel } from './UIPanel';
 
+interface PixelArtRenderer {
+  enable(scale: number): void;
+  disable(): void;
+}
+
 export class ShaderTestPanel extends UIPanel {
   private currentFilter: ColorMatrixFilter | SimpleRetroFilter | null = null;
   private gameStage: Container | null = null;
   private sliders: Map<string, Container> = new Map();
   private settingTexts: Map<string, Text> = new Map();
-  private pixelArtRenderer: unknown = null;
+  private pixelArtRenderer: PixelArtRenderer | null = null;
   private visualPresets: VisualPresets | null = null;
 
   constructor() {
@@ -29,11 +34,7 @@ export class ShaderTestPanel extends UIPanel {
     this.visualPresets = new VisualPresets(stage);
   }
 
-  public setGameManager(gameManager: unknown): void {
-    this._gameManager = gameManager;
-  }
-
-  public setPixelArtRenderer(renderer: unknown): void {
+  public setPixelArtRenderer(renderer: PixelArtRenderer): void {
     this.pixelArtRenderer = renderer;
   }
 
@@ -319,14 +320,14 @@ export class ShaderTestPanel extends UIPanel {
       isEnabled = !isEnabled;
 
       if (isEnabled) {
-        (this.pixelArtRenderer as any).enable(3);
+        this.pixelArtRenderer.enable(3);
         buttonText.text = 'Disable';
         buttonText.style.fill = 0x00ff00;
         bg.clear();
         bg.roundRect(0, 0, 120, 30, 5).fill({ color: 0x2a4a2a, alpha: 0.9 });
         bg.stroke({ width: 2, color: 0x00ff00 });
       } else {
-        (this.pixelArtRenderer as any).disable();
+        this.pixelArtRenderer.disable();
         buttonText.text = 'Enable (3x)';
         buttonText.style.fill = 0xcccccc;
         bg.clear();

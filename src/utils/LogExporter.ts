@@ -192,6 +192,7 @@ export interface GameLogEntry {
   dashboardData?: DashboardData;
 }
 
+// biome-ignore lint/complexity/noStaticOnlyClass: Stateless utility for log export
 export class LogExporter {
   private static sessionId: string = LogExporter.generateSessionId();
   private static readonly STORAGE_KEY = 'ztd_game_logs';
@@ -299,7 +300,9 @@ export class LogExporter {
         // Remove oldest logs
         const sortedKeys = logKeys.sort();
         const toRemove = sortedKeys.slice(0, logKeys.length - LogExporter.MAX_STORED_LOGS);
-        toRemove.forEach(key => delete logs[key]);
+        toRemove.forEach(key => {
+          delete logs[key];
+        });
         console.warn(`⚠️ Removed ${toRemove.length} old logs (max: ${LogExporter.MAX_STORED_LOGS})`);
       }
 

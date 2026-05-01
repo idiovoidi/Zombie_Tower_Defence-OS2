@@ -44,6 +44,7 @@ export interface OptimizationReport {
 /**
  * OptimizationValidator - Validates performance optimization effectiveness
  */
+// biome-ignore lint/complexity/noStaticOnlyClass: Stateless utility for validation
 export class OptimizationValidator {
   private static enabled: boolean = false;
 

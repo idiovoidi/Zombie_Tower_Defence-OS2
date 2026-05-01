@@ -1,8 +1,8 @@
-import { Graphics, type Container as PixiContainer } from 'pixi.js';
 import type { Zombie } from '@objects/Zombie';
 import { EffectCleanupManager } from '@utils/EffectCleanupManager';
-import { ResourceCleanupManager } from '@utils/ResourceCleanupManager';
 import { ObjectPool } from '@utils/ObjectPool';
+import { ResourceCleanupManager } from '@utils/ResourceCleanupManager';
+import { Graphics, type Container as PixiContainer } from 'pixi.js';
 import { BulletTrail } from './BulletTrail';
 import { ImpactFlash } from './ImpactFlash';
 import { MuzzleFlashLight } from './MuzzleFlashLight';
@@ -452,12 +452,7 @@ export class EffectManager {
   /**
    * Spawn a flame stream (Flame tower)
    */
-  public spawnFlameStream(
-    startX: number,
-    startY: number,
-    endX: number,
-    endY: number
-  ): void {
+  public spawnFlameStream(startX: number, startY: number, endX: number, endY: number): void {
     const flameGraphics = new Graphics();
     this.container.addChild(flameGraphics);
 
@@ -618,7 +613,9 @@ export class EffectManager {
     }
 
     // Tint zombie
+    // biome-ignore lint/complexity/useLiteralKeys: Accessing private property through bracket notation
     if (zombie['visual']) {
+      // biome-ignore lint/complexity/useLiteralKeys: Accessing private property through bracket notation
       const visual = zombie['visual'] as Graphics;
       const originalTint = visual.tint;
       visual.tint = 0x00ffff;

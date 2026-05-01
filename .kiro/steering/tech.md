@@ -39,10 +39,11 @@ npm run preview          # Preview production build
 npm run type-check       # Run TypeScript compiler without emitting
 
 # Code Quality
-npm run lint             # Run ESLint
-npm run lint:fix         # Fix ESLint issues automatically
-npm run format           # Format code with Prettier
-npm run format:check     # Check code formatting
+npm run lint             # Run Biome linter
+npm run lint:fix         # Fix Biome issues automatically
+npm run format           # Format code with Biome
+npm run format:check     # Check code formatting with Biome
+npm run check            # Run full Biome check (lint + format)
 
 # Testing
 npm test                 # Run Jest tests

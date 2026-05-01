@@ -67,7 +67,8 @@
       "linter": {
         "rules": {
           "suspicious": {
-            "noExplicitAny": "warn"
+            "noExplicitAny": "warn",
+            "useIterableCallbackReturn": "warn"
           },
           "style": {
             "noNonNullAssertion": "warn"

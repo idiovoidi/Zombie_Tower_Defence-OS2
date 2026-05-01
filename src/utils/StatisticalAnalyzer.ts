@@ -17,9 +17,9 @@ let statisticsAvailable = false;
 let regressionAvailable = false;
 let mathAvailable = false;
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
+// biome-ignore lint/suspicious/noExplicitAny: Dynamically imported statistical libraries with varying APIs
 let ss: any = null;
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
+// biome-ignore lint/suspicious/noExplicitAny: Dynamically imported regression library
 let regression: any = null;
 
 // Initialize libraries
@@ -98,6 +98,7 @@ export interface StatisticalSummary {
 /**
  * StatisticalAnalyzer - Provides statistical analysis for balance tracking
  */
+// biome-ignore lint/complexity/noStaticOnlyClass: Stateless utility for statistical analysis
 export class StatisticalAnalyzer {
   /**
    * Detect outliers using standard deviation method

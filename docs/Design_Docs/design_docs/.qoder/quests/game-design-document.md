@@ -93,7 +93,7 @@ The game is built with several key architectural principles and performance opti
 1. **Initialize**: `npm create pixi.js@latest` to generate project template
 2. **Install**: `npm install` to install dependencies
 3. **Develop**: `npm run dev` to start development server
-4. **Lint**: `npm run lint` to check code quality
+4. **Lint**: `npm run lint` to check code quality with Biome
 5. **Build**: `npm run build` to create production build
 6. **Test**: Run unit and integration tests
 

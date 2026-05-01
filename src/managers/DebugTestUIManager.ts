@@ -5,6 +5,7 @@ import { ShaderTestPanel } from '../ui/ShaderTestPanel';
 import { StatsPanel } from '../ui/StatsPanel';
 import { WaveInfoPanel } from '../ui/WaveInfoPanel';
 import { ZombieBestiary } from '../ui/ZombieBestiary';
+import type { PixelArtRenderer } from '../utils/PixelArtRenderer';
 import type { GameManager } from './GameManager';
 import type { WaveManager } from './WaveManager';
 
@@ -21,7 +22,6 @@ export class DebugTestUIManager {
   private aiControlPanel: AIControlPanel | null = null;
   private gameManager: GameManager | null = null;
   private waveManager: WaveManager | null = null;
-  private pixelArtRenderer: unknown = null;
 
   // Panel positioning (will be calculated based on screen size)
   private readonly LEFT_SIDE_X = 20; // Left side panels
@@ -37,14 +37,13 @@ export class DebugTestUIManager {
   public initialize(
     gameManager: GameManager,
     waveManager: WaveManager,
-    pixelArtRenderer: unknown
+    pixelArtRenderer: PixelArtRenderer
   ): void {
     console.log('🔧 DebugTestUIManager: Initializing...');
     this.gameManager = gameManager;
     this.waveManager = waveManager;
-    this.pixelArtRenderer = pixelArtRenderer;
 
-    this.createShaderTestPanel();
+    this.createShaderTestPanel(pixelArtRenderer);
     this.createWaveInfoPanel();
     this.createBestiaryPanel();
     this.createStatsPanel();
@@ -57,12 +56,11 @@ export class DebugTestUIManager {
   /**
    * Create and setup shader test panel
    */
-  private createShaderTestPanel(): void {
+  private createShaderTestPanel(pixelArtRenderer: PixelArtRenderer): void {
     console.log('🎨 Creating Shader Test Panel...');
     this.shaderTestPanel = new ShaderTestPanel();
-    this.shaderTestPanel.setGameManager(this.gameManager);
     this.shaderTestPanel.setGameStage(this.app.stage);
-    this.shaderTestPanel.setPixelArtRenderer(this.pixelArtRenderer);
+    this.shaderTestPanel.setPixelArtRenderer(pixelArtRenderer);
 
     // Add toggle button to stage
     this.app.stage.addChild(this.shaderTestPanel);

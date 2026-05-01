@@ -48,25 +48,33 @@ export class InputManager {
     // Pointer down events
     this.app.stage.on('pointerdown', (event: FederatedPointerEvent) => {
       const coords = this.getCoordinates(event);
-      this.callbacks.onPointerDown.forEach(callback => { callback(coords, event); });
+      this.callbacks.onPointerDown.forEach(callback => {
+        callback(coords, event);
+      });
     });
 
     // Pointer move events
     this.app.stage.on('pointermove', (event: FederatedPointerEvent) => {
       const coords = this.getCoordinates(event);
-      this.callbacks.onPointerMove.forEach(callback => { callback(coords, event); });
+      this.callbacks.onPointerMove.forEach(callback => {
+        callback(coords, event);
+      });
     });
 
     // Pointer up events
     this.app.stage.on('pointerup', (event: FederatedPointerEvent) => {
       const coords = this.getCoordinates(event);
-      this.callbacks.onPointerUp.forEach(callback => { callback(coords, event); });
+      this.callbacks.onPointerUp.forEach(callback => {
+        callback(coords, event);
+      });
     });
 
     // Right click events
     this.app.stage.on('rightdown', (event: FederatedPointerEvent) => {
       const coords = this.getCoordinates(event);
-      this.callbacks.onRightClick.forEach(callback => { callback(coords, event); });
+      this.callbacks.onRightClick.forEach(callback => {
+        callback(coords, event);
+      });
     });
 
     // Prevent context menu on right click
@@ -95,7 +103,9 @@ export class InputManager {
       }
 
       // Call all registered callbacks
-      this.callbacks.onKeyDown.forEach(callback => { callback(event.key, event); });
+      this.callbacks.onKeyDown.forEach(callback => {
+        callback(event.key, event);
+      });
     });
 
     // Keyboard up events
@@ -108,7 +118,9 @@ export class InputManager {
       }
 
       // Call all registered callbacks
-      this.callbacks.onKeyUp.forEach(callback => { callback(event.key, event); });
+      this.callbacks.onKeyUp.forEach(callback => {
+        callback(event.key, event);
+      });
     });
   }
 

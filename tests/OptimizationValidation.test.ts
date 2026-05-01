@@ -588,7 +588,9 @@ describe('Optimization Effectiveness Validation', () => {
       }
 
       // Release remaining particles
-      activeParticles.forEach(p => pool.release(p));
+      activeParticles.forEach(p => {
+        pool.release(p);
+      });
 
       const withEndTime = performance.now();
       const withTime = withEndTime - withStartTime;

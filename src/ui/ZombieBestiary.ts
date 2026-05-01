@@ -9,7 +9,7 @@ import {
   SwarmZombieRenderer,
   TankZombieRenderer,
 } from '../renderers/zombies';
-import { type IZombieRenderer } from '../renderers/zombies/ZombieRenderer';
+import type { IZombieRenderer } from '../renderers/zombies/ZombieRenderer';
 import { UIPanel } from './UIPanel';
 
 interface ZombieInfo {

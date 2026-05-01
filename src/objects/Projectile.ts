@@ -461,7 +461,11 @@ export class Projectile extends Container {
       const startTime = Date.now();
 
       // Store fade data on graphics object
-      (firePool as any)._fadeData = {
+      interface FadeData {
+        startTime: number;
+        duration: number;
+      }
+      (firePool as unknown as { _fadeData: FadeData })._fadeData = {
         startTime,
         duration,
       };

@@ -2,9 +2,9 @@ import { type Container, type FederatedPointerEvent, Graphics } from 'pixi.js';
 import type { TransformComponent } from '../components/TransformComponent';
 import type { Tower } from '../objects/Tower';
 import { TowerFactory } from '../objects/TowerFactory';
-import type { MapManager } from './MapManager';
-import { TowerManager } from './TowerManager';
 import type { EffectManager } from '../renderers/effects/EffectManager';
+import type { MapManager } from './MapManager';
+import type { TowerManager } from './TowerManager';
 
 export class TowerPlacementManager {
   private container: Container;

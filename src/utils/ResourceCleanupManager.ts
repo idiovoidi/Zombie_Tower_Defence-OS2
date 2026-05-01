@@ -79,7 +79,9 @@ export interface GameManagers {
     clear: () => void;
   };
   towerCombatManager?: {
+    // biome-ignore lint/suspicious/noExplicitAny: Generic tower/zombie arrays for cleanup
     setTowers: (towers: any[]) => void;
+    // biome-ignore lint/suspicious/noExplicitAny: Generic tower/zombie arrays for cleanup
     setZombies: (zombies: any[]) => void;
   };
   waveManager?: {
@@ -87,6 +89,7 @@ export interface GameManagers {
   };
 }
 
+// biome-ignore lint/complexity/noStaticOnlyClass: Stateless utility for resource cleanup
 export class ResourceCleanupManager {
   // Track all persistent effects (fire pools, sludge pools, explosions, tesla particles)
   private static persistentEffects: Set<PersistentEffect> = new Set();

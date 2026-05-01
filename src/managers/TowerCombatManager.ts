@@ -1,9 +1,9 @@
 import type { Tower } from '../objects/Tower';
 import type { Zombie } from '../objects/Zombie';
+import type { EffectManager } from '../renderers/effects/EffectManager';
 import { OptimizationValidator } from '../utils/OptimizationValidator';
 import { SpatialGrid } from '../utils/SpatialGrid';
 import type { ProjectileManager } from './ProjectileManager';
-import type { EffectManager } from '../renderers/effects/EffectManager';
 
 export class TowerCombatManager {
   private towers: Tower[] = [];

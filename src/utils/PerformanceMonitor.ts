@@ -38,6 +38,7 @@ export interface SystemMeasurement {
 /**
  * PerformanceMonitor - Monitors game performance in real-time
  */
+// biome-ignore lint/complexity/noStaticOnlyClass: Stateless utility for performance tracking
 export class PerformanceMonitor {
   private static enabled: boolean = true;
   private static frameTimes: Map<string, number[]> = new Map();

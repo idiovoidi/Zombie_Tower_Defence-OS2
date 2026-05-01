@@ -91,7 +91,6 @@ export class StatsPanel extends UIComponent {
       bg.stroke({ width: 1, color: 0x666666 });
     });
 
-    this._collapseButtonBg = bg;
     this.collapseButtonText = text;
 
     return button;
@@ -178,7 +177,6 @@ export class StatsPanel extends UIComponent {
       bg.stroke({ width: 2, color: 0x45a049 });
     });
 
-    this._exportButtonBg = bg;
     this.exportButtonText = text;
 
     return button;
@@ -348,7 +346,10 @@ export class StatsPanel extends UIComponent {
       this.statsTexts.set(key, text);
     }
 
-    const text = this.statsTexts.get(key)!;
+    const text = this.statsTexts.get(key);
+    if (!text) {
+      return;
+    }
     text.style.fill = color;
 
     if (value) {
