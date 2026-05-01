@@ -1,5 +1,5 @@
-import { Application } from 'pixi.js';
-import { ShaderPerformanceMetrics, ShaderSettings, ShaderType } from '../types/ShaderTypes';
+import type { Application } from 'pixi.js';
+import type { ShaderPerformanceMetrics, ShaderSettings, ShaderType } from '../types/ShaderTypes';
 
 /**
  * Interface for shader management system

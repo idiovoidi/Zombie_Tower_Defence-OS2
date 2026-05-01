@@ -1,6 +1,6 @@
 import { Container, Text } from 'pixi.js';
+import { WaveManager, type ZombieGroup } from '../managers/WaveManager';
 import { UIPanel } from './UIPanel';
-import { WaveManager, ZombieGroup } from '../managers/WaveManager';
 
 export class WaveInfoPanel extends UIPanel {
   private waveManager: WaveManager | null = null;

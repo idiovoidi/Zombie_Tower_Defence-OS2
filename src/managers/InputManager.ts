@@ -1,5 +1,5 @@
-import { Application, Container, FederatedPointerEvent, Graphics } from 'pixi.js';
-import { ScaleManager } from '../utils/ScaleManager';
+import { type Application, Container, type FederatedPointerEvent, Graphics } from 'pixi.js';
+import type { ScaleManager } from '../utils/ScaleManager';
 
 export interface InputCoordinates {
   screen: { x: number; y: number };

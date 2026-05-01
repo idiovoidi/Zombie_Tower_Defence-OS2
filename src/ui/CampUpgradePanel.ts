@@ -1,7 +1,7 @@
-import { UIComponent } from './UIComponent';
 import { Container, Graphics, Text } from 'pixi.js';
-import { CampUpgrade, CampUpgradeManager } from '../managers/CampUpgradeManager';
+import type { CampUpgrade, CampUpgradeManager } from '../managers/CampUpgradeManager';
 import { TextureGenerator } from '../utils/textureGenerator';
+import { UIComponent } from './UIComponent';
 
 export class CampUpgradePanel extends UIComponent {
   private background!: Graphics;

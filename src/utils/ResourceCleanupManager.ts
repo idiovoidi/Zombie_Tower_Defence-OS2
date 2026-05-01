@@ -1,4 +1,4 @@
-import { Container, Graphics } from 'pixi.js';
+import type { Container, Graphics } from 'pixi.js';
 import { EffectCleanupManager } from './EffectCleanupManager';
 
 /**
@@ -116,16 +116,16 @@ export class ResourceCleanupManager {
       },
     };
 
-    this.persistentEffects.add(effect);
+    ResourceCleanupManager.persistentEffects.add(effect);
   }
 
   /**
    * Unregister a persistent effect (called when effect naturally expires)
    */
   public static unregisterPersistentEffect(graphics: Graphics): void {
-    for (const effect of this.persistentEffects) {
+    for (const effect of ResourceCleanupManager.persistentEffects) {
       if (effect.graphics === graphics) {
-        this.persistentEffects.delete(effect);
+        ResourceCleanupManager.persistentEffects.delete(effect);
         break;
       }
     }
@@ -135,14 +135,14 @@ export class ResourceCleanupManager {
    * Register a custom cleanup callback
    */
   public static registerCleanupCallback(callback: () => void): void {
-    this.cleanupCallbacks.add(callback);
+    ResourceCleanupManager.cleanupCallbacks.add(callback);
   }
 
   /**
    * Unregister a cleanup callback
    */
   public static unregisterCleanupCallback(callback: () => void): void {
-    this.cleanupCallbacks.delete(callback);
+    ResourceCleanupManager.cleanupCallbacks.delete(callback);
   }
 
   /**
@@ -153,7 +153,7 @@ export class ResourceCleanupManager {
     let count = 0;
     const effectTypes: Record<string, number> = {};
 
-    for (const effect of this.persistentEffects) {
+    for (const effect of ResourceCleanupManager.persistentEffects) {
       // Skip if already destroyed (e.g., parent zombie was destroyed)
       if (effect.graphics.destroyed) {
         const type = effect.metadata?.type || 'unknown';
@@ -187,7 +187,7 @@ export class ResourceCleanupManager {
       count++;
     }
 
-    this.persistentEffects.clear();
+    ResourceCleanupManager.persistentEffects.clear();
 
     if (count > 0) {
       console.log(`🧹 Cleaned up ${count} persistent effects:`, effectTypes);
@@ -199,7 +199,7 @@ export class ResourceCleanupManager {
    */
   public static executeCleanupCallbacks(): void {
     let count = 0;
-    for (const callback of this.cleanupCallbacks) {
+    for (const callback of ResourceCleanupManager.cleanupCallbacks) {
       try {
         callback();
         count++;
@@ -221,7 +221,7 @@ export class ResourceCleanupManager {
     console.log('🧹 Cleaning up wave resources...');
 
     // Get state before cleanup for verification
-    const stateBefore = this.getState();
+    const stateBefore = ResourceCleanupManager.getState();
 
     // CRITICAL: Clear all effect timers FIRST before destroying objects
     // This prevents timers from trying to access destroyed objects
@@ -229,7 +229,7 @@ export class ResourceCleanupManager {
     console.log('  ✓ Effect timers cleared');
 
     // Now safe to destroy persistent effects (fire pools, sludge pools, explosions, tesla particles)
-    this.cleanupPersistentEffects();
+    ResourceCleanupManager.cleanupPersistentEffects();
 
     // Clear all projectiles
     if (managers.projectileManager) {
@@ -251,10 +251,10 @@ export class ResourceCleanupManager {
     }
 
     // Execute custom cleanup callbacks
-    this.executeCleanupCallbacks();
+    ResourceCleanupManager.executeCleanupCallbacks();
 
     // Verify cleanup was successful
-    this.verifyCleanup(stateBefore, 'wave');
+    ResourceCleanupManager.verifyCleanup(stateBefore, 'wave');
 
     console.log('🧹 Wave cleanup complete');
   }
@@ -267,7 +267,7 @@ export class ResourceCleanupManager {
     console.log('🧹 Cleaning up game resources...');
 
     // Get state before cleanup for verification
-    const stateBefore = this.getState();
+    const stateBefore = ResourceCleanupManager.getState();
 
     // CRITICAL: Clear all effect timers FIRST before destroying objects
     // This prevents timers from trying to access destroyed objects
@@ -275,7 +275,7 @@ export class ResourceCleanupManager {
     console.log('  ✓ Effect timers cleared');
 
     // Now safe to destroy persistent effects
-    this.cleanupPersistentEffects();
+    ResourceCleanupManager.cleanupPersistentEffects();
 
     // Clear all zombies (destroys zombie objects, blood particles, corpses)
     if (managers.zombieManager) {
@@ -315,10 +315,10 @@ export class ResourceCleanupManager {
     }
 
     // Execute custom cleanup callbacks
-    this.executeCleanupCallbacks();
+    ResourceCleanupManager.executeCleanupCallbacks();
 
     // Verify cleanup was successful
-    this.verifyCleanup(stateBefore, 'game');
+    ResourceCleanupManager.verifyCleanup(stateBefore, 'game');
 
     console.log('🧹 Game cleanup complete');
   }
@@ -378,8 +378,8 @@ export class ResourceCleanupManager {
     effectTimers: { intervals: number; timeouts: number };
   } {
     return {
-      persistentEffects: this.persistentEffects.size,
-      cleanupCallbacks: this.cleanupCallbacks.size,
+      persistentEffects: ResourceCleanupManager.persistentEffects.size,
+      cleanupCallbacks: ResourceCleanupManager.cleanupCallbacks.size,
       effectTimers: EffectCleanupManager.getCounts(),
     };
   }
@@ -388,7 +388,7 @@ export class ResourceCleanupManager {
    * Log current state for debugging
    */
   public static logState(): void {
-    const state = this.getState();
+    const state = ResourceCleanupManager.getState();
     console.log('🔍 ResourceCleanupManager State:', state);
 
     if (state.persistentEffects > 20) {
@@ -413,7 +413,7 @@ export class ResourceCleanupManager {
     },
     cleanupType: 'wave' | 'game'
   ): void {
-    const stateAfter = this.getState();
+    const stateAfter = ResourceCleanupManager.getState();
 
     // Check if cleanup was successful
     const issues: string[] = [];
@@ -445,10 +445,10 @@ export class ResourceCleanupManager {
 
       // Attempt forced cleanup
       console.warn('🔧 Attempting forced cleanup...');
-      this.forceCleanup();
+      ResourceCleanupManager.forceCleanup();
 
       // Verify forced cleanup worked
-      const stateAfterForced = this.getState();
+      const stateAfterForced = ResourceCleanupManager.getState();
       if (
         stateAfterForced.persistentEffects === 0 &&
         stateAfterForced.effectTimers.intervals === 0 &&
@@ -479,7 +479,7 @@ export class ResourceCleanupManager {
 
     // Force destroy all persistent effects (even if already destroyed)
     let forcedCount = 0;
-    for (const effect of this.persistentEffects) {
+    for (const effect of ResourceCleanupManager.persistentEffects) {
       try {
         if (!effect.graphics.destroyed) {
           if (effect.graphics.parent) {
@@ -492,14 +492,14 @@ export class ResourceCleanupManager {
         console.error('Error in force cleanup:', error);
       }
     }
-    this.persistentEffects.clear();
+    ResourceCleanupManager.persistentEffects.clear();
 
     if (forcedCount > 0) {
       console.log(`🔧 Force destroyed ${forcedCount} stuck effects`);
     }
 
     // Clear all callbacks
-    this.cleanupCallbacks.clear();
+    ResourceCleanupManager.cleanupCallbacks.clear();
 
     console.log('🔧 Force cleanup complete');
   }
@@ -508,8 +508,8 @@ export class ResourceCleanupManager {
    * Clear all tracked resources (for testing/debugging)
    */
   public static clearAll(): void {
-    this.cleanupPersistentEffects();
-    this.cleanupCallbacks.clear();
+    ResourceCleanupManager.cleanupPersistentEffects();
+    ResourceCleanupManager.cleanupCallbacks.clear();
     EffectCleanupManager.clearAll();
   }
 }

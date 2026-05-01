@@ -1,12 +1,12 @@
 import { Container } from 'pixi.js';
-import { Zombie } from '../objects/Zombie';
+import type { HealthComponent } from '../components/HealthComponent';
+import type { Zombie } from '../objects/Zombie';
 import { ZombieFactory } from '../objects/ZombieFactory';
-import { WaveManager } from './WaveManager';
-import { MapManager } from './MapManager';
+import type { HasWaypoints } from '../types/zombie-waypoints';
 import { BloodParticleSystem } from '../utils/BloodParticleSystem';
 import { CorpseManager } from './CorpseManager';
-import type { HealthComponent } from '../components/HealthComponent';
-import type { HasWaypoints } from '../types/zombie-waypoints';
+import type { MapManager } from './MapManager';
+import type { WaveManager } from './WaveManager';
 
 export class ZombieManager {
   private zombies: Zombie[] = [];

@@ -1,7 +1,7 @@
-import { UIComponent } from './UIComponent';
 import { Container, Graphics, Text } from 'pixi.js';
-import { Tower } from '../objects/Tower';
 import { TowerManager } from '../managers/TowerManager';
+import type { Tower } from '../objects/Tower';
+import { UIComponent } from './UIComponent';
 
 export class TowerInfoPanel extends UIComponent {
   private selectedTower: Tower | null = null;

@@ -1,6 +1,6 @@
-import { UIComponent } from './UIComponent';
 import { Container, Graphics, Text } from 'pixi.js';
 import { TextureGenerator } from '../utils/textureGenerator';
+import { UIComponent } from './UIComponent';
 
 export class BottomBar extends UIComponent {
   private moneyValue!: Text;

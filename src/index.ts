@@ -1,10 +1,10 @@
 // Main entry point exports
-export { GameManager } from './managers/GameManager';
 
 // Re-export from subdirectories
 export * from './components';
 export * from './config';
 export * from './managers';
+export { GameManager } from './managers/GameManager';
 export * from './objects';
 export * from './renderers';
 export * from './ui';

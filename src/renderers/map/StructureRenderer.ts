@@ -1,6 +1,6 @@
-import { Graphics } from 'pixi.js';
-import { MapData } from '../../managers/MapManager';
-import { Waypoint } from '../../managers/PathfindingManager';
+import type { Graphics } from 'pixi.js';
+import type { MapData } from '../../managers/MapManager';
+import type { Waypoint } from '../../managers/PathfindingManager';
 
 /**
  * StructureRenderer handles all structure rendering including:

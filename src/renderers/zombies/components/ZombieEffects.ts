@@ -1,4 +1,4 @@
-import { Graphics } from 'pixi.js';
+import type { Graphics } from 'pixi.js';
 
 export class GlowEffect {
   static apply(graphics: Graphics, x: number, y: number, radius: number, color: number): void {

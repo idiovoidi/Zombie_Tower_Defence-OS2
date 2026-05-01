@@ -1,13 +1,13 @@
 import { GameConfig } from '@config/gameConfig';
-import type { ITowerRenderer } from './ITowerRenderer';
 import { DefaultTowerRenderer } from './DefaultTowerRenderer';
-import { MachineGunRenderer } from './MachineGunRenderer';
-import { SniperRenderer } from './SniperRenderer';
-import { ShotgunRenderer } from './ShotgunRenderer';
 import { FlameRenderer } from './FlameRenderer';
-import { TeslaRenderer } from './TeslaRenderer';
 import { GrenadeRenderer } from './GrenadeRenderer';
+import type { ITowerRenderer } from './ITowerRenderer';
+import { MachineGunRenderer } from './MachineGunRenderer';
+import { ShotgunRenderer } from './ShotgunRenderer';
 import { SludgeRenderer } from './SludgeRenderer';
+import { SniperRenderer } from './SniperRenderer';
+import { TeslaRenderer } from './TeslaRenderer';
 
 /**
  * Factory for creating tower renderers

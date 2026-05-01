@@ -11,7 +11,7 @@ export class DebugUtils {
    * @param enabled Whether to enable debug mode
    */
   public static setEnabled(enabled: boolean): void {
-    this.enabled = enabled;
+    DebugUtils.enabled = enabled;
   }
 
   /**
@@ -19,7 +19,7 @@ export class DebugUtils {
    * @param level The log level
    */
   public static setLogLevel(level: 'debug' | 'info' | 'warn' | 'error'): void {
-    this.logLevel = level;
+    DebugUtils.logLevel = level;
   }
 
   /**
@@ -28,7 +28,7 @@ export class DebugUtils {
    * @param data Optional data to log
    */
   public static debug(message: string, ...data: any[]): void {
-    if (this.enabled && this.shouldLog('debug')) {
+    if (DebugUtils.enabled && DebugUtils.shouldLog('debug')) {
       console.debug(`[DEBUG] ${message}`, ...data);
     }
   }
@@ -39,7 +39,7 @@ export class DebugUtils {
    * @param data Optional data to log
    */
   public static info(message: string, ...data: any[]): void {
-    if (this.enabled && this.shouldLog('info')) {
+    if (DebugUtils.enabled && DebugUtils.shouldLog('info')) {
       console.info(`[INFO] ${message}`, ...data);
     }
   }
@@ -50,7 +50,7 @@ export class DebugUtils {
    * @param data Optional data to log
    */
   public static warn(message: string, ...data: any[]): void {
-    if (this.enabled && this.shouldLog('warn')) {
+    if (DebugUtils.enabled && DebugUtils.shouldLog('warn')) {
       console.warn(`[WARN] ${message}`, ...data);
     }
   }
@@ -61,7 +61,7 @@ export class DebugUtils {
    * @param data Optional data to log
    */
   public static error(message: string, ...data: any[]): void {
-    if (this.enabled && this.shouldLog('error')) {
+    if (DebugUtils.enabled && DebugUtils.shouldLog('error')) {
       console.error(`[ERROR] ${message}`, ...data);
     }
   }
@@ -73,13 +73,13 @@ export class DebugUtils {
    */
   private static shouldLog(level: 'debug' | 'info' | 'warn' | 'error'): boolean {
     const levels = ['debug', 'info', 'warn', 'error'];
-    return levels.indexOf(level) >= levels.indexOf(this.logLevel);
+    return levels.indexOf(level) >= levels.indexOf(DebugUtils.logLevel);
   }
 
   private static logTimerResult(name: string, start: number, failed: boolean = false): void {
     const end = performance.now();
     const statusSuffix = failed ? ' (failed)' : '';
-    this.debug(`[TIMER] ${name}: ${end - start}ms${statusSuffix}`);
+    DebugUtils.debug(`[TIMER] ${name}: ${end - start}ms${statusSuffix}`);
   }
 
   /**
@@ -89,17 +89,17 @@ export class DebugUtils {
    * @returns The result of the function
    */
   public static async time<T>(name: string, fn: () => Promise<T>): Promise<T> {
-    if (!this.enabled) {
+    if (!DebugUtils.enabled) {
       return await fn();
     }
 
     const start = performance.now();
     try {
       const result = await fn();
-      this.logTimerResult(name, start);
+      DebugUtils.logTimerResult(name, start);
       return result;
     } catch (error) {
-      this.logTimerResult(name, start, true);
+      DebugUtils.logTimerResult(name, start, true);
       throw error;
     }
   }
@@ -111,17 +111,17 @@ export class DebugUtils {
    * @returns The result of the function
    */
   public static timeSync<T>(name: string, fn: () => T): T {
-    if (!this.enabled) {
+    if (!DebugUtils.enabled) {
       return fn();
     }
 
     const start = performance.now();
     try {
       const result = fn();
-      this.logTimerResult(name, start);
+      DebugUtils.logTimerResult(name, start);
       return result;
     } catch (error) {
-      this.logTimerResult(name, start, true);
+      DebugUtils.logTimerResult(name, start, true);
       throw error;
     }
   }

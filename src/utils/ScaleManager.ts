@@ -1,5 +1,5 @@
-import { Application } from 'pixi.js';
 import { GameConfig } from '@config/gameConfig';
+import type { Application } from 'pixi.js';
 import { DebugUtils } from './DebugUtils';
 
 export class ScaleManager {

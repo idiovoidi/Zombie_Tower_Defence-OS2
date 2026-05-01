@@ -1,8 +1,8 @@
-import { Container, Graphics } from 'pixi.js';
-import { IZombieRenderer, ZombieRenderState } from './ZombieRenderer';
-import { ZombieAnimator } from './ZombieAnimator';
-import { ParticleType, ZombieParticleSystem } from './ZombieParticleSystem';
+import { type Container, Graphics } from 'pixi.js';
 import { EffectCleanupManager } from '../../utils/EffectCleanupManager';
+import { ZombieAnimator } from './ZombieAnimator';
+import { type ParticleType, ZombieParticleSystem } from './ZombieParticleSystem';
+import type { IZombieRenderer, ZombieRenderState } from './ZombieRenderer';
 
 export interface DeathAnimConfig {
   phase1Duration: number; // ms

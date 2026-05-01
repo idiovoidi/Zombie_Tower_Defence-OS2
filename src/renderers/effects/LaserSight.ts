@@ -29,9 +29,7 @@ export class LaserSight extends Graphics {
       .stroke({ width: 1, color: 0xff0000, alpha: 0.6 });
 
     // Brighter dots along the line for effect
-    const distance = Math.sqrt(
-      Math.pow(this.endX - this.startX, 2) + Math.pow(this.endY - this.startY, 2)
-    );
+    const distance = Math.sqrt((this.endX - this.startX) ** 2 + (this.endY - this.startY) ** 2);
     const steps = Math.floor(distance / 20);
 
     for (let i = 0; i <= steps; i++) {

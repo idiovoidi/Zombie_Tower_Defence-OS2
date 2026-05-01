@@ -1,8 +1,8 @@
-import { Container } from 'pixi.js';
-import { ZombieRenderState } from './ZombieRenderer';
-import { ParticleType } from './ZombieParticleSystem';
-import { GlowEffect, ShadowEffect } from './components/ZombieEffects';
+import type { Container } from 'pixi.js';
 import { BaseZombieRenderer } from './BaseZombieRenderer';
+import { GlowEffect, ShadowEffect } from './components/ZombieEffects';
+import { ParticleType } from './ZombieParticleSystem';
+import type { ZombieRenderState } from './ZombieRenderer';
 
 export class MechanicalZombieRenderer extends BaseZombieRenderer {
   protected readonly ANIMATOR_TYPE = 'MECHANICAL';

@@ -1,7 +1,7 @@
-import type { IGameManager } from './IGameManager';
-import type { StatTracker } from '../utils/StatTracker';
 import { GameConfig } from '../config/gameConfig';
 import { Tower } from '../objects/Tower';
+import type { StatTracker } from '../utils/StatTracker';
+import type { IGameManager } from './IGameManager';
 
 interface PlacementZone {
   x: number;

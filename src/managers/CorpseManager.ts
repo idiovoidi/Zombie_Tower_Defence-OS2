@@ -1,12 +1,12 @@
 import { Container, Graphics } from 'pixi.js';
+import { ArmoredZombieRenderer } from '../renderers/zombies/ArmoredZombieRenderer';
 import { BasicZombieRenderer } from '../renderers/zombies/BasicZombieRenderer';
 import { FastZombieRenderer } from '../renderers/zombies/FastZombieRenderer';
-import { TankZombieRenderer } from '../renderers/zombies/TankZombieRenderer';
-import { ArmoredZombieRenderer } from '../renderers/zombies/ArmoredZombieRenderer';
-import { SwarmZombieRenderer } from '../renderers/zombies/SwarmZombieRenderer';
-import { StealthZombieRenderer } from '../renderers/zombies/StealthZombieRenderer';
 import { MechanicalZombieRenderer } from '../renderers/zombies/MechanicalZombieRenderer';
-import { IZombieRenderer, ZombieRenderState } from '../renderers/zombies/ZombieRenderer';
+import { StealthZombieRenderer } from '../renderers/zombies/StealthZombieRenderer';
+import { SwarmZombieRenderer } from '../renderers/zombies/SwarmZombieRenderer';
+import { TankZombieRenderer } from '../renderers/zombies/TankZombieRenderer';
+import type { IZombieRenderer, ZombieRenderState } from '../renderers/zombies/ZombieRenderer';
 
 interface Corpse {
   container: Container;

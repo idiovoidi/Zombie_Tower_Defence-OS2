@@ -1,6 +1,6 @@
-import { Graphics } from 'pixi.js';
+import type { Graphics } from 'pixi.js';
 import { COLORS, GROUND_TEXTURE, UI_DIMENSIONS } from '../../config/visualConstants';
-import { MapData } from '../../managers/MapManager';
+import type { MapData } from '../../managers/MapManager';
 
 /**
  * TerrainRenderer

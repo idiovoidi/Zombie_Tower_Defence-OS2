@@ -76,7 +76,7 @@ export class PathfindingManager {
 
     for (let i = 0; i < this.waypoints.length; i++) {
       const waypoint = this.waypoints[i];
-      const distance = Math.sqrt(Math.pow(waypoint.x - x, 2) + Math.pow(waypoint.y - y, 2));
+      const distance = Math.sqrt((waypoint.x - x) ** 2 + (waypoint.y - y) ** 2);
 
       if (distance < closestDistance) {
         closestDistance = distance;
@@ -99,7 +99,7 @@ export class PathfindingManager {
     }
 
     const waypoint = this.waypoints[waypointIndex];
-    const distance = Math.sqrt(Math.pow(waypoint.x - x, 2) + Math.pow(waypoint.y - y, 2));
+    const distance = Math.sqrt((waypoint.x - x) ** 2 + (waypoint.y - y) ** 2);
 
     return distance <= tolerance;
   }

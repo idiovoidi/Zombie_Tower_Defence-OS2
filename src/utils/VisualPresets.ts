@@ -1,4 +1,4 @@
-import { ColorMatrixFilter, Container, Filter } from 'pixi.js';
+import { ColorMatrixFilter, type Container, type Filter } from 'pixi.js';
 import {
   BloomFilter,
   ChromaticAberrationFilter,
@@ -9,8 +9,15 @@ import {
   VignetteFilter,
   WaveDistortionFilter,
 } from '../ui/shaders/filters/CreativeFilters';
-import { SimpleRetroFilter } from '../ui/shaders/filters/SimpleRetroFilter';
+import {
+  InscryptionChromaticFilter,
+  InscryptionColorGradingFilter,
+  InscryptionGrainFilter,
+  InscryptionScanlinesFilter,
+  InscryptionVignetteFilter,
+} from '../ui/shaders/filters/InscryptionFilters';
 import { VHSFilter } from '../ui/shaders/filters/NewRetroFilters';
+import { SimpleRetroFilter } from '../ui/shaders/filters/SimpleRetroFilter';
 import {
   FixedGameBoyFilter,
   PassThroughFilter,
@@ -19,13 +26,6 @@ import {
   SimpleGrayscaleFilter,
   SuperSimplePixelationFilter,
 } from '../ui/shaders/filters/TestShaders';
-import {
-  InscryptionChromaticFilter,
-  InscryptionColorGradingFilter,
-  InscryptionGrainFilter,
-  InscryptionScanlinesFilter,
-  InscryptionVignetteFilter,
-} from '../ui/shaders/filters/InscryptionFilters';
 import { DebugUtils } from './DebugUtils';
 
 /**

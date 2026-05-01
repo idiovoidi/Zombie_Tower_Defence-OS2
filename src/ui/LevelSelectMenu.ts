@@ -1,6 +1,6 @@
-import { UIComponent } from './UIComponent';
 import { Graphics, Text } from 'pixi.js';
-import { LevelData } from '../managers/LevelManager';
+import type { LevelData } from '../managers/LevelManager';
+import { UIComponent } from './UIComponent';
 
 export class LevelSelectMenu extends UIComponent {
   private titleText: Text;

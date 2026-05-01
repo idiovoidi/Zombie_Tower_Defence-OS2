@@ -1,6 +1,6 @@
 import { Graphics } from 'pixi.js';
-import { MachineGunRenderer } from '@/renderers/towers/MachineGunRenderer';
 import { GameConfig } from '@/config/gameConfig';
+import { MachineGunRenderer } from '@/renderers/towers/MachineGunRenderer';
 
 describe('MachineGunRenderer', () => {
   let renderer: MachineGunRenderer;

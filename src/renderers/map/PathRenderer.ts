@@ -1,7 +1,7 @@
-import { Graphics } from 'pixi.js';
+import type { Graphics } from 'pixi.js';
 import { COLORS, PATH } from '../../config/visualConstants';
-import { MapData } from '../../managers/MapManager';
-import { Waypoint } from '../../managers/PathfindingManager';
+import type { MapData } from '../../managers/MapManager';
+import type { Waypoint } from '../../managers/PathfindingManager';
 
 /**
  * PathRenderer

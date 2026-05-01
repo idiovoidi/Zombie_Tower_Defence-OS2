@@ -1,4 +1,4 @@
-import { PathfindingManager, Waypoint } from './PathfindingManager';
+import { PathfindingManager, type Waypoint } from './PathfindingManager';
 
 export interface MapData {
   name: string;

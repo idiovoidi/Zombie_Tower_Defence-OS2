@@ -1,4 +1,4 @@
-import { Container } from 'pixi.js';
+import type { Container } from 'pixi.js';
 
 export interface ZombieRenderState {
   position: { x: number; y: number };

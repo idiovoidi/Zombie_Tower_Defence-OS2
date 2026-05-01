@@ -70,8 +70,8 @@ export class OptimizationValidator {
    * Enable validation tracking
    */
   public static enable(): void {
-    this.enabled = true;
-    this.reset();
+    OptimizationValidator.enabled = true;
+    OptimizationValidator.reset();
     console.log('🔍 Optimization validation enabled');
   }
 
@@ -79,7 +79,7 @@ export class OptimizationValidator {
    * Disable validation tracking
    */
   public static disable(): void {
-    this.enabled = false;
+    OptimizationValidator.enabled = false;
     console.log('🔍 Optimization validation disabled');
   }
 
@@ -87,57 +87,57 @@ export class OptimizationValidator {
    * Check if validation is enabled
    */
   public static isEnabled(): boolean {
-    return this.enabled;
+    return OptimizationValidator.enabled;
   }
 
   /**
    * Reset all tracking data
    */
   public static reset(): void {
-    this.targetFindingTests = 0;
-    this.totalLinearSearchTime = 0;
-    this.totalSpatialGridTime = 0;
-    this.totalLinearChecks = 0;
-    this.totalSpatialChecks = 0;
+    OptimizationValidator.targetFindingTests = 0;
+    OptimizationValidator.totalLinearSearchTime = 0;
+    OptimizationValidator.totalSpatialGridTime = 0;
+    OptimizationValidator.totalLinearChecks = 0;
+    OptimizationValidator.totalSpatialChecks = 0;
 
-    this.frameCount = 0;
-    this.towerArrayChanges = 0;
-    this.zombieArrayChanges = 0;
-    this.projectileArrayChanges = 0;
+    OptimizationValidator.frameCount = 0;
+    OptimizationValidator.towerArrayChanges = 0;
+    OptimizationValidator.zombieArrayChanges = 0;
+    OptimizationValidator.projectileArrayChanges = 0;
 
-    this.allocationsTracked = 0;
-    this.pooledAllocations = 0;
-    this.newAllocations = 0;
-    this.poolReuses = 0;
+    OptimizationValidator.allocationsTracked = 0;
+    OptimizationValidator.pooledAllocations = 0;
+    OptimizationValidator.newAllocations = 0;
+    OptimizationValidator.poolReuses = 0;
   }
 
   /**
    * Track a frame for array rebuild metrics
    */
   public static trackFrame(): void {
-    if (!this.enabled) {
+    if (!OptimizationValidator.enabled) {
       return;
     }
-    this.frameCount++;
+    OptimizationValidator.frameCount++;
   }
 
   /**
    * Track an array rebuild (when dirty flag is set)
    */
   public static trackArrayRebuild(arrayType: 'towers' | 'zombies' | 'projectiles'): void {
-    if (!this.enabled) {
+    if (!OptimizationValidator.enabled) {
       return;
     }
 
     switch (arrayType) {
       case 'towers':
-        this.towerArrayChanges++;
+        OptimizationValidator.towerArrayChanges++;
         break;
       case 'zombies':
-        this.zombieArrayChanges++;
+        OptimizationValidator.zombieArrayChanges++;
         break;
       case 'projectiles':
-        this.projectileArrayChanges++;
+        OptimizationValidator.projectileArrayChanges++;
         break;
     }
   }
@@ -146,19 +146,19 @@ export class OptimizationValidator {
    * Track an object allocation
    */
   public static trackAllocation(fromPool: boolean, reused: boolean = false): void {
-    if (!this.enabled) {
+    if (!OptimizationValidator.enabled) {
       return;
     }
 
-    this.allocationsTracked++;
+    OptimizationValidator.allocationsTracked++;
 
     if (fromPool) {
-      this.pooledAllocations++;
+      OptimizationValidator.pooledAllocations++;
       if (reused) {
-        this.poolReuses++;
+        OptimizationValidator.poolReuses++;
       }
     } else {
-      this.newAllocations++;
+      OptimizationValidator.newAllocations++;
     }
   }
 
@@ -173,11 +173,11 @@ export class OptimizationValidator {
     range: number,
     spatialGridQuery: () => T | null
   ): void {
-    if (!this.enabled || entities.length === 0) {
+    if (!OptimizationValidator.enabled || entities.length === 0) {
       return;
     }
 
-    this.targetFindingTests++;
+    OptimizationValidator.targetFindingTests++;
 
     // Measure linear search (O(n))
     const linearStart = performance.now();
@@ -211,10 +211,10 @@ export class OptimizationValidator {
     const spatialChecks = Math.min(Math.ceil(avgEntitiesPerCell * cellsToCheck), entities.length);
 
     // Accumulate metrics
-    this.totalLinearSearchTime += linearTime;
-    this.totalSpatialGridTime += spatialTime;
-    this.totalLinearChecks += linearChecks;
-    this.totalSpatialChecks += spatialChecks;
+    OptimizationValidator.totalLinearSearchTime += linearTime;
+    OptimizationValidator.totalSpatialGridTime += spatialTime;
+    OptimizationValidator.totalLinearChecks += linearChecks;
+    OptimizationValidator.totalSpatialChecks += spatialChecks;
 
     // Verify results match (sanity check)
     if (closestLinear !== closestSpatial) {
@@ -229,16 +229,24 @@ export class OptimizationValidator {
    */
   public static getTargetFindingMetrics(): TargetFindingMetrics {
     const avgLinearTime =
-      this.targetFindingTests > 0 ? this.totalLinearSearchTime / this.targetFindingTests : 0;
+      OptimizationValidator.targetFindingTests > 0
+        ? OptimizationValidator.totalLinearSearchTime / OptimizationValidator.targetFindingTests
+        : 0;
     const avgSpatialTime =
-      this.targetFindingTests > 0 ? this.totalSpatialGridTime / this.targetFindingTests : 0;
+      OptimizationValidator.targetFindingTests > 0
+        ? OptimizationValidator.totalSpatialGridTime / OptimizationValidator.targetFindingTests
+        : 0;
     const improvement =
       avgLinearTime > 0 ? ((avgLinearTime - avgSpatialTime) / avgLinearTime) * 100 : 0;
 
     const avgLinearChecks =
-      this.targetFindingTests > 0 ? this.totalLinearChecks / this.targetFindingTests : 0;
+      OptimizationValidator.targetFindingTests > 0
+        ? OptimizationValidator.totalLinearChecks / OptimizationValidator.targetFindingTests
+        : 0;
     const avgSpatialChecks =
-      this.targetFindingTests > 0 ? this.totalSpatialChecks / this.targetFindingTests : 0;
+      OptimizationValidator.targetFindingTests > 0
+        ? OptimizationValidator.totalSpatialChecks / OptimizationValidator.targetFindingTests
+        : 0;
     const checksReduction =
       avgLinearChecks > 0 ? ((avgLinearChecks - avgSpatialChecks) / avgLinearChecks) * 100 : 0;
 
@@ -258,10 +266,12 @@ export class OptimizationValidator {
   public static getArrayRebuildMetrics(): ArrayRebuildMetrics {
     // Calculate total rebuilds that occurred
     const rebuildsWithDirtyFlags =
-      this.towerArrayChanges + this.zombieArrayChanges + this.projectileArrayChanges;
+      OptimizationValidator.towerArrayChanges +
+      OptimizationValidator.zombieArrayChanges +
+      OptimizationValidator.projectileArrayChanges;
 
     // Without dirty flags, we would rebuild every frame for each array type (3 arrays)
-    const rebuildsWithoutDirtyFlags = this.frameCount * 3;
+    const rebuildsWithoutDirtyFlags = OptimizationValidator.frameCount * 3;
 
     // Calculate rebuilds avoided
     const rebuildsAvoided = rebuildsWithoutDirtyFlags - rebuildsWithDirtyFlags;
@@ -269,7 +279,7 @@ export class OptimizationValidator {
       rebuildsWithoutDirtyFlags > 0 ? (rebuildsAvoided / rebuildsWithoutDirtyFlags) * 100 : 0;
 
     return {
-      totalFrames: this.frameCount,
+      totalFrames: OptimizationValidator.frameCount,
       rebuildsWithoutDirtyFlags,
       rebuildsWithDirtyFlags,
       rebuildsAvoided,
@@ -282,10 +292,10 @@ export class OptimizationValidator {
    */
   public static getAllocationMetrics(): AllocationMetrics {
     // Without pooling, all allocations would be new
-    const allocationsWithoutPooling = this.allocationsTracked;
+    const allocationsWithoutPooling = OptimizationValidator.allocationsTracked;
 
     // With pooling, we have a mix of new and reused
-    const allocationsWithPooling = this.newAllocations;
+    const allocationsWithPooling = OptimizationValidator.newAllocations;
 
     const allocationReduction =
       allocationsWithoutPooling > 0
@@ -293,7 +303,9 @@ export class OptimizationValidator {
         : 0;
 
     const poolReuseRate =
-      this.pooledAllocations > 0 ? (this.poolReuses / this.pooledAllocations) * 100 : 0;
+      OptimizationValidator.pooledAllocations > 0
+        ? (OptimizationValidator.poolReuses / OptimizationValidator.pooledAllocations) * 100
+        : 0;
 
     return {
       allocationsWithoutPooling,
@@ -307,9 +319,9 @@ export class OptimizationValidator {
    * Generate comprehensive optimization report
    */
   public static generateReport(): OptimizationReport {
-    const targetFinding = this.getTargetFindingMetrics();
-    const arrayRebuilds = this.getArrayRebuildMetrics();
-    const allocations = this.getAllocationMetrics();
+    const targetFinding = OptimizationValidator.getTargetFindingMetrics();
+    const arrayRebuilds = OptimizationValidator.getArrayRebuildMetrics();
+    const allocations = OptimizationValidator.getAllocationMetrics();
 
     // Generate summary
     const summaryLines: string[] = [];
@@ -348,12 +360,8 @@ export class OptimizationValidator {
     const arrayRebuildsGood = arrayRebuilds.avoidanceRate > 80;
     const allocationsGood = allocations.allocationReduction > 70;
 
-    summaryLines.push(
-      `  Target Finding: ${targetFindingGood ? '✅ GOOD' : '⚠️ NEEDS IMPROVEMENT'}`
-    );
-    summaryLines.push(
-      `  Array Rebuilds: ${arrayRebuildsGood ? '✅ GOOD' : '⚠️ NEEDS IMPROVEMENT'}`
-    );
+    summaryLines.push(`  Target Finding: ${targetFindingGood ? '✅ GOOD' : '⚠️ NEEDS IMPROVEMENT'}`);
+    summaryLines.push(`  Array Rebuilds: ${arrayRebuildsGood ? '✅ GOOD' : '⚠️ NEEDS IMPROVEMENT'}`);
     summaryLines.push(`  Allocations:    ${allocationsGood ? '✅ GOOD' : '⚠️ NEEDS IMPROVEMENT'}`);
 
     const summary = summaryLines.join('\n');
@@ -371,12 +379,12 @@ export class OptimizationValidator {
    * Log optimization report to console
    */
   public static logReport(): void {
-    if (!this.enabled) {
+    if (!OptimizationValidator.enabled) {
       console.log('🔍 Optimization validation is disabled');
       return;
     }
 
-    const report = this.generateReport();
+    const report = OptimizationValidator.generateReport();
     console.log('\n' + report.summary);
   }
 
@@ -384,7 +392,7 @@ export class OptimizationValidator {
    * Export report data for analysis
    */
   public static exportReport(): OptimizationReport {
-    return this.generateReport();
+    return OptimizationValidator.generateReport();
   }
 }
 

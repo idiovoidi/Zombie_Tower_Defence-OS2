@@ -1,10 +1,10 @@
-import { Container } from 'pixi.js';
-import { ShellCasing } from './ShellCasing';
-import { MuzzleFlashLight } from './MuzzleFlashLight';
+import { ObjectPool } from '@utils/ObjectPool';
+import type { Container } from 'pixi.js';
 import { BulletTrail } from './BulletTrail';
 import { ImpactFlash } from './ImpactFlash';
+import { MuzzleFlashLight } from './MuzzleFlashLight';
 import { ScopeGlint } from './ScopeGlint';
-import { ObjectPool } from '@utils/ObjectPool';
+import { ShellCasing } from './ShellCasing';
 
 /**
  * Configuration for effect limits

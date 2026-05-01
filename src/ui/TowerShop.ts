@@ -1,8 +1,8 @@
-import { UIComponent } from './UIComponent';
 import { Container, Graphics, Text } from 'pixi.js';
 import { GameConfig } from '../config/gameConfig';
 import { TowerManager } from '../managers/TowerManager';
 import { TextureGenerator } from '../utils/textureGenerator';
+import { UIComponent } from './UIComponent';
 
 export class TowerShop extends UIComponent {
   private towerButtons: Map<string, Container> = new Map();

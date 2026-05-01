@@ -1,5 +1,5 @@
-import { ResourceCost, ResourceManager } from './ResourceManager';
-import { ITower } from '../objects/Tower.interface';
+import type { ITower } from '../objects/Tower.interface';
+import type { ResourceCost, ResourceManager } from './ResourceManager';
 
 export class UpgradeManager {
   private resourceManager: ResourceManager;
@@ -54,7 +54,7 @@ export class UpgradeManager {
     const level = tower.getUpgradeLevel();
 
     // Scale cost based on current level (simple exponential scaling)
-    const costMultiplier = Math.pow(1.5, level - 1);
+    const costMultiplier = 1.5 ** (level - 1);
 
     return {
       money: Math.floor(baseCost * costMultiplier),

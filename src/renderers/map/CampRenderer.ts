@@ -1,5 +1,5 @@
-import { Graphics } from 'pixi.js';
-import { Waypoint } from '../../managers/PathfindingManager';
+import type { Graphics } from 'pixi.js';
+import type { Waypoint } from '../../managers/PathfindingManager';
 
 /**
  * CampRenderer handles all survivor camp rendering including:

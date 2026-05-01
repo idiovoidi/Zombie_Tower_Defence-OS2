@@ -1,10 +1,10 @@
-import type { IGameManager } from '../managers/IGameManager';
-import type { WaveManager } from '../managers/WaveManager';
-import type { TowerPlacementManager } from '../managers/TowerPlacementManager';
-import type { ZombieManager } from '../managers/ZombieManager';
 import type { BalanceTrackingManager } from '../managers/BalanceTrackingManager';
-import { type GameLogEntry, LogExporter } from './LogExporter';
+import type { IGameManager } from '../managers/IGameManager';
+import type { TowerPlacementManager } from '../managers/TowerPlacementManager';
+import type { WaveManager } from '../managers/WaveManager';
+import type { ZombieManager } from '../managers/ZombieManager';
 import { DebugUtils } from './DebugUtils';
+import { type GameLogEntry, LogExporter } from './LogExporter';
 import { PerformanceMonitor } from './PerformanceMonitor';
 
 export interface StatTrackerData {
@@ -263,7 +263,9 @@ export class StatTracker {
     this.currentWaveLivesStart = this.gameManager.getLives();
     this.currentWaveTowersBuilt = 0;
 
-    const currentWave = ((this.gameManager.getWaveManager() as WaveManager) as WaveManager).getCurrentWave();
+    const currentWave = (
+      this.gameManager.getWaveManager() as WaveManager as WaveManager
+    ).getCurrentWave();
     if (currentWave > this.stats.highestWave) {
       this.stats.highestWave = currentWave;
     }
@@ -343,8 +345,11 @@ export class StatTracker {
 
     if (now - this.stats.lastSnapshotTime >= 10000) {
       const currentWave = (this.gameManager.getWaveManager() as WaveManager).getCurrentWave();
-      const towersActive = (this.gameManager.getTowerPlacementManager() as TowerPlacementManager).getPlacedTowers().length;
-      const zombiesAlive = (this.gameManager.getZombieManager() as ZombieManager).getZombies().length;
+      const towersActive = (
+        this.gameManager.getTowerPlacementManager() as TowerPlacementManager
+      ).getPlacedTowers().length;
+      const zombiesAlive = (this.gameManager.getZombieManager() as ZombieManager).getZombies()
+        .length;
       const currentDPS = this.calculateCurrentDPS();
 
       this.stats.snapshots.push({
@@ -595,7 +600,8 @@ export class StatTracker {
 
     // Get balance data from BalanceTrackingManager if enabled
     let balanceData: Record<string, unknown> | undefined;
-    const balanceTrackingManager = (this.gameManager.getBalanceTrackingManager() as BalanceTrackingManager);
+    const balanceTrackingManager =
+      this.gameManager.getBalanceTrackingManager() as BalanceTrackingManager;
     if (balanceTrackingManager && balanceTrackingManager.isEnabled()) {
       balanceData = balanceTrackingManager.generateReportData() as Record<string, unknown>;
       DebugUtils.debug('Including balance analysis in stat tracker report');

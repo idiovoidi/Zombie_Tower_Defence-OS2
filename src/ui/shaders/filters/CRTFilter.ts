@@ -1,8 +1,8 @@
-import { BaseRetroFilter } from './BaseRetroFilter';
+import crtFragmentShader from '../shaders/crt.frag?raw';
 
 // Import shader source files
 import crtVertexShader from '../shaders/crt.vert?raw';
-import crtFragmentShader from '../shaders/crt.frag?raw';
+import { BaseRetroFilter } from './BaseRetroFilter';
 
 // Fallback embedded shaders in case file loading fails
 const embeddedVertexShader = `
@@ -270,7 +270,7 @@ export class CRTFilter extends BaseRetroFilter {
    * @returns Eased progress value
    */
   private easeInOutCubic(t: number): number {
-    return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+    return t < 0.5 ? 4 * t * t * t : 1 - (-2 * t + 2) ** 3 / 2;
   }
 
   /**

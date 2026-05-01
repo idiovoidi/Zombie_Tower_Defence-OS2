@@ -64,7 +64,7 @@ export class CampUpgradeManager {
     }
 
     // Cost increases with each level
-    return Math.floor(upgrade.baseCost * Math.pow(1.5, upgrade.level));
+    return Math.floor(upgrade.baseCost * 1.5 ** upgrade.level);
   }
 
   public purchaseUpgrade(upgradeId: string): boolean {

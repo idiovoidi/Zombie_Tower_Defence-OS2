@@ -214,7 +214,7 @@ export class LogExporter {
       // Merge balance data into log entry if provided
       let finalLogEntry = logEntry;
       if (balanceData) {
-        const formattedBalanceData = this.formatBalanceData(balanceData);
+        const formattedBalanceData = LogExporter.formatBalanceData(balanceData);
         finalLogEntry = {
           ...logEntry,
           ...formattedBalanceData,
@@ -229,10 +229,10 @@ export class LogExporter {
       const filename = `${dateStr}_${timeStr}_${aiIndicator}_wave${finalLogEntry.gameData.highestWave}.json`;
 
       // Store in localStorage as backup
-      this.storeLog(filename, finalLogEntry);
+      LogExporter.storeLog(filename, finalLogEntry);
 
       // Save to server (REQUIRED - no browser download fallback)
-      const savedToServer = await this.saveToServer(filename, finalLogEntry);
+      const savedToServer = await LogExporter.saveToServer(filename, finalLogEntry);
 
       if (!savedToServer) {
         // Server not running - show clear error
@@ -254,7 +254,7 @@ export class LogExporter {
         return;
       }
 
-      console.log(`📁 Total logs stored in localStorage: ${this.getStoredLogCount()}`);
+      console.log(`📁 Total logs stored in localStorage: ${LogExporter.getStoredLogCount()}`);
     } catch (error) {
       console.error('Failed to export log:', error);
     }
@@ -290,20 +290,20 @@ export class LogExporter {
    */
   private static storeLog(filename: string, logEntry: GameLogEntry): void {
     try {
-      const logs = this.getStoredLogs();
+      const logs = LogExporter.getStoredLogs();
       logs[filename] = logEntry;
 
       // Limit number of stored logs
       const logKeys = Object.keys(logs);
-      if (logKeys.length > this.MAX_STORED_LOGS) {
+      if (logKeys.length > LogExporter.MAX_STORED_LOGS) {
         // Remove oldest logs
         const sortedKeys = logKeys.sort();
-        const toRemove = sortedKeys.slice(0, logKeys.length - this.MAX_STORED_LOGS);
+        const toRemove = sortedKeys.slice(0, logKeys.length - LogExporter.MAX_STORED_LOGS);
         toRemove.forEach(key => delete logs[key]);
-        console.warn(`⚠️ Removed ${toRemove.length} old logs (max: ${this.MAX_STORED_LOGS})`);
+        console.warn(`⚠️ Removed ${toRemove.length} old logs (max: ${LogExporter.MAX_STORED_LOGS})`);
       }
 
-      localStorage.setItem(this.STORAGE_KEY, JSON.stringify(logs));
+      localStorage.setItem(LogExporter.STORAGE_KEY, JSON.stringify(logs));
     } catch (error) {
       console.error('Failed to store log in localStorage:', error);
     }
@@ -314,7 +314,7 @@ export class LogExporter {
    */
   private static getStoredLogs(): Record<string, GameLogEntry> {
     try {
-      const stored = localStorage.getItem(this.STORAGE_KEY);
+      const stored = localStorage.getItem(LogExporter.STORAGE_KEY);
       return stored ? JSON.parse(stored) : {};
     } catch (error) {
       console.error('Failed to retrieve logs from localStorage:', error);
@@ -326,7 +326,7 @@ export class LogExporter {
    * Get count of stored logs
    */
   public static getStoredLogCount(): number {
-    return Object.keys(this.getStoredLogs()).length;
+    return Object.keys(LogExporter.getStoredLogs()).length;
   }
 
   /**
@@ -334,7 +334,7 @@ export class LogExporter {
    * Use this if the server was not running and you need to recover logs
    */
   public static exportAllLogs(): void {
-    const logs = this.getStoredLogs();
+    const logs = LogExporter.getStoredLogs();
     const logCount = Object.keys(logs).length;
 
     if (logCount === 0) {
@@ -377,7 +377,7 @@ export class LogExporter {
    * Export all logs as a single JSON file
    */
   public static exportAllLogsAsBundle(): void {
-    const logs = this.getStoredLogs();
+    const logs = LogExporter.getStoredLogs();
     const logCount = Object.keys(logs).length;
 
     if (logCount === 0) {
@@ -407,8 +407,8 @@ export class LogExporter {
    * Clear all stored logs
    */
   public static clearAllLogs(): void {
-    const count = this.getStoredLogCount();
-    localStorage.removeItem(this.STORAGE_KEY);
+    const count = LogExporter.getStoredLogCount();
+    localStorage.removeItem(LogExporter.STORAGE_KEY);
     console.log(`🗑️ Cleared ${count} stored logs`);
   }
 
@@ -416,7 +416,7 @@ export class LogExporter {
    * View all stored logs in console
    */
   public static viewStoredLogs(): void {
-    const logs = this.getStoredLogs();
+    const logs = LogExporter.getStoredLogs();
     console.log('📊 Stored Logs:', logs);
     console.log(`Total: ${Object.keys(logs).length} logs`);
   }
@@ -425,15 +425,15 @@ export class LogExporter {
    * Get current session ID
    */
   public static getSessionId(): string {
-    return this.sessionId;
+    return LogExporter.sessionId;
   }
 
   /**
    * Generate new session ID (call when starting new game)
    */
   public static newSession(): string {
-    this.sessionId = this.generateSessionId();
-    return this.sessionId;
+    LogExporter.sessionId = LogExporter.generateSessionId();
+    return LogExporter.sessionId;
   }
 
   /**
@@ -479,7 +479,7 @@ export class LogExporter {
     const damageByType = (balanceData.damageByType as Record<string, number>) || {};
 
     // Calculate overall balance rating
-    const overallBalanceRating = this.calculateBalanceRating(issues);
+    const overallBalanceRating = LogExporter.calculateBalanceRating(issues);
 
     // Format balance analysis section
     if (

@@ -1,12 +1,12 @@
-import { Application } from 'pixi.js';
+import type { Application } from 'pixi.js';
+import { DebugConstants } from '../config/debugConstants';
+import { AIControlPanel } from '../ui/AIControlPanel';
 import { ShaderTestPanel } from '../ui/ShaderTestPanel';
+import { StatsPanel } from '../ui/StatsPanel';
 import { WaveInfoPanel } from '../ui/WaveInfoPanel';
 import { ZombieBestiary } from '../ui/ZombieBestiary';
-import { StatsPanel } from '../ui/StatsPanel';
-import { AIControlPanel } from '../ui/AIControlPanel';
-import { WaveManager } from './WaveManager';
-import { DebugConstants } from '../config/debugConstants';
 import type { GameManager } from './GameManager';
+import type { WaveManager } from './WaveManager';
 
 /**
  * Centralized manager for all debug/test UI panels

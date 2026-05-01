@@ -661,13 +661,13 @@ export class WaveManager {
 
   // Calculate spawn rate with scaling (from design document)
   public calculateSpawnRate(baseInterval: number, wave: number): number {
-    const scaledInterval = baseInterval * Math.pow(0.95, wave) * this.difficultyModifier;
+    const scaledInterval = baseInterval * 0.95 ** wave * this.difficultyModifier;
     return Math.max(0.5, scaledInterval); // Minimum 0.5 seconds
   }
 
   // Calculate zombie count with scaling (from design document)
   public calculateZombieCount(baseCount: number, wave: number): number {
-    let count = baseCount * Math.pow(1.08, wave) * this.difficultyModifier;
+    let count = baseCount * 1.08 ** wave * this.difficultyModifier;
 
     // 20% spikes every 5 waves
     if (wave % 5 === 0) {

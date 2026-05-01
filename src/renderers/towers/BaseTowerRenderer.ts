@@ -1,6 +1,6 @@
 import type { Graphics } from 'pixi.js';
-import type { ITowerRenderer } from './ITowerRenderer';
 import { EffectCleanupManager } from '@/utils/EffectCleanupManager';
+import type { ITowerRenderer } from './ITowerRenderer';
 
 /**
  * Base class for tower renderers

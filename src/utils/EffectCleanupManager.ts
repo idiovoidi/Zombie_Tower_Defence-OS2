@@ -42,7 +42,7 @@ export class EffectCleanupManager {
    * Register an interval for tracking and cleanup
    */
   public static registerInterval(interval: NodeJS.Timeout): NodeJS.Timeout {
-    this.intervals.add(interval);
+    EffectCleanupManager.intervals.add(interval);
     return interval;
   }
 
@@ -50,7 +50,7 @@ export class EffectCleanupManager {
    * Register a timeout for tracking and cleanup
    */
   public static registerTimeout(timeout: NodeJS.Timeout): NodeJS.Timeout {
-    this.timeouts.add(timeout);
+    EffectCleanupManager.timeouts.add(timeout);
     return timeout;
   }
 
@@ -58,14 +58,14 @@ export class EffectCleanupManager {
    * Unregister an interval (call this when interval completes normally)
    */
   public static unregisterInterval(interval: NodeJS.Timeout): void {
-    this.intervals.delete(interval);
+    EffectCleanupManager.intervals.delete(interval);
   }
 
   /**
    * Unregister a timeout (call this when timeout completes normally)
    */
   public static unregisterTimeout(timeout: NodeJS.Timeout): void {
-    this.timeouts.delete(timeout);
+    EffectCleanupManager.timeouts.delete(timeout);
   }
 
   /**
@@ -73,7 +73,7 @@ export class EffectCleanupManager {
    */
   public static clearInterval(interval: NodeJS.Timeout): void {
     clearInterval(interval);
-    this.intervals.delete(interval);
+    EffectCleanupManager.intervals.delete(interval);
   }
 
   /**
@@ -81,7 +81,7 @@ export class EffectCleanupManager {
    */
   public static clearTimeout(timeout: NodeJS.Timeout): void {
     clearTimeout(timeout);
-    this.timeouts.delete(timeout);
+    EffectCleanupManager.timeouts.delete(timeout);
   }
 
   /**
@@ -89,11 +89,11 @@ export class EffectCleanupManager {
    */
   public static clearAllIntervals(): void {
     let count = 0;
-    for (const interval of this.intervals) {
+    for (const interval of EffectCleanupManager.intervals) {
       clearInterval(interval);
       count++;
     }
-    this.intervals.clear();
+    EffectCleanupManager.intervals.clear();
     if (count > 0) {
       console.log(`🧹 Cleaned up ${count} orphaned intervals`);
     }
@@ -104,11 +104,11 @@ export class EffectCleanupManager {
    */
   public static clearAllTimeouts(): void {
     let count = 0;
-    for (const timeout of this.timeouts) {
+    for (const timeout of EffectCleanupManager.timeouts) {
       clearTimeout(timeout);
       count++;
     }
-    this.timeouts.clear();
+    EffectCleanupManager.timeouts.clear();
     if (count > 0) {
       console.log(`🧹 Cleaned up ${count} orphaned timeouts`);
     }
@@ -119,8 +119,8 @@ export class EffectCleanupManager {
    * Call this on game reset, level change, or cleanup
    */
   public static clearAll(): void {
-    this.clearAllIntervals();
-    this.clearAllTimeouts();
+    EffectCleanupManager.clearAllIntervals();
+    EffectCleanupManager.clearAllTimeouts();
   }
 
   /**
@@ -128,8 +128,8 @@ export class EffectCleanupManager {
    */
   public static getCounts(): { intervals: number; timeouts: number } {
     return {
-      intervals: this.intervals.size,
-      timeouts: this.timeouts.size,
+      intervals: EffectCleanupManager.intervals.size,
+      timeouts: EffectCleanupManager.timeouts.size,
     };
   }
 
@@ -137,7 +137,7 @@ export class EffectCleanupManager {
    * Log current state (for debugging)
    */
   public static logState(): void {
-    const counts = this.getCounts();
+    const counts = EffectCleanupManager.getCounts();
     console.log('🔍 EffectCleanupManager State:', counts);
     if (counts.intervals > 10 || counts.timeouts > 10) {
       console.warn('⚠️ High number of tracked timers - possible memory leak!');

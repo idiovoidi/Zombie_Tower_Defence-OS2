@@ -1,9 +1,9 @@
-import { Container, FederatedPointerEvent, Graphics } from 'pixi.js';
-import { Tower } from '../objects/Tower';
-import { TowerFactory } from '../objects/TowerFactory';
-import { TowerManager } from './TowerManager';
-import { MapManager } from './MapManager';
+import { type Container, type FederatedPointerEvent, Graphics } from 'pixi.js';
 import type { TransformComponent } from '../components/TransformComponent';
+import type { Tower } from '../objects/Tower';
+import { TowerFactory } from '../objects/TowerFactory';
+import type { MapManager } from './MapManager';
+import type { TowerManager } from './TowerManager';
 
 export class TowerPlacementManager {
   private container: Container;
@@ -167,7 +167,7 @@ export class TowerPlacementManager {
       const transform = tower.getComponent<TransformComponent>('Transform');
       if (transform) {
         const pos = transform.position;
-        const distance = Math.sqrt(Math.pow(x - pos.x, 2) + Math.pow(y - pos.y, 2));
+        const distance = Math.sqrt((x - pos.x) ** 2 + (y - pos.y) ** 2);
         if (distance < 60) {
           return false;
         } // Too close to another tower

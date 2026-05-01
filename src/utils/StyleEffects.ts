@@ -1,4 +1,4 @@
-import { Application, Container, RenderTexture, Sprite, Texture } from 'pixi.js';
+import { type Application, type Container, RenderTexture, Sprite, Texture } from 'pixi.js';
 import { DebugUtils } from './DebugUtils';
 
 /**

@@ -69,9 +69,9 @@ export class PerformanceMonitor {
    * Enable or disable performance monitoring
    */
   public static setEnabled(enabled: boolean): void {
-    this.enabled = enabled;
+    PerformanceMonitor.enabled = enabled;
     if (!enabled) {
-      this.reset();
+      PerformanceMonitor.reset();
     }
   }
 
@@ -79,17 +79,17 @@ export class PerformanceMonitor {
    * Check if monitoring is enabled
    */
   public static isEnabled(): boolean {
-    return this.enabled;
+    return PerformanceMonitor.enabled;
   }
 
   /**
    * Toggle monitoring on/off
    */
   public static toggle(): void {
-    this.enabled = !this.enabled;
-    console.log(`🔧 Performance monitoring ${this.enabled ? 'enabled' : 'disabled'}`);
-    if (!this.enabled) {
-      this.reset();
+    PerformanceMonitor.enabled = !PerformanceMonitor.enabled;
+    console.log(`🔧 Performance monitoring ${PerformanceMonitor.enabled ? 'enabled' : 'disabled'}`);
+    if (!PerformanceMonitor.enabled) {
+      PerformanceMonitor.reset();
     }
   }
 
@@ -97,28 +97,28 @@ export class PerformanceMonitor {
    * Start measuring frame time
    */
   public static startFrame(): void {
-    if (!this.enabled) {
+    if (!PerformanceMonitor.enabled) {
       return;
     }
-    this.frameStartTime = performance.now();
-    this.warnings = [];
+    PerformanceMonitor.frameStartTime = performance.now();
+    PerformanceMonitor.warnings = [];
   }
 
   /**
    * End frame measurement and check thresholds
    */
   public static endFrame(): void {
-    if (!this.enabled) {
+    if (!PerformanceMonitor.enabled) {
       return;
     }
 
-    const frameTime = performance.now() - this.frameStartTime;
-    this.lastFrameTime = frameTime;
+    const frameTime = performance.now() - PerformanceMonitor.frameStartTime;
+    PerformanceMonitor.lastFrameTime = frameTime;
 
     // Check frame time threshold
-    if (frameTime > this.SLOW_FRAME_THRESHOLD_MS) {
+    if (frameTime > PerformanceMonitor.SLOW_FRAME_THRESHOLD_MS) {
       const fps = Math.round(1000 / frameTime);
-      this.logWarning(`Low frame rate: ${fps} FPS (${frameTime.toFixed(2)}ms)`);
+      PerformanceMonitor.logWarning(`Low frame rate: ${fps} FPS (${frameTime.toFixed(2)}ms)`);
     }
   }
 
@@ -126,11 +126,11 @@ export class PerformanceMonitor {
    * Start measuring a system's execution time
    */
   public static startMeasure(systemName: string): void {
-    if (!this.enabled) {
+    if (!PerformanceMonitor.enabled) {
       return;
     }
 
-    this.currentMeasurements.set(systemName, {
+    PerformanceMonitor.currentMeasurements.set(systemName, {
       systemName,
       startTime: performance.now(),
     });
@@ -140,36 +140,36 @@ export class PerformanceMonitor {
    * End measuring a system's execution time
    */
   public static endMeasure(systemName: string): void {
-    if (!this.enabled) {
+    if (!PerformanceMonitor.enabled) {
       return;
     }
 
-    const measurement = this.currentMeasurements.get(systemName);
+    const measurement = PerformanceMonitor.currentMeasurements.get(systemName);
     if (!measurement) {
       console.warn(`⚠️ No measurement started for system: ${systemName}`);
       return;
     }
 
     const duration = performance.now() - measurement.startTime;
-    this.currentMeasurements.delete(systemName);
+    PerformanceMonitor.currentMeasurements.delete(systemName);
 
     // Store frame time
-    if (!this.frameTimes.has(systemName)) {
-      this.frameTimes.set(systemName, []);
+    if (!PerformanceMonitor.frameTimes.has(systemName)) {
+      PerformanceMonitor.frameTimes.set(systemName, []);
     }
-    const times = this.frameTimes.get(systemName);
+    const times = PerformanceMonitor.frameTimes.get(systemName);
     if (times) {
       times.push(duration);
 
       // Keep only last N frames
-      if (times.length > this.MAX_FRAME_HISTORY) {
+      if (times.length > PerformanceMonitor.MAX_FRAME_HISTORY) {
         times.shift();
       }
     }
 
     // Check threshold
-    if (duration > this.SLOW_SYSTEM_THRESHOLD_MS) {
-      this.logWarning(`Slow system: ${systemName} took ${duration.toFixed(2)}ms`);
+    if (duration > PerformanceMonitor.SLOW_SYSTEM_THRESHOLD_MS) {
+      PerformanceMonitor.logWarning(`Slow system: ${systemName} took ${duration.toFixed(2)}ms`);
     }
   }
 
@@ -177,29 +177,29 @@ export class PerformanceMonitor {
    * Track entity count
    */
   public static trackEntityCount(type: string, count: number): void {
-    if (!this.enabled) {
+    if (!PerformanceMonitor.enabled) {
       return;
     }
-    this.entityCounts.set(type, count);
+    PerformanceMonitor.entityCounts.set(type, count);
   }
 
   /**
    * Check entity count thresholds
    */
   public static checkEntityThresholds(): void {
-    if (!this.enabled) {
+    if (!PerformanceMonitor.enabled) {
       return;
     }
 
-    const graphicsCount = this.entityCounts.get('graphics') || 0;
-    const persistentEffects = this.entityCounts.get('persistentEffects') || 0;
+    const graphicsCount = PerformanceMonitor.entityCounts.get('graphics') || 0;
+    const persistentEffects = PerformanceMonitor.entityCounts.get('persistentEffects') || 0;
 
-    if (graphicsCount > this.MAX_GRAPHICS_OBJECTS) {
-      this.logWarning(`High graphics object count: ${graphicsCount}`);
+    if (graphicsCount > PerformanceMonitor.MAX_GRAPHICS_OBJECTS) {
+      PerformanceMonitor.logWarning(`High graphics object count: ${graphicsCount}`);
     }
 
-    if (persistentEffects > this.MAX_PERSISTENT_EFFECTS) {
-      this.logWarning(`High persistent effect count: ${persistentEffects}`);
+    if (persistentEffects > PerformanceMonitor.MAX_PERSISTENT_EFFECTS) {
+      PerformanceMonitor.logWarning(`High persistent effect count: ${persistentEffects}`);
     }
   }
 
@@ -243,21 +243,21 @@ export class PerformanceMonitor {
    * Track memory usage each frame (throttled to avoid overhead)
    */
   public static trackMemoryUsage(): void {
-    if (!this.enabled) {
+    if (!PerformanceMonitor.enabled) {
       return;
     }
 
     const now = performance.now();
-    if (now - this.lastMemoryCheck < this.MEMORY_CHECK_INTERVAL_MS) {
+    if (now - PerformanceMonitor.lastMemoryCheck < PerformanceMonitor.MEMORY_CHECK_INTERVAL_MS) {
       return;
     }
 
-    this.lastMemoryCheck = now;
-    const memory = this.getMemoryUsage();
+    PerformanceMonitor.lastMemoryCheck = now;
+    const memory = PerformanceMonitor.getMemoryUsage();
 
     // Check memory thresholds if we have memory data
     if (memory.heapUsedMB > 0) {
-      this.checkMemoryThresholds(memory.heapUsedMB);
+      PerformanceMonitor.checkMemoryThresholds(memory.heapUsedMB);
     }
   }
 
@@ -265,11 +265,11 @@ export class PerformanceMonitor {
    * Record memory snapshot at wave start
    */
   public static recordWaveMemory(wave: number): void {
-    if (!this.enabled) {
+    if (!PerformanceMonitor.enabled) {
       return;
     }
 
-    const memory = this.getMemoryUsage();
+    const memory = PerformanceMonitor.getMemoryUsage();
     if (memory.heapUsedMB === 0) {
       return; // Memory API not available
     }
@@ -281,7 +281,7 @@ export class PerformanceMonitor {
       heapTotalMB: memory.heapTotalMB,
     };
 
-    this.waveMemorySnapshots.push(snapshot);
+    PerformanceMonitor.waveMemorySnapshots.push(snapshot);
 
     // Log wave memory
     console.log(
@@ -289,15 +289,15 @@ export class PerformanceMonitor {
     );
 
     // Calculate and log growth rate if we have previous waves
-    if (this.waveMemorySnapshots.length > 1) {
-      const growthRate = this.calculateMemoryGrowthRate();
+    if (PerformanceMonitor.waveMemorySnapshots.length > 1) {
+      const growthRate = PerformanceMonitor.calculateMemoryGrowthRate();
       if (growthRate !== null) {
         console.log(`📈 Memory growth rate: ${growthRate.toFixed(2)} MB/wave`);
 
         // Check if growth rate exceeds threshold after wave 5
-        if (wave > 5 && growthRate > this.MAX_MEMORY_GROWTH_PER_WAVE) {
-          this.logWarning(
-            `High memory growth rate: ${growthRate.toFixed(2)} MB/wave (target: ${this.MAX_MEMORY_GROWTH_PER_WAVE} MB/wave)`
+        if (wave > 5 && growthRate > PerformanceMonitor.MAX_MEMORY_GROWTH_PER_WAVE) {
+          PerformanceMonitor.logWarning(
+            `High memory growth rate: ${growthRate.toFixed(2)} MB/wave (target: ${PerformanceMonitor.MAX_MEMORY_GROWTH_PER_WAVE} MB/wave)`
           );
         }
       }
@@ -308,12 +308,12 @@ export class PerformanceMonitor {
    * Calculate memory growth rate per wave
    */
   private static calculateMemoryGrowthRate(): number | null {
-    if (this.waveMemorySnapshots.length < 2) {
+    if (PerformanceMonitor.waveMemorySnapshots.length < 2) {
       return null;
     }
 
     // Calculate growth rate from last 5 waves (or all available if less than 5)
-    const recentSnapshots = this.waveMemorySnapshots.slice(-5);
+    const recentSnapshots = PerformanceMonitor.waveMemorySnapshots.slice(-5);
     if (recentSnapshots.length < 2) {
       return null;
     }
@@ -336,24 +336,26 @@ export class PerformanceMonitor {
    */
   private static checkMemoryThresholds(heapUsedMB: number): void {
     // Get current wave from the last snapshot
-    if (this.waveMemorySnapshots.length === 0) {
+    if (PerformanceMonitor.waveMemorySnapshots.length === 0) {
       return;
     }
 
-    const currentWave = this.waveMemorySnapshots[this.waveMemorySnapshots.length - 1].wave;
+    const currentWave =
+      PerformanceMonitor.waveMemorySnapshots[PerformanceMonitor.waveMemorySnapshots.length - 1]
+        .wave;
 
     // Check wave-specific thresholds
-    if (currentWave >= 20 && heapUsedMB > this.MEMORY_TARGET_WAVE_20) {
-      this.logWarning(
-        `Memory exceeds wave 20 target: ${heapUsedMB.toFixed(2)} MB (target: ${this.MEMORY_TARGET_WAVE_20} MB)`
+    if (currentWave >= 20 && heapUsedMB > PerformanceMonitor.MEMORY_TARGET_WAVE_20) {
+      PerformanceMonitor.logWarning(
+        `Memory exceeds wave 20 target: ${heapUsedMB.toFixed(2)} MB (target: ${PerformanceMonitor.MEMORY_TARGET_WAVE_20} MB)`
       );
-    } else if (currentWave >= 10 && heapUsedMB > this.MEMORY_TARGET_WAVE_10) {
-      this.logWarning(
-        `Memory exceeds wave 10 target: ${heapUsedMB.toFixed(2)} MB (target: ${this.MEMORY_TARGET_WAVE_10} MB)`
+    } else if (currentWave >= 10 && heapUsedMB > PerformanceMonitor.MEMORY_TARGET_WAVE_10) {
+      PerformanceMonitor.logWarning(
+        `Memory exceeds wave 10 target: ${heapUsedMB.toFixed(2)} MB (target: ${PerformanceMonitor.MEMORY_TARGET_WAVE_10} MB)`
       );
-    } else if (currentWave >= 5 && heapUsedMB > this.MEMORY_TARGET_WAVE_5) {
-      this.logWarning(
-        `Memory exceeds wave 5 target: ${heapUsedMB.toFixed(2)} MB (target: ${this.MEMORY_TARGET_WAVE_5} MB)`
+    } else if (currentWave >= 5 && heapUsedMB > PerformanceMonitor.MEMORY_TARGET_WAVE_5) {
+      PerformanceMonitor.logWarning(
+        `Memory exceeds wave 5 target: ${heapUsedMB.toFixed(2)} MB (target: ${PerformanceMonitor.MEMORY_TARGET_WAVE_5} MB)`
       );
     }
   }
@@ -362,14 +364,14 @@ export class PerformanceMonitor {
    * Get wave memory snapshots
    */
   public static getWaveMemorySnapshots(): WaveMemorySnapshot[] {
-    return [...this.waveMemorySnapshots];
+    return [...PerformanceMonitor.waveMemorySnapshots];
   }
 
   /**
    * Get memory growth rate
    */
   public static getMemoryGrowthRate(): number | null {
-    return this.calculateMemoryGrowthRate();
+    return PerformanceMonitor.calculateMemoryGrowthRate();
   }
 
   /**
@@ -379,7 +381,7 @@ export class PerformanceMonitor {
     const systemTimes = new Map<string, number>();
 
     // Calculate average times for each system
-    this.frameTimes.forEach((times, systemName) => {
+    PerformanceMonitor.frameTimes.forEach((times, systemName) => {
       if (times.length > 0) {
         const avg = times.reduce((sum, time) => sum + time, 0) / times.length;
         systemTimes.set(systemName, avg);
@@ -388,11 +390,11 @@ export class PerformanceMonitor {
 
     return {
       timestamp: Date.now(),
-      frameTime: this.lastFrameTime,
+      frameTime: PerformanceMonitor.lastFrameTime,
       systemTimes,
-      entityCounts: new Map(this.entityCounts),
-      memoryUsage: this.getMemoryUsage(),
-      warnings: [...this.warnings],
+      entityCounts: new Map(PerformanceMonitor.entityCounts),
+      memoryUsage: PerformanceMonitor.getMemoryUsage(),
+      warnings: [...PerformanceMonitor.warnings],
     };
   }
 
@@ -400,11 +402,11 @@ export class PerformanceMonitor {
    * Log a warning
    */
   public static logWarning(message: string): void {
-    if (!this.enabled) {
+    if (!PerformanceMonitor.enabled) {
       return;
     }
 
-    this.warnings.push(message);
+    PerformanceMonitor.warnings.push(message);
     console.warn(`⚠️ ${message}`);
   }
 
@@ -412,12 +414,12 @@ export class PerformanceMonitor {
    * Log current metrics to console
    */
   public static logMetrics(): void {
-    if (!this.enabled) {
+    if (!PerformanceMonitor.enabled) {
       console.log('📊 Performance monitoring is disabled');
       return;
     }
 
-    const metrics = this.getMetrics();
+    const metrics = PerformanceMonitor.getMetrics();
 
     console.log('\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
     console.log('📊 Performance Metrics');
@@ -431,7 +433,7 @@ export class PerformanceMonitor {
     if (metrics.systemTimes.size > 0) {
       console.log('\n🔧 System Times (average):');
       metrics.systemTimes.forEach((time, system) => {
-        const icon = time > this.SLOW_SYSTEM_THRESHOLD_MS ? '⚠️' : '✅';
+        const icon = time > PerformanceMonitor.SLOW_SYSTEM_THRESHOLD_MS ? '⚠️' : '✅';
         console.log(`   ${icon} ${system}: ${time.toFixed(2)}ms`);
       });
     }
@@ -451,15 +453,15 @@ export class PerformanceMonitor {
       console.log(`   Heap Total: ${metrics.memoryUsage.heapTotalMB.toFixed(2)} MB`);
 
       // Show memory growth rate if available
-      const growthRate = this.getMemoryGrowthRate();
+      const growthRate = PerformanceMonitor.getMemoryGrowthRate();
       if (growthRate !== null) {
-        const icon = growthRate > this.MAX_MEMORY_GROWTH_PER_WAVE ? '⚠️' : '✅';
+        const icon = growthRate > PerformanceMonitor.MAX_MEMORY_GROWTH_PER_WAVE ? '⚠️' : '✅';
         console.log(`   ${icon} Growth Rate: ${growthRate.toFixed(2)} MB/wave`);
       }
 
       // Show wave memory history
-      if (this.waveMemorySnapshots.length > 0) {
-        console.log(`   Wave History: ${this.waveMemorySnapshots.length} snapshots`);
+      if (PerformanceMonitor.waveMemorySnapshots.length > 0) {
+        console.log(`   Wave History: ${PerformanceMonitor.waveMemorySnapshots.length} snapshots`);
       }
     }
 
@@ -478,21 +480,21 @@ export class PerformanceMonitor {
    * Reset all tracking data
    */
   public static reset(): void {
-    this.frameTimes.clear();
-    this.currentMeasurements.clear();
-    this.entityCounts.clear();
-    this.warnings = [];
-    this.frameStartTime = 0;
-    this.lastFrameTime = 0;
-    this.waveMemorySnapshots = [];
-    this.lastMemoryCheck = 0;
+    PerformanceMonitor.frameTimes.clear();
+    PerformanceMonitor.currentMeasurements.clear();
+    PerformanceMonitor.entityCounts.clear();
+    PerformanceMonitor.warnings = [];
+    PerformanceMonitor.frameStartTime = 0;
+    PerformanceMonitor.lastFrameTime = 0;
+    PerformanceMonitor.waveMemorySnapshots = [];
+    PerformanceMonitor.lastMemoryCheck = 0;
   }
 
   /**
    * Get average frame time for a specific system
    */
   public static getAverageSystemTime(systemName: string): number {
-    const times = this.frameTimes.get(systemName);
+    const times = PerformanceMonitor.frameTimes.get(systemName);
     if (!times || times.length === 0) {
       return 0;
     }
@@ -503,7 +505,7 @@ export class PerformanceMonitor {
    * Get all warnings
    */
   public static getWarnings(): string[] {
-    return [...this.warnings];
+    return [...PerformanceMonitor.warnings];
   }
 }
 

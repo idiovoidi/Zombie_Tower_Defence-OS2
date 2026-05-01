@@ -1,6 +1,6 @@
-import { Container, Graphics } from 'pixi.js';
-import { ObjectPool } from './ObjectPool';
 import { GameConfig } from '@config/gameConfig';
+import { type Container, Graphics } from 'pixi.js';
+import { ObjectPool } from './ObjectPool';
 
 interface BloodParticle {
   graphics: Graphics;

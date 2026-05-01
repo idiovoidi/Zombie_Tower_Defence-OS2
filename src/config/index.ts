@@ -1,10 +1,10 @@
-export { GameConfig } from './gameConfig';
 export { DevConfig } from './devConfig';
+export { GameConfig } from './gameConfig';
 export {
-  TowerConstants,
-  getTowerStats,
   calculateTowerDamage,
   calculateTowerRange,
   calculateUpgradeCost,
+  getTowerStats,
+  TowerConstants,
   type TowerStats,
 } from './towerConstants';

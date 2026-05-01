@@ -425,7 +425,7 @@ export class BalanceAnalyzer {
 
         // Apply diminishing returns (90% efficiency per duplicate)
         const currentCount = mix[tower.type];
-        const efficiencyMultiplier = Math.pow(0.9, currentCount);
+        const efficiencyMultiplier = 0.9 ** currentCount;
         const marginalUtility = baseEfficiency * efficiencyMultiplier;
 
         // Track best option
@@ -477,13 +477,13 @@ export class BalanceAnalyzer {
     averageZombieReward: number
   ): TowerEfficiency {
     // Calculate efficiency score
-    const efficiencyScore = this.calculateEfficiencyScore(dps, range, accuracy, cost, 0);
+    const efficiencyScore = BalanceAnalyzer.calculateEfficiencyScore(dps, range, accuracy, cost, 0);
 
     // Calculate effective DPS (accounting for overkill)
-    const effectiveDPS = this.calculateEffectiveDPS(dps, averageZombieHP, damagePerHit);
+    const effectiveDPS = BalanceAnalyzer.calculateEffectiveDPS(dps, averageZombieHP, damagePerHit);
 
     // Calculate break-even time
-    const breakEvenTime = this.calculateBreakEvenPoint(
+    const breakEvenTime = BalanceAnalyzer.calculateBreakEvenPoint(
       cost,
       dps,
       averageZombieReward,

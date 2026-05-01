@@ -80,7 +80,7 @@ export const WaveBalancing = {
     const config = this.config;
 
     // Base health scales exponentially with wave
-    const baseHealth = config.baseZombieHealth * Math.pow(config.healthScaling, wave - 1);
+    const baseHealth = config.baseZombieHealth * config.healthScaling ** (wave - 1);
 
     // Type multipliers
     const typeMultipliers = {
@@ -122,7 +122,7 @@ export const WaveBalancing = {
     const config = this.config;
 
     // Spawn rate increases each wave
-    const interval = config.baseSpawnInterval * Math.pow(config.spawnRateScaling, wave - 1);
+    const interval = config.baseSpawnInterval * config.spawnRateScaling ** (wave - 1);
 
     // Minimum spawn interval (don't go too fast)
     const minInterval = 500; // 0.5 seconds minimum

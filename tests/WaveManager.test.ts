@@ -1,5 +1,5 @@
-import { WaveManager } from '../src/managers/WaveManager';
 import { GameConfig } from '../src/config/gameConfig';
+import { WaveManager } from '../src/managers/WaveManager';
 
 // Mock ZombieFactory to avoid Pixi.js dependencies
 vi.mock('../src/objects/ZombieFactory', () => {

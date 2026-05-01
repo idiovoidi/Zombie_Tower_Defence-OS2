@@ -1,12 +1,12 @@
-import { Tower } from './Tower';
-import { MachineGunTower } from './towers/MachineGunTower';
-import { SniperTower } from './towers/SniperTower';
-import { ShotgunTower } from './towers/ShotgunTower';
-import { FlameTower } from './towers/FlameTower';
-import { TeslaTower } from './towers/TeslaTower';
-import { GrenadeTower } from './towers/GrenadeTower';
-import { SludgeTower } from './towers/SludgeTower';
 import { GameConfig } from '../config/gameConfig';
+import type { Tower } from './Tower';
+import { FlameTower } from './towers/FlameTower';
+import { GrenadeTower } from './towers/GrenadeTower';
+import { MachineGunTower } from './towers/MachineGunTower';
+import { ShotgunTower } from './towers/ShotgunTower';
+import { SludgeTower } from './towers/SludgeTower';
+import { SniperTower } from './towers/SniperTower';
+import { TeslaTower } from './towers/TeslaTower';
 
 export class TowerFactory {
   public static createTower(type: string, x: number, y: number): Tower | null {

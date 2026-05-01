@@ -1,13 +1,13 @@
-import { Application, Graphics } from 'pixi.js';
+import { type Application, Graphics } from 'pixi.js';
 import { GRAVEYARD, LAYER_INDICES } from '../config/visualConstants';
-import { InputManager } from '../managers/InputManager';
-import { MapData, MapManager } from '../managers/MapManager';
+import type { InputManager } from '../managers/InputManager';
+import type { MapData, MapManager } from '../managers/MapManager';
+import { FogRenderer } from './effects/FogRenderer';
 import { CampRenderer } from './map/CampRenderer';
 import { GraveyardRenderer } from './map/GraveyardRenderer';
 import { PathRenderer } from './map/PathRenderer';
 import { StructureRenderer } from './map/StructureRenderer';
 import { TerrainRenderer } from './map/TerrainRenderer';
-import { FogRenderer } from './effects/FogRenderer';
 import { ZombieCorpseRenderer } from './zombies/ZombieCorpseRenderer';
 
 export class VisualMapRenderer {

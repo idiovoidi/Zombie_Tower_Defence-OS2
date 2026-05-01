@@ -1,5 +1,5 @@
-import { BaseRetroFilter } from './BaseRetroFilter';
 import { SHADER_PARAMETER_RANGES, ShaderType } from '../types/ShaderTypes';
+import { BaseRetroFilter } from './BaseRetroFilter';
 
 // Import shader source code as strings
 const vertexShader = `
@@ -126,7 +126,7 @@ export class PixelationFilter extends BaseRetroFilter {
 
       // Use easeInOutQuad for smooth transition
       const easeProgress =
-        progress < 0.5 ? 2 * progress * progress : 1 - Math.pow(-2 * progress + 2, 2) / 2;
+        progress < 0.5 ? 2 * progress * progress : 1 - (-2 * progress + 2) ** 2 / 2;
 
       const currentSize = startSize + (validatedTargetSize - startSize) * easeProgress;
       this.setPixelSize(currentSize);

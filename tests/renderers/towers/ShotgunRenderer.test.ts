@@ -1,6 +1,6 @@
 import { Graphics } from 'pixi.js';
-import { ShotgunRenderer } from '@/renderers/towers/ShotgunRenderer';
 import { GameConfig } from '@/config/gameConfig';
+import { ShotgunRenderer } from '@/renderers/towers/ShotgunRenderer';
 
 describe('ShotgunRenderer', () => {
   let renderer: ShotgunRenderer;

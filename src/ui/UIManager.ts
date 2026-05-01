@@ -1,6 +1,6 @@
-import { Application } from 'pixi.js';
-import { UIComponent } from './UIComponent';
+import type { Application } from 'pixi.js';
 import { GameConfig } from '../config/gameConfig';
+import type { UIComponent } from './UIComponent';
 
 /**
  * Configuration map defining which UI components should be visible for each game state.

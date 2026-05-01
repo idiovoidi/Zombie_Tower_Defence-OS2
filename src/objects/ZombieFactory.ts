@@ -1,12 +1,12 @@
-import { Zombie } from './Zombie';
+import { GameConfig } from '../config/gameConfig';
+import type { Zombie } from './Zombie';
+import { ArmoredZombie } from './zombies/ArmoredZombie';
 import { BasicZombie } from './zombies/BasicZombie';
 import { FastZombie } from './zombies/FastZombie';
-import { TankZombie } from './zombies/TankZombie';
-import { ArmoredZombie } from './zombies/ArmoredZombie';
-import { SwarmZombie } from './zombies/SwarmZombie';
-import { StealthZombie } from './zombies/StealthZombie';
 import { MechanicalZombie } from './zombies/MechanicalZombie';
-import { GameConfig } from '../config/gameConfig';
+import { StealthZombie } from './zombies/StealthZombie';
+import { SwarmZombie } from './zombies/SwarmZombie';
+import { TankZombie } from './zombies/TankZombie';
 
 export class ZombieFactory {
   public static createZombie(type: string, x: number, y: number, wave: number): Zombie | null {

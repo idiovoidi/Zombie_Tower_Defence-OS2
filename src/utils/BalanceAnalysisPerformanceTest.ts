@@ -8,8 +8,8 @@
  */
 
 import { BalanceAnalyzer } from './BalanceAnalyzer';
-import { StatisticalAnalyzer } from './StatisticalAnalyzer';
 import { PerformanceProfiler } from './PerformanceProfiler';
+import { StatisticalAnalyzer } from './StatisticalAnalyzer';
 
 export class BalanceAnalysisPerformanceTest {
   private profiler: PerformanceProfiler;

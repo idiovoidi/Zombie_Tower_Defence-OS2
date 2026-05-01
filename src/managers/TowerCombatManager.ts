@@ -1,11 +1,11 @@
-import { Tower } from '../objects/Tower';
-import { Zombie } from '../objects/Zombie';
-import { ProjectileManager } from './ProjectileManager';
 import { Graphics } from 'pixi.js';
-import { SpatialGrid } from '../utils/SpatialGrid';
+import type { Tower } from '../objects/Tower';
+import type { Zombie } from '../objects/Zombie';
 import { EffectCleanupManager } from '../utils/EffectCleanupManager';
-import { ResourceCleanupManager } from '../utils/ResourceCleanupManager';
 import { OptimizationValidator } from '../utils/OptimizationValidator';
+import { ResourceCleanupManager } from '../utils/ResourceCleanupManager';
+import { SpatialGrid } from '../utils/SpatialGrid';
+import type { ProjectileManager } from './ProjectileManager';
 
 export class TowerCombatManager {
   private towers: Tower[] = [];
@@ -431,9 +431,7 @@ export class TowerCombatManager {
         continue;
       }
 
-      const distance = Math.sqrt(
-        Math.pow(x - zombie.position.x, 2) + Math.pow(y - zombie.position.y, 2)
-      );
+      const distance = Math.sqrt((x - zombie.position.x) ** 2 + (y - zombie.position.y) ** 2);
 
       if (distance <= maxRange && distance < nearestDistance) {
         nearestDistance = distance;

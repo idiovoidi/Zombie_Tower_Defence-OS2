@@ -12,9 +12,9 @@
  * - Cleanup effectiveness: 80%+ memory reduction
  */
 
+import { EffectCleanupManager } from '../src/utils/EffectCleanupManager';
 import { PerformanceMonitor } from '../src/utils/PerformanceMonitor';
 import { ResourceCleanupManager } from '../src/utils/ResourceCleanupManager';
-import { EffectCleanupManager } from '../src/utils/EffectCleanupManager';
 
 describe('Memory Leak Tests', () => {
   beforeEach(() => {
@@ -230,9 +230,7 @@ describe('Memory Leak Tests', () => {
           `✅ Memory growth rate: ${growthRate.toFixed(2)} MB/wave (target: < 10 MB/wave)`
         );
       } else {
-        console.log(
-          '⚠️ Memory API not available or insufficient data - skipping growth rate check'
-        );
+        console.log('⚠️ Memory API not available or insufficient data - skipping growth rate check');
       }
 
       // Verify snapshots were recorded (if memory API available)

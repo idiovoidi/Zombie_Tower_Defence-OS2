@@ -1,11 +1,11 @@
-export type { ITowerRenderer } from './ITowerRenderer';
 export { BaseTowerRenderer } from './BaseTowerRenderer';
 export { DefaultTowerRenderer } from './DefaultTowerRenderer';
-export { TowerRendererFactory } from './TowerRendererFactory';
-export { MachineGunRenderer } from './MachineGunRenderer';
-export { SniperRenderer } from './SniperRenderer';
-export { ShotgunRenderer } from './ShotgunRenderer';
 export { FlameRenderer } from './FlameRenderer';
-export { TeslaRenderer } from './TeslaRenderer';
 export { GrenadeRenderer } from './GrenadeRenderer';
+export type { ITowerRenderer } from './ITowerRenderer';
+export { MachineGunRenderer } from './MachineGunRenderer';
+export { ShotgunRenderer } from './ShotgunRenderer';
 export { SludgeRenderer } from './SludgeRenderer';
+export { SniperRenderer } from './SniperRenderer';
+export { TeslaRenderer } from './TeslaRenderer';
+export { TowerRendererFactory } from './TowerRendererFactory';

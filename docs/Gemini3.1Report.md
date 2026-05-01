@@ -1,0 +1,64 @@
+Here is the deep investigation of the codebase focusing on code quality, architecture, code smells, and actionable refactors.
+
+Architecture Health Assessment
+The current codebase uses a solid tech stack (TypeScript, PixiJS, Vite) that is well-suited for a 2D web-based tower defense game. However, the architecture is currently suffering from "growing pains." As the game has expanded, it has relied heavily on centralized orchestration and hardcoded logic.
+
+The most critical health issue is the tight coupling between game logic and rendering. PixiJS objects (Graphics, Container) are deeply intertwined with combat simulation and entity logic. This prevents headless testing, makes automated balance simulations difficult, and increases the risk of memory leaks. Furthermore, the reliance on a central GameManager "God Object" and the pervasive use of switch statements for entity variants (towers, zombies) create heavy friction for developers trying to iterate on gameplay systems or add new features.
+
+Overall Health: Fair to Moderate. The game is functional and uses some modern patterns (like modular renderers for UI and Zombies), but it needs structural refactoring to support long-term extensibility and testability.
+
+Ranked Findings (Code Smells & Architectural Issues)
+1. Poor Separation of Concerns: Rendering Mixed with Game Logic
+Severity: High
+Locations:
+src/managers/TowerCombatManager.ts (e.g., drawLightningBolt, _createFlameStream, createElectricParticles)
+src/objects/Tower.ts (e.g., updateIdleAnimation, takeDamage creating damage flashes)
+Why it's a problem: The combat manager's responsibility should be restricted to evaluating targets, calculating damage, and spawning logical projectiles. By directly instantiating Graphics objects and drawing lightning arcs within the combat loop, game logic becomes inseparable from the presentation layer. This makes headless automated testing impossible and bloats the simulation logic with visual details.
+Quick Win: Extract visual effects into a CombatVisualizer or utilize the existing EffectManager. Call methods like effectManager.spawnLightningArc(source, target) instead of drawing it inside the combat loop.
+Larger Structural Change: Implement a strict Model-View-Controller (MVC) or Entity-Component-System (ECS) architecture where managers only mutate raw state data, and independent renderer systems observe that data to update PixiJS display objects.
+2. God Object & High Coupling
+Severity: High
+Locations: src/managers/GameManager.ts
+Why it's a problem: GameManager is nearly 900 lines long and directly orchestrates over 15 distinct managers (Tower, Zombie, Map, Wave, Combat, UI, Stats, etc.). It acts as a central hub where everything is wired together manually. This makes the class fragile, extremely difficult to test in isolation, and highly susceptible to merge conflicts.
+Quick Win: Group related sub-managers into contextual objects (e.g., encapsulate TowerManager, ZombieManager, and WaveManager into a LevelState object) to reduce the sheer number of direct dependencies in GameManager.
+Larger Structural Change: Introduce an Event Bus. Let managers communicate via events (e.g., EventBus.emit('waveStart')) rather than GameManager explicitly calling lifecycle methods on every single manager.
+3. Open-Closed Principle (OCP) Violation & Feature Envy (Shotgun Surgery)
+Severity: Medium
+Locations:
+src/objects/Tower.ts (Large switch statements for idleAnimation and getProjectileSpawnPosition)
+src/managers/TowerPlacementManager.ts (Switch statement in drawGhostTower)
+Why it's a problem: Adding a single new tower type requires "shotgun surgery"—modifying multiple files and appending cases to large switch statements across the codebase. This drastically slows down development speed, increases defect risk, and makes gameplay systems harder to evolve.
+Quick Win: Move data points (like projectile spawn offsets or ghost tower visual configurations) into a centralized TowerConfig or stats file.
+Larger Structural Change: Fully adopt the Strategy pattern. Each tower should be defined by a TowerDefinition that provides its specific renderer, idle animation strategy, and firing behavior, eliminating type-checking switch statements entirely.
+4. Leaky Abstractions & Cyclic Dependency Workarounds
+Severity: Medium
+Locations: src/managers/IGameManager.ts, src/managers/AIPlayerManager.ts, src/managers/BalanceTrackingManager.ts
+Why it's a problem: To prevent circular imports, IGameManager was introduced. However, it returns unknown for all sub-managers (e.g., getWaveManager(): unknown), forcing callers to explicitly cast types. This completely bypasses TypeScript's type safety and is a clear indicator that the architecture forces managers to be too deeply intertwined with the central GameManager.
+Quick Win: Define granular interfaces for the exact subsets of functionality that other managers need (e.g., IWaveStateProvider, IEconomyProvider) and inject those specific interfaces instead of passing around a monolithic IGameManager.
+Larger Structural Change: Decouple the managers completely using a centralized state store or an Event Bus. Managers should react to state changes and dispatch actions rather than directly querying a monolithic manager.
+5. Incomplete Refactoring & Dead Code
+Severity: Low
+Locations: src/objects/Zombie.ts
+Why it's a problem: Zombie.ts has successfully started using a new modular renderer system (this.renderer.update()), but it still retains massive blocks of legacy, hardcoded drawing methods (createBasicZombieVisual, createFastZombieVisual, etc.). This causes confusion regarding which system is actively driving the game and clutters the codebase.
+Quick Win: Delete all legacy create*ZombieVisual() methods and rely exclusively on the modular ZombieRenderer classes.
+Top 3 Leverage Refactors
+Extract Rendering from Game Logic (Event-Driven Visuals)
+
+Impact: Highest leverage for testability and maintainability.
+Action: Strip all PixiJS Graphics imports and drawing logic out of TowerCombatManager and Tower. Create an Event Bus. When combat occurs, emit a TargetHitEvent. A dedicated CombatRenderer listens to these events and handles drawing lightning arcs, flames, and particles.
+Result: You will be able to run combat simulations headlessly (e.g., for balancing and AI training at 1000x speed) without instantiating a PixiJS application.
+Break the GameManager Monolith via Event Bus
+
+Impact: Highest leverage for decoupling and reducing merge conflicts.
+Action: Implement a lightweight Event Bus/PubSub pattern. Instead of GameManager manually telling StatTracker and BalanceTrackingManager that a wave ended, it simply emits a WaveCompletedEvent. The tracking managers listen to this event autonomously.
+Result: Removes the need for IGameManager's unknown casts, cleanly breaks cyclic dependencies, and shrinks GameManager significantly.
+Refactor Tower Definitions (Data-Driven Design)
+
+Impact: Highest leverage for iteration speed and gameplay extensibility.
+Action: Create a comprehensive TowerDefinition JSON/Registry that encapsulates stats, visual asset references, ghost tower rendering rules, and animation strategies. Ensure Tower.ts and TowerPlacementManager.ts dynamically read from this definition instead of using switch statements.
+Result: Adding a new tower type will simply require adding a new definition object without needing to touch core engine code.
+Tech Stack Recommendations
+Current Stack: TypeScript, PixiJS, Vite.
+Assessment: The current stack is highly appropriate and performant for a 2D web-based tower defense game. There is no justification for a full rewrite or changing frameworks (e.g., migrating to React or Phaser).
+Recommendation: Do not change the tech stack.
+Additions: To solve the architectural problems without introducing heavy libraries, implement a lightweight Event Bus / PubSub utility natively in TypeScript. Optionally, a simple Dependency Injection (DI) container (like tsyringe or manual constructor injection) can be used to resolve coupling issues smoothly. This addresses the demonstrated problems natively within the current stack.

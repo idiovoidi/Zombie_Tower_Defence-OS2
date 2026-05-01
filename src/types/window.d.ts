@@ -3,8 +3,8 @@
  * This file provides proper typing for debug tools and utilities exposed to the browser console
  */
 
-import type { LogExporter } from '../utils/LogExporter';
 import type { WaveBalancing } from '../config/waveBalancing';
+import type { LogExporter } from '../utils/LogExporter';
 
 declare global {
   interface Window {
@@ -36,5 +36,3 @@ declare global {
     debugToggleMonitoring: () => void;
   }
 }
-
-export {};

@@ -1,4 +1,5 @@
 export { CampUpgradeManager } from './CampUpgradeManager';
+export { CorpseManager } from './CorpseManager';
 export { GameManager } from './GameManager';
 export { InputManager } from './InputManager';
 export { LevelManager } from './LevelManager';
@@ -12,4 +13,3 @@ export { TowerPlacementManager } from './TowerPlacementManager';
 export { UpgradeManager } from './UpgradeManager';
 export { WaveManager } from './WaveManager';
 export { ZombieManager } from './ZombieManager';
-export { CorpseManager } from './CorpseManager';

@@ -1,5 +1,5 @@
-import { Tower } from '../Tower';
 import { GameConfig } from '../../config/gameConfig';
+import { Tower } from '../Tower';
 
 export class FlameTower extends Tower {
   constructor(x: number, y: number) {

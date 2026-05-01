@@ -1,6 +1,6 @@
-import { Container } from 'pixi.js';
+import type { Container } from 'pixi.js';
 import { Projectile } from '../objects/Projectile';
-import { Zombie } from '../objects/Zombie';
+import type { Zombie } from '../objects/Zombie';
 import { EffectCleanupManager } from '../utils/EffectCleanupManager';
 
 export class ProjectileManager {

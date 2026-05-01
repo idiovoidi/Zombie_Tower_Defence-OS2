@@ -1,5 +1,4 @@
 import { Container, Graphics, Text } from 'pixi.js';
-import { UIPanel } from './UIPanel';
 import { GameConfig } from '../config/gameConfig';
 import {
   ArmoredZombieRenderer,
@@ -10,6 +9,7 @@ import {
   SwarmZombieRenderer,
   TankZombieRenderer,
 } from '../renderers/zombies';
+import { UIPanel } from './UIPanel';
 
 interface ZombieInfo {
   type: string;

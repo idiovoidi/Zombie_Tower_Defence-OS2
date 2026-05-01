@@ -1,5 +1,5 @@
-import { UIComponent } from './UIComponent';
 import { Graphics, Text } from 'pixi.js';
+import { UIComponent } from './UIComponent';
 
 export class MainMenu extends UIComponent {
   private titleText: Text;

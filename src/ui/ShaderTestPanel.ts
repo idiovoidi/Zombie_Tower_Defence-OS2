@@ -1,7 +1,7 @@
-import { Container, ColorMatrixFilter, Graphics, Text } from 'pixi.js';
-import { UIPanel } from './UIPanel';
-import { SimpleRetroFilter } from './shaders/filters/SimpleRetroFilter';
+import { type ColorMatrixFilter, Container, Graphics, Text } from 'pixi.js';
 import { VisualPresets } from '../utils/VisualPresets';
+import type { SimpleRetroFilter } from './shaders/filters/SimpleRetroFilter';
+import { UIPanel } from './UIPanel';
 
 export class ShaderTestPanel extends UIPanel {
   private currentFilter: ColorMatrixFilter | SimpleRetroFilter | null = null;

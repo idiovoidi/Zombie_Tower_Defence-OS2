@@ -1,7 +1,7 @@
-import { Container, Graphics, Text } from 'pixi.js';
-import { UIComponent } from './UIComponent';
 import type { GameManager } from '@managers/GameManager';
 import { PerformanceMonitor } from '@utils/PerformanceMonitor';
+import { Container, Graphics, Text } from 'pixi.js';
+import { UIComponent } from './UIComponent';
 
 export class StatsPanel extends UIComponent {
   private background!: Graphics;

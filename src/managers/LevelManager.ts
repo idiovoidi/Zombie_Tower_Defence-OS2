@@ -1,4 +1,4 @@
-import { MapManager } from './MapManager';
+import type { MapManager } from './MapManager';
 
 export interface LevelData {
   id: string;

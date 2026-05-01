@@ -1,5 +1,5 @@
-import { UIComponent } from './UIComponent';
 import { Container } from 'pixi.js';
+import { UIComponent } from './UIComponent';
 
 export class HUD extends UIComponent {
   private nextWaveButton: Container;

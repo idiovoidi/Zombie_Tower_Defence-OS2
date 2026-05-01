@@ -1,4 +1,4 @@
-import { Container, Graphics, Text } from 'pixi.js';
+import { type Container, Graphics, Text } from 'pixi.js';
 import { UIPanel } from './UIPanel';
 
 export class DebugInfoPanel extends UIPanel {

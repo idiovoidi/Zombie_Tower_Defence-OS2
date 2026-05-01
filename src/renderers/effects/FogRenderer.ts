@@ -1,4 +1,4 @@
-import { Graphics } from 'pixi.js';
+import type { Graphics } from 'pixi.js';
 import { COLORS, FOG } from '../../config/visualConstants';
 
 interface FogParticle {

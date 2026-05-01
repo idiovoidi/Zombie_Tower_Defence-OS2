@@ -1,6 +1,6 @@
 import { Graphics } from 'pixi.js';
-import { SniperRenderer } from '@/renderers/towers/SniperRenderer';
 import { GameConfig } from '@/config/gameConfig';
+import { SniperRenderer } from '@/renderers/towers/SniperRenderer';
 
 describe('SniperRenderer', () => {
   let renderer: SniperRenderer;

@@ -311,7 +311,7 @@ export class BalanceAnalysisEdgeCaseTests {
       const waveData: Array<[number, number]> = [];
       for (let i = 1; i <= 50; i++) {
         // Exponential growth with some noise
-        const baseDifficulty = 100 * Math.pow(1.15, i - 1);
+        const baseDifficulty = 100 * 1.15 ** (i - 1);
         const noise = (Math.random() - 0.5) * 20;
         waveData.push([i, baseDifficulty + noise]);
       }

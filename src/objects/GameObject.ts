@@ -1,5 +1,5 @@
 import { Container } from 'pixi.js';
-import { Component } from '../components/Component';
+import type { Component } from '../components/Component';
 
 export class GameObject extends Container {
   protected components: Map<string, Component>;

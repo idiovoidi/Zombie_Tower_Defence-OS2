@@ -1,7 +1,7 @@
 import { Container, Graphics } from 'pixi.js';
-import { Zombie } from './Zombie';
 import { EffectCleanupManager } from '../utils/EffectCleanupManager';
 import { ResourceCleanupManager } from '../utils/ResourceCleanupManager';
+import type { Zombie } from './Zombie';
 
 export class Projectile extends Container {
   private visual: Graphics;

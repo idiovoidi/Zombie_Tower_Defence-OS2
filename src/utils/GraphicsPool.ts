@@ -24,17 +24,17 @@ export class GraphicsPool {
    * Initialize the graphics pools
    */
   static initialize(): void {
-    this.circlePool = new ObjectPool<Graphics>(
+    GraphicsPool.circlePool = new ObjectPool<Graphics>(
       () => new Graphics(),
       GraphicsPool.resetGraphics,
       100 // Max 100 pooled circle graphics
     );
-    this.rectanglePool = new ObjectPool<Graphics>(
+    GraphicsPool.rectanglePool = new ObjectPool<Graphics>(
       () => new Graphics(),
       GraphicsPool.resetGraphics,
       50 // Max 50 pooled rectangle graphics
     );
-    this.linePool = new ObjectPool<Graphics>(
+    GraphicsPool.linePool = new ObjectPool<Graphics>(
       () => new Graphics(),
       GraphicsPool.resetGraphics,
       50 // Max 50 pooled line graphics
@@ -45,38 +45,38 @@ export class GraphicsPool {
    * Acquire a Graphics object for drawing circles
    */
   static acquireCircle(): Graphics {
-    if (!this.circlePool) {
-      this.initialize();
+    if (!GraphicsPool.circlePool) {
+      GraphicsPool.initialize();
     }
-    return this.circlePool.acquire();
+    return GraphicsPool.circlePool.acquire();
   }
 
   /**
    * Acquire a Graphics object for drawing rectangles
    */
   static acquireRectangle(): Graphics {
-    if (!this.rectanglePool) {
-      this.initialize();
+    if (!GraphicsPool.rectanglePool) {
+      GraphicsPool.initialize();
     }
-    return this.rectanglePool.acquire();
+    return GraphicsPool.rectanglePool.acquire();
   }
 
   /**
    * Acquire a Graphics object for drawing lines
    */
   static acquireLine(): Graphics {
-    if (!this.linePool) {
-      this.initialize();
+    if (!GraphicsPool.linePool) {
+      GraphicsPool.initialize();
     }
-    return this.linePool.acquire();
+    return GraphicsPool.linePool.acquire();
   }
 
   /**
    * Release a circle Graphics object back to the pool
    */
   static releaseCircle(graphics: Graphics): void {
-    if (this.circlePool) {
-      this.circlePool.release(graphics);
+    if (GraphicsPool.circlePool) {
+      GraphicsPool.circlePool.release(graphics);
     }
   }
 
@@ -84,8 +84,8 @@ export class GraphicsPool {
    * Release a rectangle Graphics object back to the pool
    */
   static releaseRectangle(graphics: Graphics): void {
-    if (this.rectanglePool) {
-      this.rectanglePool.release(graphics);
+    if (GraphicsPool.rectanglePool) {
+      GraphicsPool.rectanglePool.release(graphics);
     }
   }
 
@@ -93,8 +93,8 @@ export class GraphicsPool {
    * Release a line Graphics object back to the pool
    */
   static releaseLine(graphics: Graphics): void {
-    if (this.linePool) {
-      this.linePool.release(graphics);
+    if (GraphicsPool.linePool) {
+      GraphicsPool.linePool.release(graphics);
     }
   }
 
@@ -106,13 +106,13 @@ export class GraphicsPool {
     rectangles: ReturnType<ObjectPool<Graphics>['getStats']>;
     lines: ReturnType<ObjectPool<Graphics>['getStats']>;
   } {
-    if (!this.circlePool) {
-      this.initialize();
+    if (!GraphicsPool.circlePool) {
+      GraphicsPool.initialize();
     }
     return {
-      circles: this.circlePool.getStats(),
-      rectangles: this.rectanglePool.getStats(),
-      lines: this.linePool.getStats(),
+      circles: GraphicsPool.circlePool.getStats(),
+      rectangles: GraphicsPool.rectanglePool.getStats(),
+      lines: GraphicsPool.linePool.getStats(),
     };
   }
 
@@ -120,14 +120,14 @@ export class GraphicsPool {
    * Clear all pools
    */
   static clear(): void {
-    if (this.circlePool) {
-      this.circlePool.clear();
+    if (GraphicsPool.circlePool) {
+      GraphicsPool.circlePool.clear();
     }
-    if (this.rectanglePool) {
-      this.rectanglePool.clear();
+    if (GraphicsPool.rectanglePool) {
+      GraphicsPool.rectanglePool.clear();
     }
-    if (this.linePool) {
-      this.linePool.clear();
+    if (GraphicsPool.linePool) {
+      GraphicsPool.linePool.clear();
     }
   }
 }

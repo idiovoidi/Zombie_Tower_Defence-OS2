@@ -1,6 +1,6 @@
 import { Graphics } from 'pixi.js';
-import { FlameRenderer } from '@/renderers/towers/FlameRenderer';
 import { GameConfig } from '@/config/gameConfig';
+import { FlameRenderer } from '@/renderers/towers/FlameRenderer';
 
 describe('FlameRenderer', () => {
   let renderer: FlameRenderer;

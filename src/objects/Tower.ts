@@ -1,17 +1,17 @@
-import { Container, Graphics } from 'pixi.js';
-import { GameObject } from './GameObject';
-import { TransformComponent } from '../components/TransformComponent';
-import { HealthComponent } from '../components/HealthComponent';
-import { ITower } from './Tower.interface';
-import { GameConfig } from '../config/gameConfig';
-import { TowerRangeVisualizer } from '../utils/TowerRangeVisualizer';
-import { TowerManager } from '../managers/TowerManager';
-import { BarrelHeatGlow } from '../renderers/effects/BarrelHeatGlow';
-import { EffectCleanupManager } from '../utils/EffectCleanupManager';
-import { ResourceCleanupManager } from '../utils/ResourceCleanupManager';
-import type { TowerEffects } from '../types/tower-internal';
+import { type Container, Graphics } from 'pixi.js';
 import type { ITowerRenderer } from '@/renderers/towers/ITowerRenderer';
 import { TowerRendererFactory } from '@/renderers/towers/TowerRendererFactory';
+import { HealthComponent } from '../components/HealthComponent';
+import { TransformComponent } from '../components/TransformComponent';
+import { GameConfig } from '../config/gameConfig';
+import { TowerManager } from '../managers/TowerManager';
+import { BarrelHeatGlow } from '../renderers/effects/BarrelHeatGlow';
+import type { TowerEffects } from '../types/tower-internal';
+import { EffectCleanupManager } from '../utils/EffectCleanupManager';
+import { ResourceCleanupManager } from '../utils/ResourceCleanupManager';
+import { TowerRangeVisualizer } from '../utils/TowerRangeVisualizer';
+import { GameObject } from './GameObject';
+import type { ITower } from './Tower.interface';
 
 export class Tower extends GameObject implements ITower, TowerEffects {
   private type: string;
@@ -389,7 +389,7 @@ export class Tower extends GameObject implements ITower, TowerEffects {
     const healthComponent = this.getComponent<HealthComponent>('Health');
     if (healthComponent) {
       // Increase max health by 20% per upgrade level
-      const newMaxHealth = Math.floor(100 * Math.pow(1.2, this.upgradeLevel));
+      const newMaxHealth = Math.floor(100 * 1.2 ** this.upgradeLevel);
       // Heal to full when upgraded
       healthComponent['maxHealth'] = newMaxHealth; // Note: In a real implementation, we'd add a setter for maxHealth
       healthComponent.heal(newMaxHealth); // This will set current health to max

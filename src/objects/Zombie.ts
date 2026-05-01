@@ -1,16 +1,13 @@
-import { GameObject } from './GameObject';
-import { TransformComponent } from '../components/TransformComponent';
-import { HealthComponent } from '../components/HealthComponent';
-import { GameConfig } from '../config/gameConfig';
-import { ZombieStats } from '../utils/ZombieStats';
 import { Container, Graphics } from 'pixi.js';
+import { HealthComponent } from '../components/HealthComponent';
+import { TransformComponent } from '../components/TransformComponent';
+import { GameConfig } from '../config/gameConfig';
 import {
-  type TowerType,
-  type ZombieType,
   convertToTowerType,
   getDamageModifier,
+  type TowerType,
+  type ZombieType,
 } from '../config/zombieResistances';
-import { IZombieRenderer, ZombieRenderState } from '../renderers/zombies/ZombieRenderer';
 import { ArmoredZombieRenderer } from '../renderers/zombies/ArmoredZombieRenderer';
 import { BasicZombieRenderer } from '../renderers/zombies/BasicZombieRenderer';
 import { FastZombieRenderer } from '../renderers/zombies/FastZombieRenderer';
@@ -18,7 +15,10 @@ import { MechanicalZombieRenderer } from '../renderers/zombies/MechanicalZombieR
 import { StealthZombieRenderer } from '../renderers/zombies/StealthZombieRenderer';
 import { SwarmZombieRenderer } from '../renderers/zombies/SwarmZombieRenderer';
 import { TankZombieRenderer } from '../renderers/zombies/TankZombieRenderer';
+import type { IZombieRenderer, ZombieRenderState } from '../renderers/zombies/ZombieRenderer';
 import { EffectCleanupManager } from '../utils/EffectCleanupManager';
+import { ZombieStats } from '../utils/ZombieStats';
+import { GameObject } from './GameObject';
 
 export class Zombie extends GameObject {
   private type: string;

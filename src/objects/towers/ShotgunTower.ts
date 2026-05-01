@@ -1,5 +1,5 @@
-import { Tower } from '../Tower';
 import { GameConfig } from '../../config/gameConfig';
+import { Tower } from '../Tower';
 
 export class ShotgunTower extends Tower {
   private burstCount: number = 0; // Track shots in current burst
