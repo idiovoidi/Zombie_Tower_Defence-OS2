@@ -1,2 +1,35 @@
-.idea/workspace.xml
-node_modules/
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+node_modules
+dist
+dist-ssr
+*.local
+
+# Editor directories and files
+.idea
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# Test coverage
+coverage/
+*.lcov
+.nyc_output/
+
+# Player reports (keep folder structure but ignore report files)
+player_reports/*.json
+# But keep the example
+!player_reports/EXAMPLE_REPORT.json
+
+# Personal documentation
+design_docs/My_Docs/
