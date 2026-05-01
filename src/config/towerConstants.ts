@@ -85,10 +85,10 @@ const ghostDrawSludge = (g: Graphics) => {
 export const TowerConstants = {
   // Machine Gun Tower - High fire rate, good against swarms
   // Upgrades focus on fire rate rather than damage
-  // BALANCED: Reduced damage from 12 to 10 (17% nerf) based on simulation showing 31% above avg efficiency
+  // BALANCED: Reduced damage from 12 to 8 (33% nerf) based on simulation showing 227% above avg efficiency
   MACHINE_GUN: {
     cost: 250,
-    damage: 10,
+    damage: 8,
     range: 150,
     fireRate: 8,
     health: 120,
@@ -102,9 +102,10 @@ export const TowerConstants = {
   } as TowerStats,
 
   // Sniper Tower - High single-target damage, armor-piercing
+  // BALANCED: Increased damage from 150 to 225 (50% buff) based on simulation showing 51% below avg efficiency
   SNIPER: {
     cost: 900,
-    damage: 150,
+    damage: 225,
     range: 400,
     fireRate: 1,
     health: 80,
@@ -134,9 +135,10 @@ export const TowerConstants = {
   } as TowerStats,
 
   // Flame Tower - Area damage over time, burning effect
+  // BALANCED: Increased damage from 200 to 300 (50% buff) based on simulation showing 54% below avg efficiency
   FLAME: {
     cost: 750,
-    damage: 200,
+    damage: 300,
     range: 120,
     fireRate: 0.75,
     health: 90,
@@ -150,9 +152,10 @@ export const TowerConstants = {
   } as TowerStats,
 
   // Tesla Tower - Chain lightning, affects multiple targets
+  // BALANCED: Increased damage from 80 to 110 (38% buff) based on simulation showing 27% below avg efficiency
   TESLA: {
     cost: 1500,
-    damage: 80,
+    damage: 110,
     range: 200,
     fireRate: 2,
     health: 110,
@@ -166,10 +169,10 @@ export const TowerConstants = {
   } as TowerStats,
 
   // Grenade Tower - Explosive area damage with arc trajectory
-  // BALANCED: Increased damage from 90 to 115 (28% buff) based on simulation showing 39% below avg efficiency
+  // BALANCED: Increased damage from 90 to 195 (117% buff) based on simulation showing 87% below avg efficiency
   GRENADE: {
     cost: 1250,
-    damage: 115,
+    damage: 195,
     range: 180,
     fireRate: 0.3,
     health: 95,
