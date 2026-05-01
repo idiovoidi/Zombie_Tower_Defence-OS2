@@ -111,36 +111,84 @@ describe('Automated Balance Analysis', () => {
       let zombiesKilled = 0;
       let overkillDamage = 0;
 
-      // Simulate shooting at zombies with 50 HP each
+      // Simulate cluster of zombies for area damage (Grenade/Tesla)
       const zombieHP = 50;
-      let currentZombieHP = zombieHP;
+      const CLUSTER_SIZE = config.type === 'Grenade' ? 8 : 3; // Grenade hits more zombies
+      const zombies: { hp: number; alive: boolean }[] = [];
+
+      // Spawn initial cluster
+      for (let j = 0; j < CLUSTER_SIZE; j++) {
+        zombies.push({ hp: zombieHP, alive: true });
+      }
 
       for (let i = 0; i < ticks; i++) {
         // Check if tower can fire (based on fire rate)
         if (Math.random() < config.fireRate * (deltaTime / 1000)) {
           shotsFired++;
-          const damage = config.damage;
 
-          // Apply damage to zombie
-          const damageDealt = Math.min(damage, currentZombieHP);
-          const overkill = damage - damageDealt;
+          // Area damage simulation for Grenade tower
+          if (config.type === 'Grenade') {
+            const EXPLOSION_RADIUS = 45;
+            // Hit all zombies in cluster (simulating them being close together)
+            for (const zombie of zombies) {
+              if (!zombie.alive) continue;
 
-          totalDamage += damageDealt;
-          overkillDamage += overkill;
-          currentZombieHP -= damageDealt;
+              // Damage falloff with distance (center zombie takes full, edge takes 30%)
+              const zombieIndex = zombies.indexOf(zombie);
+              const distance = Math.abs(zombieIndex - CLUSTER_SIZE / 2) * 10; // Spread in cluster
+              const damageFalloff = 1 - Math.min((distance / EXPLOSION_RADIUS) * 0.7, 0.7);
+              const splashDamage = config.damage * damageFalloff;
 
-          // Emit damage event
-          eventBus.emit(GameEvents.DAMAGE_DEALT, {
-            damage: damageDealt,
-            towerType: config.type,
-            killed: currentZombieHP <= 0,
-            overkill,
-          });
+              const damageDealt = Math.min(splashDamage, zombie.hp);
+              const overkill = splashDamage - damageDealt;
 
-          // Zombie died, spawn new one
-          if (currentZombieHP <= 0) {
-            zombiesKilled++;
-            currentZombieHP = zombieHP;
+              totalDamage += damageDealt;
+              overkillDamage += overkill;
+              zombie.hp -= damageDealt;
+
+              if (zombie.hp <= 0) {
+                zombie.alive = false;
+                zombiesKilled++;
+                // Respawn zombie to maintain cluster
+                zombie.hp = zombieHP;
+                zombie.alive = true;
+              }
+
+              // Emit damage event
+              eventBus.emit(GameEvents.DAMAGE_DEALT, {
+                damage: damageDealt,
+                towerType: config.type,
+                killed: !zombie.alive,
+                overkill,
+              });
+            }
+          } else {
+            // Single target damage for other towers
+            const target = zombies.find((z) => z.alive);
+            if (target) {
+              const damage = config.damage;
+              const damageDealt = Math.min(damage, target.hp);
+              const overkill = damage - damageDealt;
+
+              totalDamage += damageDealt;
+              overkillDamage += overkill;
+              target.hp -= damageDealt;
+
+              if (target.hp <= 0) {
+                target.alive = false;
+                zombiesKilled++;
+                target.hp = zombieHP;
+                target.alive = true;
+              }
+
+              // Emit damage event
+              eventBus.emit(GameEvents.DAMAGE_DEALT, {
+                damage: damageDealt,
+                towerType: config.type,
+                killed: !target.alive,
+                overkill,
+              });
+            }
           }
         }
       }
@@ -149,6 +197,9 @@ describe('Automated Balance Analysis', () => {
       console.log(`   Damage: ${totalDamage.toFixed(0)} | Shots: ${shotsFired} | Kills: ${zombiesKilled}`);
       console.log(`   DPS: ${nominalDPS.toFixed(1)} | Efficiency: ${(totalDamage / config.cost).toFixed(2)} dmg/$`);
       console.log(`   Overkill: ${overkillDamage.toFixed(0)} (${((overkillDamage / (totalDamage + overkillDamage)) * 100).toFixed(1)}%)`);
+      if (config.type === 'Grenade') {
+        console.log(`   Area damage: ~${(zombiesKilled / shotsFired).toFixed(1)} zombies per shot`);
+      }
     }
 
     unsubscribe?.unsubscribe();

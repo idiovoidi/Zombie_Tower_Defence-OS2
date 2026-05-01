@@ -133,6 +133,28 @@ describe('Advanced Balance Simulation', () => {
         pathLength: 1000,
         spawnDuration: 60,
       },
+      {
+        waveNumber: 20,
+        zombies: [
+          { ...zombieTypes[0], count: 50 },  // 50 swarm
+          { ...zombieTypes[1], count: 35 },  // 35 basic
+          { ...zombieTypes[2], count: 12 },  // 12 tanks
+          { ...zombieTypes[3], count: 4 },   // 4 elites
+        ],
+        pathLength: 1200,
+        spawnDuration: 90,
+      },
+      {
+        waveNumber: 25,
+        zombies: [
+          { ...zombieTypes[0], count: 60 },  // 60 swarm
+          { ...zombieTypes[1], count: 40 },  // 40 basic
+          { ...zombieTypes[2], count: 15 },  // 15 tanks
+          { ...zombieTypes[3], count: 6 },   // 6 elites (mini-boss rush)
+        ],
+        pathLength: 1200,
+        spawnDuration: 120,
+      },
     ];
 
     // Test single tower against varied scenarios
@@ -193,17 +215,46 @@ describe('Advanced Balance Simulation', () => {
             const target = zombies.find((z) => z.alive && z.position <= tower.range);
 
             if (target) {
-              const result = target.takeDamage(tower.damage);
-              totalDamage += result.damageDealt;
-              totalOverkill += result.overkill;
+              // Area damage simulation for Grenade tower
+              if (tower.type === 'Grenade') {
+                const EXPLOSION_RADIUS = 45; // pixels - matches Projectile.ts
+                // Hit ALL zombies within explosion radius (cluster damage)
+                const targetsInRadius = zombies.filter(
+                  (z) => z.alive && Math.abs(z.position - target.position) <= EXPLOSION_RADIUS
+                );
 
-              if (result.killed) {
-                totalKills++;
+                for (const hitZombie of targetsInRadius) {
+                  // Damage falloff with distance (100% at center, 30% at edge)
+                  const distance = Math.abs(hitZombie.position - target.position);
+                  const damageFalloff = 1 - (distance / EXPLOSION_RADIUS) * 0.7;
+                  const splashDamage = tower.damage * damageFalloff;
+
+                  const result = hitZombie.takeDamage(splashDamage);
+                  totalDamage += result.damageDealt;
+                  totalOverkill += result.overkill;
+
+                  if (result.killed) {
+                    totalKills++;
+                  }
+
+                  // Track damage by zombie type
+                  const current = damageByZombieType.get(hitZombie.type) || 0;
+                  damageByZombieType.set(hitZombie.type, current + result.damageDealt);
+                }
+              } else {
+                // Single target damage for other towers
+                const result = target.takeDamage(tower.damage);
+                totalDamage += result.damageDealt;
+                totalOverkill += result.overkill;
+
+                if (result.killed) {
+                  totalKills++;
+                }
+
+                // Track damage by zombie type
+                const current = damageByZombieType.get(target.type) || 0;
+                damageByZombieType.set(target.type, current + result.damageDealt);
               }
-
-              // Track damage by zombie type
-              const current = damageByZombieType.get(target.type) || 0;
-              damageByZombieType.set(target.type, current + result.damageDealt);
             }
           }
 
@@ -322,5 +373,54 @@ describe('Advanced Balance Simulation', () => {
     // Cost should increase between tiers (1.4x+ acceptable with new balance)
     expect(tier2Avg / tier1Avg).toBeGreaterThan(1.5);
     expect(tier3Avg / tier2Avg).toBeGreaterThan(1.3); // Lowered due to Grenade cost reduction
+  });
+
+  it('should simulate late-game horde with 100+ zombies', () => {
+    console.log('\n👹 LATE-GAME HORDE TEST: 100+ Zombies\n');
+
+    // Massive wave: 121 total zombies
+    const hordeWave: WaveConfig = {
+      waveNumber: 25,
+      zombies: [
+        { name: 'swarm', hp: 20, speed: 80, reward: 5, count: 60 },
+        { name: 'basic', hp: 50, speed: 50, reward: 10, count: 40 },
+        { name: 'tank', hp: 200, speed: 30, reward: 25, count: 15 },
+        { name: 'elite', hp: 500, speed: 40, reward: 50, count: 6 },
+      ],
+      pathLength: 1200,
+      spawnDuration: 120,
+    };
+
+    const totalZombies = hordeWave.zombies.reduce((sum, z) => sum + z.count, 0);
+    const totalHP = hordeWave.zombies.reduce((sum, z) => sum + z.hp * z.count, 0);
+
+    console.log(`📊 Wave ${hordeWave.waveNumber}: ${totalZombies} zombies, ${totalHP} total HP`);
+    console.log(`   ${hordeWave.zombies.map((z) => `${z.count}x ${z.name} (${z.hp} HP)`).join(', ')}\n`);
+
+    // Test towers against this horde
+    const towerTests = [
+      { type: 'MachineGun', dps: TowerConstants.MACHINE_GUN.damage * TowerConstants.MACHINE_GUN.fireRate, cost: TowerConstants.MACHINE_GUN.cost },
+      { type: 'Grenade', dps: TowerConstants.GRENADE.damage * TowerConstants.GRENADE.fireRate, cost: TowerConstants.GRENADE.cost },
+      { type: 'Tesla', dps: TowerConstants.TESLA.damage * TowerConstants.TESLA.fireRate, cost: TowerConstants.TESLA.cost },
+      { type: 'Sniper', dps: TowerConstants.SNIPER.damage * TowerConstants.SNIPER.fireRate, cost: TowerConstants.SNIPER.cost },
+    ];
+
+    for (const tower of towerTests) {
+      const waveTime = 90; // seconds
+      const areaMultiplier = tower.type === 'Grenade' ? 4 : tower.type === 'Tesla' ? 2.5 : 1; // Area damage bonus
+      const effectiveDPS = tower.dps * areaMultiplier;
+      const totalDamage = effectiveDPS * waveTime;
+      const zombiesKilled = Math.min(Math.floor(totalDamage / 50), totalZombies); // Approximate kills
+      const hordeEfficiency = totalDamage / tower.cost;
+
+      console.log(`${tower.type}:`);
+      console.log(`   DPS: ${tower.dps.toFixed(1)} (x${areaMultiplier} area = ${effectiveDPS.toFixed(1)})`);
+      console.log(`   Est. kills: ${zombiesKilled}/${totalZombies} (${((zombiesKilled / totalZombies) * 100).toFixed(0)}%)`);
+      console.log(`   Efficiency: ${hordeEfficiency.toFixed(2)} dmg/$\n`);
+    }
+
+    // Assertions
+    expect(totalZombies).toBeGreaterThan(100);
+    expect(totalHP).toBeGreaterThan(5000);
   });
 });
