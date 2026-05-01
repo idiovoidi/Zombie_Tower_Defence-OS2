@@ -1,4 +1,4 @@
-import type { GameManager } from '@managers/GameManager';
+import type { IGameManager } from '../managers/IGameManager';
 import { type GameLogEntry, LogExporter } from './LogExporter';
 import { DebugUtils } from './DebugUtils';
 import { PerformanceMonitor } from './PerformanceMonitor';
@@ -57,7 +57,7 @@ export interface StatTrackerData {
 }
 
 export class StatTracker {
-  private gameManager: GameManager;
+  private gameManager: IGameManager;
   private stats: StatTrackerData;
   private isTracking: boolean = false;
   private currentWaveStartTime: number = 0;
@@ -66,7 +66,7 @@ export class StatTracker {
   private lastTrackedWave: number = 0;
   private damageInLastSecond: number = 0;
 
-  constructor(gameManager: GameManager) {
+  constructor(gameManager: IGameManager) {
     this.gameManager = gameManager;
     this.stats = this.createEmptyStats();
   }

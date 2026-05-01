@@ -2,7 +2,7 @@ import { GameObject } from './GameObject';
 import { TransformComponent } from '../components/TransformComponent';
 import { HealthComponent } from '../components/HealthComponent';
 import { GameConfig } from '../config/gameConfig';
-import { WaveManager } from '../managers/WaveManager';
+import { ZombieStats } from '../utils/ZombieStats';
 import { Container, Graphics } from 'pixi.js';
 import {
   type TowerType,
@@ -72,8 +72,7 @@ export class Zombie extends GameObject {
   }
 
   private initializeHealth(wave: number): void {
-    const waveManager = new WaveManager();
-    const health = waveManager.calculateZombieHealth(this.type, wave);
+    const health = ZombieStats.calculateZombieHealth(this.type, wave);
 
     // Add health component
     this.healthComponent = new HealthComponent(health);

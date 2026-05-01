@@ -1,4 +1,4 @@
-import { GameManager } from './GameManager';
+import type { IGameManager } from './IGameManager';
 import { GameConfig } from '../config/gameConfig';
 import { Tower } from '../objects/Tower';
 
@@ -9,7 +9,7 @@ interface PlacementZone {
 }
 
 export class AIPlayerManager {
-  private gameManager: GameManager;
+  private gameManager: IGameManager;
   private enabled: boolean = false;
   private updateTimer: number = 0;
   private updateInterval: number = 1.0; // Check every 1 second
@@ -20,7 +20,7 @@ export class AIPlayerManager {
   private hasHandledWaveComplete: boolean = false;
   private currentWaveDecisions: number = 0;
 
-  constructor(gameManager: GameManager) {
+  constructor(gameManager: IGameManager) {
     this.gameManager = gameManager;
     this.initializePlacementZones();
   }

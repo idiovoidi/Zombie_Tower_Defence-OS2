@@ -8,7 +8,7 @@
  * - Monitor performance of analysis operations
  */
 
-import type { GameManager } from './GameManager';
+import type { IGameManager } from './IGameManager';
 import {
   BalanceAnalyzer,
   type BalanceIssue,
@@ -97,13 +97,13 @@ export interface BalanceTrackingData {
 // ============================================================================
 
 export class BalanceTrackingManager {
-  private gameManager: GameManager;
+  private gameManager: IGameManager;
   private data: BalanceTrackingData;
   private lastAnalysisTime: number;
   private analysisInterval: number;
   private currentWaveStartTime: number;
 
-  constructor(gameManager: GameManager) {
+  constructor(gameManager: IGameManager) {
     this.gameManager = gameManager;
     this.lastAnalysisTime = 0;
     this.analysisInterval = 10000; // 10 seconds
