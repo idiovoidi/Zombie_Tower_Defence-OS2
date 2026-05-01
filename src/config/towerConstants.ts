@@ -85,9 +85,10 @@ const ghostDrawSludge = (g: Graphics) => {
 export const TowerConstants = {
   // Machine Gun Tower - High fire rate, good against swarms
   // Upgrades focus on fire rate rather than damage
+  // BALANCED: Reduced damage from 12 to 10 (17% nerf) based on simulation showing 31% above avg efficiency
   MACHINE_GUN: {
     cost: 250,
-    damage: 12,
+    damage: 10,
     range: 150,
     fireRate: 8,
     health: 120,
@@ -165,9 +166,10 @@ export const TowerConstants = {
   } as TowerStats,
 
   // Grenade Tower - Explosive area damage with arc trajectory
+  // BALANCED: Increased damage from 90 to 115 (28% buff) based on simulation showing 39% below avg efficiency
   GRENADE: {
     cost: 1250,
-    damage: 90,
+    damage: 115,
     range: 180,
     fireRate: 0.3,
     health: 95,
