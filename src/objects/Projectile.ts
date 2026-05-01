@@ -111,7 +111,7 @@ export class Projectile extends Container {
     }
 
     // Update target position if tracking a zombie
-    if (this.target && this.target.parent) {
+    if (this.target?.parent) {
       this.targetX = this.target.position.x;
       this.targetY = this.target.position.y;
     }
@@ -213,7 +213,7 @@ export class Projectile extends Container {
     this.isActive = false;
 
     // Apply damage to target if it still exists
-    if (this.target && this.target.parent) {
+    if (this.target?.parent) {
       // Apply damage modifier based on zombie type
       const modifier = this.target.getDamageModifier(this.towerType);
       const modifiedDamage = this.damage * modifier;

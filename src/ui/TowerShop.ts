@@ -4,8 +4,16 @@ import { TowerManager } from '../managers/TowerManager';
 import { TextureGenerator } from '../utils/textureGenerator';
 import { UIComponent } from './UIComponent';
 
+// Extended Container type for tower shop buttons
+interface TowerButton extends Container {
+  bgGraphics: Graphics;
+  frame: Graphics;
+  led: Graphics;
+  costText: Text;
+}
+
 export class TowerShop extends UIComponent {
-  private towerButtons: Map<string, Container> = new Map();
+  private towerButtons: Map<string, TowerButton> = new Map();
   private selectedTowerType: string | null = null;
   private towerManager: TowerManager;
   private onTowerSelectCallback: ((type: string) => void) | null = null;
@@ -281,10 +289,10 @@ export class TowerShop extends UIComponent {
     button.addChild(led);
 
     // Store references for hover effects and affordability updates
-    (button as any).bgGraphics = concreteBg;
-    (button as any).frame = frame;
-    (button as any).led = led;
-    (button as any).costText = cost;
+    (button as TowerButton).bgGraphics = concreteBg;
+    (button as TowerButton).frame = frame;
+    (button as TowerButton).led = led;
+    (button as TowerButton).costText = cost;
 
     // Hover effects
     button.on('pointerover', () => {
@@ -550,8 +558,8 @@ export class TowerShop extends UIComponent {
       const button = this.towerButtons.get(this.selectedTowerType);
       if (button) {
         const frame = button.getChildAt(1) as Graphics;
-        const led = (button as any).led as Graphics;
-        const bgGraphics = (button as any).bgGraphics as Graphics;
+        const led = button.led;
+        const bgGraphics = button.bgGraphics;
         frame.clear();
         frame.rect(0, 0, 184, 82).stroke({ width: 2, color: 0x3a3a3a });
         led.alpha = 0.5;
@@ -576,8 +584,8 @@ export class TowerShop extends UIComponent {
 
       // Update button visuals
       const frame = button.getChildAt(1) as Graphics;
-      const led = (button as any).led as Graphics;
-      const bgGraphics = (button as any).bgGraphics as Graphics;
+      const led = button.led;
+      const bgGraphics = button.bgGraphics;
 
       frame.clear();
       frame.rect(0, 0, 184, 82).stroke({ width: 3, color: 0x00ff00 });
@@ -604,8 +612,8 @@ export class TowerShop extends UIComponent {
       }
 
       const canAfford = currentMoney >= stats.cost;
-      const led = (button as any).led;
-      const costText = (button as any).costText;
+      const led = button.led;
+      const costText = button.costText;
 
       if (canAfford) {
         // Can afford - normal appearance

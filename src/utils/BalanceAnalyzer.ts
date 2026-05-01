@@ -61,6 +61,7 @@ export interface ThreatScore {
 // BalanceAnalyzer Class
 // ============================================================================
 
+// biome-ignore lint/complexity/noStaticOnlyClass: Intentional utility class with static math methods
 export class BalanceAnalyzer {
   /**
    * Lanchester's Laws - Predict if towers can defend against wave

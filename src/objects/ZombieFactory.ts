@@ -8,6 +8,7 @@ import { StealthZombie } from './zombies/StealthZombie';
 import { SwarmZombie } from './zombies/SwarmZombie';
 import { TankZombie } from './zombies/TankZombie';
 
+// biome-ignore lint/complexity/noStaticOnlyClass: Factory pattern with static creation method
 export class ZombieFactory {
   public static createZombie(type: string, x: number, y: number, wave: number): Zombie | null {
     switch (type) {

@@ -9,6 +9,7 @@ import {
   SwarmZombieRenderer,
   TankZombieRenderer,
 } from '../renderers/zombies';
+import { type IZombieRenderer } from '../renderers/zombies/ZombieRenderer';
 import { UIPanel } from './UIPanel';
 
 interface ZombieInfo {
@@ -340,7 +341,7 @@ export class ZombieBestiary extends UIPanel {
     const container = new Container();
 
     // Use new renderer system for accurate visuals
-    let renderer;
+    let renderer: IZombieRenderer;
     switch (type) {
       case GameConfig.ZOMBIE_TYPES.BASIC: {
         renderer = new BasicZombieRenderer();

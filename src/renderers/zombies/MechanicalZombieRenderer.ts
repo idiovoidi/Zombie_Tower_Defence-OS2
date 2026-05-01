@@ -25,8 +25,6 @@ export class MechanicalZombieRenderer extends BaseZombieRenderer {
     phase3YDrift: 4,
   };
 
-  private sparkTimer: number = 0;
-
   private readonly PRIMARY_COLOR = 0x3a4a5a;
   private readonly DARK_METAL = 0x2a3a4a;
   private readonly LIGHT_METAL = 0x5a6a7a;

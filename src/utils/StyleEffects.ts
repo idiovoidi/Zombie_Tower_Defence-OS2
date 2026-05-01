@@ -150,6 +150,7 @@ export class TruePixelEffect {
 /**
  * Collection of stylized visual effects for 2D games
  */
+// biome-ignore lint/complexity/noStaticOnlyClass: Stateless utility effects
 export class StyleEffects {
   /**
    * Apply outline/stroke effect to make game look more cartoony

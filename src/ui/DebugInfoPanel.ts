@@ -1,8 +1,7 @@
-import { type Container, Graphics, Text } from 'pixi.js';
+import { Text } from 'pixi.js';
 import { UIPanel } from './UIPanel';
 
 export class DebugInfoPanel extends UIPanel {
-  private titleText!: Text;
   private onOpenShaderTest?: () => void;
   private onOpenWaveInfo?: () => void;
   private onOpenBestiary?: () => void;
@@ -33,7 +32,7 @@ export class DebugInfoPanel extends UIPanel {
   }
 
   private buildPanelContent(): void {
-    const panelWidth = 280;
+    const _panelWidth = 280;
     let yPos = 45;
 
     const panelsTitle = new Text({
@@ -135,11 +134,6 @@ export class DebugInfoPanel extends UIPanel {
     });
     configText.position.set(20, yPos + 25);
     this.contentContainer.addChild(configText);
-  }
-
-  // Keep the old createPanelButton name for any external callers
-  private createPanelButton(label: string, color: number, onClick: () => void): Container {
-    return this.createActionButton(label, 240, 30, color, onClick);
   }
 
   public update(_deltaTime: number): void {}

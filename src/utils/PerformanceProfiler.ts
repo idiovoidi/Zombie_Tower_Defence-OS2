@@ -248,7 +248,6 @@ class FrameRateMonitor {
   private testFPS: number = 0;
   private frameCount: number = 0;
   private startTime: number = 0;
-  private _lastFrameTime: number = 0;
   private isMonitoring: boolean = false;
   private animationFrameId: number | null = null;
 

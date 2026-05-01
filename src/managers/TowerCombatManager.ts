@@ -527,129 +527,6 @@ export class TowerCombatManager {
     }
   }
 
-  private _createFlameStream(
-    tower: Tower,
-    spawnPos: { x: number; y: number },
-    target: Zombie,
-    damage: number
-  ): void {
-    this.applyDamageToZombie(target, tower, damage);
-
-    // Create visual flame stream effect
-    const flameGraphics = new Graphics();
-
-    const startX = spawnPos.x;
-    const startY = spawnPos.y;
-    const endX = target.position.x;
-    const endY = target.position.y;
-
-    // Calculate distance and angle
-    const dx = endX - startX;
-    const dy = endY - startY;
-    const distance = Math.sqrt(dx * dx + dy * dy);
-    const _angle = Math.atan2(dy, dx);
-
-    // Create smooth cone-shaped flame stream
-    const segments = 12;
-    const maxWidth = 25; // Maximum width of flame cone
-
-    for (let i = 0; i < segments; i++) {
-      const t = i / segments;
-      const baseX = startX + dx * t;
-      const baseY = startY + dy * t;
-
-      // Cone width increases with distance
-      const coneWidth = t * maxWidth;
-
-      // Create multiple particles at this segment for density
-      const particlesPerSegment = 3 + Math.floor(t * 4);
-
-      for (let j = 0; j < particlesPerSegment; j++) {
-        // Random position within cone width
-        const perpX = -dy / distance;
-        const perpY = dx / distance;
-        const offset = (Math.random() - 0.5) * coneWidth;
-
-        const x = baseX + perpX * offset;
-        const y = baseY + perpY * offset;
-
-        // Particle size increases then decreases
-        const sizeProgress = Math.sin(t * Math.PI); // 0 to 1 to 0
-        const size = 4 + sizeProgress * 8 + Math.random() * 3;
-
-        // Smooth color gradient from white-hot to red
-        let color: number;
-        let alpha: number;
-
-        if (t < 0.2) {
-          // Hot core - white/bright yellow
-          color = 0xffffff;
-          alpha = 0.95;
-        } else if (t < 0.4) {
-          // Bright yellow
-          color = 0xffff00;
-          alpha = 0.9;
-        } else if (t < 0.6) {
-          // Orange
-          color = 0xffa500;
-          alpha = 0.85;
-        } else if (t < 0.8) {
-          // Dark orange
-          color = 0xff8c00;
-          alpha = 0.75;
-        } else {
-          // Red tips
-          color = 0xff4500;
-          alpha = 0.65;
-        }
-
-        // Draw flame particle with glow
-        flameGraphics.circle(x, y, size * 1.8).fill({ color: 0xff6600, alpha: alpha * 0.25 });
-        flameGraphics.circle(x, y, size * 1.3).fill({ color: 0xff8800, alpha: alpha * 0.4 });
-        flameGraphics.circle(x, y, size).fill({ color, alpha });
-      }
-    }
-
-    // Add wispy smoke at the end
-    for (let i = 0; i < 8; i++) {
-      const smokeT = 0.85 + i * 0.02;
-      const smokeX = startX + dx * smokeT + (Math.random() - 0.5) * 30;
-      const smokeY = startY + dy * smokeT + (Math.random() - 0.5) * 30;
-      const smokeSize = 8 + Math.random() * 8;
-      flameGraphics
-        .circle(smokeX, smokeY, smokeSize)
-        .fill({ color: 0x3a3a3a, alpha: 0.3 + Math.random() * 0.2 });
-    }
-
-    // Bright nozzle flash
-    flameGraphics.circle(startX, startY, 8).fill({ color: 0xffffff, alpha: 0.95 });
-    flameGraphics.circle(startX, startY, 12).fill({ color: 0xffff00, alpha: 0.6 });
-    flameGraphics.circle(startX, startY, 16).fill({ color: 0xffa500, alpha: 0.3 });
-
-    // Add to tower's parent container
-    if (tower.parent) {
-      tower.parent.addChild(flameGraphics);
-    }
-
-    // Register flame as persistent effect for immediate cleanup
-    ResourceCleanupManager.registerPersistentEffect(flameGraphics, {
-      type: 'flame_stream',
-      duration: 120,
-    });
-
-    // Remove flame after short duration (tracked to prevent memory leaks)
-    const timeout = EffectCleanupManager.registerTimeout(
-      setTimeout(() => {
-        EffectCleanupManager.clearTimeout(timeout);
-        ResourceCleanupManager.unregisterPersistentEffect(flameGraphics);
-        if (flameGraphics.parent) {
-          flameGraphics.parent.removeChild(flameGraphics);
-        }
-        flameGraphics.destroy();
-      }, 120)
-    ); // Flame lasts 120ms
-  }
-
   /**
    * Create electric particle effects on a zombie when hit by lightning
    */
@@ -725,16 +602,16 @@ export class TowerCombatManager {
 
     // OPTIMIZATION: Use single timeout instead of setInterval (prevents memory leak)
     // Make zombie glow blue/cyan
-    if (zombie['visual']) {
-      const originalTint = zombie['visual'].tint;
-      zombie['visual'].tint = 0x00ffff; // Cyan/electric blue tint
+    if (zombie.visual) {
+      const originalTint = zombie.visual.tint;
+      zombie.visual.tint = 0x00ffff; // Cyan/electric blue tint
 
       // Single timeout to restore color
       const tintDuration = isPrimary ? 300 : 200;
       EffectCleanupManager.registerTimeout(
         setTimeout(() => {
-          if (zombie['visual'] && !zombie['visual'].destroyed) {
-            zombie['visual'].tint = originalTint;
+          if (zombie.visual && !zombie.visual.destroyed) {
+            zombie.visual.tint = originalTint;
           }
         }, tintDuration)
       );

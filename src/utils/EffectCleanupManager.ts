@@ -34,6 +34,7 @@
  * ```
  */
 
+// biome-ignore lint/complexity/noStaticOnlyClass: Intentional singleton manager
 export class EffectCleanupManager {
   private static intervals: Set<NodeJS.Timeout> = new Set();
   private static timeouts: Set<NodeJS.Timeout> = new Set();

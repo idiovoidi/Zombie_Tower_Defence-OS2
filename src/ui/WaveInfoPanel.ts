@@ -1,4 +1,4 @@
-import { Container, Text } from 'pixi.js';
+import { Text } from 'pixi.js';
 import { WaveManager, type ZombieGroup } from '../managers/WaveManager';
 import { UIPanel } from './UIPanel';
 
@@ -72,7 +72,7 @@ export class WaveInfoPanel extends UIPanel {
       // Calculate total zombies
       let totalZombies = 0;
       zombieGroups.forEach(group => {
-        const adjustedCount = this.waveManager!.calculateZombieCount(group.count, waveNum);
+        const adjustedCount = this.waveManager?.calculateZombieCount(group.count, waveNum);
         totalZombies += adjustedCount;
       });
 
@@ -93,9 +93,9 @@ export class WaveInfoPanel extends UIPanel {
 
       // Zombie composition
       zombieGroups.forEach(group => {
-        const adjustedCount = this.waveManager!.calculateZombieCount(group.count, waveNum);
+        const adjustedCount = this.waveManager?.calculateZombieCount(group.count, waveNum);
         const percentage = ((adjustedCount / totalZombies) * 100).toFixed(0);
-        const spawnRate = this.waveManager!.calculateSpawnRate(group.spawnInterval, waveNum);
+        const spawnRate = this.waveManager?.calculateSpawnRate(group.spawnInterval, waveNum);
 
         const zombieColor = this.getZombieColor(group.type);
         const zombieIcon = this.getZombieIcon(group.type);

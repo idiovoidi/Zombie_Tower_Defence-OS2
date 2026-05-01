@@ -1,5 +1,3 @@
-import { GameConfig } from '../config/gameConfig';
-import { Tower } from '../objects/Tower';
 import type { StatTracker } from '../utils/StatTracker';
 import type { IGameManager } from './IGameManager';
 
@@ -15,10 +13,7 @@ export class AIPlayerManager {
   private updateTimer: number = 0;
   private updateInterval: number = 1.0; // Check every 1 second
   private placementZones: PlacementZone[] = [];
-  private lastLogTime: number = 0;
-  private logInterval: number = 10000; // Log every 10 seconds
   private lastState: string = '';
-  private hasHandledWaveComplete: boolean = false;
   private currentWaveDecisions: number = 0;
 
   constructor(gameManager: IGameManager) {

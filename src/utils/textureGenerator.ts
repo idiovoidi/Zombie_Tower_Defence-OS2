@@ -4,6 +4,7 @@ import { Graphics } from 'pixi.js';
  * Utility class for generating apocalyptic-themed textures procedurally
  * Returns Graphics objects that can be used as sprites or converted to textures
  */
+// biome-ignore lint/complexity/noStaticOnlyClass: Stateless texture generation utility
 export class TextureGenerator {
   /**
    * Creates a rusty metal texture with scratches and wear

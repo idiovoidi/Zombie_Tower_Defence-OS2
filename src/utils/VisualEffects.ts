@@ -2,6 +2,7 @@ import { Container, Graphics } from 'pixi.js';
 import { EffectCleanupManager } from './EffectCleanupManager';
 import { ResourceCleanupManager } from './ResourceCleanupManager';
 
+// biome-ignore lint/complexity/noStaticOnlyClass: Stateless utility effects
 export class VisualEffects {
   // Create a damage indicator that floats upward
   public static createDamageIndicator(

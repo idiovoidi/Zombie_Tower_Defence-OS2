@@ -4,7 +4,7 @@ import { GameConfig } from '../config/gameConfig';
  * ZombieStats - Static utility for calculating zombie statistics
  * This file is separate from WaveManager to avoid circular dependencies
  */
-
+// biome-ignore lint/complexity/noStaticOnlyClass: Stateless utility for stats
 export class ZombieStats {
   /**
    * Calculate zombie health based on type and wave number

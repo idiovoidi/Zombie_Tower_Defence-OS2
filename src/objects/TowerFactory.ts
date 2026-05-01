@@ -8,6 +8,7 @@ import { SludgeTower } from './towers/SludgeTower';
 import { SniperTower } from './towers/SniperTower';
 import { TeslaTower } from './towers/TeslaTower';
 
+// biome-ignore lint/complexity/noStaticOnlyClass: Factory pattern with static creation method
 export class TowerFactory {
   public static createTower(type: string, x: number, y: number): Tower | null {
     switch (type) {

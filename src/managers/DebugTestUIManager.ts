@@ -228,23 +228,23 @@ export class DebugTestUIManager {
    * Update all panels
    */
   public update(deltaTime: number): void {
-    if (this.shaderTestPanel && this.shaderTestPanel.visible) {
+    if (this.shaderTestPanel?.visible) {
       this.shaderTestPanel.update(deltaTime);
     }
 
-    if (this.waveInfoPanel && this.waveInfoPanel.visible) {
+    if (this.waveInfoPanel?.visible) {
       this.waveInfoPanel.update(deltaTime);
     }
 
-    if (this.bestiaryPanel && this.bestiaryPanel.visible) {
+    if (this.bestiaryPanel?.visible) {
       this.bestiaryPanel.update(deltaTime);
     }
 
-    if (this.statsPanel && this.statsPanel.visible) {
+    if (this.statsPanel?.visible) {
       this.statsPanel.update();
     }
 
-    if (this.aiControlPanel && this.aiControlPanel.visible) {
+    if (this.aiControlPanel?.visible) {
       this.aiControlPanel.update(deltaTime);
     }
   }

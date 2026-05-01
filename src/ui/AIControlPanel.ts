@@ -1,8 +1,16 @@
 import { Container, Graphics, Text } from 'pixi.js';
 import { UIComponent } from './UIComponent';
 
+// Extended Container type for AI button
+interface AIButton extends Container {
+  bg: Graphics;
+  innerBorder: Graphics;
+  icon: Graphics;
+  statusText: Text;
+}
+
 export class AIControlPanel extends UIComponent {
-  private button!: Container;
+  private button!: AIButton;
   private isEnabled: boolean = false;
   private toggleCallback: ((enabled: boolean) => void) | null = null;
 
@@ -16,7 +24,7 @@ export class AIControlPanel extends UIComponent {
   }
 
   private createButton(): void {
-    this.button = new Container();
+    this.button = new Container() as AIButton;
     this.button.eventMode = 'static';
     this.button.cursor = 'pointer';
 
@@ -55,14 +63,10 @@ export class AIControlPanel extends UIComponent {
     this.button.addChild(statusText);
 
     // Store references
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    (this.button as any).bg = bg;
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    (this.button as any).innerBorder = innerBorder;
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    (this.button as any).icon = icon;
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    (this.button as any).statusText = statusText;
+    this.button.bg = bg;
+    this.button.innerBorder = innerBorder;
+    this.button.icon = icon;
+    this.button.statusText = statusText;
 
     // Hover effects
     this.button.on('pointerover', () => {
@@ -122,14 +126,10 @@ export class AIControlPanel extends UIComponent {
   }
 
   private updateVisuals(): void {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const bg = (this.button as any).bg as Graphics;
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const innerBorder = (this.button as any).innerBorder as Graphics;
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const icon = (this.button as any).icon as Graphics;
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const statusText = (this.button as any).statusText as Text;
+    const bg = this.button.bg;
+    const innerBorder = this.button.innerBorder;
+    const icon = this.button.icon;
+    const statusText = this.button.statusText;
 
     if (this.isEnabled) {
       // Enabled state - green

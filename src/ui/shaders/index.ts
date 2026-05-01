@@ -19,6 +19,7 @@ export {
 } from './types/ShaderTypes';
 
 // Shader source loader utility
+// biome-ignore lint/complexity/noStaticOnlyClass: Intentional utility class
 export class ShaderLoader {
   private static cache = new Map<string, string>();
 
@@ -29,7 +30,9 @@ export class ShaderLoader {
    */
   static async loadShader(shaderPath: string): Promise<string> {
     if (ShaderLoader.cache.has(shaderPath)) {
-      return ShaderLoader.cache.get(shaderPath)!;
+      const cached = ShaderLoader.cache.get(shaderPath);
+      if (cached) return cached;
+      throw new Error(`Shader not found in cache: ${shaderPath}`);
     }
 
     try {

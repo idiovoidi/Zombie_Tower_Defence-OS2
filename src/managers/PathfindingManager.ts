@@ -6,9 +6,6 @@ export interface Waypoint {
 
 export class PathfindingManager {
   private waypoints: Waypoint[];
-  private _gridWidth: number;
-  private _gridHeight: number;
-  private _cellSize: number;
 
   constructor(gridWidth: number = 1024, gridHeight: number = 768, cellSize: number = 32) {
     this._gridWidth = gridWidth;

@@ -341,12 +341,12 @@ export class GameManager {
     }
 
     this.currentState = GameConfig.GAME_STATES.GAME_OVER;
-    console.log('🔴 GAME OVER - Lives: ' + this.lives);
+    console.log(`🔴 GAME OVER - Lives: ${this.lives}`);
 
     // Calculate final score based on wave reached and money remaining
     const finalScore = this.wave * 1000 + this.money;
     this.score = finalScore;
-    console.log('📊 Final Score: ' + this.score);
+    console.log(`📊 Final Score: ${this.score}`);
 
     // Perform end-game balance analysis
     if (this.balanceTrackingManager.isEnabled()) {

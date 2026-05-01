@@ -602,7 +602,7 @@ export class StatTracker {
     let balanceData: Record<string, unknown> | undefined;
     const balanceTrackingManager =
       this.gameManager.getBalanceTrackingManager() as BalanceTrackingManager;
-    if (balanceTrackingManager && balanceTrackingManager.isEnabled()) {
+    if (balanceTrackingManager?.isEnabled()) {
       balanceData = balanceTrackingManager.generateReportData() as Record<string, unknown>;
       DebugUtils.debug('Including balance analysis in stat tracker report');
     }

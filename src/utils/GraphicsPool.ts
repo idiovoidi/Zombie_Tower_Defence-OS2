@@ -5,6 +5,7 @@ import { ObjectPool } from './ObjectPool';
  * Pool for Graphics objects used in visual effects
  * Reduces garbage collection overhead by reusing Graphics instances
  */
+// biome-ignore lint/complexity/noStaticOnlyClass: Intentional singleton pool manager
 export class GraphicsPool {
   private static circlePool: ObjectPool<Graphics>;
   private static rectanglePool: ObjectPool<Graphics>;

@@ -60,7 +60,7 @@ export abstract class BaseRetroFilter extends Filter {
    * @returns Clamped value within range
    */
   protected validateSetting(key: string, value: number, min: number, max: number): number {
-    if (isNaN(value) || !isFinite(value)) {
+    if (Number.isNaN(value) || !Number.isFinite(value)) {
       console.warn(`Invalid value for ${key}: ${value}, using default`);
       return this.getDefaultSettings()[key] || min;
     }

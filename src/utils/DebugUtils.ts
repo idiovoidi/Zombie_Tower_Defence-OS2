@@ -2,6 +2,7 @@
  * Debug utilities for development
  */
 
+// biome-ignore lint/complexity/noStaticOnlyClass: Intentional singleton utility class
 export class DebugUtils {
   private static enabled: boolean = false;
   private static logLevel: 'debug' | 'info' | 'warn' | 'error' = 'info';

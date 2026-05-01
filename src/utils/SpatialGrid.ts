@@ -96,15 +96,6 @@ export class SpatialGrid<T extends SpatialEntity> {
   }
 
   /**
-   * Get cell coordinates from cell index
-   */
-  private _getCellCoords(cellIndex: number): { col: number; row: number } {
-    const col = cellIndex % this.cols;
-    const row = Math.floor(cellIndex / this.cols);
-    return { col, row };
-  }
-
-  /**
    * Insert entity into the grid
    */
   public insert(entity: T): void {

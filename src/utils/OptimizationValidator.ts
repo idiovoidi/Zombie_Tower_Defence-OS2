@@ -385,7 +385,7 @@ export class OptimizationValidator {
     }
 
     const report = OptimizationValidator.generateReport();
-    console.log('\n' + report.summary);
+    console.log(`\n${report.summary}`);
   }
 
   /**

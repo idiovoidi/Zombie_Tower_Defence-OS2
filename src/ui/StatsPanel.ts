@@ -8,11 +8,9 @@ export class StatsPanel extends UIComponent {
   private titleText!: Text;
   private statsTexts: Map<string, Text> = new Map();
   private exportButton!: Container;
-  private _exportButtonBg!: Graphics;
   private exportButtonText!: Text;
   private isCollapsed: boolean = false;
   private collapseButton!: Container;
-  private _collapseButtonBg!: Graphics;
   private collapseButtonText!: Text;
   private contentContainer!: Container;
 
@@ -236,7 +234,7 @@ export class StatsPanel extends UIComponent {
     }
 
     const statTracker = this.gameManager.getStatTracker();
-    if (!statTracker || !statTracker.isActive()) {
+    if (!statTracker?.isActive()) {
       return;
     }
 

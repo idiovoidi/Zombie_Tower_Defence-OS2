@@ -197,7 +197,7 @@ export class BalanceAnalysisEdgeCaseTests {
 
       // Predictions should be reasonable (not NaN or Infinity)
       for (const pred of predictionResults) {
-        if (!isFinite(pred.predictedDifficulty)) {
+        if (!Number.isFinite(pred.predictedDifficulty)) {
           throw new Error('Predictions should be finite numbers');
         }
       }
@@ -233,7 +233,7 @@ export class BalanceAnalysisEdgeCaseTests {
         100 // Zombie HP
       );
 
-      if (!isFinite(breakEven)) {
+      if (!Number.isFinite(breakEven)) {
         throw new Error('Break-even time should be finite');
       }
 
@@ -326,7 +326,7 @@ export class BalanceAnalysisEdgeCaseTests {
       for (let i = 0; i < predictionResults.length; i++) {
         const pred = predictionResults[i];
 
-        if (!isFinite(pred.predictedDifficulty)) {
+        if (!Number.isFinite(pred.predictedDifficulty)) {
           throw new Error('Prediction should be finite');
         }
 
@@ -388,19 +388,19 @@ export class BalanceAnalysisEdgeCaseTests {
       const threatScore = BalanceAnalyzer.calculateThreatScore(100, 50, 10, 10, 'Basic');
       const effectiveDPS = BalanceAnalyzer.calculateEffectiveDPS(50, 100, 25);
 
-      if (!isFinite(waveDefense.safetyMargin)) {
+      if (!Number.isFinite(waveDefense.safetyMargin)) {
         throw new Error('Wave defense analysis should return finite values');
       }
 
-      if (!isFinite(efficiency)) {
+      if (!Number.isFinite(efficiency)) {
         throw new Error('Efficiency calculation should return finite value');
       }
 
-      if (!isFinite(threatScore.threatScore)) {
+      if (!Number.isFinite(threatScore.threatScore)) {
         throw new Error('Threat score should be finite');
       }
 
-      if (!isFinite(effectiveDPS)) {
+      if (!Number.isFinite(effectiveDPS)) {
         throw new Error('Effective DPS should be finite');
       }
 
@@ -443,11 +443,11 @@ export class BalanceAnalysisEdgeCaseTests {
       const zeroCostEfficiency = BalanceAnalyzer.calculateEfficiencyScore(50, 150, 0.85, 0, 0);
       const zeroBreakEven = BalanceAnalyzer.calculateBreakEvenPoint(100, 0, 10, 100);
 
-      if (!isFinite(zeroEfficiency)) {
+      if (!Number.isFinite(zeroEfficiency)) {
         throw new Error('Zero efficiency should be finite (0)');
       }
 
-      if (!isFinite(zeroCostEfficiency)) {
+      if (!Number.isFinite(zeroCostEfficiency)) {
         throw new Error('Zero cost efficiency should be finite');
       }
 
@@ -470,7 +470,7 @@ export class BalanceAnalysisEdgeCaseTests {
       // Negative costs should be handled
       const negativeBreakEven = BalanceAnalyzer.calculateBreakEvenPoint(-100, 50, 10, 100);
 
-      if (!isFinite(negativeBreakEven)) {
+      if (!Number.isFinite(negativeBreakEven)) {
         throw new Error('Negative cost should result in finite break-even');
       }
 
@@ -488,14 +488,14 @@ export class BalanceAnalysisEdgeCaseTests {
         100 // High wave
       );
 
-      if (!isFinite(extremeDefense.safetyMargin)) {
+      if (!Number.isFinite(extremeDefense.safetyMargin)) {
         throw new Error('Extreme values should produce finite results');
       }
 
       // Test with very small values
       const tinyDefense = BalanceAnalyzer.canDefendWave(0.001, 0.001, 0.001, 0.001, 1);
 
-      if (!isFinite(tinyDefense.safetyMargin)) {
+      if (!Number.isFinite(tinyDefense.safetyMargin)) {
         throw new Error('Tiny values should produce finite results');
       }
 

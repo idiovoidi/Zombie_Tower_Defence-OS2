@@ -73,7 +73,7 @@ import { VisualEffects } from './utils/VisualEffects';
   window.addEventListener('keydown', event => {
     // Toggle debug mode (Ctrl+D)
     if (event.key.toLowerCase() === 'd' && event.ctrlKey) {
-      const currentDebug = !inputManager['debugMode'];
+      const currentDebug = !inputManager.debugMode;
       inputManager.setDebugMode(currentDebug);
       console.log(
         `🔧 Debug mode ${currentDebug ? 'enabled' : 'disabled'}:`,

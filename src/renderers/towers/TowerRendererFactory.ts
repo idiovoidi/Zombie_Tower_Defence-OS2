@@ -13,6 +13,7 @@ import { TeslaRenderer } from './TeslaRenderer';
  * Factory for creating tower renderers
  * Returns the appropriate renderer based on tower type
  */
+// biome-ignore lint/complexity/noStaticOnlyClass: Factory pattern with static creation method
 export class TowerRendererFactory {
   /**
    * Create a renderer for the specified tower type

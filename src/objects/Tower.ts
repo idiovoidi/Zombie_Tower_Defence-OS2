@@ -27,7 +27,6 @@ export class Tower extends GameObject implements ITower, TowerEffects {
   private renderer: ITowerRenderer; // Renderer for visual representation
   private rangeVisualizer: TowerRangeVisualizer;
   private currentRotation: number = 0;
-  private static readonly _MAX_UPGRADE_LEVEL: number = 5; // Maximum upgrade level
 
   // Idle animation properties
   private idleTime: number = 0;
@@ -391,7 +390,7 @@ export class Tower extends GameObject implements ITower, TowerEffects {
       // Increase max health by 20% per upgrade level
       const newMaxHealth = Math.floor(100 * 1.2 ** this.upgradeLevel);
       // Heal to full when upgraded
-      healthComponent['maxHealth'] = newMaxHealth; // Note: In a real implementation, we'd add a setter for maxHealth
+      healthComponent.maxHealth = newMaxHealth; // Note: In a real implementation, we'd add a setter for maxHealth
       healthComponent.heal(newMaxHealth); // This will set current health to max
     }
 
@@ -616,56 +615,6 @@ export class Tower extends GameObject implements ITower, TowerEffects {
    */
   public setEffectManager(container: Container): void {
     this.effectManager = container;
-  }
-
-  /**
-   * Spawn a shell casing effect (Machine Gun)
-   */
-  private _spawnShellCasing(): void {
-    if (!this.effectManager) {
-      return;
-    }
-
-    // Calculate ejection position (right side of gun)
-    const ejectX = this.x + Math.cos(this.barrel.rotation + Math.PI / 2) * 5;
-    const ejectY = this.y + Math.sin(this.barrel.rotation + Math.PI / 2) * 5;
-
-    // Calculate ejection angle (perpendicular to barrel, slightly upward)
-    const ejectAngle = this.barrel.rotation + Math.PI / 2 - 0.3;
-
-    // Spawn shell casing through EffectManager
-    this.effectManager.spawnShellCasing(ejectX, ejectY, ejectAngle);
-  }
-
-  /**
-   * Spawn a muzzle flash light effect (Machine Gun)
-   */
-  private _spawnMuzzleFlashLight(gunTipOffset: number): void {
-    if (!this.effectManager) {
-      return;
-    }
-
-    // Calculate world position of gun tip
-    const tipX = this.x + Math.cos(this.barrel.rotation) * gunTipOffset;
-    const tipY = this.y + Math.sin(this.barrel.rotation) * gunTipOffset;
-
-    // Spawn muzzle flash through EffectManager
-    this.effectManager.spawnMuzzleFlashLight(tipX, tipY, 30);
-  }
-
-  /**
-   * Spawn a scope glint effect (Sniper)
-   */
-  private _spawnScopeGlint(): void {
-    if (!this.effectManager) {
-      return;
-    }
-
-    const scopeX = this.x;
-    const scopeY = this.y - 15;
-
-    // Spawn scope glint through EffectManager
-    this.effectManager.spawnScopeGlint(scopeX, scopeY);
   }
 
   /**
