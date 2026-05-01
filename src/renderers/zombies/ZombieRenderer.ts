@@ -15,7 +15,7 @@ export interface IZombieRenderer {
   render(container: Container, state: ZombieRenderState): void;
   update(deltaTime: number, state: ZombieRenderState): void;
   showDamageEffect(damageType: string, amount: number): void;
-  playDeathAnimation(): Promise<void>;
+  playDeathAnimation(killerType?: string): Promise<void>;
   destroy(): void;
 }
 

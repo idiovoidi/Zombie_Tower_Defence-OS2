@@ -220,7 +220,7 @@ export class Projectile extends Container {
       const modifiedDamage = this.damage * modifier;
 
       const healthBefore = this.target.getHealth();
-      this.target.takeDamage(modifiedDamage);
+      this.target.takeDamage(modifiedDamage, this.towerType);
       const healthAfter = this.target.getHealth();
       const actualDamage = healthBefore - healthAfter;
       const killed = healthAfter <= 0;
@@ -324,7 +324,7 @@ export class Projectile extends Container {
         const modifiedDamage = splashDamage * modifier;
 
         const healthBefore = zombie.getHealth();
-        zombie.takeDamage(modifiedDamage);
+        zombie.takeDamage(modifiedDamage, this.towerType);
         const healthAfter = zombie.getHealth();
         const actualDamage = healthBefore - healthAfter;
         const killed = healthAfter <= 0;

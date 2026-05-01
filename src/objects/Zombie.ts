@@ -38,6 +38,9 @@ export class Zombie extends GameObject {
   private isSlowed: boolean = false; // Track if zombie is currently slowed
   private currentSlowPercent: number = 0; // Current slow percentage applied
   private renderer: IZombieRenderer | null = null; // Modular renderer
+  private lastDamageSource: string = 'unknown'; // Track tower type that dealt damage
+  private isDying: boolean = false; // Track if death animation is in progress
+  private deathAnimationComplete: boolean = false; // Track if animation finished
 
   constructor(type: string, x: number, y: number, wave: number) {
     super();
@@ -165,6 +168,16 @@ export class Zombie extends GameObject {
   public update(deltaTime: number): void {
     super.update(deltaTime);
 
+    // If dying, only update renderer (for death animation), skip movement/AI
+    if (this.isDying) {
+      if (this.renderer) {
+        this.renderer.update(deltaTime, this.getRenderState());
+        // Continue rendering even while dying
+        this.renderer.render(this, this.getRenderState());
+      }
+      return;
+    }
+
     // Update new renderer if using it
     if (this.renderer) {
       const state = this.getRenderState();
@@ -285,6 +298,11 @@ export class Zombie extends GameObject {
   }
 
   public takeDamage(damage: number, towerType?: string): number {
+    // Track damage source for death animation selection
+    if (towerType && damage > 0) {
+      this.lastDamageSource = towerType;
+    }
+
     // Apply damage to health component
     const actualDamage = this.healthComponent.takeDamage(damage);
 
@@ -315,6 +333,10 @@ export class Zombie extends GameObject {
 
   // Method called when zombie dies
   private async onDeath(): Promise<void> {
+    // Prevent multiple death triggers
+    if (this.isDying) return;
+    this.isDying = true;
+
     // Emit death event IMMEDIATELY for blood/corpse systems
     // This ensures corpse appears at death location before animation moves the zombie
     this.emit('zombieDeath', {
@@ -322,12 +344,23 @@ export class Zombie extends GameObject {
       y: this.position.y,
       type: this.type,
       size: this.getVisualSize(),
+      killerType: this.lastDamageSource,
     });
 
     // Play death animation if using new renderer
     if (this.renderer) {
-      await this.renderer.playDeathAnimation();
+      await this.renderer.playDeathAnimation(this.lastDamageSource);
     }
+
+    // Mark animation complete so ZombieManager can remove this zombie
+    this.deathAnimationComplete = true;
+  }
+
+  /**
+   * Check if zombie is currently in death animation
+   */
+  public isDeathAnimationComplete(): boolean {
+    return this.deathAnimationComplete;
   }
 
   // Get visual size for corpse creation
@@ -422,5 +455,12 @@ export class Zombie extends GameObject {
 
     // Call parent destroy to clean up components and PixiJS objects
     super.destroy();
+  }
+
+  /**
+   * Check if zombie is currently dying (animation in progress)
+   */
+  public getIsDying(): boolean {
+    return this.isDying;
   }
 }

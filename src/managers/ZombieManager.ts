@@ -106,10 +106,14 @@ export class ZombieManager {
       const zombie = this.zombies[i];
       zombie.update(deltaTime);
 
-      // Remove dead zombies
+      // Remove dead zombies only after death animation completes
       const healthComponent = zombie.getComponent<HealthComponent>('Health');
       if (healthComponent && !healthComponent.isAlive()) {
-        this.removeZombie(i);
+        // Check if death animation has finished
+        if (zombie.isDeathAnimationComplete()) {
+          this.removeZombie(i);
+        }
+        // If dying but animation not complete, keep zombie alive for animation
       }
     }
 
@@ -155,7 +159,13 @@ export class ZombieManager {
       }
 
       // Listen for zombie death to trigger effects
-      zombie.on('zombieDeath', (data: { x: number; y: number; type: string; size: number }) => {
+      zombie.on('zombieDeath', (data: {
+        x: number;
+        y: number;
+        type: string;
+        size: number;
+        killerType: string;
+      }) => {
         this.onZombieDeath(data);
       });
 
@@ -169,12 +179,18 @@ export class ZombieManager {
   }
 
   // Handle zombie death effects
-  private onZombieDeath(data: { x: number; y: number; type: string; size: number }): void {
+  private onZombieDeath(data: {
+    x: number;
+    y: number;
+    type: string;
+    size: number;
+    killerType: string;
+  }): void {
     // Create blood splatter
     const intensity = data.size / 10; // Scale intensity based on zombie size
     this.bloodParticleSystem.createBloodSplatter(data.x, data.y, intensity);
 
-    // Create corpse
+    // Create corpse with killer type for potential corpse styling
     this.corpseManager.createCorpse(data.x, data.y, data.type, data.size);
   }
 

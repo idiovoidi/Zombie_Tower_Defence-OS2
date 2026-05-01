@@ -106,7 +106,8 @@ export class StealthZombieRenderer extends BaseZombieRenderer {
   }
 
   // Stealth has a unique dissipate death — fully override
-  override async playDeathAnimation(): Promise<void> {
+  // Note: killerType parameter accepted for compatibility but stealth always uses dissipate
+  override async playDeathAnimation(_killerType?: string): Promise<void> {
     return new Promise(resolve => {
       const startTime = Date.now();
       for (const p of this.DEATH_PARTICLES) {

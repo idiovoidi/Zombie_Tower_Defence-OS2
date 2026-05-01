@@ -117,7 +117,8 @@ export class MechanicalZombieRenderer extends BaseZombieRenderer {
   }
 
   // Mechanical has a flicker phase — fully override
-  override async playDeathAnimation(): Promise<void> {
+  // Note: killerType parameter accepted for compatibility but mechanical always uses flicker
+  override async playDeathAnimation(_killerType?: string): Promise<void> {
     return new Promise(resolve => {
       const startTime = Date.now();
       for (const p of this.DEATH_PARTICLES) {

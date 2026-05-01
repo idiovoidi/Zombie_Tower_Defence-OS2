@@ -1,7 +1,7 @@
 import { type Container, Graphics } from 'pixi.js';
 import { EffectCleanupManager } from '../../utils/EffectCleanupManager';
 import { ZombieAnimator } from './ZombieAnimator';
-import { type ParticleType, ZombieParticleSystem } from './ZombieParticleSystem';
+import { ParticleType, ZombieParticleSystem } from './ZombieParticleSystem';
 import type { IZombieRenderer, ZombieRenderState } from './ZombieRenderer';
 
 export interface DeathAnimConfig {
@@ -101,7 +101,26 @@ export abstract class BaseZombieRenderer implements IZombieRenderer {
     }
   }
 
-  async playDeathAnimation(): Promise<void> {
+  async playDeathAnimation(killerType?: string): Promise<void> {
+    // Route to tower-specific animation variant
+    switch (killerType) {
+      case 'Flame':
+        return this.playBurnDeathAnimation();
+      case 'Grenade':
+      case 'Tesla':
+        return this.playExplosiveDeathAnimation();
+      case 'Shotgun':
+        return this.playKnockbackDeathAnimation();
+      case 'Sniper':
+        return this.playPrecisionDeathAnimation();
+      case 'MachineGun':
+      case 'Sludge':
+      default:
+        return this.playDefaultDeathAnimation();
+    }
+  }
+
+  private async playDefaultDeathAnimation(): Promise<void> {
     return new Promise(resolve => {
       const cfg = this.DEATH_ANIM;
       const p1End = cfg.phase1Duration;
@@ -146,6 +165,233 @@ export abstract class BaseZombieRenderer implements IZombieRenderer {
           size: p.size,
         });
       }
+      animate();
+    });
+  }
+
+  private async playBurnDeathAnimation(): Promise<void> {
+    // Flame tower: Burning collapse with orange tint and smoke
+    return new Promise(resolve => {
+      const duration = 1200;
+      const startTime = Date.now();
+      const originalTint = this.graphics.tint;
+
+      // Apply orange burn tint
+      this.graphics.tint = 0xff6600;
+
+      const animate = () => {
+        if (this.graphics.destroyed) {
+          resolve();
+          return;
+        }
+        const elapsed = Date.now() - startTime;
+        const t = Math.min(elapsed / duration, 1);
+
+        // Collapse to ground
+        this.graphics.rotation = t * Math.PI / 2;
+        this.graphics.scale.y = 1 - t * 0.4;
+        this.graphics.scale.x = 1 + t * 0.1;
+
+        // Darken as it burns
+        const burnProgress = Math.min(t * 1.5, 1);
+        const r = Math.floor(255 * (1 - burnProgress * 0.8));
+        const g = Math.floor(102 * (1 - burnProgress * 0.6));
+        const b = Math.floor(0 * (1 - burnProgress));
+        this.graphics.tint = (r << 16) | (g << 8) | b;
+
+        // Fade out at end
+        if (t > 0.7) {
+          this.graphics.alpha = 1 - (t - 0.7) / 0.3 * 0.5;
+        }
+
+        if (t >= 1) {
+          this.deathAnimationFrame = null;
+          resolve();
+          return;
+        }
+        this.deathAnimationFrame = requestAnimationFrame(animate);
+      };
+
+      // Emit smoke particles
+      this.particles.emit(ParticleType.SMOKE, 0, -10, {
+        count: 8,
+        velocity: 30,
+        lifetime: 1000,
+        size: 6,
+      });
+
+      animate();
+    });
+  }
+
+  private async playExplosiveDeathAnimation(): Promise<void> {
+    // Grenade/Tesla: Violent ragdoll with debris
+    return new Promise(resolve => {
+      const duration = 800;
+      const startTime = Date.now();
+
+      // Random explosive direction
+      const throwX = (Math.random() - 0.5) * 60;
+      const throwY = -30 - Math.random() * 20;
+      const rotationDir = Math.random() > 0.5 ? 1 : -1;
+
+      const animate = () => {
+        if (this.graphics.destroyed) {
+          resolve();
+          return;
+        }
+        const elapsed = Date.now() - startTime;
+        const t = Math.min(elapsed / duration, 1);
+
+        // Arc trajectory
+        const arcHeight = Math.sin(t * Math.PI) * throwY;
+        this.graphics.x = throwX * t;
+        this.graphics.y = arcHeight * (1 - t * 0.5);
+
+        // Rapid rotation
+        this.graphics.rotation = t * Math.PI * 2 * rotationDir;
+
+        // Scale stretch during explosion
+        if (t < 0.3) {
+          const stretch = 1 + (0.3 - t) * 2;
+          this.graphics.scale.set(1 / stretch, stretch);
+        } else {
+          this.graphics.scale.set(1, 1);
+        }
+
+        // Quick fade
+        if (t > 0.6) {
+          this.graphics.alpha = 1 - (t - 0.6) / 0.4;
+        }
+
+        if (t >= 1) {
+          this.deathAnimationFrame = null;
+          resolve();
+          return;
+        }
+        this.deathAnimationFrame = requestAnimationFrame(animate);
+      };
+
+      // Emit debris particles
+      this.particles.emit(ParticleType.BONE_FRAGMENTS, 0, 0, {
+        count: 12,
+        velocity: 80,
+        lifetime: 600,
+        size: 4,
+      });
+
+      animate();
+    });
+  }
+
+  private async playKnockbackDeathAnimation(): Promise<void> {
+    // Shotgun: Violent knockback throw
+    return new Promise(resolve => {
+      const duration = 900;
+      const startTime = Date.now();
+
+      // Strong horizontal throw
+      const knockbackX = -50 - Math.random() * 30; // Always thrown backward
+      const knockbackY = -20;
+
+      const animate = () => {
+        if (this.graphics.destroyed) {
+          resolve();
+          return;
+        }
+        const elapsed = Date.now() - startTime;
+        const t = Math.min(elapsed / duration, 1);
+
+        // Sharp initial impulse, then deceleration
+        const impulse = Math.pow(1 - t, 0.5);
+        this.graphics.x = knockbackX * (1 - impulse);
+        this.graphics.y = knockbackY * Math.sin(t * Math.PI) * impulse;
+
+        // Rotation from impact
+        this.graphics.rotation = -t * Math.PI / 3;
+
+        // Scale compression on impact
+        if (t < 0.2) {
+          const compression = 1 - t * 0.3;
+          this.graphics.scale.set(1 / compression, compression);
+        } else {
+          this.graphics.scale.set(1, 1);
+        }
+
+        // Blood spray fade
+        if (t > 0.5) {
+          this.graphics.alpha = 1 - (t - 0.5) / 0.5;
+        }
+
+        if (t >= 1) {
+          this.deathAnimationFrame = null;
+          resolve();
+          return;
+        }
+        this.deathAnimationFrame = requestAnimationFrame(animate);
+      };
+
+      // Emit blood spray particles
+      this.particles.emit(ParticleType.BLOOD_SPLATTER, 0, 0, {
+        count: 15,
+        velocity: 60,
+        lifetime: 500,
+        size: 5,
+      });
+
+      animate();
+    });
+  }
+
+  private async playPrecisionDeathAnimation(): Promise<void> {
+    // Sniper: Clean headshot with delayed body collapse
+    return new Promise(resolve => {
+      const headshotDuration = 200;
+      const collapseDuration = 800;
+      const startTime = Date.now();
+
+      // Flash effect for headshot
+      this.graphics.tint = 0xffffff;
+      setTimeout(() => {
+        if (!this.graphics.destroyed) {
+          this.graphics.tint = 0xffffff;
+        }
+      }, 50);
+
+      const animate = () => {
+        if (this.graphics.destroyed) {
+          resolve();
+          return;
+        }
+        const elapsed = Date.now() - startTime;
+
+        if (elapsed < headshotDuration) {
+          // Headshot flash - minimal movement
+          const t = elapsed / headshotDuration;
+          this.graphics.scale.y = 1 - t * 0.1; // Slight head drop
+        } else if (elapsed < headshotDuration + collapseDuration) {
+          // Delayed body collapse
+          const t = (elapsed - headshotDuration) / collapseDuration;
+          this.graphics.rotation = t * Math.PI / 2;
+          this.graphics.scale.y = 0.9 - t * 0.3;
+          this.graphics.alpha = 1 - t * 0.3;
+        } else {
+          this.deathAnimationFrame = null;
+          resolve();
+          return;
+        }
+
+        this.deathAnimationFrame = requestAnimationFrame(animate);
+      };
+
+      // Minimal blood - clean kill
+      this.particles.emit(ParticleType.BLOOD_SPLATTER, 0, -15, {
+        count: 5,
+        velocity: 30,
+        lifetime: 400,
+        size: 3,
+      });
+
       animate();
     });
   }

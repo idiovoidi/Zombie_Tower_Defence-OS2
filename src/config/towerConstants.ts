@@ -153,12 +153,12 @@ export const TowerConstants = {
   } as TowerStats,
 
   // Tesla Tower - Chain lightning, affects multiple targets
-  // BALANCED: Increased damage from 80 to 110 (38% buff) based on simulation showing 27% below avg efficiency
+  // NERF: Reduced fire rate from 2 to 1.5 (220→165 DPS) - was dominating late-game horde tests
   TESLA: {
     cost: 1500,
     damage: 110,
     range: 200,
-    fireRate: 2,
+    fireRate: 1.5,
     health: 110,
     specialAbility: 'Chain lightning, affects multiple targets',
     upgradeCostMultiplier: 0.75,
