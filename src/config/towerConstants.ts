@@ -111,73 +111,89 @@ export function getTowerStats(type: string): TowerStats | undefined {
 }
 
 /**
+ * Helper to get tower stats with guard clause
+ * Returns null if stats not found, letting caller handle the default
+ */
+function withTowerStats<T>(type: string, fn: (stats: TowerStats) => T, defaultValue: T): T {
+  const stats = getTowerStats(type);
+  if (!stats) {
+    return defaultValue;
+  }
+  return fn(stats);
+}
+
+/**
  * Calculate tower damage with upgrades
  */
 export function calculateTowerDamage(type: string, upgradeLevel: number): number {
-  const stats = getTowerStats(type);
-  if (!stats) {
-    return 0;
-  }
+  return withTowerStats(
+    type,
+    stats => {
+      // Machine gun has lower damage scaling (focuses on fire rate)
+      if (type === 'MachineGun') {
+        // +25% damage per level instead of +50%
+        return Math.floor(stats.damage * (1 + upgradeLevel * 0.25));
+      }
 
-  // Machine gun has lower damage scaling (focuses on fire rate)
-  if (type === 'MachineGun') {
-    // +25% damage per level instead of +50%
-    return Math.floor(stats.damage * (1 + upgradeLevel * 0.25));
-  }
+      // Grenade has lower damage scaling (focuses on explosion radius)
+      if (type === 'Grenade') {
+        // +20% damage per level instead of +50%
+        return Math.floor(stats.damage * (1 + upgradeLevel * 0.2));
+      }
 
-  // Grenade has lower damage scaling (focuses on explosion radius)
-  if (type === 'Grenade') {
-    // +20% damage per level instead of +50%
-    return Math.floor(stats.damage * (1 + upgradeLevel * 0.2));
-  }
-
-  // Other towers: +50% per upgrade level
-  return Math.floor(stats.damage * (1 + upgradeLevel * 0.5));
+      // Other towers: +50% per upgrade level
+      return Math.floor(stats.damage * (1 + upgradeLevel * 0.5));
+    },
+    0
+  );
 }
 
 /**
  * Calculate tower fire rate with upgrades
  */
 export function calculateTowerFireRate(type: string, upgradeLevel: number): number {
-  const stats = getTowerStats(type);
-  if (!stats) {
-    return 0;
-  }
+  return withTowerStats(
+    type,
+    stats => {
+      // Machine gun gets significant fire rate boost with upgrades
+      if (type === 'MachineGun') {
+        // +30% fire rate per level (8 → 10.4 → 13.5 → 17.6 → 22.9 → 29.7 shots/sec)
+        return stats.fireRate * (1 + upgradeLevel * 0.3);
+      }
 
-  // Machine gun gets significant fire rate boost with upgrades
-  if (type === 'MachineGun') {
-    // +30% fire rate per level (8 → 10.4 → 13.5 → 17.6 → 22.9 → 29.7 shots/sec)
-    return stats.fireRate * (1 + upgradeLevel * 0.3);
-  }
-
-  // Other towers get minor fire rate boost
-  // +10% fire rate per level
-  return stats.fireRate * (1 + upgradeLevel * 0.1);
+      // Other towers get minor fire rate boost
+      // +10% fire rate per level
+      return stats.fireRate * (1 + upgradeLevel * 0.1);
+    },
+    0
+  );
 }
 
 /**
  * Calculate tower range with upgrades
  */
 export function calculateTowerRange(type: string, upgradeLevel: number): number {
-  const stats = getTowerStats(type);
-  if (!stats) {
-    return 0;
-  }
-
-  // Simple range scaling: +20% per upgrade level
-  return Math.floor(stats.range * (1 + upgradeLevel * 0.2));
+  return withTowerStats(
+    type,
+    stats => {
+      // Simple range scaling: +20% per upgrade level
+      return Math.floor(stats.range * (1 + upgradeLevel * 0.2));
+    },
+    0
+  );
 }
 
 /**
  * Calculate upgrade cost
  */
 export function calculateUpgradeCost(type: string, upgradeLevel: number): number {
-  const stats = getTowerStats(type);
-  if (!stats) {
-    return 0;
-  }
-
-  const multiplier = stats.upgradeCostMultiplier || 0.75;
-  // Formula: upgradeCost = baseCost × (upgradeLevel + 1) × upgradeCostMultiplier
-  return Math.floor(stats.cost * (upgradeLevel + 1) * multiplier);
+  return withTowerStats(
+    type,
+    stats => {
+      const multiplier = stats.upgradeCostMultiplier || 0.75;
+      // Formula: upgradeCost = baseCost × (upgradeLevel + 1) × upgradeCostMultiplier
+      return Math.floor(stats.cost * (upgradeLevel + 1) * multiplier);
+    },
+    0
+  );
 }

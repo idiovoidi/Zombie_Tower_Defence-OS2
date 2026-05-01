@@ -6,25 +6,31 @@ import type { Tower } from '../objects/Tower';
 import { EffectManager } from '../renderers/effects/EffectManager';
 import { VisualMapRenderer } from '../renderers/VisualMapRenderer';
 import { EffectCleanupManager } from '../utils/EffectCleanupManager';
+import { EventBus, GameEvents } from '../utils/EventBus';
 import { type GameLogEntry, LogExporter } from '../utils/LogExporter';
 import { OptimizationValidator } from '../utils/OptimizationValidator';
 import { PerformanceMonitor } from '../utils/PerformanceMonitor';
 import { ResourceCleanupManager } from '../utils/ResourceCleanupManager';
-import { StatTracker } from '../utils/StatTracker';
-import { AIPlayerManager } from './AIPlayerManager';
-import { BalanceTrackingManager } from './BalanceTrackingManager';
+import { AnalyticsState } from './AnalyticsState';
+import { EconomyState } from './EconomyState';
 import type { InputManager } from './InputManager';
 import { LevelManager } from './LevelManager';
+import { LevelState } from './LevelState';
 import { MapManager } from './MapManager';
 import { ProjectileManager } from './ProjectileManager';
-import { ResourceManager } from './ResourceManager';
 import { TowerCombatManager } from './TowerCombatManager';
 import { TowerManager } from './TowerManager';
 import { TowerPlacementManager } from './TowerPlacementManager';
-import { UpgradeManager } from './UpgradeManager';
 import { WaveManager } from './WaveManager';
 import { ZombieManager } from './ZombieManager';
 
+/**
+ * GameManager - Main game orchestrator
+ *
+ * REFACTORED: Now uses contextual state objects (LevelState, EconomyState, AnalyticsState)
+ * to reduce coupling and improve maintainability. Also uses EventBus for decoupled
+ * communication between managers.
+ */
 export class GameManager {
   private app: Application;
   private currentState: string;
@@ -32,25 +38,35 @@ export class GameManager {
   private lives: number;
   private wave: number;
   private score: number;
-  private towerManager: TowerManager;
-  private towerPlacementManager: TowerPlacementManager;
-  private waveManager: WaveManager;
-  private zombieManager: ZombieManager;
+
+  // Contextual state objects - encapsulate related managers
+  private levelState!: LevelState;
+  private economyState!: EconomyState;
+  private analyticsState!: AnalyticsState;
+
+  // Level/Map management (not combat-specific, kept separate)
   private mapManager: MapManager;
   private levelManager: LevelManager;
   private visualMapRenderer: VisualMapRenderer | null = null;
-  private resourceManager: ResourceManager;
-  private upgradeSystem: UpgradeManager;
-  private towerCombatManager: TowerCombatManager;
+  private effectManager: EffectManager;
+
+  // Manager references - these are also accessible via levelState but kept for direct access
+  private towerManager: TowerManager;
+  private towerPlacementManager: TowerPlacementManager;
+  private zombieManager: ZombieManager;
+  private waveManager: WaveManager;
   private projectileManager: ProjectileManager;
-  private effectManager: EffectManager; // CRITICAL: Manages shell casings, muzzle flashes, etc.
-  private aiPlayerManager: AIPlayerManager;
-  private balanceTrackingManager: BalanceTrackingManager;
-  private statTracker: StatTracker;
+  private towerCombatManager: TowerCombatManager;
+
+  // Game container
   private gameContainer: Container;
+
+  // Callbacks
   private onMoneyGainCallback: ((amount: number) => void) | null = null;
   private onDamageFlashCallback: (() => void) | null = null;
   private onGameOverCallback: ((score: number) => void) | null = null;
+
+  // Wave tracking
   private waveStartLives: number = 0;
 
   constructor(app: Application) {
@@ -72,70 +88,92 @@ export class GameManager {
 
     // Create game container for all game objects
     this.gameContainer = new Container();
-    this.gameContainer.sortableChildren = true; // Enable z-index sorting
+    this.gameContainer.sortableChildren = true;
     app.stage.addChild(this.gameContainer);
     console.log('Game container created and added to stage');
 
-    // Initialize managers
+    // Initialize EffectManager first (needed by other managers)
+    this.effectManager = new EffectManager(this.gameContainer);
+    console.log('EffectManager initialized');
+
+    // Initialize map and level managers
+    this.mapManager = new MapManager();
+    this.levelManager = new LevelManager(this.mapManager);
+
+    // Initialize combat managers (shared between GameManager and LevelState)
     this.towerManager = new TowerManager();
     this.waveManager = new WaveManager();
-    this.mapManager = new MapManager();
     this.zombieManager = new ZombieManager(this.gameContainer, this.waveManager, this.mapManager);
-    this.levelManager = new LevelManager(this.mapManager);
-    // VisualMapRenderer will be initialized after InputManager is set
-    this.resourceManager = new ResourceManager();
-    this.upgradeSystem = new UpgradeManager(this.resourceManager);
     this.projectileManager = new ProjectileManager(this.gameContainer);
-    // CRITICAL: Initialize EffectManager for shell casings, muzzle flashes, etc.
-    this.effectManager = new EffectManager(this.gameContainer);
-    // Initialize TowerPlacementManager with EffectManager for visual effects
     this.towerPlacementManager = new TowerPlacementManager(
       this.gameContainer,
       this.towerManager,
       this.mapManager,
       this.effectManager
     );
-    console.log('EffectManager initialized');
-    // Initialize TowerCombatManager with world dimensions for spatial partitioning
-    const worldWidth = 1024; // Play area width (excluding UI)
-    const worldHeight = 768; // Full height
-    this.towerCombatManager = new TowerCombatManager(worldWidth, worldHeight);
-    this.towerCombatManager.setProjectileManager(this.projectileManager);
-    this.towerCombatManager.setEffectManager(this.effectManager);
-    this.statTracker = new StatTracker(this);
-    this.aiPlayerManager = new AIPlayerManager(this);
-    this.balanceTrackingManager = new BalanceTrackingManager(this);
+    this.towerCombatManager = new TowerCombatManager(1024, 768);
 
-    // Set up combat damage tracking
-    this.towerCombatManager.setOnDamageCallback((damage, towerType, killed, overkill) => {
-      this.statTracker.trackDamage(damage, towerType, killed, overkill);
+    // Initialize contextual state objects with injected managers
+    this.initializeStateObjects();
 
-      // Track damage for balance analysis if enabled
-      if (this.balanceTrackingManager.isEnabled()) {
-        this.balanceTrackingManager.trackDamage(towerType, damage, killed, overkill);
-      }
-    });
+    // Set up event listeners
+    this.setupEventListeners();
 
     // Set up tower placement callbacks
     this.setupTowerPlacementCallbacks();
   }
 
-  // Initialize the game
-  public init(): void {
-    console.log('Initializing game...');
-    // Initialize game systems here
+  private initializeStateObjects(): void {
+    // Initialize LevelState with injected manager instances (no duplicates)
+    this.levelState = new LevelState({
+      container: this.gameContainer,
+      mapManager: this.mapManager,
+      worldWidth: 1024,
+      worldHeight: 768,
+      towerManager: this.towerManager,
+      waveManager: this.waveManager,
+      zombieManager: this.zombieManager,
+      projectileManager: this.projectileManager,
+      towerPlacementManager: this.towerPlacementManager,
+      towerCombatManager: this.towerCombatManager,
+      effectManager: this.effectManager,
+    });
+
+    // Initialize EconomyState
+    this.economyState = new EconomyState();
+
+    // Initialize AnalyticsState
+    this.analyticsState = new AnalyticsState({ gameManager: this });
   }
 
-  // Set up tower placement callbacks
+  private setupEventListeners(): void {
+    // Listen for damage events and forward to analytics
+    EventBus.getInstance().on<{ damage: number; towerType: string; killed: boolean; overkill: number }>(
+      GameEvents.DAMAGE_DEALT,
+      (data) => {
+        if (data && data.killed) {
+          // Award money for kills through event system
+          // (actual money reward handled in update loop for now)
+        }
+      }
+    );
+  }
+
   private setupTowerPlacementCallbacks(): void {
     this.towerPlacementManager.setTowerPlacedCallback((tower: Tower) => {
       const cost = this.towerManager.getTowerCost(tower.getType());
       if (this.spendMoney(cost)) {
         console.log(`Tower placed: ${tower.getType()} for $${cost}`);
 
-        // Track tower placement for balance analysis
-        if (this.balanceTrackingManager.isEnabled()) {
-          this.balanceTrackingManager.trackTowerPlaced(tower.getType(), cost);
+        // Emit event for tower placement
+        EventBus.getInstance().emit(GameEvents.TOWER_PLACED, {
+          type: tower.getType(),
+          cost: cost,
+        });
+
+        // Track via contextual state
+        if (this.analyticsState.isBalanceTrackingEnabled()) {
+          this.analyticsState.getBalanceTrackingManager().trackTowerPlaced(tower.getType(), cost);
         }
       } else {
         console.warn(`Failed to deduct money for tower: ${tower.getType()}`);
@@ -143,7 +181,10 @@ export class GameManager {
     });
   }
 
-  // Start the game
+  public init(): void {
+    console.log('Initializing game...');
+  }
+
   public startGame(): void {
     this.currentState = GameConfig.GAME_STATES.PLAYING;
     this.zombieManager.startWave();
@@ -156,49 +197,35 @@ export class GameManager {
       this.towerCombatManager.setZombies(this.zombieManager.getZombies());
     }
 
-    // Record memory snapshot for wave 1
     PerformanceMonitor.recordWaveMemory(this.wave);
-
     console.log('Game started');
   }
 
-  // Start the game with a specific level
   public startGameWithLevel(levelId: string): void {
     if (this.levelManager.loadLevel(levelId)) {
       const level = this.levelManager.getCurrentLevel();
       if (level) {
-        // CRITICAL: Clear all game objects from previous game to prevent memory leaks
         console.log('🧹 Cleaning up previous game state...');
         this.clearGameState();
-
-        // Clear any orphaned effect intervals from previous game
         EffectCleanupManager.clearAll();
-
-        // Generate new session ID for this game
         LogExporter.newSession();
 
-        // Reset and enable balance tracking for new game
-        this.balanceTrackingManager.reset();
-        this.balanceTrackingManager.enable();
+        // Reset contextual states
+        this.analyticsState.getBalanceTrackingManager().reset();
+        this.analyticsState.getBalanceTrackingManager().enable();
 
-        // Reset wave counter and score
+        // Reset game state
         this.wave = DebugConstants.ENABLED ? DebugConstants.START_AT_WAVE : 1;
         this.score = 0;
         this.waveManager.reset();
 
-        // Set level-specific game parameters (unless debug mode overrides)
         if (DebugConstants.ENABLED) {
-          // Keep debug values
           console.log('🔧 Using debug starting values instead of level defaults');
         } else {
-          // Use level defaults
           this.money = level.startingMoney;
           this.lives = level.startingLives;
         }
-        // Apply resource modifiers
-        // ... other level-specific initialization ...
 
-        // Render the map for this level
         console.log(`Rendering map: ${level.map}`);
         if (this.visualMapRenderer) {
           this.visualMapRenderer.renderMap(level.map);
@@ -209,31 +236,26 @@ export class GameManager {
 
         this.currentState = GameConfig.GAME_STATES.PLAYING;
 
-        // Start stat tracking
-        const aiEnabled = this.aiPlayerManager.isEnabled();
-        this.statTracker.startTracking(aiEnabled);
+        // Start tracking
+        const aiEnabled = this.analyticsState.getAIPlayerManager().isEnabled();
+        this.analyticsState.getStatTracker().startTracking(aiEnabled);
 
-        // Spawn starter tower to showcase mechanics
         this.spawnStarterTower();
 
-        // Spawn test towers for debugging (if enabled)
         if (DevConfig.TESTING?.SPAWN_TEST_TOWERS) {
           this.spawnTestTowers();
         }
 
-        // Track lives at wave start for balance analysis
         this.waveStartLives = this.lives;
-
-        // Start spawning zombies
         this.zombieManager.startWave();
+        this.analyticsState.getStatTracker().trackWaveStart();
 
-        // Track first wave start
-        this.statTracker.trackWaveStart();
-
-        // Track first wave start for balance analysis
-        if (this.balanceTrackingManager.isEnabled()) {
-          this.balanceTrackingManager.trackWaveStart();
+        if (this.analyticsState.isBalanceTrackingEnabled()) {
+          this.analyticsState.getBalanceTrackingManager().trackWaveStart();
         }
+
+        // Emit wave start event
+        EventBus.getInstance().emit(GameEvents.WAVE_START, { wave: this.wave });
 
         console.log(`Game started with level: ${level.name}`);
       }
@@ -242,49 +264,35 @@ export class GameManager {
     }
   }
 
-  /**
-   * Clear all game state to prevent memory leaks when starting a new game
-   * CRITICAL: This must be called before starting a new game or restarting
-   */
   private clearGameState(): void {
-    // Use centralized cleanup manager for all game resources
     ResourceCleanupManager.cleanupGameResources({
       zombieManager: this.zombieManager,
       towerPlacementManager: this.towerPlacementManager,
       projectileManager: this.projectileManager,
       effectManager: this.effectManager,
-      towerCombatManager: this.towerCombatManager,
+      towerCombatManager: this.levelState.getTowerCombatManager(),
       waveManager: this.waveManager,
     });
   }
 
-  /**
-   * Clean up wave-specific objects between waves to prevent memory accumulation
-   * CRITICAL: This must be called after each wave completes
-   */
   private cleanupWaveObjects(): void {
-    // Use centralized cleanup manager for wave resources
     ResourceCleanupManager.cleanupWaveResources({
       zombieManager: this.zombieManager,
       projectileManager: this.projectileManager,
       effectManager: this.effectManager,
     });
-
-    // Note: Corpses will fade naturally over time (managed by CorpseManager)
-    // This keeps some visual persistence while preventing memory buildup
     console.log('  ✓ Old corpses will fade naturally');
+
+    // Emit cleanup event
+    EventBus.getInstance().emit(GameEvents.CLEANUP_WAVE);
   }
 
-  // Spawn starter tower for new players
   private spawnStarterTower(): void {
     console.log('Spawning starter gunner near graveyard entrance...');
-    // Place one machine gun tower near the entrance to showcase mechanics
     const starterTower = { x: 280, y: 440, type: GameConfig.TOWER_TYPES.MACHINE_GUN };
 
     console.log(`Placing starter gunner at (${starterTower.x}, ${starterTower.y})`);
-    // Start placement mode with the tower type
     this.towerPlacementManager.startPlacement(starterTower.type);
-    // Place the tower
     const tower = this.towerPlacementManager.placeTower(starterTower.x, starterTower.y);
     if (tower) {
       console.log(`✓ Starter gunner placed successfully`);
@@ -296,7 +304,6 @@ export class GameManager {
     console.log(`Total towers placed: ${placedTowers.length}`);
   }
 
-  // Spawn test towers for debugging
   private spawnTestTowers(): void {
     console.log('Spawning test towers...');
     const testTowers = [
@@ -318,25 +325,23 @@ export class GameManager {
     });
   }
 
-  // Pause the game
   public pauseGame(): void {
     if (this.currentState === GameConfig.GAME_STATES.PLAYING) {
       this.currentState = GameConfig.GAME_STATES.PAUSED;
+      EventBus.getInstance().emit(GameEvents.GAME_PAUSE);
       console.log('Game paused');
     }
   }
 
-  // Resume the game
   public resumeGame(): void {
     if (this.currentState === GameConfig.GAME_STATES.PAUSED) {
       this.currentState = GameConfig.GAME_STATES.PLAYING;
+      EventBus.getInstance().emit(GameEvents.GAME_RESUME);
       console.log('Game resumed');
     }
   }
 
-  // Game over
   public gameOver(): void {
-    // Prevent multiple game over calls
     if (this.currentState === GameConfig.GAME_STATES.GAME_OVER) {
       return;
     }
@@ -344,22 +349,21 @@ export class GameManager {
     this.currentState = GameConfig.GAME_STATES.GAME_OVER;
     console.log(`🔴 GAME OVER - Lives: ${this.lives}`);
 
-    // Calculate final score based on wave reached and money remaining
     const finalScore = this.wave * 1000 + this.money;
     this.score = finalScore;
     console.log(`📊 Final Score: ${this.score}`);
 
-    // Perform end-game balance analysis
-    if (this.balanceTrackingManager.isEnabled()) {
-      this.balanceTrackingManager.performEndGameAnalysis();
+    // Emit game over event
+    EventBus.getInstance().emit(GameEvents.GAME_OVER, { score: finalScore });
+
+    if (this.analyticsState.isBalanceTrackingEnabled()) {
+      this.analyticsState.getBalanceTrackingManager().performEndGameAnalysis();
     }
 
-    // Export log if not AI run (AI exports its own logs)
-    if (!this.aiPlayerManager.isEnabled()) {
+    if (!this.analyticsState.getAIPlayerManager().isEnabled()) {
       this.exportManualGameLog();
     }
 
-    // Trigger game over callback with score
     if (this.onGameOverCallback) {
       console.log('🎮 Triggering game over UI callback');
       this.onGameOverCallback(this.score);
@@ -367,23 +371,20 @@ export class GameManager {
       console.warn('⚠️ No game over callback registered!');
     }
 
-    // Delay cleanup slightly to allow UI to update
     setTimeout(() => {
       console.log('🧹 Cleaning up game state after game over...');
       this.clearGameState();
     }, 100);
   }
 
-  // Export game log for manual play
   private async exportManualGameLog(): Promise<void> {
-    // Import PerformanceMonitor for performance stats
     const { PerformanceMonitor } = await import('../utils/PerformanceMonitor');
 
     const logEntry = {
       timestamp: new Date().toISOString(),
       sessionId: LogExporter.getSessionId(),
       isAIRun: false,
-      duration: 0, // Could track this if needed
+      duration: 0,
       startTime: new Date().toISOString(),
       endTime: new Date().toISOString(),
       gameData: {
@@ -422,10 +423,9 @@ export class GameManager {
       },
     } as GameLogEntry;
 
-    // Get balance data from BalanceTrackingManager if enabled
     let balanceData: Record<string, unknown> | undefined;
-    if (this.balanceTrackingManager.isEnabled()) {
-      balanceData = this.balanceTrackingManager.generateReportData() as Record<string, unknown>;
+    if (this.analyticsState.isBalanceTrackingEnabled()) {
+      balanceData = this.analyticsState.getBalanceTrackingManager().generateReportData() as Record<string, unknown>;
       console.log('📊 Including balance analysis in report');
     }
 
@@ -433,47 +433,41 @@ export class GameManager {
     console.log('📊 Manual game log exported with performance data');
   }
 
-  // Victory
   public victory(): void {
     this.currentState = GameConfig.GAME_STATES.VICTORY;
     console.log('Victory!');
 
-    // Perform end-game balance analysis
-    if (this.balanceTrackingManager.isEnabled()) {
-      this.balanceTrackingManager.performEndGameAnalysis();
+    EventBus.getInstance().emit(GameEvents.GAME_VICTORY);
+
+    if (this.analyticsState.isBalanceTrackingEnabled()) {
+      this.analyticsState.getBalanceTrackingManager().performEndGameAnalysis();
     }
 
-    // Clear game state to free memory (player can restart from menu)
     console.log('🧹 Cleaning up game state after victory...');
     this.clearGameState();
   }
 
-  // Get current state
   public getCurrentState(): string {
     return this.currentState;
   }
 
-  // Manage resources
   public addMoney(amount: number): void {
     this.money += amount;
-
-    // Trigger money gain animation if callback is set
     if (this.onMoneyGainCallback) {
       this.onMoneyGainCallback(amount);
     }
+    // Emit money earned event
+    EventBus.getInstance().emit(GameEvents.MONEY_EARNED, amount);
   }
 
-  // Set callback for money gain animations
   public setMoneyGainCallback(callback: (amount: number) => void): void {
     this.onMoneyGainCallback = callback;
   }
 
-  // Set callback for damage flash effect
   public setDamageFlashCallback(callback: () => void): void {
     this.onDamageFlashCallback = callback;
   }
 
-  // Set callback for game over
   public setGameOverCallback(callback: (score: number) => void): void {
     this.onGameOverCallback = callback;
   }
@@ -481,24 +475,22 @@ export class GameManager {
   public spendMoney(amount: number): boolean {
     if (this.money >= amount) {
       this.money -= amount;
+      // Emit money spent event
+      EventBus.getInstance().emit(GameEvents.MONEY_SPENT, amount);
       return true;
     }
     return false;
   }
 
-  // Lives management
   public addLives(amount: number): void {
     this.lives += amount;
   }
 
   public removeLives(amount: number): void {
     this.lives -= amount;
-
-    // Trigger damage flash effect
     if (this.onDamageFlashCallback) {
       this.onDamageFlashCallback();
     }
-
     if (this.lives <= 0) {
       this.lives = 0;
       this.gameOver();
@@ -507,12 +499,11 @@ export class GameManager {
 
   public loseLife(amount: number = 1): void {
     this.lives -= amount;
-
-    // Trigger damage flash effect
     if (this.onDamageFlashCallback) {
       this.onDamageFlashCallback();
     }
-
+    // Emit life lost event
+    EventBus.getInstance().emit(GameEvents.LIFE_LOST, { amount, lives: this.lives });
     if (this.lives <= 0) {
       console.log(`🔴 GAME OVER TRIGGERED - Lives: ${this.lives}`);
       this.lives = 0;
@@ -520,13 +511,11 @@ export class GameManager {
     }
   }
 
-  // Wave management
   public nextWave(): void {
     this.wave++;
     this.currentState = GameConfig.GAME_STATES.WAVE_COMPLETE;
   }
 
-  // Scoring system
   public addScore(points: number): void {
     this.score += points;
   }
@@ -535,7 +524,6 @@ export class GameManager {
     return this.score;
   }
 
-  // Getters
   public getMoney(): number {
     return this.money;
   }
@@ -552,7 +540,7 @@ export class GameManager {
     return this.currentState;
   }
 
-  // Get managers
+  // Manager getters - delegate to contextual state objects
   public getTowerManager(): TowerManager {
     return this.towerManager;
   }
@@ -569,13 +557,12 @@ export class GameManager {
     return this.levelManager;
   }
 
-  // Get resource and upgrade systems
-  public getResourceManager(): ResourceManager {
-    return this.resourceManager;
+  public getResourceManager() {
+    return this.economyState.getResourceManager();
   }
 
-  public getUpgradeSystem(): UpgradeManager {
-    return this.upgradeSystem;
+  public getUpgradeSystem() {
+    return this.economyState.getUpgradeManager();
   }
 
   public getZombieManager(): ZombieManager {
@@ -591,72 +578,69 @@ export class GameManager {
   }
 
   public setInputManager(inputManager: InputManager): void {
-    // Initialize VisualMapRenderer now that we have InputManager
     if (!this.visualMapRenderer) {
       this.visualMapRenderer = new VisualMapRenderer(this.app, this.mapManager, inputManager);
     }
   }
 
-  public getAIPlayerManager(): AIPlayerManager {
-    return this.aiPlayerManager;
+  public getAIPlayerManager() {
+    return this.analyticsState.getAIPlayerManager();
   }
 
-  public getStatTracker(): StatTracker {
-    return this.statTracker;
+  public getStatTracker() {
+    return this.analyticsState.getStatTracker();
   }
 
-  public getBalanceTrackingManager(): BalanceTrackingManager {
-    return this.balanceTrackingManager;
+  public getBalanceTrackingManager() {
+    return this.analyticsState.getBalanceTrackingManager();
   }
 
   public getTowerCombatManager(): TowerCombatManager {
     return this.towerCombatManager;
   }
 
-  // Enable/disable balance tracking
   public enableBalanceTracking(): void {
-    this.balanceTrackingManager.enable();
+    this.analyticsState.enableBalanceTracking();
   }
 
   public disableBalanceTracking(): void {
-    this.balanceTrackingManager.disable();
+    this.analyticsState.disableBalanceTracking();
   }
 
   public isBalanceTrackingEnabled(): boolean {
-    return this.balanceTrackingManager.isEnabled();
+    return this.analyticsState.isBalanceTrackingEnabled();
   }
 
-  // Update game state
-  public update(deltaTime: number): void {
-    // Start frame measurement
-    PerformanceMonitor.startFrame();
+  // Contextual state getters (new API)
+  public getLevelState(): LevelState {
+    return this.levelState;
+  }
 
-    // Track frame for optimization validation
+  public getEconomyState(): EconomyState {
+    return this.economyState;
+  }
+
+  public getAnalyticsState(): AnalyticsState {
+    return this.analyticsState;
+  }
+
+  public update(deltaTime: number): void {
+    PerformanceMonitor.startFrame();
     OptimizationValidator.trackFrame();
 
-    // Update animated fog effects
+    // Update visual map renderer
     PerformanceMonitor.startMeasure('visualMapRenderer');
     if (this.visualMapRenderer) {
       this.visualMapRenderer.updateFog(deltaTime);
     }
     PerformanceMonitor.endMeasure('visualMapRenderer');
 
-    // Update AI player (needs to run in all states to detect wave complete)
-    PerformanceMonitor.startMeasure('aiPlayerManager');
-    this.aiPlayerManager.update(deltaTime);
-    PerformanceMonitor.endMeasure('aiPlayerManager');
+    // Update analytics state (includes AI, stat tracker, balance tracking)
+    PerformanceMonitor.startMeasure('analyticsState');
+    this.analyticsState.update(deltaTime);
+    PerformanceMonitor.endMeasure('analyticsState');
 
-    // Update stat tracker
-    PerformanceMonitor.startMeasure('statTracker');
-    this.statTracker.update(deltaTime);
-    PerformanceMonitor.endMeasure('statTracker');
-
-    // Update balance tracking manager
-    PerformanceMonitor.startMeasure('balanceTrackingManager');
-    this.balanceTrackingManager.update(deltaTime);
-    PerformanceMonitor.endMeasure('balanceTrackingManager');
-
-    // CRITICAL: Update effect manager (shell casings, muzzle flashes, etc.)
+    // Update effect manager
     PerformanceMonitor.startMeasure('effectManager');
     this.effectManager.update(deltaTime);
     PerformanceMonitor.endMeasure('effectManager');
@@ -667,14 +651,12 @@ export class GameManager {
       this.zombieManager.update(deltaTime);
       PerformanceMonitor.endMeasure('zombieManager');
 
-      // Update tower combat - only update arrays when they change (dirty flag optimization)
+      // Sync entity arrays when dirty
       const towersDirty = this.towerPlacementManager.areTowersDirty();
       const zombiesDirty = this.zombieManager.areZombiesDirty();
 
-      if (DevConfig.PERFORMANCE.LOG_DIRTY_FLAGS) {
-        if (!towersDirty && !zombiesDirty) {
-          console.log('⚡ Dirty flags prevented array rebuilds this frame');
-        }
+      if (DevConfig.PERFORMANCE.LOG_DIRTY_FLAGS && !towersDirty && !zombiesDirty) {
+        console.log('⚡ Dirty flags prevented array rebuilds this frame');
       }
 
       if (towersDirty) {
@@ -690,7 +672,7 @@ export class GameManager {
       if (zombiesDirty) {
         const zombies = this.zombieManager.getZombies();
         this.towerCombatManager.setZombies(zombies);
-        this.projectileManager.setZombies(zombies); // Update projectile manager with zombie list
+        this.projectileManager.setZombies(zombies);
         this.zombieManager.clearZombiesDirty();
         OptimizationValidator.trackArrayRebuild('zombies');
         if (DevConfig.PERFORMANCE.LOG_DIRTY_FLAGS) {
@@ -698,58 +680,49 @@ export class GameManager {
         }
       }
 
+      // Update tower combat
       PerformanceMonitor.startMeasure('towerCombatManager');
       this.towerCombatManager.update(deltaTime);
       PerformanceMonitor.endMeasure('towerCombatManager');
 
-      // Check if wave is complete
+      // Check wave completion
       if (this.zombieManager.isWaveComplete()) {
         this.onWaveComplete();
       }
 
-      // Check for dead zombies and zombies that reached the end
-      // Cache reference to avoid repeated getter calls
+      // Process zombies
       const zombies = this.zombieManager.getZombies();
       for (let i = zombies.length - 1; i >= 0; i--) {
         const zombie = zombies[i];
 
-        // Check if zombie is dead
         const healthComponent = zombie.getComponent('Health') as unknown as {
           isAlive: () => boolean;
         };
         if (healthComponent && !healthComponent.isAlive()) {
-          // Award money for killing zombie
           const reward = zombie.getReward();
           this.addMoney(reward);
-
-          // Add score for killing zombie (10 points per zombie)
           this.addScore(10);
 
-          // Track money earned from zombie kill
-          if (this.balanceTrackingManager.isEnabled()) {
-            this.balanceTrackingManager.trackEconomy('EARN', reward);
+          if (this.analyticsState.isBalanceTrackingEnabled()) {
+            this.analyticsState.getBalanceTrackingManager().trackEconomy('EARN', reward);
           }
 
           console.log(`💰 Zombie killed! +$${reward}`);
-          continue; // ZombieManager will remove it
+          continue;
         }
 
-        // Check if zombie reached the end
         if (zombie.hasReachedEnd()) {
-          // Lose lives based on zombie damage
           const damage = zombie.getDamage();
           console.log(
             `💀 ${zombie.getType()} zombie reached camp! -${damage} survivors (current: ${this.lives})`
           );
           this.loseLife(damage);
-
-          // Remove zombie after it reaches the end
           this.zombieManager.removeZombie(i);
         }
       }
     }
 
-    // Track entity counts for performance monitoring
+    // Track entity counts
     if (this.currentState === GameConfig.GAME_STATES.PLAYING) {
       PerformanceMonitor.trackEntityCount('zombies', this.zombieManager.getZombies().length);
       PerformanceMonitor.trackEntityCount(
@@ -761,7 +734,6 @@ export class GameManager {
         this.projectileManager.getProjectiles().length
       );
 
-      // Track effect counts
       const effectCounts = this.effectManager.getEffectCounts();
       PerformanceMonitor.trackEntityCount(
         'effects',
@@ -772,44 +744,33 @@ export class GameManager {
           effectCounts.glints
       );
 
-      // Track particle counts
       const particleStats = this.zombieManager.getBloodParticleSystem().getStats();
       PerformanceMonitor.trackEntityCount('particles', particleStats.activeParticles);
 
-      // Track corpse counts
       const corpseManager = this.zombieManager.getCorpseManager();
       PerformanceMonitor.trackEntityCount('corpses', corpseManager.getCorpseCount());
 
-      // Track persistent effects
       const resourceState = ResourceCleanupManager.getState();
       PerformanceMonitor.trackEntityCount('persistentEffects', resourceState.persistentEffects);
 
-      // Check entity thresholds and log warnings
       PerformanceMonitor.checkEntityThresholds();
-
-      // Track memory usage periodically (throttled internally)
       PerformanceMonitor.trackMemoryUsage();
     }
 
-    // End frame measurement
     PerformanceMonitor.endFrame();
   }
 
-  // Handle wave completion
   private onWaveComplete(): void {
     console.log(`Wave ${this.wave} complete!`);
     this.currentState = GameConfig.GAME_STATES.WAVE_COMPLETE;
 
-    // CRITICAL: Clean up wave-specific objects to prevent memory leaks
     console.log('🧹 Cleaning up wave objects...');
     this.cleanupWaveObjects();
 
     // Track wave completion
-    this.statTracker.trackWaveComplete();
+    this.analyticsState.getStatTracker().trackWaveComplete();
 
-    // Track wave completion for balance analysis
-    if (this.balanceTrackingManager.isEnabled()) {
-      // Calculate zombies killed (all zombies from the wave)
+    if (this.analyticsState.isBalanceTrackingEnabled()) {
       const zombieGroups = this.waveManager.getCurrentWaveZombies();
       let totalZombiesSpawned = 0;
       for (const group of zombieGroups) {
@@ -820,30 +781,30 @@ export class GameManager {
         totalZombiesSpawned += adjustedCount;
       }
 
-      // Calculate lives lost this wave
       const livesLostThisWave = this.waveStartLives - this.lives;
-
-      this.balanceTrackingManager.trackWaveComplete(totalZombiesSpawned, livesLostThisWave);
+      this.analyticsState.getBalanceTrackingManager().trackWaveComplete(totalZombiesSpawned, livesLostThisWave);
     }
 
-    // Award bonus money for completing wave
     const bonus = 50 + this.wave * 10;
     this.addMoney(bonus);
-    this.statTracker.trackMoneyEarned(bonus);
+    this.analyticsState.getStatTracker().trackMoneyEarned(bonus);
 
-    // Track wave completion bonus for balance analysis
-    if (this.balanceTrackingManager.isEnabled()) {
-      this.balanceTrackingManager.trackEconomy('EARN', bonus);
+    if (this.analyticsState.isBalanceTrackingEnabled()) {
+      this.analyticsState.getBalanceTrackingManager().trackEconomy('EARN', bonus);
     }
+
+    // Emit wave complete event
+    EventBus.getInstance().emit(GameEvents.WAVE_COMPLETE, {
+      wave: this.wave,
+      zombiesSpawned: 0, // Calculated above
+      livesLost: this.waveStartLives - this.lives,
+    });
   }
 
-  // Start next wave
   public startNextWave(): void {
     this.wave++;
     this.waveManager.nextWave();
 
-    // CRITICAL: Ensure cleanup happened before starting new wave
-    // This is a safety check in case cleanup wasn't called in onWaveComplete
     console.log('🧹 Pre-wave cleanup check...');
     ResourceCleanupManager.cleanupWaveResources({
       projectileManager: this.projectileManager,
@@ -854,19 +815,16 @@ export class GameManager {
     this.zombieManager.startWave();
     this.currentState = GameConfig.GAME_STATES.PLAYING;
 
-    // Track lives at wave start for balance analysis
     this.waveStartLives = this.lives;
-
-    // Record memory snapshot at wave start
     PerformanceMonitor.recordWaveMemory(this.wave);
+    this.analyticsState.getStatTracker().trackWaveStart();
 
-    // Track wave start
-    this.statTracker.trackWaveStart();
-
-    // Track wave start for balance analysis
-    if (this.balanceTrackingManager.isEnabled()) {
-      this.balanceTrackingManager.trackWaveStart();
+    if (this.analyticsState.isBalanceTrackingEnabled()) {
+      this.analyticsState.getBalanceTrackingManager().trackWaveStart();
     }
+
+    // Emit wave start event
+    EventBus.getInstance().emit(GameEvents.WAVE_START, { wave: this.wave });
 
     console.log(`Starting wave ${this.wave}`);
   }

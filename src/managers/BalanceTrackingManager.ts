@@ -279,9 +279,15 @@ export class BalanceTrackingManager {
   }
 
   /**
-   * Track tower placement
+   * Helper to track tower events
    */
-  public trackTowerPlaced(towerType: string, cost: number): void {
+  private trackTowerEvent(
+    action: TowerEvent['action'],
+    towerType: string,
+    cost: number,
+    level: number,
+    economyAction: EconomyEvent['action']
+  ): void {
     if (!this.data.enabled) {
       return;
     }
@@ -289,56 +295,35 @@ export class BalanceTrackingManager {
     const event: TowerEvent = {
       time: Date.now(),
       wave: this.gameManager.getWave(),
-      action: 'PLACED',
-      towerType,
-      cost,
-      level: 1,
-    };
-
-    this.data.towerEvents.push(event);
-    this.trackEconomy('BUILD', cost);
-  }
-
-  /**
-   * Track tower upgrade
-   */
-  public trackTowerUpgraded(towerType: string, cost: number, level: number): void {
-    if (!this.data.enabled) {
-      return;
-    }
-
-    const event: TowerEvent = {
-      time: Date.now(),
-      wave: this.gameManager.getWave(),
-      action: 'UPGRADED',
+      action,
       towerType,
       cost,
       level,
     };
 
     this.data.towerEvents.push(event);
-    this.trackEconomy('UPGRADE', cost);
+    this.trackEconomy(economyAction, Math.abs(cost));
+  }
+
+  /**
+   * Track tower placement
+   */
+  public trackTowerPlaced(towerType: string, cost: number): void {
+    this.trackTowerEvent('PLACED', towerType, cost, 1, 'BUILD');
+  }
+
+  /**
+   * Track tower upgrade
+   */
+  public trackTowerUpgraded(towerType: string, cost: number, level: number): void {
+    this.trackTowerEvent('UPGRADED', towerType, cost, level, 'UPGRADE');
   }
 
   /**
    * Track tower sale
    */
   public trackTowerSold(towerType: string, refund: number): void {
-    if (!this.data.enabled) {
-      return;
-    }
-
-    const event: TowerEvent = {
-      time: Date.now(),
-      wave: this.gameManager.getWave(),
-      action: 'SOLD',
-      towerType,
-      cost: -refund, // Negative cost for refund
-      level: 0,
-    };
-
-    this.data.towerEvents.push(event);
-    this.trackEconomy('SELL', refund);
+    this.trackTowerEvent('SOLD', towerType, -refund, 0, 'SELL');
   }
 
   // ============================================================================
@@ -498,12 +483,27 @@ export class BalanceTrackingManager {
   }
 
   /**
-   * Perform wave-end analysis
+   * Helper to wrap analysis with performance tracking and error handling
    */
-  private performWaveAnalysis(): void {
+  private runAnalysis<T>(name: string, analysisFn: () => T): T | undefined {
     const startTime = performance.now();
 
     try {
+      const result = analysisFn();
+      const elapsed = performance.now() - startTime;
+      this.recordAnalysisPerformance(elapsed);
+      return result;
+    } catch (error) {
+      console.error(`❌ Error in ${name}:`, error);
+      return undefined;
+    }
+  }
+
+  /**
+   * Perform wave-end analysis
+   */
+  private performWaveAnalysis(): void {
+    this.runAnalysis('wave analysis', () => {
       // Perform statistical analysis on wave difficulty
       if (this.data.waveEvents.length >= 3) {
         // Prepare data for trend analysis (wave number, zombies killed)
@@ -530,22 +530,14 @@ export class BalanceTrackingManager {
 
         console.log(`📈 Trend: ${trend.trend} (confidence: ${trend.confidence})`);
       }
-
-      // Track performance
-      const elapsed = performance.now() - startTime;
-      this.recordAnalysisPerformance(elapsed);
-    } catch (error) {
-      console.error('❌ Error in wave analysis:', error);
-    }
+    });
   }
 
   /**
    * Perform end-game analysis
    */
   public performEndGameAnalysis(): void {
-    const startTime = performance.now();
-
-    try {
+    this.runAnalysis('end-game analysis', () => {
       console.log('📊 Performing end-game analysis...');
 
       // Calculate tower efficiencies
@@ -563,13 +555,7 @@ export class BalanceTrackingManager {
       this.performRealTimeAnalysis();
 
       console.log('✅ End-game analysis complete');
-
-      // Track performance
-      const elapsed = performance.now() - startTime;
-      this.recordAnalysisPerformance(elapsed);
-    } catch (error) {
-      console.error('❌ Error in end-game analysis:', error);
-    }
+    });
   }
 
   // ============================================================================
