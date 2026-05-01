@@ -10,6 +10,7 @@ import { BarrelHeatGlow } from '../renderers/effects/BarrelHeatGlow';
 import type { EffectManager } from '../renderers/effects/EffectManager';
 import type { TowerEffects } from '../types/tower-internal';
 import { EffectCleanupManager } from '../utils/EffectCleanupManager';
+import { EventBus, GameEvents } from '../utils/EventBus';
 import { TowerRangeVisualizer } from '../utils/TowerRangeVisualizer';
 import { GameObject } from './GameObject';
 import type { ITower } from './Tower.interface';
@@ -37,12 +38,15 @@ export class Tower extends GameObject implements ITower, TowerEffects {
 
   // Machine gun effects
   private barrelHeatGlow: BarrelHeatGlow | null = null;
-  private effectManager: EffectManager | null = null; // Reference to effect manager
+  private effectManager: EffectManager | null = null; // Reference to effect manager (deprecated, use EventBus)
 
   // Sniper effects
   // biome-ignore lint/suspicious/noExplicitAny: PixiJS Filter API uses complex types
   private laserSight: any = null;
   private currentTarget: { x: number; y: number } | null = null;
+
+  // EventBus for decoupled communication
+  private eventBus: EventBus;
 
   // Dynamic effect properties (from TowerEffects interface)
   public selectionHighlight?: Graphics;
@@ -69,6 +73,7 @@ export class Tower extends GameObject implements ITower, TowerEffects {
     this.type = type;
     this.lastShotTime = 0;
     this.rangeVisualizer = TowerRangeVisualizer.getInstance();
+    this.eventBus = EventBus.getInstance();
 
     // Set the container position
     this.position.set(x, y);
@@ -549,24 +554,35 @@ export class Tower extends GameObject implements ITower, TowerEffects {
 
   /**
    * Spawn bullet trail and impact flash (Sniper)
+   * Emits SNIPER_HIT event for CombatRenderer to handle visuals
    */
   public spawnSniperHitEffects(
     targetX: number,
     targetY: number,
     isHeadshot: boolean = false
   ): void {
-    if (!this.effectManager) {
-      return;
-    }
-
     const rifleLength = 12 + this.upgradeLevel * 2;
     const rifleTip = -12 + rifleLength;
     const startX = this.x + Math.cos(this.barrel.rotation) * rifleTip;
     const startY = this.y + Math.sin(this.barrel.rotation) * rifleTip;
 
-    // Spawn bullet trail and impact flash through EffectManager
-    this.effectManager.spawnBulletTrail(startX, startY, targetX, targetY);
-    this.effectManager.spawnImpactFlash(targetX, targetY, isHeadshot);
+    // Emit event for CombatRenderer to handle visuals (enables headless simulation)
+    this.eventBus.emit(GameEvents.SNIPER_HIT, {
+      tower: this,
+      startX,
+      startY,
+      targetX,
+      targetY,
+      isHeadshot,
+      upgradeLevel: this.upgradeLevel,
+      barrelRotation: this.barrel.rotation,
+    });
+
+    // Legacy: Also call EffectManager directly if available (backward compatibility)
+    if (this.effectManager) {
+      this.effectManager.spawnBulletTrail(startX, startY, targetX, targetY);
+      this.effectManager.spawnImpactFlash(targetX, targetY, isHeadshot);
+    }
   }
 
   /**

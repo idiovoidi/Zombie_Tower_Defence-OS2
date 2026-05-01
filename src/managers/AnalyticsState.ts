@@ -95,6 +95,15 @@ export class AnalyticsState {
       })
     );
 
+    // Listen for zombie killed (for detailed economy tracking)
+    this.eventSubscriptions.push(
+      eventBus.on<{ reward: number; type: string }>(GameEvents.ZOMBIE_KILLED, (data) => {
+        if (data && this.balanceTrackingManager.isEnabled()) {
+          this.balanceTrackingManager.trackEconomy('EARN', data.reward);
+        }
+      })
+    );
+
     // Listen for tower placed
     this.eventSubscriptions.push(
       eventBus.on<{ type: string; cost: number }>(GameEvents.TOWER_PLACED, (data) => {

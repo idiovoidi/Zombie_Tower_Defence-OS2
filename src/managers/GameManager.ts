@@ -166,16 +166,11 @@ export class GameManager {
       if (this.spendMoney(cost)) {
         console.log(`Tower placed: ${tower.getType()} for $${cost}`);
 
-        // Emit event for tower placement
+        // Emit event for tower placement - AnalyticsState listens and handles tracking
         EventBus.getInstance().emit(GameEvents.TOWER_PLACED, {
           type: tower.getType(),
           cost: cost,
         });
-
-        // Track via contextual state
-        if (this.analyticsState.isBalanceTrackingEnabled()) {
-          this.analyticsState.getBalanceTrackingManager().trackTowerPlaced(tower.getType(), cost);
-        }
       } else {
         console.warn(`Failed to deduct money for tower: ${tower.getType()}`);
       }
@@ -249,13 +244,8 @@ export class GameManager {
 
         this.waveStartLives = this.lives;
         this.zombieManager.startWave();
-        this.analyticsState.getStatTracker().trackWaveStart();
 
-        if (this.analyticsState.isBalanceTrackingEnabled()) {
-          this.analyticsState.getBalanceTrackingManager().trackWaveStart();
-        }
-
-        // Emit wave start event
+        // Emit wave start event - AnalyticsState listens and handles tracking
         EventBus.getInstance().emit(GameEvents.WAVE_START, { wave: this.wave });
 
         console.log(`Game started with level: ${level.name}`);
@@ -717,9 +707,11 @@ export class GameManager {
           this.addMoney(reward);
           this.addScore(10);
 
-          if (this.analyticsState.isBalanceTrackingEnabled()) {
-            this.analyticsState.getBalanceTrackingManager().trackEconomy('EARN', reward);
-          }
+          // Emit zombie killed event - AnalyticsState listens and handles detailed tracking
+          EventBus.getInstance().emit(GameEvents.ZOMBIE_KILLED, {
+            reward,
+            type: zombie.getType(),
+          });
 
           console.log(`💰 Zombie killed! +$${reward}`);
           continue;
@@ -781,37 +773,26 @@ export class GameManager {
     console.log('🧹 Cleaning up wave objects...');
     this.cleanupWaveObjects();
 
-    // Track wave completion
-    this.analyticsState.getStatTracker().trackWaveComplete();
-
-    if (this.analyticsState.isBalanceTrackingEnabled()) {
-      const zombieGroups = this.waveManager.getCurrentWaveZombies();
-      let totalZombiesSpawned = 0;
-      for (const group of zombieGroups) {
-        const adjustedCount = this.waveManager.calculateZombieCount(
-          group.count,
-          this.waveManager.getCurrentWave()
-        );
-        totalZombiesSpawned += adjustedCount;
-      }
-
-      const livesLostThisWave = this.waveStartLives - this.lives;
-      this.analyticsState.getBalanceTrackingManager().trackWaveComplete(totalZombiesSpawned, livesLostThisWave);
+    // Calculate wave stats for event
+    const zombieGroups = this.waveManager.getCurrentWaveZombies();
+    let totalZombiesSpawned = 0;
+    for (const group of zombieGroups) {
+      const adjustedCount = this.waveManager.calculateZombieCount(
+        group.count,
+        this.waveManager.getCurrentWave()
+      );
+      totalZombiesSpawned += adjustedCount;
     }
+    const livesLostThisWave = this.waveStartLives - this.lives;
 
     const bonus = 50 + this.wave * 10;
     this.addMoney(bonus);
-    this.analyticsState.getStatTracker().trackMoneyEarned(bonus);
 
-    if (this.analyticsState.isBalanceTrackingEnabled()) {
-      this.analyticsState.getBalanceTrackingManager().trackEconomy('EARN', bonus);
-    }
-
-    // Emit wave complete event
+    // Emit wave complete event - AnalyticsState listens and handles tracking
     EventBus.getInstance().emit(GameEvents.WAVE_COMPLETE, {
       wave: this.wave,
-      zombiesSpawned: 0, // Calculated above
-      livesLost: this.waveStartLives - this.lives,
+      zombiesSpawned: totalZombiesSpawned,
+      livesLost: livesLostThisWave,
     });
   }
 
@@ -831,13 +812,8 @@ export class GameManager {
 
     this.waveStartLives = this.lives;
     PerformanceMonitor.recordWaveMemory(this.wave);
-    this.analyticsState.getStatTracker().trackWaveStart();
 
-    if (this.analyticsState.isBalanceTrackingEnabled()) {
-      this.analyticsState.getBalanceTrackingManager().trackWaveStart();
-    }
-
-    // Emit wave start event
+    // Emit wave start event - AnalyticsState listens and handles tracking
     EventBus.getInstance().emit(GameEvents.WAVE_START, { wave: this.wave });
 
     console.log(`Starting wave ${this.wave}`);

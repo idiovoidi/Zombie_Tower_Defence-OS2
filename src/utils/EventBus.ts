@@ -141,12 +141,19 @@ export const GameEvents = {
 
   // Combat events
   ZOMBIE_SPAWNED: 'combat:zombie:spawned',
-  ZOMBIE_KILLED: 'combat:zombie:killed',
+  ZOMBIE_KILLED: 'combat:zombie:killed',  // { reward: number, type: string }
   ZOMBIE_REACHED_END: 'combat:zombie:reachedEnd',
   TOWER_PLACED: 'combat:tower:placed',
   TOWER_SOLD: 'combat:tower:sold',
   TOWER_UPGRADED: 'combat:tower:upgraded',
   DAMAGE_DEALT: 'combat:damage:dealt',
+
+  // Combat visualization events (headless simulation support)
+  TARGET_HIT: 'combat:target:hit',
+  LIGHTNING_ARC: 'combat:lightning:arc',
+  SNIPER_HIT: 'combat:sniper:hit',
+  SHOOTING_EFFECT: 'combat:shooting:effect',
+  TOWER_ROTATION: 'combat:tower:rotation',
 
   // Cleanup events
   CLEANUP_GAME: 'cleanup:game',

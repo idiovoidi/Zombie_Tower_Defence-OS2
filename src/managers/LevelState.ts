@@ -8,6 +8,7 @@
 
 import { type Container } from 'pixi.js';
 import type { Tower } from '../objects/Tower';
+import { CombatRenderer } from '../renderers/CombatRenderer';
 import type { EffectManager } from '../renderers/effects/EffectManager';
 import { EventBus, GameEvents, type EventSubscription } from '../utils/EventBus';
 import type { MapManager } from './MapManager';
@@ -48,6 +49,9 @@ export class LevelState {
   private projectileManager: ProjectileManager;
   private effectManager: EffectManager | null = null;
 
+  // Combat renderer for visual effects (via EventBus)
+  private combatRenderer: CombatRenderer | null = null;
+
   // Event subscriptions for cleanup
   private eventSubscriptions: EventSubscription[] = [];
 
@@ -76,8 +80,10 @@ export class LevelState {
 
     // Wire up dependencies
     this.towerCombatManager.setProjectileManager(this.projectileManager);
+
+    // Set up combat renderer for visual effects if EffectManager is available
     if (this.effectManager) {
-      this.towerCombatManager.setEffectManager(this.effectManager);
+      this.combatRenderer = new CombatRenderer(this.effectManager);
     }
 
     // Set up event listeners
@@ -114,7 +120,12 @@ export class LevelState {
    */
   public setEffectManager(effectManager: EffectManager): void {
     this.effectManager = effectManager;
-    this.towerCombatManager.setEffectManager(effectManager);
+    // Create CombatRenderer to handle visual effects via EventBus
+    if (!this.combatRenderer) {
+      this.combatRenderer = new CombatRenderer(effectManager);
+    } else {
+      this.combatRenderer.setEffectManager(effectManager);
+    }
   }
 
   /**
@@ -329,6 +340,12 @@ export class LevelState {
     // Unsubscribe from all events
     this.eventSubscriptions.forEach(sub => sub.unsubscribe());
     this.eventSubscriptions = [];
+
+    // Dispose combat renderer
+    if (this.combatRenderer) {
+      this.combatRenderer.dispose();
+      this.combatRenderer = null;
+    }
 
     // Cleanup game resources
     this.cleanupGame();

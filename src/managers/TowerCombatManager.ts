@@ -1,6 +1,6 @@
 import type { Tower } from '../objects/Tower';
 import type { Zombie } from '../objects/Zombie';
-import type { EffectManager } from '../renderers/effects/EffectManager';
+import { EventBus, GameEvents } from '../utils/EventBus';
 import { OptimizationValidator } from '../utils/OptimizationValidator';
 import { SpatialGrid } from '../utils/SpatialGrid';
 import type { ProjectileManager } from './ProjectileManager';
@@ -12,8 +12,8 @@ export class TowerCombatManager {
   private onDamageCallback:
     | ((damage: number, towerType: string, killed: boolean, overkill: number) => void)
     | null = null;
-  private effectManager: EffectManager | null = null;
   private zombieGrid: SpatialGrid<Zombie & { [key: string]: unknown }>;
+  private eventBus: EventBus;
 
   /** Apply damage to a zombie, fire the damage callback, and return whether it was killed. */
   private applyDamageToZombie(zombie: Zombie, tower: Tower, damage: number): boolean {
@@ -38,14 +38,20 @@ export class TowerCombatManager {
       worldHeight,
       128
     );
+    this.eventBus = EventBus.getInstance();
   }
 
   public setProjectileManager(projectileManager: ProjectileManager): void {
     this.projectileManager = projectileManager;
   }
 
-  public setEffectManager(effectManager: EffectManager): void {
-    this.effectManager = effectManager;
+  /**
+   * @deprecated EffectManager is now accessed via CombatRenderer through EventBus
+   * This method is kept for backward compatibility but does nothing.
+   */
+  // biome-ignore lint/correctness/noUnusedVariables: Kept for API compatibility
+  public setEffectManager(_effectManager: unknown): void {
+    // No-op: EffectManager is now handled by CombatRenderer via EventBus
   }
 
   public setTowers(towers: Tower[]): void {
@@ -332,7 +338,6 @@ export class TowerCombatManager {
 
     // Track hit zombies to avoid hitting the same zombie twice
     const hitZombies = new Set<Zombie>();
-    const chainTargets: Array<{ from: { x: number; y: number }; to: Zombie; damage: number }> = [];
 
     // First target
     let currentDamage = damage;
@@ -346,16 +351,13 @@ export class TowerCombatManager {
       // Mark this zombie as hit
       hitZombies.add(currentTarget);
 
-      // Add electric particle effect to zombie
-      if (this.effectManager) {
-        this.effectManager.spawnElectricParticles(currentTarget, jump === 0);
-      }
-
-      // Store chain info for visual
-      chainTargets.push({
+      // Emit lightning arc event for CombatRenderer to handle visuals
+      this.eventBus.emit(GameEvents.LIGHTNING_ARC, {
         from: { x: currentSource.x, y: currentSource.y },
-        to: currentTarget,
+        to: { x: currentTarget.position.x, y: currentTarget.position.y },
+        isFirstArc: jump === 0,
         damage: currentDamage,
+        chainIndex: jump,
       });
 
       // Find next target for chain
@@ -374,21 +376,6 @@ export class TowerCombatManager {
         } else {
           break; // No more targets in range
         }
-      }
-    }
-
-    // Spawn all lightning arcs via EffectManager
-    if (this.effectManager) {
-      for (let i = 0; i < chainTargets.length; i++) {
-        const chain = chainTargets[i];
-        const isFirstArc = i === 0;
-        this.effectManager.spawnLightningArc(
-          chain.from.x,
-          chain.from.y,
-          chain.to.position.x,
-          chain.to.position.y,
-          isFirstArc
-        );
       }
     }
   }
