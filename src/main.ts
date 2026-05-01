@@ -266,19 +266,32 @@ import { VisualEffects } from './utils/VisualEffects';
     uiManager.setState(GameConfig.GAME_STATES.MAIN_MENU);
   });
 
-  // Set up next wave button callback
-  hud.setNextWaveCallback(() => {
+  // Helper to create next wave callback
+  const createNextWaveCallback = (uiComponent: { hideNextWaveButton: () => void }) => () => {
     DebugUtils.debug('Starting next wave');
     gameManager.startNextWave();
-    hud.hideNextWaveButton();
-  });
+    uiComponent.hideNextWaveButton();
+  };
+
+  // Helper to check if player can afford selected tower
+  const canAffordSelectedTower = (): {
+    affordable: boolean;
+    cost: number;
+    selectedType: string | null;
+  } => {
+    const selectedType = towerShop.getSelectedTowerType();
+    if (!selectedType) {
+      return { affordable: false, cost: 0, selectedType: null };
+    }
+    const cost = gameManager.getTowerManager().getTowerCost(selectedType);
+    return { affordable: gameManager.getMoney() >= cost, cost, selectedType };
+  };
+
+  // Set up next wave button callback
+  hud.setNextWaveCallback(createNextWaveCallback(hud));
 
   // Set up bottom bar next wave button callback
-  bottomBar.setNextWaveCallback(() => {
-    DebugUtils.debug('Starting next wave');
-    gameManager.startNextWave();
-    bottomBar.hideNextWaveButton();
-  });
+  bottomBar.setNextWaveCallback(createNextWaveCallback(bottomBar));
 
   // Set up tower shop callbacks
   towerShop.setTowerSelectCallback((type: string) => {
@@ -370,10 +383,9 @@ import { VisualEffects } from './utils/VisualEffects';
         const pos = coords.game;
 
         // Check if player has enough money before placing
-        const selectedType = towerShop.getSelectedTowerType();
+        const { affordable, cost, selectedType } = canAffordSelectedTower();
         if (selectedType) {
-          const cost = gameManager.getTowerManager().getTowerCost(selectedType);
-          if (gameManager.getMoney() >= cost) {
+          if (affordable) {
             const tower = placementManager.placeTower(pos.x, pos.y);
             if (tower) {
               gameManager.getStatTracker().trackTowerBuilt(selectedType, cost);
@@ -597,11 +609,8 @@ import { VisualEffects } from './utils/VisualEffects';
     // Update tower placement affordability
     const placementManager = gameManager.getTowerPlacementManager();
     if (placementManager.isInPlacementMode()) {
-      const selectedType = towerShop.getSelectedTowerType();
-      if (selectedType) {
-        const cost = gameManager.getTowerManager().getTowerCost(selectedType);
-        placementManager.setCanAfford(gameManager.getMoney() >= cost);
-      }
+      const { affordable } = canAffordSelectedTower();
+      placementManager.setCanAfford(affordable);
     }
 
     // Update camp upgrade panel money

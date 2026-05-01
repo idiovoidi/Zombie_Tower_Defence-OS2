@@ -52,7 +52,7 @@ describe('WaveManager', () => {
   describe('Zombie Composition', () => {
     test('should have correct zombie composition for waves 1-5', () => {
       for (let wave = 1; wave <= 5; wave++) {
-        // Set current wave
+        // biome-ignore lint/suspicious/noExplicitAny: Test needs access to private property
         (waveManager as any).currentWave = wave;
         const zombies = waveManager.getCurrentWaveZombies();
 
@@ -67,7 +67,7 @@ describe('WaveManager', () => {
 
     test('should have correct zombie composition for waves 6-10', () => {
       for (let wave = 6; wave <= 10; wave++) {
-        // Set current wave
+        // biome-ignore lint/suspicious/noExplicitAny: Test needs access to private property
         (waveManager as any).currentWave = wave;
         const zombies = waveManager.getCurrentWaveZombies();
 
@@ -82,7 +82,7 @@ describe('WaveManager', () => {
     });
 
     test('should have correct zombie composition for waves 41+', () => {
-      // Set current wave to 45
+      // biome-ignore lint/suspicious/noExplicitAny: Test needs access to private property
       (waveManager as any).currentWave = 45;
       const zombies = waveManager.getCurrentWaveZombies();
 
@@ -117,7 +117,7 @@ describe('WaveManager', () => {
     });
 
     test('should calculate correct damage for Tank Zombie with difficulty modifier', () => {
-      // Set difficulty modifier
+      // biome-ignore lint/suspicious/noExplicitAny: Test needs access to private property
       (waveManager as any).difficultyModifier = 1.2;
       const damage = waveManager.calculateZombieDamage(GameConfig.ZOMBIE_TYPES.TANK, 5);
       expect(damage).toBe(34); // 25 + (5 * 1.5) * 1.2 = 25 + 7.5 * 1.2 = 25 + 9 = 34

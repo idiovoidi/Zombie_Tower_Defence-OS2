@@ -1,4 +1,4 @@
-import { Graphics } from 'pixi.js';
+import { Container, Graphics } from 'pixi.js';
 
 /**
  * Barrel Heat Glow Effect
@@ -10,9 +10,9 @@ export class BarrelHeatGlow {
   private heatPerShot: number = 8;
   private coolingRate: number = 0.015; // Heat units per millisecond
   private glowGraphics: Graphics | null = null;
-  private barrelGraphics: Graphics;
+  private barrelGraphics: Container;
 
-  constructor(barrelGraphics: Graphics) {
+  constructor(barrelGraphics: Container) {
     this.barrelGraphics = barrelGraphics;
   }
 

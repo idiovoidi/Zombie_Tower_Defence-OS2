@@ -5,6 +5,8 @@
  * In development, logs can be saved directly to player_logs/ folder.
  */
 
+import { BalanceAnalyzer } from './BalanceAnalyzer';
+
 export interface BalanceAnalysisData {
   issues: Array<{
     type: string;
@@ -584,26 +586,9 @@ export class LogExporter {
       return 'EXCELLENT';
     }
 
-    // Count issues by severity
-    const criticalCount = issues.filter(i => i.severity === 'CRITICAL').length;
-    const highCount = issues.filter(i => i.severity === 'HIGH').length;
-    const mediumCount = issues.filter(i => i.severity === 'MEDIUM').length;
-
-    // Determine rating based on severity distribution
-    if (criticalCount > 0) {
-      return 'CRITICAL';
-    }
-    if (highCount >= 2) {
-      return 'POOR';
-    }
-    if (highCount === 1 || mediumCount >= 3) {
-      return 'FAIR';
-    }
-    if (mediumCount > 0) {
-      return 'GOOD';
-    }
-
-    return 'EXCELLENT';
+    return BalanceAnalyzer.calculateRatingFromIssues(
+      issues as Array<{ severity: 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL' }>
+    );
   }
 
   /**

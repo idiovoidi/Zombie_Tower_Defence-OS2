@@ -1,8 +1,8 @@
-import { Graphics } from 'pixi.js';
+import { Container, Graphics } from 'pixi.js';
 import { BaseTowerRenderer } from './BaseTowerRenderer';
 
 export class TeslaRenderer extends BaseTowerRenderer {
-  public render(visual: Graphics, barrel: Graphics, _type: string, upgradeLevel: number): void {
+  public render(visual: Graphics, barrel: Container, _type: string, upgradeLevel: number): void {
     visual.clear();
     const towerWidth = 32 + upgradeLevel * 3;
 
@@ -84,8 +84,14 @@ export class TeslaRenderer extends BaseTowerRenderer {
     visual.rect(towerWidth / 2 - 4, -5, 4, 25).fill({ color: 0xffcc00, alpha: 0.3 });
   }
 
-  private renderBarrel(barrel: Graphics, upgradeLevel: number): void {
-    barrel.clear();
+  private renderBarrel(barrel: Container, upgradeLevel: number): void {
+    const existingGraphics = barrel.getChildByLabel?.('barrelGraphics') as Graphics | undefined;
+    if (existingGraphics) {
+      existingGraphics.clear();
+    }
+
+    const graphics = existingGraphics ?? new Graphics();
+    graphics.label = 'barrelGraphics';
 
     // Body - tech suit improves
     let suitColor = 0x4a4a4a; // Gray
@@ -97,45 +103,49 @@ export class TeslaRenderer extends BaseTowerRenderer {
     }
 
     // Render character body
-    barrel.rect(-3, -13, 6, 8).fill(suitColor);
+    graphics.rect(-3, -13, 6, 8).fill(suitColor);
     // Arms
     const armColor = upgradeLevel >= 3 ? 0x00ced1 : 0xffdbac;
-    barrel.rect(-4, -11, 2, 4).fill(armColor);
-    barrel.rect(2, -11, 2, 4).fill(armColor);
+    graphics.rect(-4, -11, 2, 4).fill(armColor);
+    graphics.rect(2, -11, 2, 4).fill(armColor);
     // Tesla coil gun - gets bigger
     const coilSize = 3 + upgradeLevel * 0.5;
-    barrel.circle(0, -10, coilSize).fill(0x7fffd4);
-    barrel.rect(-2, -10, 4, 7).fill(0x00bfff);
+    graphics.circle(0, -10, coilSize).fill(0x7fffd4);
+    graphics.rect(-2, -10, 4, 7).fill(0x00bfff);
     // Electric arcs
     for (let i = 0; i < Math.min(upgradeLevel, 3); i++) {
       const offset = i * 2;
-      barrel
+      graphics
         .moveTo(-2, -8 + offset)
         .lineTo(2, -6 + offset)
         .stroke({ width: 1, color: 0xffffff });
     }
     // Head
-    barrel.circle(0, -18, 5).fill(0xffdbac);
-    barrel.stroke({ width: 1, color: 0x000000 });
+    graphics.circle(0, -18, 5).fill(0xffdbac);
+    graphics.stroke({ width: 1, color: 0x000000 });
 
     // Tech gear improves with level
     if (upgradeLevel <= 2) {
       // Basic goggles
-      barrel.rect(-4, -19, 8, 2).fill(0x4a4a4a);
+      graphics.rect(-4, -19, 8, 2).fill(0x4a4a4a);
     } else if (upgradeLevel <= 4) {
       // Tech visor
-      barrel.rect(-4, -19, 8, 3).fill(0x00ffff);
-      barrel.rect(-4, -19, 8, 3).fill({ color: 0x00ffff, alpha: 0.5 });
+      graphics.rect(-4, -19, 8, 3).fill(0x00ffff);
+      graphics.rect(-4, -19, 8, 3).fill({ color: 0x00ffff, alpha: 0.5 });
     } else {
       // Full tech helmet
-      barrel.circle(0, -18, 5).fill(0x00ced1);
-      barrel.rect(-4, -19, 8, 3).fill({ color: 0x00ffff, alpha: 0.7 });
-      barrel.rect(-5, -21, 2, 4).fill(0x00ced1);
-      barrel.rect(3, -21, 2, 4).fill(0x00ced1);
+      graphics.circle(0, -18, 5).fill(0x00ced1);
+      graphics.rect(-4, -19, 8, 3).fill({ color: 0x00ffff, alpha: 0.7 });
+      graphics.rect(-5, -21, 2, 4).fill(0x00ced1);
+      graphics.rect(3, -21, 2, 4).fill(0x00ced1);
+    }
+
+    if (!existingGraphics) {
+      barrel.addChild(graphics);
     }
   }
 
-  public renderShootingEffect(barrel: Graphics, _type: string, _upgradeLevel: number): void {
+  public renderShootingEffect(barrel: Container, _type: string, _upgradeLevel: number): void {
     const flash = new Graphics();
 
     // Tesla gun starts at -10, extends down by 7

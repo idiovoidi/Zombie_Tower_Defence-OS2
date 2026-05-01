@@ -1,4 +1,4 @@
-import { type Container, Graphics } from 'pixi.js';
+import { Container, Graphics } from 'pixi.js';
 import type { ITowerRenderer } from '@/renderers/towers/ITowerRenderer';
 import { TowerRendererFactory } from '@/renderers/towers/TowerRendererFactory';
 import { HealthComponent } from '../components/HealthComponent';
@@ -23,7 +23,7 @@ export class Tower extends GameObject implements ITower, TowerEffects {
   private maxUpgradeLevel: number = 5;
   private upgradeCost: number = 100;
   private visual: Graphics;
-  private barrel: Graphics; // Separate barrel for rotation
+  private barrel: Container; // Separate barrel for rotation
   private renderer: ITowerRenderer; // Renderer for visual representation
   private rangeVisualizer: TowerRangeVisualizer;
   private currentRotation: number = 0;
@@ -64,8 +64,8 @@ export class Tower extends GameObject implements ITower, TowerEffects {
     this.visual = new Graphics();
     this.addChild(this.visual);
 
-    // Create barrel as separate graphics for rotation
-    this.barrel = new Graphics();
+    // Create barrel as separate container for rotation (holds graphics + effects)
+    this.barrel = new Container();
     this.addChild(this.barrel);
 
     // Assign renderer via factory

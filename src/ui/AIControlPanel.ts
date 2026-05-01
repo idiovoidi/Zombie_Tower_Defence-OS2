@@ -57,7 +57,7 @@ export class AIControlPanel extends UIComponent {
         fontWeight: 'bold',
       },
     });
-    statusText.name = 'statusText';
+    statusText.label = 'statusText';
     statusText.anchor.set(0.5);
     statusText.position.set(width / 2, height - 15);
     this.button.addChild(statusText);

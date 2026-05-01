@@ -1,4 +1,4 @@
-import type { Graphics } from 'pixi.js';
+import type { Container, Graphics } from 'pixi.js';
 import { EffectCleanupManager } from '@/utils/EffectCleanupManager';
 import type { ITowerRenderer } from './ITowerRenderer';
 
@@ -15,7 +15,7 @@ export abstract class BaseTowerRenderer implements ITowerRenderer {
    * Attach a pre-built flash graphic to the barrel, apply recoil, and auto-remove after 100ms.
    * Call this at the end of every renderShootingEffect implementation.
    */
-  protected applyShootingEffect(barrel: Graphics, flash: Graphics): void {
+  protected applyShootingEffect(barrel: Container, flash: Graphics): void {
     barrel.addChild(flash);
     const originalY = barrel.y;
     barrel.y = 2;

@@ -327,6 +327,7 @@ describe('Memory Leak Tests', () => {
           destroyed: false,
           parent: null,
           destroy: vi.fn(),
+          // biome-ignore lint/suspicious/noExplicitAny: Mock object for testing
         } as any;
 
         ResourceCleanupManager.registerPersistentEffect(mockGraphics, {
@@ -396,6 +397,7 @@ describe('Memory Leak Tests', () => {
           destroyed: false,
           parent: null,
           destroy: vi.fn(),
+          // biome-ignore lint/suspicious/noExplicitAny: Mock object for testing
         } as any;
 
         ResourceCleanupManager.registerPersistentEffect(mockGraphics, {
@@ -429,12 +431,14 @@ describe('Memory Leak Tests', () => {
         destroyed: false,
         parent: null,
         destroy: vi.fn(),
+        // biome-ignore lint/suspicious/noExplicitAny: Mock object for testing
       } as any;
 
       const destroyedGraphics = {
         destroyed: true,
         parent: null,
         destroy: vi.fn(),
+        // biome-ignore lint/suspicious/noExplicitAny: Mock object for testing
       } as any;
 
       ResourceCleanupManager.registerPersistentEffect(validGraphics, { type: 'valid' });

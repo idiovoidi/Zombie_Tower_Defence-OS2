@@ -1,8 +1,8 @@
-import { Graphics } from 'pixi.js';
+import { Container, Graphics } from 'pixi.js';
 import { BaseTowerRenderer } from './BaseTowerRenderer';
 
 export class MachineGunRenderer extends BaseTowerRenderer {
-  public render(visual: Graphics, barrel: Graphics, _type: string, upgradeLevel: number): void {
+  public render(visual: Graphics, barrel: Container, _type: string, upgradeLevel: number): void {
     visual.clear();
     const baseSize = 15 + upgradeLevel * 2;
 
@@ -66,8 +66,15 @@ export class MachineGunRenderer extends BaseTowerRenderer {
     }
   }
 
-  private renderBarrel(barrel: Graphics, upgradeLevel: number): void {
-    barrel.clear();
+  private renderBarrel(barrel: Container, upgradeLevel: number): void {
+    // Clear existing barrel graphics (keep any effect children)
+    const existingGraphics = barrel.getChildByLabel?.('barrelGraphics') as Graphics | undefined;
+    if (existingGraphics) {
+      existingGraphics.clear();
+    }
+
+    const graphics = existingGraphics ?? new Graphics();
+    graphics.label = 'barrelGraphics';
 
     // Body color improves with upgrades
     let bodyColor = 0x654321; // Brown civilian
@@ -79,34 +86,38 @@ export class MachineGunRenderer extends BaseTowerRenderer {
     }
 
     // Render character body
-    barrel.rect(-3, -13, 6, 8).fill(bodyColor);
+    graphics.rect(-3, -13, 6, 8).fill(bodyColor);
     // Arms
-    barrel.rect(-4, -11, 2, 4).fill(0xffdbac);
-    barrel.rect(2, -11, 2, 4).fill(0xffdbac);
+    graphics.rect(-4, -11, 2, 4).fill(0xffdbac);
+    graphics.rect(2, -11, 2, 4).fill(0xffdbac);
     // Gun - gets bigger with upgrades
     const gunLength = 8 + upgradeLevel;
-    barrel.rect(-1, -10, 2, gunLength).fill(0x2f4f4f);
-    barrel.rect(-2, -11, 4, 2).fill(0x2f4f4f);
+    graphics.rect(-1, -10, 2, gunLength).fill(0x2f4f4f);
+    graphics.rect(-2, -11, 4, 2).fill(0x2f4f4f);
     // Head
-    barrel.circle(0, -18, 5).fill(0xffdbac);
-    barrel.stroke({ width: 1, color: 0x000000 });
+    graphics.circle(0, -18, 5).fill(0xffdbac);
+    graphics.stroke({ width: 1, color: 0x000000 });
 
     // Headgear improves with level
     if (upgradeLevel <= 2) {
       // Bandana
-      barrel.rect(-5, -21, 10, 2).fill(0x8b0000);
+      graphics.rect(-5, -21, 10, 2).fill(0x8b0000);
     } else if (upgradeLevel <= 4) {
       // Cap
-      barrel.rect(-5, -21, 10, 3).fill(0x4a4a4a);
-      barrel.rect(-3, -23, 6, 2).fill(0x4a4a4a);
+      graphics.rect(-5, -21, 10, 3).fill(0x4a4a4a);
+      graphics.rect(-3, -23, 6, 2).fill(0x4a4a4a);
     } else {
       // Military helmet
-      barrel.circle(0, -20, 5).fill(0x2a2a2a);
-      barrel.rect(-4, -21, 8, 2).fill(0x1a1a1a);
+      graphics.circle(0, -20, 5).fill(0x2a2a2a);
+      graphics.rect(-4, -21, 8, 2).fill(0x1a1a1a);
+    }
+
+    if (!existingGraphics) {
+      barrel.addChild(graphics);
     }
   }
 
-  public renderShootingEffect(barrel: Graphics, _type: string, upgradeLevel: number): void {
+  public renderShootingEffect(barrel: Container, _type: string, upgradeLevel: number): void {
     const flash = new Graphics();
 
     // Gun starts at -10, extends down by gunLength (8 + upgradeLevel)

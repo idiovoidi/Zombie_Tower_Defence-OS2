@@ -1,8 +1,8 @@
-import { Graphics } from 'pixi.js';
+import { Container, Graphics } from 'pixi.js';
 import { BaseTowerRenderer } from './BaseTowerRenderer';
 
 export class FlameRenderer extends BaseTowerRenderer {
-  public render(visual: Graphics, barrel: Graphics, _type: string, upgradeLevel: number): void {
+  public render(visual: Graphics, barrel: Container, _type: string, upgradeLevel: number): void {
     visual.clear();
     const towerSize = 18 + upgradeLevel * 2;
 
@@ -81,8 +81,14 @@ export class FlameRenderer extends BaseTowerRenderer {
     visual.circle(0, -10, 6).fill({ color: 0xff0000, alpha: 0.5 });
   }
 
-  private renderBarrel(barrel: Graphics, upgradeLevel: number): void {
-    barrel.clear();
+  private renderBarrel(barrel: Container, upgradeLevel: number): void {
+    const existingGraphics = barrel.getChildByLabel?.('barrelGraphics') as Graphics | undefined;
+    if (existingGraphics) {
+      existingGraphics.clear();
+    }
+
+    const graphics = existingGraphics ?? new Graphics();
+    graphics.label = 'barrelGraphics';
 
     // Body - protective gear improves
     let suitColor = 0x654321; // Brown clothes
@@ -94,37 +100,41 @@ export class FlameRenderer extends BaseTowerRenderer {
     }
 
     // Render character body
-    barrel.rect(-3, -13, 6, 8).fill(suitColor);
+    graphics.rect(-3, -13, 6, 8).fill(suitColor);
     // Arms
     const armColor = upgradeLevel >= 3 ? 0xff4500 : 0xffdbac;
-    barrel.rect(-4, -11, 2, 4).fill(armColor);
-    barrel.rect(2, -11, 2, 4).fill(armColor);
+    graphics.rect(-4, -11, 2, 4).fill(armColor);
+    graphics.rect(2, -11, 2, 4).fill(armColor);
     // Flamethrower - gets bigger
     const tankSize = 3 + upgradeLevel * 0.5;
-    barrel.rect(-tankSize / 2, -10, tankSize, 8).fill(0xff0000);
-    barrel.rect(-1, -11, 2, 6).fill(0x8b0000);
+    graphics.rect(-tankSize / 2, -10, tankSize, 8).fill(0xff0000);
+    graphics.rect(-1, -11, 2, 6).fill(0x8b0000);
     // Head
-    barrel.circle(0, -18, 5).fill(0xffdbac);
-    barrel.stroke({ width: 1, color: 0x000000 });
+    graphics.circle(0, -18, 5).fill(0xffdbac);
+    graphics.stroke({ width: 1, color: 0x000000 });
 
     // Protective gear improves with level
     if (upgradeLevel <= 2) {
       // Bandana/goggles
-      barrel.rect(-4, -19, 8, 2).fill(0x1a1a1a);
+      graphics.rect(-4, -19, 8, 2).fill(0x1a1a1a);
     } else if (upgradeLevel <= 4) {
       // Gas mask
-      barrel.circle(0, -18, 4).fill(0x4a4a4a);
-      barrel.circle(-2, -19, 1.5).fill(0x1a1a1a);
-      barrel.circle(2, -19, 1.5).fill(0x1a1a1a);
-      barrel.circle(0, -15, 2).fill(0x2a2a2a);
+      graphics.circle(0, -18, 4).fill(0x4a4a4a);
+      graphics.circle(-2, -19, 1.5).fill(0x1a1a1a);
+      graphics.circle(2, -19, 1.5).fill(0x1a1a1a);
+      graphics.circle(0, -15, 2).fill(0x2a2a2a);
     } else {
       // Full hazmat helmet
-      barrel.circle(0, -18, 5).fill(0xff4500);
-      barrel.rect(-3, -19, 6, 3).fill({ color: 0x1a1a1a, alpha: 0.5 }); // Visor
+      graphics.circle(0, -18, 5).fill(0xff4500);
+      graphics.rect(-3, -19, 6, 3).fill({ color: 0x1a1a1a, alpha: 0.5 }); // Visor
+    }
+
+    if (!existingGraphics) {
+      barrel.addChild(graphics);
     }
   }
 
-  public renderShootingEffect(barrel: Graphics, _type: string, _upgradeLevel: number): void {
+  public renderShootingEffect(barrel: Container, _type: string, _upgradeLevel: number): void {
     const flash = new Graphics();
 
     // Flamethrower starts at -10, extends down by 6

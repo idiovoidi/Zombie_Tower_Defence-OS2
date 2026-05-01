@@ -116,7 +116,7 @@ export class TowerShop extends UIComponent {
     this.addChild(warning);
   }
 
-  private addRivets(container: Container, width: number, height: number): void {
+  private addRivets(_container: Container, width: number, height: number): void {
     const rivetPositions = [
       [3, 3],
       [width - 3, 3],
@@ -134,7 +134,7 @@ export class TowerShop extends UIComponent {
       rivet.circle(0, 0, 3).fill(0x6a6a6a);
       rivet.circle(-1, -1, 2).fill(0x8a8a8a);
       rivet.position.set(x, y);
-      container.addChild(rivet);
+      this.addChild(rivet);
     });
   }
 

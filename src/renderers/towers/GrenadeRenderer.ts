@@ -1,8 +1,8 @@
-import { Graphics } from 'pixi.js';
+import { Container, Graphics } from 'pixi.js';
 import { BaseTowerRenderer } from './BaseTowerRenderer';
 
 export class GrenadeRenderer extends BaseTowerRenderer {
-  public render(visual: Graphics, barrel: Graphics, _type: string, upgradeLevel: number): void {
+  public render(visual: Graphics, barrel: Container, _type: string, upgradeLevel: number): void {
     visual.clear();
     const towerSize = 20 + upgradeLevel * 2;
 
@@ -62,8 +62,14 @@ export class GrenadeRenderer extends BaseTowerRenderer {
     visual.circle(0, 5, 6).fill({ color: 0xff6600, alpha: 0.5 });
   }
 
-  private renderBarrel(barrel: Graphics, upgradeLevel: number): void {
-    barrel.clear();
+  private renderBarrel(barrel: Container, upgradeLevel: number): void {
+    const existingGraphics = barrel.getChildByLabel?.('barrelGraphics') as Graphics | undefined;
+    if (existingGraphics) {
+      existingGraphics.clear();
+    }
+
+    const graphics = existingGraphics ?? new Graphics();
+    graphics.label = 'barrelGraphics';
 
     // Body - tactical gear
     let bodyColor = 0x6b8e23; // Olive
@@ -73,38 +79,42 @@ export class GrenadeRenderer extends BaseTowerRenderer {
     if (upgradeLevel >= 5) {
       bodyColor = 0x3a4a1f; // Military green
     }
-    barrel.rect(-3, -13, 6, 8).fill(bodyColor);
+    graphics.rect(-3, -13, 6, 8).fill(bodyColor);
 
     // Arms
     const armColor = upgradeLevel >= 3 ? 0x556b2f : 0xffdbac;
-    barrel.rect(-4, -11, 2, 4).fill(armColor);
-    barrel.rect(2, -11, 2, 4).fill(armColor);
+    graphics.rect(-4, -11, 2, 4).fill(armColor);
+    graphics.rect(2, -11, 2, 4).fill(armColor);
 
     // Grenade launcher - tube style
     const launcherSize = 3 + upgradeLevel * 0.3;
-    barrel.rect(-launcherSize, -10, launcherSize * 2, 8).fill(0x2f4f2f);
-    barrel.rect(-launcherSize - 1, -11, launcherSize * 2 + 2, 2).fill(0x1a1a1a);
+    graphics.rect(-launcherSize, -10, launcherSize * 2, 8).fill(0x2f4f2f);
+    graphics.rect(-launcherSize - 1, -11, launcherSize * 2 + 2, 2).fill(0x1a1a1a);
 
     // Head
-    barrel.circle(0, -18, 5).fill(0xffdbac);
-    barrel.stroke({ width: 1, color: 0x000000 });
+    graphics.circle(0, -18, 5).fill(0xffdbac);
+    graphics.stroke({ width: 1, color: 0x000000 });
 
     // Headgear
     if (upgradeLevel <= 2) {
       // Basic helmet
-      barrel.rect(-5, -21, 10, 3).fill(0x6b8e23);
+      graphics.rect(-5, -21, 10, 3).fill(0x6b8e23);
     } else if (upgradeLevel <= 4) {
       // Tactical helmet
-      barrel.circle(0, -20, 5).fill(0x556b2f);
-      barrel.rect(-4, -21, 8, 2).fill(0x3a4a1f);
+      graphics.circle(0, -20, 5).fill(0x556b2f);
+      graphics.rect(-4, -21, 8, 2).fill(0x3a4a1f);
     } else {
       // Full combat helmet
-      barrel.circle(0, -20, 5).fill(0x2a2a2a);
-      barrel.rect(-3, -21, 6, 2).fill(0x1a1a1a);
+      graphics.circle(0, -20, 5).fill(0x2a2a2a);
+      graphics.rect(-3, -21, 6, 2).fill(0x1a1a1a);
+    }
+
+    if (!existingGraphics) {
+      barrel.addChild(graphics);
     }
   }
 
-  public renderShootingEffect(barrel: Graphics, _type: string, _upgradeLevel: number): void {
+  public renderShootingEffect(barrel: Container, _type: string, _upgradeLevel: number): void {
     const flash = new Graphics();
 
     // Grenade launcher - launch flash

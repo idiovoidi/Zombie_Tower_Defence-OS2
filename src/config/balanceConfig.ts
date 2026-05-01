@@ -5,6 +5,8 @@
  * These values control when balance issues are detected and how calculations are performed.
  */
 
+import { BalanceAnalyzer } from '../utils/BalanceAnalyzer';
+
 /**
  * Thresholds for detecting balance issues
  */
@@ -408,23 +410,9 @@ export function getOverallBalanceRating(
     return 'EXCELLENT';
   }
 
-  const criticalCount = issues.filter(i => i.severity === 'CRITICAL').length;
-  const highCount = issues.filter(i => i.severity === 'HIGH').length;
-  const mediumCount = issues.filter(i => i.severity === 'MEDIUM').length;
-
-  if (criticalCount > 0) {
-    return 'CRITICAL';
-  }
-  if (highCount >= 2) {
-    return 'POOR';
-  }
-  if (highCount >= 1 || mediumCount >= 3) {
-    return 'FAIR';
-  }
-  if (mediumCount >= 1) {
-    return 'GOOD';
-  }
-  return 'EXCELLENT';
+  return BalanceAnalyzer.calculateRatingFromIssues(
+    issues as Array<{ severity: 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL' }>
+  ) as keyof typeof BALANCE_RATINGS;
 }
 
 /**

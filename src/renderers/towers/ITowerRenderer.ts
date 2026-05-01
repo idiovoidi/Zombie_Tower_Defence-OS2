@@ -1,4 +1,4 @@
-import type { Graphics } from 'pixi.js';
+import type { Container, Graphics } from 'pixi.js';
 
 /**
  * Interface for tower renderers
@@ -12,7 +12,7 @@ export interface ITowerRenderer {
    * @param type - The tower type
    * @param upgradeLevel - Current upgrade level (1-5)
    */
-  render(visual: Graphics, barrel: Graphics, type: string, upgradeLevel: number): void;
+  render(visual: Graphics, barrel: Container, type: string, upgradeLevel: number): void;
 
   /**
    * Render shooting effect (muzzle flash, recoil)
@@ -20,7 +20,7 @@ export interface ITowerRenderer {
    * @param type - The tower type
    * @param upgradeLevel - Current upgrade level (1-5)
    */
-  renderShootingEffect(barrel: Graphics, type: string, upgradeLevel: number): void;
+  renderShootingEffect(barrel: Container, type: string, upgradeLevel: number): void;
 
   /**
    * Clean up renderer resources

@@ -478,7 +478,7 @@ describe('Optimization Effectiveness Validation', () => {
       expect(stats.reused).toBe(0);
 
       // Release all
-      objects.forEach(obj => pool.release(obj));
+      objects.forEach(obj => void pool.release(obj));
       objects.length = 0;
 
       stats = pool.getStats();
@@ -496,7 +496,7 @@ describe('Optimization Effectiveness Validation', () => {
       expect(stats.reused).toBe(10); // All reused
 
       // Release again
-      objects.forEach(obj => pool.release(obj));
+      objects.forEach(obj => void pool.release(obj));
 
       console.log(`\n📊 Pool Statistics:`);
       console.log(`   Created: ${stats.created}`);

@@ -1,8 +1,8 @@
-import { Graphics } from 'pixi.js';
+import { Container, Graphics } from 'pixi.js';
 import { BaseTowerRenderer } from './BaseTowerRenderer';
 
 export class ShotgunRenderer extends BaseTowerRenderer {
-  public render(visual: Graphics, barrel: Graphics, _type: string, upgradeLevel: number): void {
+  public render(visual: Graphics, barrel: Container, _type: string, upgradeLevel: number): void {
     visual.clear();
     const bunkerWidth = 36 + upgradeLevel * 4;
 
@@ -71,8 +71,14 @@ export class ShotgunRenderer extends BaseTowerRenderer {
     visual.stroke({ width: 2, color: 0xffcc00 });
   }
 
-  private renderBarrel(barrel: Graphics, upgradeLevel: number): void {
-    barrel.clear();
+  private renderBarrel(barrel: Container, upgradeLevel: number): void {
+    const existingGraphics = barrel.getChildByLabel?.('barrelGraphics') as Graphics | undefined;
+    if (existingGraphics) {
+      existingGraphics.clear();
+    }
+
+    const graphics = existingGraphics ?? new Graphics();
+    graphics.label = 'barrelGraphics';
 
     // Body - armor improves
     let bodyColor = 0x654321; // Brown
@@ -84,34 +90,38 @@ export class ShotgunRenderer extends BaseTowerRenderer {
     }
 
     // Render character body
-    barrel.rect(-3, -11, 6, 8).fill(bodyColor);
+    graphics.rect(-3, -11, 6, 8).fill(bodyColor);
     // Arms
-    barrel.rect(-4, -9, 2, 4).fill(0xffdbac);
-    barrel.rect(2, -9, 2, 4).fill(0xffdbac);
+    graphics.rect(-4, -9, 2, 4).fill(0xffdbac);
+    graphics.rect(2, -9, 2, 4).fill(0xffdbac);
     // Shotgun - gets wider
     const barrelWidth = 2 + upgradeLevel * 0.3;
-    barrel.rect(-3, -8, barrelWidth, 8).fill(0xa0522d);
-    barrel.rect(1, -8, barrelWidth, 8).fill(0xa0522d);
+    graphics.rect(-3, -8, barrelWidth, 8).fill(0xa0522d);
+    graphics.rect(1, -8, barrelWidth, 8).fill(0xa0522d);
     // Head
-    barrel.circle(0, -16, 5).fill(0xffdbac);
-    barrel.stroke({ width: 1, color: 0x000000 });
+    graphics.circle(0, -16, 5).fill(0xffdbac);
+    graphics.stroke({ width: 1, color: 0x000000 });
 
     // Headgear
     if (upgradeLevel <= 2) {
       // Basic cap
-      barrel.rect(-5, -19, 10, 3).fill(0x654321);
+      graphics.rect(-5, -19, 10, 3).fill(0x654321);
     } else if (upgradeLevel <= 4) {
       // Tactical helmet
-      barrel.rect(-5, -19, 10, 3).fill(0x4a4a4a);
-      barrel.circle(0, -18, 4).fill(0x4a4a4a);
+      graphics.rect(-5, -19, 10, 3).fill(0x4a4a4a);
+      graphics.circle(0, -18, 4).fill(0x4a4a4a);
     } else {
       // Full combat helmet with visor
-      barrel.circle(0, -18, 5).fill(0x2a2a2a);
-      barrel.rect(-2, -19, 4, 1).fill(0x8b8b8b);
+      graphics.circle(0, -18, 5).fill(0x2a2a2a);
+      graphics.rect(-2, -19, 4, 1).fill(0x8b8b8b);
+    }
+
+    if (!existingGraphics) {
+      barrel.addChild(graphics);
     }
   }
 
-  public renderShootingEffect(barrel: Graphics, _type: string, _upgradeLevel: number): void {
+  public renderShootingEffect(barrel: Container, _type: string, _upgradeLevel: number): void {
     const flash = new Graphics();
 
     // Shotgun starts at -8, extends down by 8

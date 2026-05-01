@@ -1,8 +1,8 @@
-import { Graphics } from 'pixi.js';
+import { Container, Graphics } from 'pixi.js';
 import { BaseTowerRenderer } from './BaseTowerRenderer';
 
 export class SniperRenderer extends BaseTowerRenderer {
-  public render(visual: Graphics, barrel: Graphics, _type: string, upgradeLevel: number): void {
+  public render(visual: Graphics, barrel: Container, _type: string, upgradeLevel: number): void {
     visual.clear();
     const towerHeight = 30 + upgradeLevel * 3;
 
@@ -74,8 +74,14 @@ export class SniperRenderer extends BaseTowerRenderer {
     visual.stroke({ width: 2, color: 0xffcc00 });
   }
 
-  private renderBarrel(barrel: Graphics, upgradeLevel: number): void {
-    barrel.clear();
+  private renderBarrel(barrel: Container, upgradeLevel: number): void {
+    const existingGraphics = barrel.getChildByLabel?.('barrelGraphics') as Graphics | undefined;
+    if (existingGraphics) {
+      existingGraphics.clear();
+    }
+
+    const graphics = existingGraphics ?? new Graphics();
+    graphics.label = 'barrelGraphics';
 
     // Body - camo improves
     let bodyColor = 0x654321; // Brown
@@ -87,35 +93,39 @@ export class SniperRenderer extends BaseTowerRenderer {
     }
 
     // Render character body
-    barrel.rect(-3, -15, 6, 8).fill(bodyColor);
+    graphics.rect(-3, -15, 6, 8).fill(bodyColor);
     // Arms
-    barrel.rect(-4, -13, 2, 4).fill(0xffdbac);
-    barrel.rect(2, -13, 2, 4).fill(0xffdbac);
+    graphics.rect(-4, -13, 2, 4).fill(0xffdbac);
+    graphics.rect(2, -13, 2, 4).fill(0xffdbac);
     // Sniper rifle - gets longer
     const rifleLength = 12 + upgradeLevel * 2;
-    barrel.rect(-1, -12, 2, rifleLength).fill(0x1a1a1a);
-    barrel.circle(0, -13, 2 + upgradeLevel * 0.5).fill(0x1a1a1a); // Scope
+    graphics.rect(-1, -12, 2, rifleLength).fill(0x1a1a1a);
+    graphics.circle(0, -13, 2 + upgradeLevel * 0.5).fill(0x1a1a1a); // Scope
     // Head
-    barrel.circle(0, -20, 5).fill(0xffdbac);
-    barrel.stroke({ width: 1, color: 0x000000 });
+    graphics.circle(0, -20, 5).fill(0xffdbac);
+    graphics.stroke({ width: 1, color: 0x000000 });
 
     // Headgear
     if (upgradeLevel <= 2) {
       // Boonie hat
-      barrel.circle(0, -23, 6).fill(0x654321);
-      barrel.rect(-6, -21, 12, 1).fill(0x654321);
+      graphics.circle(0, -23, 6).fill(0x654321);
+      graphics.rect(-6, -21, 12, 1).fill(0x654321);
     } else if (upgradeLevel <= 4) {
       // Tactical cap with sunglasses
-      barrel.rect(-5, -22, 10, 3).fill(0x3a4a2a);
-      barrel.rect(-4, -20, 8, 2).fill(0x1a1a1a); // Sunglasses
+      graphics.rect(-5, -22, 10, 3).fill(0x3a4a2a);
+      graphics.rect(-4, -20, 8, 2).fill(0x1a1a1a); // Sunglasses
     } else {
       // Full tactical helmet with visor
-      barrel.circle(0, -20, 5).fill(0x1a1a1a);
-      barrel.rect(-4, -20, 8, 2).fill(0x4a4a4a); // Visor
+      graphics.circle(0, -20, 5).fill(0x1a1a1a);
+      graphics.rect(-4, -20, 8, 2).fill(0x4a4a4a); // Visor
+    }
+
+    if (!existingGraphics) {
+      barrel.addChild(graphics);
     }
   }
 
-  public renderShootingEffect(barrel: Graphics, _type: string, upgradeLevel: number): void {
+  public renderShootingEffect(barrel: Container, _type: string, upgradeLevel: number): void {
     const flash = new Graphics();
 
     // Rifle starts at -12, extends down by rifleLength (12 + upgradeLevel * 2)

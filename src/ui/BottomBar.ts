@@ -147,7 +147,7 @@ export class BottomBar extends UIComponent {
         fontWeight: 'bold',
       },
     });
-    valueText.name = 'value';
+    valueText.label = 'value';
     valueText.anchor.set(0.5, 0.5);
     valueText.position.set(width / 2, 38);
     panel.addChild(valueText);

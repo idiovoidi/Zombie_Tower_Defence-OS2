@@ -389,6 +389,34 @@ export class BalanceAnalyzer {
   }
 
   /**
+   * Calculate overall balance rating from issues
+   *
+   * @param issues - Array of balance issues to analyze
+   * @returns Rating string: 'CRITICAL', 'POOR', 'FAIR', 'GOOD', or 'EXCELLENT'
+   */
+  static calculateRatingFromIssues(
+    issues: Array<{ severity: 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL' }>
+  ): string {
+    const criticalCount = issues.filter(i => i.severity === 'CRITICAL').length;
+    const highCount = issues.filter(i => i.severity === 'HIGH').length;
+    const mediumCount = issues.filter(i => i.severity === 'MEDIUM').length;
+
+    if (criticalCount > 0) {
+      return 'CRITICAL';
+    }
+    if (highCount >= 2) {
+      return 'POOR';
+    }
+    if (highCount >= 1 || mediumCount >= 3) {
+      return 'FAIR';
+    }
+    if (mediumCount >= 1) {
+      return 'GOOD';
+    }
+    return 'EXCELLENT';
+  }
+
+  /**
    * Calculate optimal tower mix using marginal utility
    *
    * Uses greedy algorithm to determine best tower composition for budget

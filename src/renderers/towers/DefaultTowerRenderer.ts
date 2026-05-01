@@ -1,4 +1,4 @@
-import { Graphics } from 'pixi.js';
+import { Container, Graphics } from 'pixi.js';
 import { BaseTowerRenderer } from './BaseTowerRenderer';
 
 /**
@@ -6,9 +6,8 @@ import { BaseTowerRenderer } from './BaseTowerRenderer';
  * Renders a simple placeholder visual
  */
 export class DefaultTowerRenderer extends BaseTowerRenderer {
-  render(visual: Graphics, barrel: Graphics, _type: string, upgradeLevel: number): void {
+  render(visual: Graphics, barrel: Container, _type: string, upgradeLevel: number): void {
     visual.clear();
-    barrel.clear();
 
     const baseSize = 15 + upgradeLevel * 2;
 
@@ -24,10 +23,19 @@ export class DefaultTowerRenderer extends BaseTowerRenderer {
     this.addUpgradeStars(visual, upgradeLevel);
 
     // Render simple barrel
-    barrel.rect(-2, -10, 4, 10).fill(0x606060);
+    const existingGraphics = barrel.getChildByLabel?.('barrelGraphics') as Graphics | undefined;
+    if (existingGraphics) {
+      existingGraphics.clear();
+    }
+    const graphics = existingGraphics ?? new Graphics();
+    graphics.label = 'barrelGraphics';
+    graphics.rect(-2, -10, 4, 10).fill(0x606060);
+    if (!existingGraphics) {
+      barrel.addChild(graphics);
+    }
   }
 
-  renderShootingEffect(barrel: Graphics, _type: string, _upgradeLevel: number): void {
+  renderShootingEffect(barrel: Container, _type: string, _upgradeLevel: number): void {
     // Simple flash effect for unknown tower types
     const flash = new Graphics();
     flash.circle(0, -10, 5).fill({ color: 0xffffff, alpha: 0.8 });
