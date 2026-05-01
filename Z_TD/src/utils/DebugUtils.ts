@@ -76,6 +76,12 @@ export class DebugUtils {
     return levels.indexOf(level) >= levels.indexOf(this.logLevel);
   }
 
+  private static logTimerResult(name: string, start: number, failed: boolean = false): void {
+    const end = performance.now();
+    const statusSuffix = failed ? ' (failed)' : '';
+    this.debug(`[TIMER] ${name}: ${end - start}ms${statusSuffix}`);
+  }
+
   /**
    * Measure the execution time of a function
    * @param name The name of the measurement
@@ -90,12 +96,10 @@ export class DebugUtils {
     const start = performance.now();
     try {
       const result = await fn();
-      const end = performance.now();
-      this.debug(`[TIMER] ${name}: ${end - start}ms`);
+      this.logTimerResult(name, start);
       return result;
     } catch (error) {
-      const end = performance.now();
-      this.debug(`[TIMER] ${name}: ${end - start}ms (failed)`);
+      this.logTimerResult(name, start, true);
       throw error;
     }
   }
@@ -114,12 +118,10 @@ export class DebugUtils {
     const start = performance.now();
     try {
       const result = fn();
-      const end = performance.now();
-      this.debug(`[TIMER] ${name}: ${end - start}ms`);
+      this.logTimerResult(name, start);
       return result;
     } catch (error) {
-      const end = performance.now();
-      this.debug(`[TIMER] ${name}: ${end - start}ms (failed)`);
+      this.logTimerResult(name, start, true);
       throw error;
     }
   }

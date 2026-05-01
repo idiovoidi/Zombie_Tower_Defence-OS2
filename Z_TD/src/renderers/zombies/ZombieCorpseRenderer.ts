@@ -100,6 +100,34 @@ export class ZombieCorpseRenderer {
   }
 
   /** Draw a rotated rectangular body and circular head, then fill with the given colors/alpha. */
+  private drawRotatedRect(
+    x: number,
+    y: number,
+    cos: number,
+    sin: number,
+    width: number,
+    height: number
+  ): number {
+    const hw = width / 2;
+    const hh = height / 2;
+    const corners = [
+      { x: -hw, y: -hh },
+      { x: hw, y: -hh },
+      { x: hw, y: hh },
+      { x: -hw, y: hh },
+    ];
+    const transformedCorners = corners.map(point => ({
+      x: x + point.x * cos - point.y * sin,
+      y: y + point.x * sin + point.y * cos,
+    }));
+    this.graphics.moveTo(transformedCorners[0].x, transformedCorners[0].y);
+    for (let i = 1; i < transformedCorners.length; i++) {
+      this.graphics.lineTo(transformedCorners[i].x, transformedCorners[i].y);
+    }
+    this.graphics.lineTo(transformedCorners[0].x, transformedCorners[0].y);
+    return hh;
+  }
+
   private drawCorpseBody(
     x: number,
     y: number,
@@ -115,23 +143,7 @@ export class ZombieCorpseRenderer {
     headAlpha: number,
     headOffset: number
   ): void {
-    const hw = bodyWidth / 2;
-    const hh = bodyHeight / 2;
-    const corners = [
-      { x: -hw, y: -hh },
-      { x: hw, y: -hh },
-      { x: hw, y: hh },
-      { x: -hw, y: hh },
-    ];
-    const t = corners.map(p => ({
-      x: x + p.x * cos - p.y * sin,
-      y: y + p.x * sin + p.y * cos,
-    }));
-    this.graphics.moveTo(t[0].x, t[0].y);
-    for (let i = 1; i < t.length; i++) {
-      this.graphics.lineTo(t[i].x, t[i].y);
-    }
-    this.graphics.lineTo(t[0].x, t[0].y);
+    const hh = this.drawRotatedRect(x, y, cos, sin, bodyWidth, bodyHeight);
     this.graphics.fill({ color: bodyColor, alpha: alpha * bodyAlpha });
 
     const headX = x + 0 * cos - (-hh - headOffset) * sin;
@@ -201,20 +213,7 @@ export class ZombieCorpseRenderer {
     // Body + square head (mechanical, so we draw head manually after body)
     const bodyWidth = 10;
     const bodyHeight = 15;
-    const hw = bodyWidth / 2;
-    const hh = bodyHeight / 2;
-    const corners = [
-      { x: -hw, y: -hh },
-      { x: hw, y: -hh },
-      { x: hw, y: hh },
-      { x: -hw, y: hh },
-    ];
-    const t = corners.map(p => ({ x: x + p.x * cos - p.y * sin, y: y + p.x * sin + p.y * cos }));
-    this.graphics.moveTo(t[0].x, t[0].y);
-    for (let i = 1; i < t.length; i++) {
-      this.graphics.lineTo(t[i].x, t[i].y);
-    }
-    this.graphics.lineTo(t[0].x, t[0].y);
+    const hh = this.drawRotatedRect(x, y, cos, sin, bodyWidth, bodyHeight);
     this.graphics.fill({ color: 0x006666, alpha: alpha * 0.7 });
 
     // Square mechanical head

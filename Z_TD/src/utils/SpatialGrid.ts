@@ -77,6 +77,24 @@ export class SpatialGrid<T extends SpatialEntity> {
     return clampedRow * this.cols + clampedCol;
   }
 
+  private getQueryCellBounds(
+    x: number,
+    y: number,
+    range: number
+  ): { minCol: number; maxCol: number; minRow: number; maxRow: number } {
+    const minX = Math.max(0, x - range);
+    const maxX = Math.min(this.width, x + range);
+    const minY = Math.max(0, y - range);
+    const maxY = Math.min(this.height, y + range);
+
+    return {
+      minCol: Math.floor(minX / this.cellSize),
+      maxCol: Math.floor(maxX / this.cellSize),
+      minRow: Math.floor(minY / this.cellSize),
+      maxRow: Math.floor(maxY / this.cellSize),
+    };
+  }
+
   /**
    * Get cell coordinates from cell index
    */
@@ -220,16 +238,7 @@ export class SpatialGrid<T extends SpatialEntity> {
 
     const results: T[] = [];
 
-    // Calculate which cells to check
-    const minX = Math.max(0, x - range);
-    const maxX = Math.min(this.width, x + range);
-    const minY = Math.max(0, y - range);
-    const maxY = Math.min(this.height, y + range);
-
-    const minCol = Math.floor(minX / this.cellSize);
-    const maxCol = Math.floor(maxX / this.cellSize);
-    const minRow = Math.floor(minY / this.cellSize);
-    const maxRow = Math.floor(maxY / this.cellSize);
+    const { minCol, maxCol, minRow, maxRow } = this.getQueryCellBounds(x, y, range);
 
     // Check all cells in range
     for (let row = minRow; row <= maxRow; row++) {
@@ -267,16 +276,7 @@ export class SpatialGrid<T extends SpatialEntity> {
     range: number,
     filter?: (entity: T) => boolean
   ): T | null {
-    // Calculate which cells to check
-    const minX = Math.max(0, x - range);
-    const maxX = Math.min(this.width, x + range);
-    const minY = Math.max(0, y - range);
-    const maxY = Math.min(this.height, y + range);
-
-    const minCol = Math.floor(minX / this.cellSize);
-    const maxCol = Math.floor(maxX / this.cellSize);
-    const minRow = Math.floor(minY / this.cellSize);
-    const maxRow = Math.floor(maxY / this.cellSize);
+    const { minCol, maxCol, minRow, maxRow } = this.getQueryCellBounds(x, y, range);
 
     const rangeSq = range * range; // Use squared distance to avoid sqrt
 

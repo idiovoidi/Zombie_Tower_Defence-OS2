@@ -141,13 +141,13 @@ export class StructureRenderer {
 
       // Add brick lines for texture
       if (style === 'townhouse' || style === 'farmhouse') {
-        for (let i = 0; i < 4; i++) {
-          const brickY = y + height - frontWallHeight + (i * frontWallHeight) / 4;
-          this.mapContainer
-            .moveTo(x + wallThickness, brickY)
-            .lineTo(x + wallThickness + leftSectionWidth, brickY)
-            .stroke({ width: 1, color: 0x8a7a6a, alpha: 0.4 });
-        }
+        this.drawHorizontalTextureLines(
+          x + wallThickness,
+          x + wallThickness + leftSectionWidth,
+          y + height - frontWallHeight,
+          frontWallHeight,
+          4
+        );
       }
 
       // Right section with brick texture
@@ -160,13 +160,13 @@ export class StructureRenderer {
 
       // Add brick lines for texture
       if (style === 'townhouse' || style === 'farmhouse') {
-        for (let i = 0; i < 4; i++) {
-          const brickY = y + height - frontWallHeight + (i * frontWallHeight) / 4;
-          this.mapContainer
-            .moveTo(rightSectionStart, brickY)
-            .lineTo(rightSectionStart + rightSectionWidth, brickY)
-            .stroke({ width: 1, color: 0x8a7a6a, alpha: 0.4 });
-        }
+        this.drawHorizontalTextureLines(
+          rightSectionStart,
+          rightSectionStart + rightSectionWidth,
+          y + height - frontWallHeight,
+          frontWallHeight,
+          4
+        );
       }
     }
 
@@ -444,6 +444,22 @@ export class StructureRenderer {
             .stroke({ width: 1, color: 0x2a2a2a, alpha: 0.5 });
         }
       }
+    }
+  }
+
+  private drawHorizontalTextureLines(
+    startX: number,
+    endX: number,
+    startY: number,
+    sectionHeight: number,
+    lineCount: number
+  ): void {
+    for (let i = 0; i < lineCount; i++) {
+      const lineY = startY + (i * sectionHeight) / lineCount;
+      this.mapContainer
+        .moveTo(startX, lineY)
+        .lineTo(endX, lineY)
+        .stroke({ width: 1, color: 0x8a7a6a, alpha: 0.4 });
     }
   }
 
