@@ -5,6 +5,7 @@
 
 export { BarrelHeatGlow } from './BarrelHeatGlow';
 export { BulletTrail } from './BulletTrail';
+export { BurningGroundEffect } from './BurningGroundEffect';
 export { EffectManager } from './EffectManager';
 export { ImpactFlash } from './ImpactFlash';
 export { LaserSight } from './LaserSight';

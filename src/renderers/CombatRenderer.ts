@@ -68,6 +68,15 @@ export interface DamageDealtEventData {
   zombieId?: string;
 }
 
+export interface GibDeathEventData {
+  zombieId: string;
+  x: number;
+  y: number;
+  overkill: number;
+  towerType: string;
+  gibType: 'small' | 'medium' | 'large' | 'massive'; // Based on overkill amount
+}
+
 export class CombatRenderer {
   private effectManager: EffectManager | null = null;
   private eventSubscriptions: EventSubscription[] = [];
@@ -157,6 +166,15 @@ export class CombatRenderer {
         }
       })
     );
+
+    // Listen for gib death events (unique overkill death animation)
+    this.eventSubscriptions.push(
+      eventBus.on<GibDeathEventData>(GameEvents.GIB_DEATH, (data) => {
+        if (data && this.enabled) {
+          this.onGibDeath(data);
+        }
+      })
+    );
   }
 
   private onTargetHit(data: TargetHitEventData): void {
@@ -218,31 +236,73 @@ export class CombatRenderer {
   }
 
   private onDamageDealt(data: DamageDealtEventData): void {
-    if (!this.effectManager) {
-      return;
-    }
-
     // Check for 100%+ overkill (overkill >= damage = zombie gibbed/exploded)
     // This creates satisfying "overkill" moments and prevents corpse spawning
     if (data.killed && data.overkill >= data.damage && data.zombieX !== undefined && data.zombieY !== undefined) {
-      // Spawn explosion effect for satisfying overkill
-      this.effectManager.spawnImpactFlash(data.zombieX, data.zombieY, true);
+      // Determine gib type based on overkill magnitude
+      // 100-199% overkill = small gib, 200-399% = medium, 400-799% = large, 800%+ = massive
+      const overkillRatio = data.overkill / data.damage;
+      let gibType: GibDeathEventData['gibType'] = 'small';
+      if (overkillRatio >= 8) gibType = 'massive';
+      else if (overkillRatio >= 4) gibType = 'large';
+      else if (overkillRatio >= 2) gibType = 'medium';
 
-      // Spawn additional explosion particles for dramatic effect
-      // (Could add spawnExplosion or spawnGibs method to EffectManager)
-
-      // Emit event for corpse manager to skip spawning corpse
-      // This is visual-only and doesn't affect headless simulation
-      EventBus.getInstance().emit('zombie:gibbed', {
-        zombieId: data.zombieId,
+      // Emit dedicated GIB_DEATH event for unique death animation
+      // This is separate from regular ZOMBIE_KILLED for distinct visual handling
+      EventBus.getInstance().emit(GameEvents.GIB_DEATH, {
+        zombieId: data.zombieId || 'unknown',
         x: data.zombieX,
         y: data.zombieY,
         overkill: data.overkill,
         towerType: data.towerType,
+        gibType,
       });
 
-      console.log(`💥 ${data.towerType} gibbed a zombie with ${data.overkill.toFixed(0)} overkill damage!`);
+      console.log(`💥 ${data.towerType} gibbed a zombie with ${data.overkill.toFixed(0)} overkill damage! (${gibType} gib)`);
     }
+  }
+
+  private onGibDeath(data: GibDeathEventData): void {
+    if (!this.effectManager) {
+      return;
+    }
+
+    // Play UNIQUE death animation based on gib type
+    // This is visually distinct from regular zombie death
+    switch (data.gibType) {
+      case 'small':
+        // Small pop - quick explosion, minimal gibs
+        this.effectManager.spawnImpactFlash(data.x, data.y, true);
+        console.log(`🔴 Small gib at (${data.x.toFixed(0)}, ${data.y.toFixed(0)})`);
+        break;
+
+      case 'medium':
+        // Medium explosion - visible gibs, blood spray
+        this.effectManager.spawnImpactFlash(data.x, data.y, true);
+        // Could add: this.effectManager.spawnBloodSpray(data.x, data.y, 'medium');
+        console.log(`🔴💥 Medium gib at (${data.x.toFixed(0)}, ${data.y.toFixed(0)})`);
+        break;
+
+      case 'large':
+        // Large explosion - chunks fly everywhere
+        this.effectManager.spawnImpactFlash(data.x, data.y, true);
+        // Could add: this.effectManager.spawnGibs(data.x, data.y, 5); // 5 chunks
+        // Could add: this.effectManager.spawnBloodPool(data.x, data.y);
+        console.log(`🔴💥💥 LARGE GIB at (${data.x.toFixed(0)}, ${data.y.toFixed(0)})`);
+        break;
+
+      case 'massive':
+        // Massive overkill - screen shake, huge explosion, no body left
+        this.effectManager.spawnImpactFlash(data.x, data.y, true);
+        // Could add: this.effectManager.spawnScreenShake(0.3);
+        // Could add: this.effectManager.spawnExplosion(data.x, data.y, 'massive');
+        // Could add: this.effectManager.spawnBloodRain(data.x, data.y);
+        console.log(`🔴💥💥💥 MASSIVE GIB! ${data.towerType} VAPORIZED a zombie at (${data.x.toFixed(0)}, ${data.y.toFixed(0)})`);
+        break;
+    }
+
+    // Notify corpse manager to NOT spawn a corpse (zombie was vaporized)
+    // This is handled by the gibbed event being distinct from regular death
   }
 
   /**

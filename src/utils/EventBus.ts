@@ -142,6 +142,7 @@ export const GameEvents = {
   // Combat events
   ZOMBIE_SPAWNED: 'combat:zombie:spawned',
   ZOMBIE_KILLED: 'combat:zombie:killed',  // { reward: number, type: string }
+  GIB_DEATH: 'combat:zombie:gib',  // { zombieId, x, y, overkill, towerType, gibType } - unique overkill death animation
   ZOMBIE_REACHED_END: 'combat:zombie:reachedEnd',
   TOWER_PLACED: 'combat:tower:placed',
   TOWER_SOLD: 'combat:tower:sold',

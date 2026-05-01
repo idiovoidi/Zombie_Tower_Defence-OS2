@@ -4,6 +4,7 @@ import { ObjectPool } from '@utils/ObjectPool';
 import { ResourceCleanupManager } from '@utils/ResourceCleanupManager';
 import { type Container, Graphics, type Container as PixiContainer } from 'pixi.js';
 import { BulletTrail } from './BulletTrail';
+import { BurningGroundEffect } from './BurningGroundEffect';
 import { ImpactFlash } from './ImpactFlash';
 import { MuzzleFlashLight } from './MuzzleFlashLight';
 import { ScopeGlint } from './ScopeGlint';
@@ -18,6 +19,7 @@ export interface EffectLimits {
   maxBulletTrails: number;
   maxImpactFlashes: number;
   maxScopeGlints: number;
+  maxBurningGroundEffects: number;
 }
 
 /**
@@ -30,6 +32,7 @@ export interface EffectStats {
     bulletTrails: number;
     impactFlashes: number;
     scopeGlints: number;
+    burningGroundEffects: number;
     total: number;
   };
   limits: EffectLimits;
@@ -69,6 +72,13 @@ export interface EffectStats {
       reused: number;
       reuseRate: number;
     };
+    burningGroundEffects: {
+      active: number;
+      available: number;
+      created: number;
+      reused: number;
+      reuseRate: number;
+    };
   };
   warnings: string[];
 }
@@ -84,6 +94,7 @@ export class EffectManager {
   private bulletTrails: BulletTrail[] = [];
   private impactFlashes: ImpactFlash[] = [];
   private scopeGlints: ScopeGlint[] = [];
+  private burningGroundEffects: BurningGroundEffect[] = [];
 
   // Configurable limits for each effect type
   private limits: EffectLimits = {
@@ -92,6 +103,7 @@ export class EffectManager {
     maxBulletTrails: 20,
     maxImpactFlashes: 30,
     maxScopeGlints: 10,
+    maxBurningGroundEffects: 20,
   };
 
   // Object pools for effect reuse
@@ -101,6 +113,7 @@ export class EffectManager {
   private bulletTrailPool: ObjectPool<BulletTrail>;
   private impactFlashPool: ObjectPool<ImpactFlash>;
   private scopeGlintPool: ObjectPool<ScopeGlint>;
+  private burningGroundPool: ObjectPool<BurningGroundEffect>;
 
   constructor(container: PixiContainer) {
     this.container = container;
@@ -134,6 +147,12 @@ export class EffectManager {
       () => new ScopeGlint(0, 0),
       obj => obj.reset(0, 0),
       this.limits.maxScopeGlints
+    );
+
+    this.burningGroundPool = new ObjectPool(
+      () => new BurningGroundEffect(0, 0, 1),
+      obj => obj.reset(0, 0, 1),
+      this.limits.maxBurningGroundEffects
     );
   }
 
@@ -329,6 +348,37 @@ export class EffectManager {
 
     this.scopeGlints.push(glint);
     this.container.addChild(glint);
+  }
+
+  /**
+   * Spawn a burning ground effect (Flame tower fire pool)
+   */
+  public spawnBurningGround(x: number, y: number, upgradeLevel: number = 1): void {
+    // Remove oldest if at limit
+    if (this.burningGroundEffects.length >= this.limits.maxBurningGroundEffects) {
+      const oldest = this.burningGroundEffects.shift();
+      if (oldest) {
+        this.container.removeChild(oldest);
+        if (this.poolingEnabled) {
+          this.burningGroundPool.release(oldest);
+        } else {
+          oldest.destroy();
+        }
+      }
+    }
+
+    // Acquire from pool or create new
+    const effect = this.poolingEnabled
+      ? this.burningGroundPool.acquire()
+      : new BurningGroundEffect(x, y, upgradeLevel);
+
+    // Reset position and properties if from pool
+    if (this.poolingEnabled) {
+      effect.reset(x, y, upgradeLevel);
+    }
+
+    this.burningGroundEffects.push(effect);
+    this.container.addChild(effect);
   }
 
   /**
@@ -752,6 +802,22 @@ export class EffectManager {
         this.scopeGlints.splice(i, 1);
       }
     }
+
+    // Update burning ground effects
+    for (let i = this.burningGroundEffects.length - 1; i >= 0; i--) {
+      const effect = this.burningGroundEffects[i];
+      const isAlive = effect.update(deltaTime);
+
+      if (!isAlive) {
+        this.container.removeChild(effect);
+        if (this.poolingEnabled) {
+          this.burningGroundPool.release(effect);
+        } else {
+          effect.destroy();
+        }
+        this.burningGroundEffects.splice(i, 1);
+      }
+    }
   }
 
   /**
@@ -812,6 +878,17 @@ export class EffectManager {
       }
     }
     this.scopeGlints = [];
+
+    // Clear burning ground effects
+    for (const effect of this.burningGroundEffects) {
+      this.container.removeChild(effect);
+      if (this.poolingEnabled) {
+        this.burningGroundPool.release(effect);
+      } else {
+        effect.destroy();
+      }
+    }
+    this.burningGroundEffects = [];
   }
 
   /**
@@ -823,6 +900,7 @@ export class EffectManager {
     trails: number;
     impacts: number;
     glints: number;
+    burningGround: number;
   } {
     return {
       casings: this.shellCasings.length,
@@ -830,6 +908,7 @@ export class EffectManager {
       trails: this.bulletTrails.length,
       impacts: this.impactFlashes.length,
       glints: this.scopeGlints.length,
+      burningGround: this.burningGroundEffects.length,
     };
   }
 
@@ -847,12 +926,14 @@ export class EffectManager {
       bulletTrails: this.bulletTrails.length,
       impactFlashes: this.impactFlashes.length,
       scopeGlints: this.scopeGlints.length,
+      burningGroundEffects: this.burningGroundEffects.length,
       total:
         this.shellCasings.length +
         this.muzzleFlashes.length +
         this.bulletTrails.length +
         this.impactFlashes.length +
-        this.scopeGlints.length,
+        this.scopeGlints.length +
+        this.burningGroundEffects.length,
     };
 
     // Check for high effect counts and generate warnings
@@ -881,6 +962,11 @@ export class EffectManager {
         `High scope glint count: ${currentCounts.scopeGlints}/${this.limits.maxScopeGlints}`
       );
     }
+    if (currentCounts.burningGroundEffects > this.limits.maxBurningGroundEffects * 0.8) {
+      warnings.push(
+        `High burning ground effect count: ${currentCounts.burningGroundEffects}/${this.limits.maxBurningGroundEffects}`
+      );
+    }
     if (currentCounts.total > 100) {
       warnings.push(`High total effect count: ${currentCounts.total}`);
     }
@@ -891,6 +977,7 @@ export class EffectManager {
     const bulletTrailPoolStats = this.bulletTrailPool.getStats();
     const impactFlashPoolStats = this.impactFlashPool.getStats();
     const scopeGlintPoolStats = this.scopeGlintPool.getStats();
+    const burningGroundPoolStats = this.burningGroundPool.getStats();
 
     // Calculate reuse rates
     const calculateReuseRate = (stats: { created: number; reused: number }): number => {
@@ -921,6 +1008,10 @@ export class EffectManager {
         scopeGlints: {
           ...scopeGlintPoolStats,
           reuseRate: calculateReuseRate(scopeGlintPoolStats),
+        },
+        burningGroundEffects: {
+          ...burningGroundPoolStats,
+          reuseRate: calculateReuseRate(burningGroundPoolStats),
         },
       },
       warnings,
@@ -955,6 +1046,7 @@ export class EffectManager {
       this.bulletTrailPool.clear();
       this.impactFlashPool.clear();
       this.scopeGlintPool.clear();
+      this.burningGroundPool.clear();
     }
   }
 }

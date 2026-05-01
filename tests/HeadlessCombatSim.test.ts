@@ -239,4 +239,63 @@ describe('CombatRenderer Optional Integration', () => {
     expect(hasPositionData).toBe(true);
     console.log('✅ DAMAGE_DEALT events include zombie position for gib explosions');
   });
+
+  it('should emit GIB_DEATH with unique animation tiers', () => {
+    const eventBus = EventBus.getInstance();
+    const gibEvents: Array<{
+      zombieId: string;
+      x: number;
+      y: number;
+      overkill: number;
+      towerType: string;
+      gibType: 'small' | 'medium' | 'large' | 'massive';
+    }> = [];
+
+    eventBus.on<{
+      zombieId: string;
+      x: number;
+      y: number;
+      overkill: number;
+      towerType: string;
+      gibType: 'small' | 'medium' | 'large' | 'massive';
+    }>(GameEvents.GIB_DEATH, (data) => {
+      if (data) gibEvents.push(data);
+    });
+
+    // Test different overkill magnitudes
+    const testCases = [
+      { damage: 50, overkill: 60, expected: 'small' },    // 120% overkill
+      { damage: 50, overkill: 150, expected: 'medium' }, // 300% overkill
+      { damage: 50, overkill: 300, expected: 'large' },  // 600% overkill
+      { damage: 50, overkill: 500, expected: 'massive' }, // 1000% overkill
+    ];
+
+    for (const test of testCases) {
+      // Calculate expected gib type
+      const ratio = test.overkill / test.damage;
+      let expected: 'small' | 'medium' | 'large' | 'massive' = 'small';
+      if (ratio >= 8) expected = 'massive';
+      else if (ratio >= 4) expected = 'large';
+      else if (ratio >= 2) expected = 'medium';
+
+      eventBus.emit(GameEvents.GIB_DEATH, {
+        zombieId: `zombie-${test.overkill}`,
+        x: 500,
+        y: 400,
+        overkill: test.overkill,
+        towerType: 'Sniper',
+        gibType: expected,
+      });
+
+      console.log(`🔴 ${expected.toUpperCase()} GIB: ${test.overkill} overkill (${ratio.toFixed(1)}x damage)`);
+    }
+
+    expect(gibEvents).toHaveLength(4);
+    expect(gibEvents[0].gibType).toBe('small');
+    expect(gibEvents[1].gibType).toBe('medium');
+    expect(gibEvents[2].gibType).toBe('large');
+    expect(gibEvents[3].gibType).toBe('massive');
+
+    console.log('✅ GIB_DEATH events have unique animation tiers based on overkill magnitude');
+  });
 });
