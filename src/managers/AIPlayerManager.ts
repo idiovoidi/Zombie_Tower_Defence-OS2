@@ -1,5 +1,5 @@
 import type { StatTracker } from '../utils/StatTracker';
-import type { IGameManager } from './IGameManager';
+import type { IGameStateProvider, IStatTrackerProvider } from './IGameManager';
 
 interface PlacementZone {
   x: number;
@@ -8,7 +8,7 @@ interface PlacementZone {
 }
 
 export class AIPlayerManager {
-  private gameManager: IGameManager;
+  private gameManager: IGameStateProvider & IStatTrackerProvider;
   private enabled: boolean = false;
   private updateTimer: number = 0;
   private updateInterval: number = 1.0; // Check every 1 second
@@ -18,7 +18,7 @@ export class AIPlayerManager {
   // biome-ignore lint/correctness/noUnusedPrivateClassMembers: Stored for future use
   private lastLogTime: number = 0;
 
-  constructor(gameManager: IGameManager) {
+  constructor(gameManager: IGameStateProvider & IStatTrackerProvider) {
     this.gameManager = gameManager;
     this.initializePlacementZones();
   }
@@ -60,7 +60,7 @@ export class AIPlayerManager {
   // Enable or disable the AI
   public setEnabled(enabled: boolean): void {
     this.enabled = enabled;
-    const statTracker = this.gameManager.getStatTracker() as StatTracker;
+    const statTracker = this.gameManager.getStatTracker();
     if (enabled) {
       statTracker.startTracking(true);
       this.lastLogTime = Date.now();

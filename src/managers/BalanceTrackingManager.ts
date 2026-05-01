@@ -20,7 +20,7 @@ import {
   type TrendAnalysis,
   type WavePrediction,
 } from '../utils/StatisticalAnalyzer';
-import type { IGameManager } from './IGameManager';
+import type { IGameStateProvider } from './IGameManager';
 
 // ============================================================================
 // Interfaces
@@ -97,13 +97,13 @@ export interface BalanceTrackingData {
 // ============================================================================
 
 export class BalanceTrackingManager {
-  private gameManager: IGameManager;
+  private gameManager: IGameStateProvider;
   private data: BalanceTrackingData;
   private lastAnalysisTime: number;
   private analysisInterval: number;
   private currentWaveStartTime: number;
 
-  constructor(gameManager: IGameManager) {
+  constructor(gameManager: IGameStateProvider) {
     this.gameManager = gameManager;
     this.lastAnalysisTime = 0;
     this.analysisInterval = 10000; // 10 seconds

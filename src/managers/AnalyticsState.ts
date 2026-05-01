@@ -9,10 +9,22 @@ import { EventBus, GameEvents, type EventSubscription } from '../utils/EventBus'
 import { StatTracker } from '../utils/StatTracker';
 import { AIPlayerManager } from './AIPlayerManager';
 import { BalanceTrackingManager } from './BalanceTrackingManager';
-import type { IGameManager } from './IGameManager';
+import type {
+  IBalanceTrackingProvider,
+  IGameStateProvider,
+  IStatTrackerProvider,
+  ITowerStateProvider,
+  IWaveStateProvider,
+  IZombieStateProvider,
+} from './IGameManager';
 
 export interface AnalyticsConfig {
-  gameManager: IGameManager;
+  gameManager: IGameStateProvider &
+    IWaveStateProvider &
+    ITowerStateProvider &
+    IZombieStateProvider &
+    IBalanceTrackingProvider &
+    IStatTrackerProvider;
   enabled?: boolean;
 }
 

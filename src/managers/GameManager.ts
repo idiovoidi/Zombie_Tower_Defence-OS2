@@ -3,6 +3,7 @@ import { DebugConstants } from '../config/debugConstants';
 import { DevConfig } from '../config/devConfig';
 import { GameConfig } from '../config/gameConfig';
 import type { Tower } from '../objects/Tower';
+import type { Zombie } from '../objects/Zombie';
 import { EffectManager } from '../renderers/effects/EffectManager';
 import { VisualMapRenderer } from '../renderers/VisualMapRenderer';
 import { EffectCleanupManager } from '../utils/EffectCleanupManager';
@@ -536,6 +537,10 @@ export class GameManager {
     return this.wave;
   }
 
+  public getCurrentWave(): number {
+    return this.waveManager.getCurrentWave();
+  }
+
   public getState(): string {
     return this.currentState;
   }
@@ -597,6 +602,15 @@ export class GameManager {
 
   public getTowerCombatManager(): TowerCombatManager {
     return this.towerCombatManager;
+  }
+
+  // Interface implementations for granular state providers
+  public getPlacedTowers(): Tower[] {
+    return this.towerPlacementManager.getPlacedTowers();
+  }
+
+  public getZombies(): Zombie[] {
+    return this.zombieManager.getZombies();
   }
 
   public enableBalanceTracking(): void {

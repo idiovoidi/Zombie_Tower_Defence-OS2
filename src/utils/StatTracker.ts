@@ -1,8 +1,11 @@
 import type { BalanceTrackingManager } from '../managers/BalanceTrackingManager';
-import type { IGameManager } from '../managers/IGameManager';
-import type { TowerPlacementManager } from '../managers/TowerPlacementManager';
-import type { WaveManager } from '../managers/WaveManager';
-import type { ZombieManager } from '../managers/ZombieManager';
+import type {
+  IBalanceTrackingProvider,
+  IGameStateProvider,
+  ITowerStateProvider,
+  IWaveStateProvider,
+  IZombieStateProvider,
+} from '../managers/IGameManager';
 import { DebugUtils } from './DebugUtils';
 import { type GameLogEntry, LogExporter } from './LogExporter';
 import { PerformanceMonitor } from './PerformanceMonitor';
@@ -61,7 +64,11 @@ export interface StatTrackerData {
 }
 
 export class StatTracker {
-  private gameManager: IGameManager;
+  private gameManager: IGameStateProvider &
+    IWaveStateProvider &
+    ITowerStateProvider &
+    IZombieStateProvider &
+    IBalanceTrackingProvider;
   private stats: StatTrackerData;
   private isTracking: boolean = false;
   private currentWaveStartTime: number = 0;
@@ -70,7 +77,13 @@ export class StatTracker {
   private lastTrackedWave: number = 0;
   private damageInLastSecond: number = 0;
 
-  constructor(gameManager: IGameManager) {
+  constructor(
+    gameManager: IGameStateProvider &
+      IWaveStateProvider &
+      ITowerStateProvider &
+      IZombieStateProvider &
+      IBalanceTrackingProvider
+  ) {
     this.gameManager = gameManager;
     this.stats = this.createEmptyStats();
   }
@@ -245,7 +258,7 @@ export class StatTracker {
       return;
     }
 
-    const currentWave = (this.gameManager.getWaveManager() as WaveManager).getCurrentWave();
+    const currentWave = this.gameManager.getCurrentWave();
     while (this.stats.aiDecisionsPerWave.length < currentWave) {
       this.stats.aiDecisionsPerWave.push(0);
     }
@@ -263,9 +276,7 @@ export class StatTracker {
     this.currentWaveLivesStart = this.gameManager.getLives();
     this.currentWaveTowersBuilt = 0;
 
-    const currentWave = (
-      this.gameManager.getWaveManager() as WaveManager as WaveManager
-    ).getCurrentWave();
+    const currentWave = this.gameManager.getCurrentWave();
     if (currentWave > this.stats.highestWave) {
       this.stats.highestWave = currentWave;
     }
@@ -276,7 +287,7 @@ export class StatTracker {
       return;
     }
 
-    const currentWave = (this.gameManager.getWaveManager() as WaveManager).getCurrentWave();
+    const currentWave = this.gameManager.getCurrentWave();
 
     if (currentWave > this.lastTrackedWave) {
       const waveTime = Date.now() - this.currentWaveStartTime;
@@ -334,7 +345,7 @@ export class StatTracker {
     }
 
     if (now - this.stats.lastMoneySnapshot >= 5000) {
-      const currentWave = (this.gameManager.getWaveManager() as WaveManager).getCurrentWave();
+      const currentWave = this.gameManager.getCurrentWave();
       this.stats.moneyTimeline.push({
         time: now - this.stats.startTime,
         money: currentMoney,
@@ -344,12 +355,9 @@ export class StatTracker {
     }
 
     if (now - this.stats.lastSnapshotTime >= 10000) {
-      const currentWave = (this.gameManager.getWaveManager() as WaveManager).getCurrentWave();
-      const towersActive = (
-        this.gameManager.getTowerPlacementManager() as TowerPlacementManager
-      ).getPlacedTowers().length;
-      const zombiesAlive = (this.gameManager.getZombieManager() as ZombieManager).getZombies()
-        .length;
+      const currentWave = this.gameManager.getCurrentWave();
+      const towersActive = this.gameManager.getPlacedTowers().length;
+      const zombiesAlive = this.gameManager.getZombies().length;
       const currentDPS = this.calculateCurrentDPS();
 
       this.stats.snapshots.push({
@@ -387,7 +395,7 @@ export class StatTracker {
     damagePerDollar: number;
     killsPerDollar: number;
   } {
-    const currentWave = (this.gameManager.getWaveManager() as WaveManager).getCurrentWave();
+    const currentWave = this.gameManager.getCurrentWave();
     const currentMoney = this.gameManager.getMoney();
     const currentLives = this.gameManager.getLives();
     const duration = Date.now() - this.stats.startTime;
@@ -600,8 +608,7 @@ export class StatTracker {
 
     // Get balance data from BalanceTrackingManager if enabled
     let balanceData: Record<string, unknown> | undefined;
-    const balanceTrackingManager =
-      this.gameManager.getBalanceTrackingManager() as BalanceTrackingManager;
+    const balanceTrackingManager = this.gameManager.getBalanceTrackingManager();
     if (balanceTrackingManager?.isEnabled()) {
       balanceData = balanceTrackingManager.generateReportData() as Record<string, unknown>;
       DebugUtils.debug('Including balance analysis in stat tracker report');
