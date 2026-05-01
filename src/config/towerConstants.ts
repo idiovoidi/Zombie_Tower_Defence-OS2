@@ -1,28 +1,103 @@
+import type { Graphics } from 'pixi.js';
+
 /**
  * Tower Constants - Centralized tower stats for easy balancing
  *
  * Adjust these values to quickly balance tower performance
  */
 
+export type IdleAnimationType =
+  | 'none'
+  | 'machineGun'
+  | 'sniper'
+  | 'shotgun'
+  | 'flame'
+  | 'tesla'
+  | 'grenade'
+  | 'sludge';
+
 export interface TowerStats {
   cost: number;
   damage: number;
   range: number;
   fireRate: number; // shots per second
+  health: number;
   specialAbility?: string;
   upgradeCostMultiplier?: number;
+  idleAnimation: IdleAnimationType;
+  barrelLength: number;
+  barrelLengthUpgradeBonus: number;
+  projectileType: string;
+  ghostDraw: (graphics: Graphics) => void;
 }
+
+// Ghost tower draw functions - centralized to eliminate switch statements
+const ghostDrawMachineGun = (g: Graphics) => {
+  g.circle(0, 0, 20).fill(0x0000ff);
+  g.moveTo(0, -20).lineTo(0, -35).stroke({ width: 3, color: 0x4169e1 });
+};
+
+const ghostDrawSniper = (g: Graphics) => {
+  g.ellipse(0, 0, 15, 25).fill(0x2f4f4f);
+  g.moveTo(0, -25).lineTo(0, -45).stroke({ width: 2, color: 0x696969 });
+};
+
+const ghostDrawShotgun = (g: Graphics) => {
+  g.roundRect(-18, -18, 36, 36, 8).fill(0x8b4513);
+};
+
+const ghostDrawFlame = (g: Graphics) => {
+  g.circle(0, 0, 20).fill(0xff4500);
+};
+
+const ghostDrawTesla = (g: Graphics) => {
+  g.circle(0, 0, 20).fill(0x00ced1);
+  g.circle(0, 0, 10).fill(0x7fffd4);
+};
+
+const ghostDrawGrenade = (g: Graphics) => {
+  // Olive drab military platform
+  g.rect(-20, -5, 40, 25).fill(0x6b8e23);
+  g.rect(-20, -5, 40, 25).stroke({ width: 2, color: 0x556b2f });
+  // Ammo crates
+  g.rect(-12, 2, 10, 8).fill(0x8b7355);
+  g.rect(2, 2, 10, 8).fill(0x8b7355);
+  // Grenade symbols
+  g.circle(-7, 6, 2).fill(0x2f4f2f);
+  g.circle(7, 6, 2).fill(0x2f4f2f);
+};
+
+const ghostDrawSludge = (g: Graphics) => {
+  // Toxic barrel platform
+  g.rect(-18, -5, 36, 25).fill(0x4a5a3a);
+  g.rect(-18, -5, 36, 25).stroke({ width: 2, color: 0x3a4a2a });
+  // Toxic barrels
+  g.rect(-10, 0, 8, 12).fill(0x228b22);
+  g.rect(2, 0, 8, 12).fill(0x228b22);
+  // Toxic symbols with glow
+  g.circle(-6, 6, 3).fill({ color: 0x00ff00, alpha: 0.7 });
+  g.circle(6, 6, 3).fill({ color: 0x00ff00, alpha: 0.7 });
+  // Toxic glow effect
+  g.circle(-6, 6, 5).fill({ color: 0x32cd32, alpha: 0.3 });
+  g.circle(6, 6, 5).fill({ color: 0x32cd32, alpha: 0.3 });
+};
 
 export const TowerConstants = {
   // Machine Gun Tower - High fire rate, good against swarms
   // Upgrades focus on fire rate rather than damage
   MACHINE_GUN: {
     cost: 250,
-    damage: 12, // Lower base damage (was 20)
+    damage: 12,
     range: 150,
-    fireRate: 8, // 8 shots per second base (was 10)
+    fireRate: 8,
+    health: 120,
     specialAbility: 'High fire rate, upgrades increase speed',
     upgradeCostMultiplier: 0.75,
+    idleAnimation: 'machineGun',
+    barrelLength: 18,
+    barrelLengthUpgradeBonus: 1,
+    projectileType: 'bullet',
+    ghostDraw: ghostDrawMachineGun,
   } as TowerStats,
 
   // Sniper Tower - High single-target damage, armor-piercing
@@ -30,19 +105,31 @@ export const TowerConstants = {
     cost: 900,
     damage: 150,
     range: 400,
-    fireRate: 1, // 1 shot per second
+    fireRate: 1,
+    health: 80,
     specialAbility: 'High single-target damage, armor-piercing',
     upgradeCostMultiplier: 0.75,
+    idleAnimation: 'sniper',
+    barrelLength: 24,
+    barrelLengthUpgradeBonus: 2,
+    projectileType: 'sniper',
+    ghostDraw: ghostDrawSniper,
   } as TowerStats,
 
   // Shotgun Tower - Short range area denial, double barrel burst fire
   SHOTGUN: {
     cost: 400,
-    damage: 60, // Higher damage per shot since it's split among many pellets
-    range: 120, // Short range
-    fireRate: 0.8, // Base fire rate (modified by burst mechanic)
+    damage: 60,
+    range: 120,
+    fireRate: 0.8,
+    health: 100,
     specialAbility: 'Double barrel: 2 quick shots then reload, cone spread',
     upgradeCostMultiplier: 0.75,
+    idleAnimation: 'shotgun',
+    barrelLength: 16,
+    barrelLengthUpgradeBonus: 0,
+    projectileType: 'shotgun',
+    ghostDraw: ghostDrawShotgun,
   } as TowerStats,
 
   // Flame Tower - Area damage over time, burning effect
@@ -50,9 +137,15 @@ export const TowerConstants = {
     cost: 750,
     damage: 200,
     range: 120,
-    fireRate: 0.75, // 0.75 shots per second (one shot every ~1.3 seconds)
+    fireRate: 0.75,
+    health: 90,
     specialAbility: 'Area damage over time, burning effect',
     upgradeCostMultiplier: 0.75,
+    idleAnimation: 'flame',
+    barrelLength: 16,
+    barrelLengthUpgradeBonus: 0,
+    projectileType: 'flame',
+    ghostDraw: ghostDrawFlame,
   } as TowerStats,
 
   // Tesla Tower - Chain lightning, affects multiple targets
@@ -60,29 +153,47 @@ export const TowerConstants = {
     cost: 1500,
     damage: 80,
     range: 200,
-    fireRate: 2, // 2 shots per second
+    fireRate: 2,
+    health: 110,
     specialAbility: 'Chain lightning, affects multiple targets',
     upgradeCostMultiplier: 0.75,
+    idleAnimation: 'tesla',
+    barrelLength: 17,
+    barrelLengthUpgradeBonus: 0,
+    projectileType: 'tesla',
+    ghostDraw: ghostDrawTesla,
   } as TowerStats,
 
   // Grenade Tower - Explosive area damage with arc trajectory
   GRENADE: {
     cost: 1250,
-    damage: 90, // Splash damage
+    damage: 90,
     range: 180,
     fireRate: 0.3,
+    health: 95,
     specialAbility: 'Explosive area damage, arc trajectory',
     upgradeCostMultiplier: 0.75,
+    idleAnimation: 'grenade',
+    barrelLength: 20,
+    barrelLengthUpgradeBonus: 0,
+    projectileType: 'grenade',
+    ghostDraw: ghostDrawGrenade,
   } as TowerStats,
 
   // Sludge Tower - Crowd control, creates slowing pools
   SLUDGE: {
     cost: 800,
-    damage: 0, // No direct damage
-    range: 100, // 2 tiles (50px per tile) - short range for strategic placement
-    fireRate: 0.25, // 2 seconds between shots (slow fire rate)
+    damage: 0,
+    range: 100,
+    fireRate: 0.25,
+    health: 110,
     specialAbility: 'Creates toxic pools that slow zombies',
     upgradeCostMultiplier: 0.6,
+    idleAnimation: 'sludge',
+    barrelLength: 10,
+    barrelLengthUpgradeBonus: 2,
+    projectileType: 'sludge',
+    ghostDraw: ghostDrawSludge,
   } as TowerStats,
 };
 

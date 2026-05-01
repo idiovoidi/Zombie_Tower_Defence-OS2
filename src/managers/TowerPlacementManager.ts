@@ -1,5 +1,6 @@
 import { type Container, type FederatedPointerEvent, Graphics } from 'pixi.js';
 import type { TransformComponent } from '../components/TransformComponent';
+import { getTowerStats } from '../config/towerConstants';
 import type { Tower } from '../objects/Tower';
 import { TowerFactory } from '../objects/TowerFactory';
 import type { EffectManager } from '../renderers/effects/EffectManager';
@@ -74,57 +75,14 @@ export class TowerPlacementManager {
   }
 
   private drawGhostTower(graphics: Graphics, towerType: string): void {
-    const stats = this.towerManager.getTowerStats(towerType);
+    // Use centralized config to eliminate switch statement (OCP compliance)
+    const stats = getTowerStats(towerType);
     if (!stats) {
       return;
     }
 
-    // Draw based on tower type (simplified versions)
-    switch (towerType) {
-      case 'MachineGun':
-        graphics.circle(0, 0, 20).fill(0x0000ff);
-        graphics.moveTo(0, -20).lineTo(0, -35).stroke({ width: 3, color: 0x4169e1 });
-        break;
-      case 'Sniper':
-        graphics.ellipse(0, 0, 15, 25).fill(0x2f4f4f);
-        graphics.moveTo(0, -25).lineTo(0, -45).stroke({ width: 2, color: 0x696969 });
-        break;
-      case 'Shotgun':
-        graphics.roundRect(-18, -18, 36, 36, 8).fill(0x8b4513);
-        break;
-      case 'Flame':
-        graphics.circle(0, 0, 20).fill(0xff4500);
-        break;
-      case 'Tesla':
-        graphics.circle(0, 0, 20).fill(0x00ced1);
-        graphics.circle(0, 0, 10).fill(0x7fffd4);
-        break;
-      case 'Grenade':
-        // Olive drab military platform
-        graphics.rect(-20, -5, 40, 25).fill(0x6b8e23);
-        graphics.rect(-20, -5, 40, 25).stroke({ width: 2, color: 0x556b2f });
-        // Ammo crates
-        graphics.rect(-12, 2, 10, 8).fill(0x8b7355);
-        graphics.rect(2, 2, 10, 8).fill(0x8b7355);
-        // Grenade symbols
-        graphics.circle(-7, 6, 2).fill(0x2f4f2f);
-        graphics.circle(7, 6, 2).fill(0x2f4f2f);
-        break;
-      case 'Sludge':
-        // Toxic barrel platform
-        graphics.rect(-18, -5, 36, 25).fill(0x4a5a3a);
-        graphics.rect(-18, -5, 36, 25).stroke({ width: 2, color: 0x3a4a2a });
-        // Toxic barrels
-        graphics.rect(-10, 0, 8, 12).fill(0x228b22);
-        graphics.rect(2, 0, 8, 12).fill(0x228b22);
-        // Toxic symbols with glow
-        graphics.circle(-6, 6, 3).fill({ color: 0x00ff00, alpha: 0.7 });
-        graphics.circle(6, 6, 3).fill({ color: 0x00ff00, alpha: 0.7 });
-        // Toxic glow effect
-        graphics.circle(-6, 6, 5).fill({ color: 0x32cd32, alpha: 0.3 });
-        graphics.circle(6, 6, 5).fill({ color: 0x32cd32, alpha: 0.3 });
-        break;
-    }
+    // Delegate to tower-specific ghost draw function
+    stats.ghostDraw(graphics);
   }
 
   // Update ghost tower position

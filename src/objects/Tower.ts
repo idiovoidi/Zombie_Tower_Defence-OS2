@@ -4,6 +4,7 @@ import { TowerRendererFactory } from '@/renderers/towers/TowerRendererFactory';
 import { HealthComponent } from '../components/HealthComponent';
 import { TransformComponent } from '../components/TransformComponent';
 import { GameConfig } from '../config/gameConfig';
+import { type IdleAnimationType, getTowerStats } from '../config/towerConstants';
 import { TowerManager } from '../managers/TowerManager';
 import { BarrelHeatGlow } from '../renderers/effects/BarrelHeatGlow';
 import type { EffectManager } from '../renderers/effects/EffectManager';
@@ -84,8 +85,8 @@ export class Tower extends GameObject implements ITower, TowerEffects {
   }
 
   private initializeStats(): void {
-    const towerManager = new TowerManager();
-    const stats = towerManager.getTowerStats(this.type);
+    // Use centralized config for all tower stats
+    const stats = getTowerStats(this.type);
 
     if (stats) {
       this.damage = stats.damage;
@@ -98,30 +99,8 @@ export class Tower extends GameObject implements ITower, TowerEffects {
       this.fireRate = 1;
     }
 
-    // Add health component for tower durability (from design document)
-    // Different tower types could have different health values
-    let towerHealth = 100;
-    switch (this.type) {
-      case GameConfig.TOWER_TYPES.MACHINE_GUN:
-        towerHealth = 120;
-        break;
-      case GameConfig.TOWER_TYPES.SNIPER:
-        towerHealth = 80;
-        break;
-      case GameConfig.TOWER_TYPES.SHOTGUN:
-        towerHealth = 100;
-        break;
-      case GameConfig.TOWER_TYPES.FLAME:
-        towerHealth = 90;
-        break;
-      case GameConfig.TOWER_TYPES.TESLA:
-        towerHealth = 110;
-        break;
-      case GameConfig.TOWER_TYPES.GRENADE:
-        towerHealth = 95;
-        break;
-    }
-
+    // Add health component for tower durability - use centralized config
+    const towerHealth = stats?.health ?? 100;
     const healthComponent = new HealthComponent(towerHealth);
     this.addComponent(healthComponent);
   }
@@ -156,30 +135,26 @@ export class Tower extends GameObject implements ITower, TowerEffects {
       return;
     }
 
-    // Different idle animations based on tower type
-    switch (this.type) {
-      case GameConfig.TOWER_TYPES.MACHINE_GUN:
-        this.idleAnimationMachineGun(deltaTime);
-        break;
-      case GameConfig.TOWER_TYPES.SNIPER:
-        this.idleAnimationSniper(deltaTime);
-        break;
-      case GameConfig.TOWER_TYPES.SHOTGUN:
-        this.idleAnimationShotgun(deltaTime);
-        break;
-      case GameConfig.TOWER_TYPES.FLAME:
-        this.idleAnimationFlame(deltaTime);
-        break;
-      case GameConfig.TOWER_TYPES.TESLA:
-        this.idleAnimationTesla(deltaTime);
-        break;
-      case GameConfig.TOWER_TYPES.GRENADE:
-        this.idleAnimationGrenade(deltaTime);
-        break;
-      case GameConfig.TOWER_TYPES.SLUDGE:
-        this.idleAnimationSludge(deltaTime);
-        break;
-    }
+    // Use config-based idle animation lookup to eliminate switch statement
+    const stats = getTowerStats(this.type);
+    const animationType = stats?.idleAnimation ?? 'none';
+    this.executeIdleAnimation(animationType, deltaTime);
+  }
+
+  private executeIdleAnimation(type: IdleAnimationType, deltaTime: number): void {
+    // Strategy pattern: map animation types to their handlers
+    const animationHandlers: Record<IdleAnimationType, (dt: number) => void> = {
+      none: () => {},
+      machineGun: (dt) => this.idleAnimationMachineGun(dt),
+      sniper: (dt) => this.idleAnimationSniper(dt),
+      shotgun: (dt) => this.idleAnimationShotgun(dt),
+      flame: (dt) => this.idleAnimationFlame(dt),
+      tesla: (dt) => this.idleAnimationTesla(dt),
+      grenade: (dt) => this.idleAnimationGrenade(dt),
+      sludge: (dt) => this.idleAnimationSludge(dt),
+    };
+
+    animationHandlers[type]?.(deltaTime);
   }
 
   // Grenade: Subtle loading animation
@@ -461,26 +436,11 @@ export class Tower extends GameObject implements ITower, TowerEffects {
 
   // Get projectile spawn position (at barrel tip)
   public getProjectileSpawnPosition(): { x: number; y: number } {
-    let barrelLength = 20;
-
-    // Calculate barrel length based on gun position (guns are now held in front)
-    switch (this.type) {
-      case GameConfig.TOWER_TYPES.MACHINE_GUN:
-        barrelLength = 18 + this.upgradeLevel; // Gun tip at -10 - gunLength
-        break;
-      case GameConfig.TOWER_TYPES.SNIPER:
-        barrelLength = 24 + this.upgradeLevel * 2; // Rifle tip at -12 - rifleLength
-        break;
-      case GameConfig.TOWER_TYPES.SHOTGUN:
-        barrelLength = 16; // Shotgun tip at -8 - 8
-        break;
-      case GameConfig.TOWER_TYPES.FLAME:
-        barrelLength = 16; // Flamethrower nozzle at -10 - 6
-        break;
-      case GameConfig.TOWER_TYPES.TESLA:
-        barrelLength = 17; // Tesla gun at -10 - 7
-        break;
-    }
+    // Use config-based barrel length to eliminate switch statement
+    const stats = getTowerStats(this.type);
+    const baseLength = stats?.barrelLength ?? 20;
+    const upgradeBonus = stats?.barrelLengthUpgradeBonus ?? 0;
+    const barrelLength = baseLength + this.upgradeLevel * upgradeBonus;
 
     // Calculate position at barrel tip based on rotation
     const angle = this.currentRotation - Math.PI / 2; // Subtract 90 degrees
@@ -490,26 +450,10 @@ export class Tower extends GameObject implements ITower, TowerEffects {
     return { x: spawnX, y: spawnY };
   }
 
-  // Get projectile type for this tower
+  // Get projectile type for this tower - use config to eliminate switch
   public getProjectileType(): string {
-    switch (this.type) {
-      case GameConfig.TOWER_TYPES.MACHINE_GUN:
-        return 'bullet';
-      case GameConfig.TOWER_TYPES.SNIPER:
-        return 'sniper';
-      case GameConfig.TOWER_TYPES.SHOTGUN:
-        return 'shotgun';
-      case GameConfig.TOWER_TYPES.FLAME:
-        return 'flame';
-      case GameConfig.TOWER_TYPES.TESLA:
-        return 'tesla';
-      case GameConfig.TOWER_TYPES.GRENADE:
-        return 'grenade';
-      case GameConfig.TOWER_TYPES.SLUDGE:
-        return 'sludge';
-      default:
-        return 'bullet';
-    }
+    const stats = getTowerStats(this.type);
+    return stats?.projectileType ?? 'bullet';
   }
 
   // Getters
