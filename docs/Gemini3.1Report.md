@@ -10,14 +10,7 @@ Overall Health: Fair to Moderate. The game is functional and uses some modern pa
 Ranked Findings (Code Smells & Architectural Issues)
 
 
-3. Open-Closed Principle (OCP) Violation & Feature Envy (Shotgun Surgery)
-Severity: Medium
-Locations:
-src/objects/Tower.ts (Large switch statements for idleAnimation and getProjectileSpawnPosition)
-src/managers/TowerPlacementManager.ts (Switch statement in drawGhostTower)
-Why it's a problem: Adding a single new tower type requires "shotgun surgery"—modifying multiple files and appending cases to large switch statements across the codebase. This drastically slows down development speed, increases defect risk, and makes gameplay systems harder to evolve.
-Quick Win: Move data points (like projectile spawn offsets or ghost tower visual configurations) into a centralized TowerConfig or stats file.
-Larger Structural Change: Fully adopt the Strategy pattern. Each tower should be defined by a TowerDefinition that provides its specific renderer, idle animation strategy, and firing behavior, eliminating type-checking switch statements entirely.
+
 4. Leaky Abstractions & Cyclic Dependency Workarounds
 Severity: Medium
 Locations: src/managers/IGameManager.ts, src/managers/AIPlayerManager.ts, src/managers/BalanceTrackingManager.ts

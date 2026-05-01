@@ -1,3 +1,8 @@
+import type { Tower } from '../objects/Tower';
+import type { Zombie } from '../objects/Zombie';
+import type { StatTracker } from '../utils/StatTracker';
+import type { BalanceTrackingManager } from './BalanceTrackingManager';
+
 /**
  * IGameStateProvider - Core game state interface
  *
@@ -27,7 +32,6 @@ export interface IWaveStateProvider {
  * Provides access to placed towers. Used by systems that need to track
  * tower count and composition.
  */
-import type { Tower } from '../objects/Tower';
 export interface ITowerStateProvider {
   getPlacedTowers(): Tower[];
 }
@@ -38,7 +42,6 @@ export interface ITowerStateProvider {
  * Provides access to active zombies. Used by analytics systems that track
  * zombie counts and combat statistics.
  */
-import type { Zombie } from '../objects/Zombie';
 export interface IZombieStateProvider {
   getZombies(): Zombie[];
 }
@@ -48,7 +51,6 @@ export interface IZombieStateProvider {
  *
  * Provides access to the StatTracker for AI and analytics systems.
  */
-import type { StatTracker } from '../utils/StatTracker';
 export interface IStatTrackerProvider {
   getStatTracker(): StatTracker;
 }
@@ -58,7 +60,6 @@ export interface IStatTrackerProvider {
  *
  * Provides access to the BalanceTrackingManager for analytics systems.
  */
-import type { BalanceTrackingManager } from './BalanceTrackingManager';
 export interface IBalanceTrackingProvider {
   getBalanceTrackingManager(): BalanceTrackingManager;
 }

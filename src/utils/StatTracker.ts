@@ -1,4 +1,3 @@
-import type { BalanceTrackingManager } from '../managers/BalanceTrackingManager';
 import type {
   IBalanceTrackingProvider,
   IGameStateProvider,

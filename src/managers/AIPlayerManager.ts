@@ -1,4 +1,3 @@
-import type { StatTracker } from '../utils/StatTracker';
 import type { IGameStateProvider, IStatTrackerProvider } from './IGameManager';
 
 interface PlacementZone {
