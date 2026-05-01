@@ -389,7 +389,7 @@ export class Tower extends GameObject implements ITower, TowerEffects {
       // Increase max health by 20% per upgrade level
       const newMaxHealth = Math.floor(100 * 1.2 ** this.upgradeLevel);
       // Heal to full when upgraded
-      healthComponent.maxHealth = newMaxHealth; // Note: In a real implementation, we'd add a setter for maxHealth
+      healthComponent.setMaxHealth(newMaxHealth);
       healthComponent.heal(newMaxHealth); // This will set current health to max
     }
 

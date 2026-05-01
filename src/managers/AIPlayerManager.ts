@@ -15,6 +15,8 @@ export class AIPlayerManager {
   private placementZones: PlacementZone[] = [];
   private lastState: string = '';
   private currentWaveDecisions: number = 0;
+  // biome-ignore lint/correctness/noUnusedPrivateClassMembers: Stored for future use
+  private lastLogTime: number = 0;
 
   constructor(gameManager: IGameManager) {
     this.gameManager = gameManager;

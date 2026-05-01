@@ -31,6 +31,8 @@ export class MechanicalZombieRenderer extends BaseZombieRenderer {
   private readonly RUST_COLOR = 0x8b4513;
   private readonly OIL_BLACK = 0x1a1a1a;
   private readonly EYE_GLOW = 0x00ffff;
+  // biome-ignore lint/correctness/noUnusedPrivateClassMembers: Used in update() method
+  private sparkTimer: number = 0;
 
   render(container: Container, state: ZombieRenderState): void {
     this.graphics.clear();

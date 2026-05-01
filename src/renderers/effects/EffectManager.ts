@@ -2,7 +2,7 @@ import type { Zombie } from '@objects/Zombie';
 import { EffectCleanupManager } from '@utils/EffectCleanupManager';
 import { ObjectPool } from '@utils/ObjectPool';
 import { ResourceCleanupManager } from '@utils/ResourceCleanupManager';
-import { Graphics, type Container as PixiContainer } from 'pixi.js';
+import { type Container, Graphics, type Container as PixiContainer } from 'pixi.js';
 import { BulletTrail } from './BulletTrail';
 import { ImpactFlash } from './ImpactFlash';
 import { MuzzleFlashLight } from './MuzzleFlashLight';

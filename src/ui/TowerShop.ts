@@ -138,8 +138,8 @@ export class TowerShop extends UIComponent {
     });
   }
 
-  private createTowerButton(type: string, yPos: number): Container {
-    const button = new Container();
+  private createTowerButton(type: string, yPos: number): TowerButton {
+    const button = new Container() as TowerButton;
     button.position.set(8, yPos);
     button.eventMode = 'static';
     button.cursor = 'pointer';

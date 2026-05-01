@@ -72,7 +72,7 @@ export class WaveInfoPanel extends UIPanel {
       // Calculate total zombies
       let totalZombies = 0;
       zombieGroups.forEach(group => {
-        const adjustedCount = this.waveManager?.calculateZombieCount(group.count, waveNum);
+        const adjustedCount = this.waveManager?.calculateZombieCount(group.count, waveNum) ?? 0;
         totalZombies += adjustedCount;
       });
 
@@ -93,9 +93,10 @@ export class WaveInfoPanel extends UIPanel {
 
       // Zombie composition
       zombieGroups.forEach(group => {
-        const adjustedCount = this.waveManager?.calculateZombieCount(group.count, waveNum);
-        const percentage = ((adjustedCount / totalZombies) * 100).toFixed(0);
-        const spawnRate = this.waveManager?.calculateSpawnRate(group.spawnInterval, waveNum);
+        const adjustedCount = this.waveManager?.calculateZombieCount(group.count, waveNum) ?? 0;
+        const percentage =
+          totalZombies > 0 ? ((adjustedCount / totalZombies) * 100).toFixed(0) : '0';
+        const spawnRate = this.waveManager?.calculateSpawnRate(group.spawnInterval, waveNum) ?? 0;
 
         const zombieColor = this.getZombieColor(group.type);
         const zombieIcon = this.getZombieIcon(group.type);

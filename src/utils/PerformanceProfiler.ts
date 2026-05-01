@@ -248,6 +248,8 @@ class FrameRateMonitor {
   private testFPS: number = 0;
   private frameCount: number = 0;
   private startTime: number = 0;
+  // biome-ignore lint/correctness/noUnusedPrivateClassMembers: Used in start() method
+  private _lastFrameTime: number = 0;
   private isMonitoring: boolean = false;
   private animationFrameId: number | null = null;
 

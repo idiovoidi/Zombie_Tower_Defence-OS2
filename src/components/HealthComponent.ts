@@ -72,6 +72,16 @@ export class HealthComponent extends Component {
   }
 
   /**
+   * Sets the maximum health value and adjusts current health if needed.
+   * @param maxHealth The new maximum health value
+   */
+  public setMaxHealth(maxHealth: number): void {
+    this.maxHealth = maxHealth;
+    // Ensure current health doesn't exceed new max
+    this.currentHealth = Math.min(this.currentHealth, this.maxHealth);
+  }
+
+  /**
    * Gets the current health as a percentage of maximum health.
    * @returns Health percentage (0-100)
    */

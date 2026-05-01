@@ -208,6 +208,10 @@ export class InputManager {
     this.debugMode = enabled;
   }
 
+  public isDebugMode(): boolean {
+    return this.debugMode;
+  }
+
   public getDebugInfo(): string {
     return this.scaleManager.getDebugInfo();
   }
