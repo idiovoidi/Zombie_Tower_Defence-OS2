@@ -7,7 +7,7 @@ export interface Waypoint {
 export class PathfindingManager {
   private waypoints: Waypoint[];
 
-  constructor(_gridWidth: number = 1024, _gridHeight: number = 768, _cellSize: number = 32) {
+  constructor(_gridWidth = 1024, _gridHeight = 768, _cellSize = 32) {
     this.waypoints = [];
   }
 
@@ -66,7 +66,7 @@ export class PathfindingManager {
   public getClosestWaypoint(x: number, y: number): { waypoint: Waypoint; index: number } | null {
     let closestWaypoint: Waypoint | null = null;
     let closestIndex = -1;
-    let closestDistance = Infinity;
+    let closestDistance = Number.POSITIVE_INFINITY;
 
     for (let i = 0; i < this.waypoints.length; i++) {
       const waypoint = this.waypoints[i];
@@ -87,7 +87,7 @@ export class PathfindingManager {
   }
 
   // Check if a position is at a waypoint
-  public isAtWaypoint(x: number, y: number, waypointIndex: number, tolerance: number = 5): boolean {
+  public isAtWaypoint(x: number, y: number, waypointIndex: number, tolerance = 5): boolean {
     if (waypointIndex < 0 || waypointIndex >= this.waypoints.length) {
       return false;
     }

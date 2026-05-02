@@ -5,11 +5,11 @@ import { Graphics } from 'pixi.js';
  * Bright yellow flash with radial burst when bullet hits target
  */
 export class ImpactFlash extends Graphics {
-  private lifetime: number = 0;
-  private maxLifetime: number = 200; // Brief but visible
+  private lifetime = 0;
+  private maxLifetime = 200; // Brief but visible
   private burstParticles: Graphics[] = [];
 
-  constructor(x: number, y: number, isHeadshot: boolean = false) {
+  constructor(x: number, y: number, isHeadshot = false) {
     super();
 
     this.position.set(x, y);
@@ -85,7 +85,12 @@ export class ImpactFlash extends Graphics {
    * Clean up particles
    * Per pixijs-scene-container skill: pass destroy options to properly clean up children
    */
-  public override destroy(options?: { children?: boolean; texture?: boolean; textureSource?: boolean; baseTexture?: boolean }): void {
+  public override destroy(options?: {
+    children?: boolean;
+    texture?: boolean;
+    textureSource?: boolean;
+    baseTexture?: boolean;
+  }): void {
     for (const particle of this.burstParticles) {
       if (particle && !particle.destroyed) {
         particle.destroy(options);
@@ -98,7 +103,7 @@ export class ImpactFlash extends Graphics {
   /**
    * Reset the impact flash for reuse in object pool
    */
-  public reset(x: number, y: number, isHeadshot: boolean = false): void {
+  public reset(x: number, y: number, isHeadshot = false): void {
     this.position.set(x, y);
     this.lifetime = 0;
     this.alpha = 1;

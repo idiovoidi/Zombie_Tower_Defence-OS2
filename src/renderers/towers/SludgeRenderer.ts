@@ -1,4 +1,4 @@
-import { Container, Graphics } from 'pixi.js';
+import { type Container, Graphics } from 'pixi.js';
 import { BaseTowerRenderer } from './BaseTowerRenderer';
 
 export class SludgeRenderer extends BaseTowerRenderer {

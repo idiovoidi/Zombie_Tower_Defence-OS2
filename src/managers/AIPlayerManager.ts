@@ -8,14 +8,13 @@ interface PlacementZone {
 
 export class AIPlayerManager {
   private gameManager: IGameStateProvider & IStatTrackerProvider;
-  private enabled: boolean = false;
-  private updateTimer: number = 0;
-  private updateInterval: number = 1.0; // Check every 1 second
+  private enabled = false;
+  private updateTimer = 0;
+  private updateInterval = 1.0; // Check every 1 second
   private placementZones: PlacementZone[] = [];
-  private lastState: string = '';
-  private currentWaveDecisions: number = 0;
-  // biome-ignore lint/correctness/noUnusedPrivateClassMembers: Stored for future use
-  private lastLogTime: number = 0;
+  private lastState = '';
+  private currentWaveDecisions = 0;
+  private lastLogTime = 0;
 
   constructor(gameManager: IGameStateProvider & IStatTrackerProvider) {
     this.gameManager = gameManager;

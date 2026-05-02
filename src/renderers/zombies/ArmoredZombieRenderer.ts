@@ -1,8 +1,8 @@
 import type { Container } from 'pixi.js';
 import { BaseZombieRenderer } from './BaseZombieRenderer';
-import { GlowEffect, ShadowEffect } from './components/ZombieEffects';
 import { ParticleType } from './ZombieParticleSystem';
 import type { ZombieRenderState } from './ZombieRenderer';
+import { GlowEffect, ShadowEffect } from './components/ZombieEffects';
 
 export class ArmoredZombieRenderer extends BaseZombieRenderer {
   protected readonly ANIMATOR_TYPE = 'ARMORED';
@@ -153,5 +153,4 @@ export class ArmoredZombieRenderer extends BaseZombieRenderer {
         .fill({ color: this.RUST_COLOR, alpha: 0.7 });
     }
   }
-
 }

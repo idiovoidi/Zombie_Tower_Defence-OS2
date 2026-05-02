@@ -9,7 +9,7 @@ export class LaserSight extends Graphics {
   private startY: number;
   private endX: number;
   private endY: number;
-  private pulseTime: number = 0;
+  private pulseTime = 0;
 
   constructor(startX: number, startY: number, endX: number, endY: number) {
     super();

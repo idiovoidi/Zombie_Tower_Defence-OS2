@@ -113,8 +113,6 @@ export abstract class BaseZombieRenderer implements IZombieRenderer {
         return this.playKnockbackDeathAnimation();
       case 'Sniper':
         return this.playPrecisionDeathAnimation();
-      case 'MachineGun':
-      case 'Sludge':
       default:
         return this.playDefaultDeathAnimation();
     }
@@ -174,7 +172,6 @@ export abstract class BaseZombieRenderer implements IZombieRenderer {
     return new Promise(resolve => {
       const duration = 1200;
       const startTime = Date.now();
-      const originalTint = this.graphics.tint;
 
       // Apply orange burn tint
       this.graphics.tint = 0xff6600;
@@ -188,7 +185,7 @@ export abstract class BaseZombieRenderer implements IZombieRenderer {
         const t = Math.min(elapsed / duration, 1);
 
         // Collapse to ground
-        this.graphics.rotation = t * Math.PI / 2;
+        this.graphics.rotation = (t * Math.PI) / 2;
         this.graphics.scale.y = 1 - t * 0.4;
         this.graphics.scale.x = 1 + t * 0.1;
 
@@ -201,7 +198,7 @@ export abstract class BaseZombieRenderer implements IZombieRenderer {
 
         // Fade out at end
         if (t > 0.7) {
-          this.graphics.alpha = 1 - (t - 0.7) / 0.3 * 0.5;
+          this.graphics.alpha = 1 - ((t - 0.7) / 0.3) * 0.5;
         }
 
         if (t >= 1) {
@@ -303,12 +300,12 @@ export abstract class BaseZombieRenderer implements IZombieRenderer {
         const t = Math.min(elapsed / duration, 1);
 
         // Sharp initial impulse, then deceleration
-        const impulse = Math.pow(1 - t, 0.5);
+        const impulse = (1 - t) ** 0.5;
         this.graphics.x = knockbackX * (1 - impulse);
         this.graphics.y = knockbackY * Math.sin(t * Math.PI) * impulse;
 
         // Rotation from impact
-        this.graphics.rotation = -t * Math.PI / 3;
+        this.graphics.rotation = (-t * Math.PI) / 3;
 
         // Scale compression on impact
         if (t < 0.2) {
@@ -372,7 +369,7 @@ export abstract class BaseZombieRenderer implements IZombieRenderer {
         } else if (elapsed < headshotDuration + collapseDuration) {
           // Delayed body collapse
           const t = (elapsed - headshotDuration) / collapseDuration;
-          this.graphics.rotation = t * Math.PI / 2;
+          this.graphics.rotation = (t * Math.PI) / 2;
           this.graphics.scale.y = 0.9 - t * 0.3;
           this.graphics.alpha = 1 - t * 0.3;
         } else {
@@ -498,10 +495,7 @@ export abstract class BaseZombieRenderer implements IZombieRenderer {
     const handY = y + Math.sin(angle) * armLength;
 
     // Draw arm line
-    this.graphics
-      .moveTo(x, y)
-      .lineTo(handX, handY)
-      .stroke({ color: armColor, width: 2, alpha });
+    this.graphics.moveTo(x, y).lineTo(handX, handY).stroke({ color: armColor, width: 2, alpha });
 
     // Hand
     this.graphics.circle(handX, handY, 1.5).fill({ color: armColor, alpha });

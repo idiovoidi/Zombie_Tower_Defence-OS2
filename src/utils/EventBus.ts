@@ -1,6 +1,6 @@
 /**
  * EventBus - Centralized pub/sub event system for decoupled manager communication
- * 
+ *
  * This replaces direct method calls between managers with event-driven communication,
  * reducing coupling and making the system more testable and maintainable.
  */
@@ -36,7 +36,7 @@ export class EventBus {
     if (!this.listeners.has(event)) {
       this.listeners.set(event, new Set());
     }
-    this.listeners.get(event)!.add(callback as EventCallback);
+    this.listeners.get(event)?.add(callback as EventCallback);
 
     return {
       unsubscribe: () => {
@@ -82,7 +82,7 @@ export class EventBus {
   public emit<T>(event: string, payload?: T): void {
     const callbacks = this.listeners.get(event);
     if (callbacks) {
-      callbacks.forEach((callback) => {
+      callbacks.forEach(callback => {
         try {
           callback(payload);
         } catch (error) {
@@ -117,7 +117,6 @@ export class EventBus {
   }
 }
 
-
 // Predefined event names for type safety and consistency
 export const GameEvents = {
   // Wave events
@@ -139,13 +138,13 @@ export const GameEvents = {
 
   // Combat events
   ZOMBIE_SPAWNED: 'combat:zombie:spawned',
-  ZOMBIE_KILLED: 'combat:zombie:killed',  // { reward: number, type: string }
-  GIB_DEATH: 'combat:zombie:gib',  // { zombieId, x, y, overkill, towerType, gibType } - unique overkill death animation
+  ZOMBIE_KILLED: 'combat:zombie:killed', // { reward: number, type: string }
+  GIB_DEATH: 'combat:zombie:gib', // { zombieId, x, y, overkill, towerType, gibType } - unique overkill death animation
   ZOMBIE_REACHED_END: 'combat:zombie:reachedEnd',
   TOWER_PLACED: 'combat:tower:placed',
   TOWER_SOLD: 'combat:tower:sold',
   TOWER_UPGRADED: 'combat:tower:upgraded',
-  TOWER_DAMAGED: 'combat:tower:damaged',  // { tower: Tower, damage: number }
+  TOWER_DAMAGED: 'combat:tower:damaged', // { tower: Tower, damage: number }
   DAMAGE_DEALT: 'combat:damage:dealt',
 
   // Combat visualization events (headless simulation support)
@@ -162,4 +161,4 @@ export const GameEvents = {
 } as const;
 
 // Type for event names
-export type GameEventType = typeof GameEvents[keyof typeof GameEvents];
+export type GameEventType = (typeof GameEvents)[keyof typeof GameEvents];

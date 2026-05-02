@@ -1,11 +1,11 @@
 /**
  * AnalyticsState - Contextual object that encapsulates analytics and AI managers
- * 
+ *
  * This groups StatTracker, BalanceTrackingManager, and AIPlayerManager to handle
  * all analytics-related functionality in a cohesive unit.
  */
 
-import { EventBus, GameEvents, type EventSubscription } from '../utils/EventBus';
+import { EventBus, type EventSubscription, GameEvents } from '../utils/EventBus';
 import { StatTracker } from '../utils/StatTracker';
 import { AIPlayerManager } from './AIPlayerManager';
 import { BalanceTrackingManager } from './BalanceTrackingManager';
@@ -63,7 +63,7 @@ export class AnalyticsState {
 
     // Listen for wave complete
     this.eventSubscriptions.push(
-      eventBus.on<{ zombiesSpawned: number; livesLost: number }>(GameEvents.WAVE_COMPLETE, (data) => {
+      eventBus.on<{ zombiesSpawned: number; livesLost: number }>(GameEvents.WAVE_COMPLETE, data => {
         this.statTracker.trackWaveComplete();
         if (this.balanceTrackingManager.isEnabled() && data) {
           this.balanceTrackingManager.trackWaveComplete(data.zombiesSpawned, data.livesLost);
@@ -75,11 +75,16 @@ export class AnalyticsState {
     this.eventSubscriptions.push(
       eventBus.on<{ damage: number; towerType: string; killed: boolean; overkill: number }>(
         GameEvents.DAMAGE_DEALT,
-        (data) => {
+        data => {
           if (data) {
             this.statTracker.trackDamage(data.damage, data.towerType, data.killed, data.overkill);
             if (this.balanceTrackingManager.isEnabled()) {
-              this.balanceTrackingManager.trackDamage(data.towerType, data.damage, data.killed, data.overkill);
+              this.balanceTrackingManager.trackDamage(
+                data.towerType,
+                data.damage,
+                data.killed,
+                data.overkill
+              );
             }
           }
         }
@@ -88,7 +93,7 @@ export class AnalyticsState {
 
     // Listen for money earned
     this.eventSubscriptions.push(
-      eventBus.on<number>(GameEvents.MONEY_EARNED, (amount) => {
+      eventBus.on<number>(GameEvents.MONEY_EARNED, amount => {
         if (amount !== undefined) {
           this.statTracker.trackMoneyEarned(amount);
         }
@@ -97,7 +102,7 @@ export class AnalyticsState {
 
     // Listen for zombie killed (for detailed economy tracking)
     this.eventSubscriptions.push(
-      eventBus.on<{ reward: number; type: string }>(GameEvents.ZOMBIE_KILLED, (data) => {
+      eventBus.on<{ reward: number; type: string }>(GameEvents.ZOMBIE_KILLED, data => {
         if (data && this.balanceTrackingManager.isEnabled()) {
           this.balanceTrackingManager.trackEconomy('EARN', data.reward);
         }
@@ -106,7 +111,7 @@ export class AnalyticsState {
 
     // Listen for tower placed
     this.eventSubscriptions.push(
-      eventBus.on<{ type: string; cost: number }>(GameEvents.TOWER_PLACED, (data) => {
+      eventBus.on<{ type: string; cost: number }>(GameEvents.TOWER_PLACED, data => {
         if (data) {
           this.statTracker.trackTowerBuilt(data.type, data.cost);
           if (this.balanceTrackingManager.isEnabled()) {
@@ -118,11 +123,14 @@ export class AnalyticsState {
 
     // Listen for tower upgraded
     this.eventSubscriptions.push(
-      eventBus.on<{ type: string; cost: number; level: number }>(GameEvents.TOWER_UPGRADED, (data) => {
-        if (data) {
-          this.statTracker.trackTowerUpgraded(data.type, data.cost, data.level);
+      eventBus.on<{ type: string; cost: number; level: number }>(
+        GameEvents.TOWER_UPGRADED,
+        data => {
+          if (data) {
+            this.statTracker.trackTowerUpgraded(data.type, data.cost, data.level);
+          }
         }
-      })
+      )
     );
 
     // Listen for game over
@@ -186,7 +194,7 @@ export class AnalyticsState {
   }
 
   // Reset for new game
-  public reset(aiMode: boolean = false): void {
+  public reset(aiMode = false): void {
     this.balanceTrackingManager.reset();
     this.statTracker.startTracking(aiMode);
   }

@@ -5,33 +5,19 @@
  * This is essential for AI training and balance analysis at 1000x speed.
  */
 
-import { describe, expect, it, beforeEach, afterEach, vi } from 'vitest';
-import { TowerCombatManager } from '../src/managers/TowerCombatManager';
+import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { ProjectileManager } from '../src/managers/ProjectileManager';
+import { TowerCombatManager } from '../src/managers/TowerCombatManager';
 import { EventBus, GameEvents } from '../src/utils/EventBus';
-
-// Mock PixiJS Application for headless mode
-class MockApplication {
-  public stage = {
-    addChild: () => {},
-    removeChild: () => {},
-  };
-  public canvas = {
-    width: 1280,
-    height: 768,
-  };
-  public renderer = {
-    resize: () => {},
-  };
-  public ticker = {
-    add: () => {},
-    remove: () => {},
-  };
-}
 
 describe('Headless Combat Simulation', () => {
   let eventBus: EventBus;
-  let damageEvents: Array<{ damage: number; towerType: string; killed: boolean; overkill: number }> = [];
+  let damageEvents: Array<{
+    damage: number;
+    towerType: string;
+    killed: boolean;
+    overkill: number;
+  }> = [];
   let zombieKillEvents: Array<{ reward: number; type: string }> = [];
   let waveCompleteEvents: Array<{ wave: number; zombiesSpawned: number; livesLost: number }> = [];
 
@@ -44,18 +30,18 @@ describe('Headless Combat Simulation', () => {
     // Subscribe to events for verification
     eventBus.on<{ damage: number; towerType: string; killed: boolean; overkill: number }>(
       GameEvents.DAMAGE_DEALT,
-      (data) => {
+      data => {
         if (data) damageEvents.push(data);
       }
     );
 
-    eventBus.on<{ reward: number; type: string }>(GameEvents.ZOMBIE_KILLED, (data) => {
+    eventBus.on<{ reward: number; type: string }>(GameEvents.ZOMBIE_KILLED, data => {
       if (data) zombieKillEvents.push(data);
     });
 
     eventBus.on<{ wave: number; zombiesSpawned: number; livesLost: number }>(
       GameEvents.WAVE_COMPLETE,
-      (data) => {
+      data => {
         if (data) waveCompleteEvents.push(data);
       }
     );
@@ -68,7 +54,9 @@ describe('Headless Combat Simulation', () => {
   it('should initialize without EffectManager (headless mode)', () => {
     // Create combat manager without any rendering dependencies
     const combatManager = new TowerCombatManager(1024, 768);
-    const mockContainer = { addChild: () => {}, removeChild: () => {} } as unknown as import('pixi.js').Container;
+    const mockContainer = { addChild: () => {}, removeChild: () => {} } as unknown as import(
+      'pixi.js'
+    ).Container;
     const projectileManager = new ProjectileManager(mockContainer);
 
     combatManager.setProjectileManager(projectileManager);
@@ -123,7 +111,9 @@ describe('Headless Combat Simulation', () => {
 
   it('should run 1000 combat ticks without rendering overhead', () => {
     const combatManager = new TowerCombatManager(1024, 768);
-    const mockContainer = { addChild: () => {}, removeChild: () => {} } as unknown as import('pixi.js').Container;
+    const mockContainer = { addChild: () => {}, removeChild: () => {} } as unknown as import(
+      'pixi.js'
+    ).Container;
     const projectileManager = new ProjectileManager(mockContainer);
 
     const startTime = performance.now();
@@ -146,7 +136,9 @@ describe('Headless Combat Simulation', () => {
   it('should demonstrate high-speed simulation capability', () => {
     // This test demonstrates the key capability: running at 1000x speed
     const combatManager = new TowerCombatManager(1024, 768);
-    const mockContainer = { addChild: () => {}, removeChild: () => {} } as unknown as import('pixi.js').Container;
+    const mockContainer = { addChild: () => {}, removeChild: () => {} } as unknown as import(
+      'pixi.js'
+    ).Container;
     const projectileManager = new ProjectileManager(mockContainer);
     combatManager.setProjectileManager(projectileManager);
 
@@ -212,14 +204,16 @@ describe('CombatRenderer Optional Integration', () => {
       zombieX?: number;
       zombieY?: number;
       zombieId?: string;
-    }>(GameEvents.DAMAGE_DEALT, (data) => {
+    }>(GameEvents.DAMAGE_DEALT, data => {
       if (data) {
         damageEventReceived = true;
         hasPositionData = data.zombieX !== undefined && data.zombieY !== undefined;
 
         // Check for 100%+ overkill condition (gib explosion)
         if (data.killed && data.overkill >= data.damage) {
-          console.log(`💥 ${data.towerType} would gib zombie at (${data.zombieX}, ${data.zombieY}) with ${data.overkill} overkill!`);
+          console.log(
+            `💥 ${data.towerType} would gib zombie at (${data.zombieX}, ${data.zombieY}) with ${data.overkill} overkill!`
+          );
         }
       }
     });
@@ -258,15 +252,15 @@ describe('CombatRenderer Optional Integration', () => {
       overkill: number;
       towerType: string;
       gibType: 'small' | 'medium' | 'large' | 'massive';
-    }>(GameEvents.GIB_DEATH, (data) => {
+    }>(GameEvents.GIB_DEATH, data => {
       if (data) gibEvents.push(data);
     });
 
     // Test different overkill magnitudes
     const testCases = [
-      { damage: 50, overkill: 60, expected: 'small' },    // 120% overkill
+      { damage: 50, overkill: 60, expected: 'small' }, // 120% overkill
       { damage: 50, overkill: 150, expected: 'medium' }, // 300% overkill
-      { damage: 50, overkill: 300, expected: 'large' },  // 600% overkill
+      { damage: 50, overkill: 300, expected: 'large' }, // 600% overkill
       { damage: 50, overkill: 500, expected: 'massive' }, // 1000% overkill
     ];
 
@@ -287,7 +281,9 @@ describe('CombatRenderer Optional Integration', () => {
         gibType: expected,
       });
 
-      console.log(`🔴 ${expected.toUpperCase()} GIB: ${test.overkill} overkill (${ratio.toFixed(1)}x damage)`);
+      console.log(
+        `🔴 ${expected.toUpperCase()} GIB: ${test.overkill} overkill (${ratio.toFixed(1)}x damage)`
+      );
     }
 
     expect(gibEvents).toHaveLength(4);

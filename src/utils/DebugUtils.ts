@@ -4,7 +4,7 @@
 
 // biome-ignore lint/complexity/noStaticOnlyClass: Intentional singleton utility class
 export class DebugUtils {
-  private static enabled: boolean = false;
+  private static enabled = false;
   private static logLevel: 'debug' | 'info' | 'warn' | 'error' = 'info';
 
   /**
@@ -77,7 +77,7 @@ export class DebugUtils {
     return levels.indexOf(level) >= levels.indexOf(DebugUtils.logLevel);
   }
 
-  private static logTimerResult(name: string, start: number, failed: boolean = false): void {
+  private static logTimerResult(name: string, start: number, failed = false): void {
     const end = performance.now();
     const statusSuffix = failed ? ' (failed)' : '';
     DebugUtils.debug(`[TIMER] ${name}: ${end - start}ms${statusSuffix}`);

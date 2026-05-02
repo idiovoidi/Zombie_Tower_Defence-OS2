@@ -1,7 +1,7 @@
 import { Container, Graphics } from 'pixi.js';
 import { EffectCleanupManager } from '../utils/EffectCleanupManager';
-import { ResourceCleanupManager } from '../utils/ResourceCleanupManager';
 import { EventBus, GameEvents } from '../utils/EventBus';
+import { ResourceCleanupManager } from '../utils/ResourceCleanupManager';
 import type { Zombie } from './Zombie';
 
 export class Projectile extends Container {
@@ -11,9 +11,9 @@ export class Projectile extends Container {
   private target: Zombie | null;
   private targetX: number;
   private targetY: number;
-  private isActive: boolean = true;
+  private isActive = true;
   private projectileType: string;
-  private towerType: string = 'unknown';
+  private towerType = 'unknown';
   private onDamageCallback:
     | ((damage: number, towerType: string, killed: boolean, overkill: number) => void)
     | null = null;
@@ -22,19 +22,19 @@ export class Projectile extends Container {
   // Arc trajectory for grenades
   private startX: number;
   private startY: number;
-  private travelProgress: number = 0;
-  private arcHeight: number = 80; // Height of the arc
-  private upgradeLevel: number = 1; // Tower upgrade level for scaling effects
-  private isHitEffectActive: boolean = false;
+  private travelProgress = 0;
+  private arcHeight = 80; // Height of the arc
+  private upgradeLevel = 1; // Tower upgrade level for scaling effects
+  private isHitEffectActive = false;
 
   constructor(
-    x: number = 0,
-    y: number = 0,
-    targetX: number = 0,
-    targetY: number = 0,
-    damage: number = 0,
-    speed: number = 0,
-    projectileType: string = 'bullet',
+    x = 0,
+    y = 0,
+    targetX = 0,
+    targetY = 0,
+    damage = 0,
+    speed = 0,
+    projectileType = 'bullet',
     target: Zombie | null = null
   ) {
     super();
@@ -46,10 +46,10 @@ export class Projectile extends Container {
     this.speed = speed;
     this.projectileType = projectileType;
     this.target = target;
-    
+
     this.visual = new Graphics();
     this.addChild(this.visual);
-    
+
     this.init(x, y, targetX, targetY, damage, speed, projectileType, target);
   }
 
@@ -60,7 +60,7 @@ export class Projectile extends Container {
     targetY: number,
     damage: number,
     speed: number,
-    projectileType: string = 'bullet',
+    projectileType = 'bullet',
     target: Zombie | null = null
   ): void {
     this.position.set(x, y);

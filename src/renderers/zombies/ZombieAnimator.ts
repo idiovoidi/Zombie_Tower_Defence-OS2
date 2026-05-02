@@ -13,7 +13,7 @@ export interface AnimationData {
 
 export class ZombieAnimator {
   private currentState: AnimationState = AnimationState.WALK;
-  private animationTime: number = 0;
+  private animationTime = 0;
   private zombieType: string;
   private swayOffset: number;
 
@@ -32,9 +32,8 @@ export class ZombieAnimator {
 
     if (this.currentState === AnimationState.WALK) {
       return this.getWalkFrame(time);
-    } else {
-      return this.getIdleFrame(time);
     }
+    return this.getIdleFrame(time);
   }
 
   private getWalkFrame(time: number): AnimationData {

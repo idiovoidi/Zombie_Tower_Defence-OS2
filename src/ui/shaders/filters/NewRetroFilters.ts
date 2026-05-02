@@ -1,9 +1,5 @@
 import { Filter, GlProgram } from 'pixi.js';
 
-
-
-
-
 /**
  * VHS Filter - Retro VHS tape effect
  */
@@ -91,4 +87,3 @@ export class VHSFilter extends Filter {
     this.resources.vhsUniforms.uniforms.uTime += deltaTime * 0.001;
   }
 }
-

@@ -1,8 +1,8 @@
 import type { Container } from 'pixi.js';
 import { BaseZombieRenderer } from './BaseZombieRenderer';
-import { GlowEffect, ShadowEffect } from './components/ZombieEffects';
 import { ParticleType } from './ZombieParticleSystem';
 import type { ZombieRenderState } from './ZombieRenderer';
+import { GlowEffect, ShadowEffect } from './components/ZombieEffects';
 
 export class FastZombieRenderer extends BaseZombieRenderer {
   protected readonly ANIMATOR_TYPE = 'FAST';
@@ -93,5 +93,4 @@ export class FastZombieRenderer extends BaseZombieRenderer {
       .circle(handX, handY, 1.5)
       .stroke({ color: 0x000000, width: 0.5, alpha: alpha * 0.5 });
   }
-
 }

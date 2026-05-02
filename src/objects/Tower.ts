@@ -1,6 +1,6 @@
-import { Container, Graphics } from 'pixi.js';
 import type { ITowerRenderer } from '@/renderers/towers/ITowerRenderer';
 import { TowerRendererFactory } from '@/renderers/towers/TowerRendererFactory';
+import { Container, Graphics } from 'pixi.js';
 import { HealthComponent } from '../components/HealthComponent';
 import { TransformComponent } from '../components/TransformComponent';
 import { GameConfig } from '../config/gameConfig';
@@ -17,24 +17,24 @@ import type { ITower } from './Tower.interface';
 
 export class Tower extends GameObject implements ITower, TowerEffects {
   private type: string;
-  private damage: number = 0;
-  private range: number = 0;
-  private fireRate: number = 0; // shots per second
-  private lastShotTime: number = 0;
-  private upgradeLevel: number = 1;
-  private maxUpgradeLevel: number = 5;
-  private upgradeCost: number = 100;
+  private damage = 0;
+  private range = 0;
+  private fireRate = 0; // shots per second
+  private lastShotTime = 0;
+  private upgradeLevel = 1;
+  private maxUpgradeLevel = 5;
+  private upgradeCost = 100;
   private visual: Graphics;
   private barrel: Container; // Separate barrel for rotation
   private renderer: ITowerRenderer; // Renderer for visual representation
   private rangeVisualizer: TowerRangeVisualizer;
-  private currentRotation: number = 0;
+  private currentRotation = 0;
 
   // Idle animation properties
-  private idleTime: number = 0;
-  private idleScanDirection: number = 1; // 1 for right, -1 for left
-  private idleScanAngle: number = 0;
-  private lastShootTime: number = 0;
+  private idleTime = 0;
+  private idleScanDirection = 1; // 1 for right, -1 for left
+  private idleScanAngle = 0;
+  private lastShootTime = 0;
 
   // Machine gun effects
   private barrelHeatGlow: BarrelHeatGlow | null = null;
@@ -509,7 +509,7 @@ export class Tower extends GameObject implements ITower, TowerEffects {
       if (!highlight || highlight.destroyed) {
         if (this.pulseInterval) {
           clearInterval(this.pulseInterval);
-          delete this.pulseInterval;
+          this.pulseInterval = undefined;
         }
         return;
       }
@@ -537,7 +537,7 @@ export class Tower extends GameObject implements ITower, TowerEffects {
     // Clear pulse animation first (tracked to prevent memory leaks)
     if (this.pulseInterval) {
       EffectCleanupManager.clearInterval(this.pulseInterval);
-      delete this.pulseInterval;
+      this.pulseInterval = undefined;
     }
 
     // Remove highlight if it exists
@@ -547,7 +547,7 @@ export class Tower extends GameObject implements ITower, TowerEffects {
         this.removeChild(highlight);
         highlight.destroy();
       }
-      delete this.selectionHighlight;
+      this.selectionHighlight = undefined;
     }
   }
 
@@ -562,11 +562,7 @@ export class Tower extends GameObject implements ITower, TowerEffects {
    * Spawn bullet trail and impact flash (Sniper)
    * Emits SNIPER_HIT event for CombatRenderer to handle visuals
    */
-  public spawnSniperHitEffects(
-    targetX: number,
-    targetY: number,
-    isHeadshot: boolean = false
-  ): void {
+  public spawnSniperHitEffects(targetX: number, targetY: number, isHeadshot = false): void {
     const rifleLength = 12 + this.upgradeLevel * 2;
     const rifleTip = -12 + rifleLength;
     const startX = this.x + Math.cos(this.barrel.rotation) * rifleTip;
@@ -654,7 +650,7 @@ export class Tower extends GameObject implements ITower, TowerEffects {
     // CRITICAL: Clear pulse interval to prevent memory leak
     if (this.pulseInterval) {
       clearInterval(this.pulseInterval);
-      delete this.pulseInterval;
+      this.pulseInterval = undefined;
     }
 
     // Clean up barrel heat glow

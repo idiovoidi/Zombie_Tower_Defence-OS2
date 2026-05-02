@@ -71,7 +71,7 @@ export class ParticleManager {
     });
   }
 
-  public createExplosion(x: number, y: number, color: number = 0xff6600): void {
+  public createExplosion(x: number, y: number, color = 0xff6600): void {
     const particleCount = 10 + Math.floor(Math.random() * 10);
 
     for (let i = 0; i < particleCount; i++) {

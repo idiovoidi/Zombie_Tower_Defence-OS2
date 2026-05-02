@@ -43,7 +43,7 @@ export class SpatialGrid<T extends SpatialEntity> {
 
   // Query result cache
   private queryCache: Map<string, { results: T[]; timestamp: number }>;
-  private queryCacheDuration: number = 100; // Cache for ~6 frames (100ms) - more effective caching
+  private queryCacheDuration = 100; // Cache for ~6 frames (100ms) - more effective caching
 
   /**
    * Create a spatial grid
@@ -51,7 +51,7 @@ export class SpatialGrid<T extends SpatialEntity> {
    * @param height World height in pixels
    * @param cellSize Size of each grid cell in pixels (larger = fewer cells, less precise)
    */
-  constructor(width: number, height: number, cellSize: number = 128) {
+  constructor(width: number, height: number, cellSize = 128) {
     this.width = width;
     this.height = height;
     this.cellSize = cellSize;

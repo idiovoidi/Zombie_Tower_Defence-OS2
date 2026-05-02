@@ -28,7 +28,13 @@
     "deps:report": "depcruise src --config .dependency-cruiser.cjs --output-type html > dependency-report.html",
     "dev:debug": "vite --debug",
     "clean": "rimraf dist node_modules/.vite",
-    "knip": "knip"
+    "knip": "knip",
+    "build:types": "tsc -p tsconfig.build.json",
+    "api-extractor": "npm run build:types && api-extractor run --local",
+    "api-extractor:ci": "npm run build:types && api-extractor run",
+    "api-documenter": "api-documenter markdown -i temp -o docs/api",
+    "eslint": "eslint src/**/*.ts",
+    "eslint:fix": "eslint src/**/*.ts --fix"
   },
   "dependencies": {
     "cors": "^2.8.5",
@@ -40,12 +46,21 @@
   },
   "devDependencies": {
     "@biomejs/biome": "^1.9.4",
+    "@eslint/js": "^10.0.1",
+    "@microsoft/api-documenter": "^7.30.5",
+    "@microsoft/api-extractor": "^7.58.7",
+    "@typescript-eslint/eslint-plugin": "^8.59.1",
+    "@typescript-eslint/parser": "^8.59.1",
     "@vitest/coverage-v8": "^3.2.4",
     "concurrently": "^8.2.2",
     "dependency-cruiser": "^17.3.10",
+    "eslint": "^10.3.0",
+    "eslint-plugin-boundaries": "^6.0.2",
+    "globals": "^17.6.0",
     "jscpd": "^4.0.9",
     "knip": "^6.10.0",
     "typescript": "~5.7.3",
+    "typescript-eslint": "^8.59.1",
     "vite": "^6.2.0",
     "vitest": "^3.2.4"
   }

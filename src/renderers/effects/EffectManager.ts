@@ -107,7 +107,7 @@ export class EffectManager {
   };
 
   // Object pools for effect reuse
-  private poolingEnabled: boolean = true;
+  private poolingEnabled = true;
   private shellCasingPool: ObjectPool<ShellCasing>;
   private muzzleFlashPool: ObjectPool<MuzzleFlashLight>;
   private bulletTrailPool: ObjectPool<BulletTrail>;
@@ -186,7 +186,7 @@ export class EffectManager {
   /**
    * Spawn a shell casing
    */
-  public spawnShellCasing(x: number, y: number, ejectAngle: number = 0): void {
+  public spawnShellCasing(x: number, y: number, ejectAngle = 0): void {
     // Remove oldest if at limit
     if (this.shellCasings.length >= this.limits.maxShellCasings) {
       const oldest = this.shellCasings.shift();
@@ -217,7 +217,7 @@ export class EffectManager {
   /**
    * Spawn a muzzle flash light effect
    */
-  public spawnMuzzleFlashLight(x: number, y: number, radius: number = 30): void {
+  public spawnMuzzleFlashLight(x: number, y: number, radius = 30): void {
     // Remove oldest if at limit
     if (this.muzzleFlashes.length >= this.limits.maxMuzzleFlashes) {
       const oldest = this.muzzleFlashes.shift();
@@ -297,7 +297,7 @@ export class EffectManager {
   /**
    * Spawn an impact flash (Sniper)
    */
-  public spawnImpactFlash(x: number, y: number, isHeadshot: boolean = false): void {
+  public spawnImpactFlash(x: number, y: number, isHeadshot = false): void {
     // Remove oldest if at limit
     if (this.impactFlashes.length >= this.limits.maxImpactFlashes) {
       const oldest = this.impactFlashes.shift();
@@ -357,7 +357,7 @@ export class EffectManager {
   /**
    * Spawn a burning ground effect (Flame tower fire pool)
    */
-  public spawnBurningGround(x: number, y: number, upgradeLevel: number = 1): void {
+  public spawnBurningGround(x: number, y: number, upgradeLevel = 1): void {
     // Remove oldest if at limit
     if (this.burningGroundEffects.length >= this.limits.maxBurningGroundEffects) {
       const oldest = this.burningGroundEffects.shift();
@@ -393,7 +393,7 @@ export class EffectManager {
     startY: number,
     endX: number,
     endY: number,
-    isPrimary: boolean = true
+    isPrimary = true
   ): void {
     const lightningGraphics = new Graphics();
     this.drawLightningBolt(lightningGraphics, startX, startY, endX, endY, isPrimary);
@@ -667,10 +667,8 @@ export class EffectManager {
     }
 
     // Tint zombie
-    // biome-ignore lint/complexity/useLiteralKeys: Accessing private property through bracket notation
-    if (zombie['visual']) {
-      // biome-ignore lint/complexity/useLiteralKeys: Accessing private property through bracket notation
-      const visual = zombie['visual'] as Graphics;
+    const visual = zombie.getRendererGraphics();
+    if (visual) {
       const originalTint = visual.tint;
       visual.tint = 0x00ffff;
 
@@ -699,7 +697,7 @@ export class EffectManager {
   /**
    * Spawn a damage flash on a target container
    */
-  public spawnDamageFlash(target: PixiContainer, radius: number = 30): void {
+  public spawnDamageFlash(target: PixiContainer, radius = 30): void {
     const damageFlash = new Graphics();
     damageFlash.circle(0, 0, radius).fill({ color: 0xff0000, alpha: 0.5 });
     target.addChild(damageFlash);

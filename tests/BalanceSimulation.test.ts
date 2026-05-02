@@ -7,10 +7,10 @@
  */
 
 import { describe, expect, it } from 'vitest';
-import { EventBus, GameEvents } from '../src/utils/EventBus';
+import { TowerConstants } from '../src/config/towerConstants';
 import { BalanceAnalyzer } from '../src/utils/BalanceAnalyzer';
 import type { TowerEfficiency } from '../src/utils/BalanceAnalyzer';
-import { TowerConstants } from '../src/config/towerConstants';
+import { EventBus, GameEvents } from '../src/utils/EventBus';
 
 // Tower stat configuration using ACTUAL game values
 interface TowerConfig {
@@ -48,7 +48,7 @@ describe('Automated Balance Analysis', () => {
       towerType: string;
       killed: boolean;
       overkill: number;
-    }>(GameEvents.DAMAGE_DEALT, (data) => {
+    }>(GameEvents.DAMAGE_DEALT, data => {
       if (data) damageEvents.push(data);
     });
 
@@ -164,7 +164,7 @@ describe('Automated Balance Analysis', () => {
             }
           } else {
             // Single target damage for other towers
-            const target = zombies.find((z) => z.alive);
+            const target = zombies.find(z => z.alive);
             if (target) {
               const damage = config.damage;
               const damageDealt = Math.min(damage, target.hp);
@@ -194,9 +194,15 @@ describe('Automated Balance Analysis', () => {
       }
 
       console.log(`\n📊 ${config.type.toUpperCase()} TOWER SIMULATION:`);
-      console.log(`   Damage: ${totalDamage.toFixed(0)} | Shots: ${shotsFired} | Kills: ${zombiesKilled}`);
-      console.log(`   DPS: ${nominalDPS.toFixed(1)} | Efficiency: ${(totalDamage / config.cost).toFixed(2)} dmg/$`);
-      console.log(`   Overkill: ${overkillDamage.toFixed(0)} (${((overkillDamage / (totalDamage + overkillDamage)) * 100).toFixed(1)}%)`);
+      console.log(
+        `   Damage: ${totalDamage.toFixed(0)} | Shots: ${shotsFired} | Kills: ${zombiesKilled}`
+      );
+      console.log(
+        `   DPS: ${nominalDPS.toFixed(1)} | Efficiency: ${(totalDamage / config.cost).toFixed(2)} dmg/$`
+      );
+      console.log(
+        `   Overkill: ${overkillDamage.toFixed(0)} (${((overkillDamage / (totalDamage + overkillDamage)) * 100).toFixed(1)}%)`
+      );
       if (config.type === 'Grenade') {
         console.log(`   Area damage: ~${(zombiesKilled / shotsFired).toFixed(1)} zombies per shot`);
       }
@@ -205,11 +211,11 @@ describe('Automated Balance Analysis', () => {
     unsubscribe?.unsubscribe();
 
     // Analyze results
-    const results: SimulationResults[] = towerConfigs.map((config) => {
-      const towerEvents = damageEvents.filter((e) => e.towerType === config.type);
+    const results: SimulationResults[] = towerConfigs.map(config => {
+      const towerEvents = damageEvents.filter(e => e.towerType === config.type);
       const totalDamage = towerEvents.reduce((sum, e) => sum + e.damage, 0);
       const totalOverkill = towerEvents.reduce((sum, e) => sum + e.overkill, 0);
-      const kills = towerEvents.filter((e) => e.killed).length;
+      const kills = towerEvents.filter(e => e.killed).length;
       const dps = totalDamage / (simulationDuration / 1000);
 
       return {
@@ -229,13 +235,15 @@ describe('Automated Balance Analysis', () => {
     const recommendations: string[] = [];
 
     // 1. Check DPS balance across towers
-    const dpsValues = results.map((r) => r.dps);
-    const avgDPS = dpsValues.reduce((a, b) => a + b, 0) / dpsValues.length;
+    const dpsValues = results.map(r => r.dps);
+    const _avgDPS = dpsValues.reduce((a, b) => a + b, 0) / dpsValues.length;
     const maxDPS = Math.max(...dpsValues);
     const minDPS = Math.min(...dpsValues);
     const dpsVariance = maxDPS / minDPS;
 
-    console.log(`\n   DPS Variance: ${dpsVariance.toFixed(2)}x (target: 2-3x for tier differentiation)`);
+    console.log(
+      `\n   DPS Variance: ${dpsVariance.toFixed(2)}x (target: 2-3x for tier differentiation)`
+    );
 
     if (dpsVariance > 4) {
       recommendations.push('⚠️ High DPS variance - some towers significantly overpowered');
@@ -244,33 +252,42 @@ describe('Automated Balance Analysis', () => {
     }
 
     // 2. Check cost efficiency
-    const efficiencies = results.map((r) => r.efficiency);
+    const efficiencies = results.map(r => r.efficiency);
     const avgEfficiency = efficiencies.reduce((a, b) => a + b, 0) / efficiencies.length;
 
-    results.forEach((result) => {
+    results.forEach(result => {
       const deviation = ((result.efficiency - avgEfficiency) / avgEfficiency) * 100;
       const costEfficiencyStatus = Math.abs(deviation) > 20 ? '⚠️' : '✅';
-      console.log(`   ${costEfficiencyStatus} ${result.towerType}: ${result.efficiency.toFixed(2)} dmg/$ (${deviation > 0 ? '+' : ''}${deviation.toFixed(1)}% vs avg)`);
+      console.log(
+        `   ${costEfficiencyStatus} ${result.towerType}: ${result.efficiency.toFixed(2)} dmg/$ (${deviation > 0 ? '+' : ''}${deviation.toFixed(1)}% vs avg)`
+      );
 
       if (deviation > 30) {
-        recommendations.push(`💡 ${result.towerType}: NERF - Too cost efficient (${deviation.toFixed(0)}% above avg)`);
+        recommendations.push(
+          `💡 ${result.towerType}: NERF - Too cost efficient (${deviation.toFixed(0)}% above avg)`
+        );
       } else if (deviation < -30) {
-        recommendations.push(`💡 ${result.towerType}: BUFF - Too expensive for damage (${Math.abs(deviation).toFixed(0)}% below avg)`);
+        recommendations.push(
+          `💡 ${result.towerType}: BUFF - Too expensive for damage (${Math.abs(deviation).toFixed(0)}% below avg)`
+        );
       }
     });
 
     // 3. Check overkill (damage waste)
-    results.forEach((result) => {
-      const overkillPercent = (result.overkillDamage / (result.totalDamage + result.overkillDamage)) * 100;
+    results.forEach(result => {
+      const overkillPercent =
+        (result.overkillDamage / (result.totalDamage + result.overkillDamage)) * 100;
       if (overkillPercent > 20) {
-        recommendations.push(`💡 ${result.towerType}: Reduce damage by ~${(overkillPercent / 2).toFixed(0)}% to reduce overkill waste`);
+        recommendations.push(
+          `💡 ${result.towerType}: Reduce damage by ~${(overkillPercent / 2).toFixed(0)}% to reduce overkill waste`
+        );
       }
     });
 
     // Print recommendations
     if (recommendations.length > 0) {
       console.log('\n📋 ACTIONABLE CHANGES:');
-      recommendations.forEach((rec) => console.log(`   ${rec}`));
+      recommendations.forEach(rec => console.log(`   ${rec}`));
     } else {
       console.log('\n✅ All towers reasonably balanced!');
     }
@@ -278,18 +295,22 @@ describe('Automated Balance Analysis', () => {
     // Assertions to verify balance is within acceptable ranges
     // Note: DPS variance >5 is acceptable for tiered towers (early vs late game)
     expect(dpsVariance).toBeLessThan(50); // Intentional tier variance allowed
-    expect(results.every((r) => r.efficiency > 0)).toBe(true); // All towers should deal some damage
+    expect(results.every(r => r.efficiency > 0)).toBe(true); // All towers should deal some damage
 
     // Log the key finding: tier 1 (MachineGun) vs tier 3 (Grenade/Tesla) balance
-    const earlyGame = results.filter((r) => r.towerType === 'MachineGun' || r.towerType === 'Shotgun');
-    const lateGame = results.filter((r) => r.towerType === 'Tesla' || r.towerType === 'Grenade');
+    const earlyGame = results.filter(
+      r => r.towerType === 'MachineGun' || r.towerType === 'Shotgun'
+    );
+    const lateGame = results.filter(r => r.towerType === 'Tesla' || r.towerType === 'Grenade');
     const earlyAvg = earlyGame.reduce((a, b) => a + b.efficiency, 0) / earlyGame.length;
     const lateAvg = lateGame.reduce((a, b) => a + b.efficiency, 0) / lateGame.length;
 
-    console.log(`\n📊 TIER BALANCE:`);
+    console.log('\n📊 TIER BALANCE:');
     console.log(`   Early game avg efficiency: ${earlyAvg.toFixed(3)} dmg/$`);
     console.log(`   Late game avg efficiency: ${lateAvg.toFixed(3)} dmg/$`);
-    console.log(`   Tier ratio: ${(earlyAvg / lateAvg).toFixed(1)}x (target: 2-3x for progression feel)`);
+    console.log(
+      `   Tier ratio: ${(earlyAvg / lateAvg).toFixed(1)}x (target: 2-3x for progression feel)`
+    );
 
     console.log('\n✅ Balance analysis complete - ready for stat adjustments');
   });
@@ -328,17 +349,28 @@ describe('Automated Balance Analysis', () => {
 
     // Check if efficiency score suggests balance issues
     console.log('\n📈 TOWER EFFICIENCY METRICS:');
-    console.log(`   ${towerStats.type}: ${(towerStats.efficiencyScore * 100).toFixed(0)}% efficiency score`);
+    console.log(
+      `   ${towerStats.type}: ${(towerStats.efficiencyScore * 100).toFixed(0)}% efficiency score`
+    );
     console.log(`   Effective DPS: ${towerStats.effectiveDPS.toFixed(1)}`);
     console.log(`   Break-even time: ${towerStats.breakEvenTime.toFixed(0)}s`);
 
-    const efficiencyRating = towerStats.efficiencyScore > 1.1 ? 'Strong' : towerStats.efficiencyScore < 0.9 ? 'Weak' : 'Balanced';
+    const efficiencyRating =
+      towerStats.efficiencyScore > 1.1
+        ? 'Strong'
+        : towerStats.efficiencyScore < 0.9
+          ? 'Weak'
+          : 'Balanced';
     console.log(`   Status: ${efficiencyRating}`);
 
     if (towerStats.efficiencyScore > 1.3) {
-      console.log(`   💡 RECOMMENDATION: Increase cost by ${((towerStats.efficiencyScore - 1) * 20).toFixed(0)}%`);
+      console.log(
+        `   💡 RECOMMENDATION: Increase cost by ${((towerStats.efficiencyScore - 1) * 20).toFixed(0)}%`
+      );
     } else if (towerStats.efficiencyScore < 0.7) {
-      console.log(`   💡 RECOMMENDATION: Decrease cost by ${((1 - towerStats.efficiencyScore) * 20).toFixed(0)}%`);
+      console.log(
+        `   💡 RECOMMENDATION: Decrease cost by ${((1 - towerStats.efficiencyScore) * 20).toFixed(0)}%`
+      );
     }
 
     expect(towerStats.efficiencyScore).toBeGreaterThan(0);

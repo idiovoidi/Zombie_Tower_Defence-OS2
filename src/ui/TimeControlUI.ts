@@ -1,5 +1,9 @@
 import { Container, Graphics, Text } from 'pixi.js';
-import { TimeControlManager, TimeControlState, TimeSpeed } from '../managers/TimeControlManager';
+import {
+  type TimeControlManager,
+  type TimeControlState,
+  TimeSpeed,
+} from '../managers/TimeControlManager';
 import { UIComponent } from './UIComponent';
 
 /**
@@ -35,7 +39,7 @@ export class TimeControlUI extends UIComponent {
     this.createUI();
 
     // Listen for state changes
-    this.timeControlManager.setOnStateChangeCallback((state) => {
+    this.timeControlManager.setOnStateChangeCallback(state => {
       this.updateUI(state);
     });
   }
@@ -242,7 +246,6 @@ export class TimeControlUI extends UIComponent {
           }
           this.statusText.style.fill = 0xff6600;
           break;
-        case TimeSpeed.NORMAL:
         default:
           if (this.statusText.text !== '') {
             this.statusText.text = '';

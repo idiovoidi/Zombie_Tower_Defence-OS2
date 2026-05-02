@@ -40,17 +40,17 @@ export interface SystemMeasurement {
  */
 // biome-ignore lint/complexity/noStaticOnlyClass: Stateless utility for performance tracking
 export class PerformanceMonitor {
-  private static enabled: boolean = true;
+  private static enabled = true;
   private static frameTimes: Map<string, number[]> = new Map();
   private static currentMeasurements: Map<string, SystemMeasurement> = new Map();
   private static entityCounts: Map<string, number> = new Map();
   private static warnings: string[] = [];
-  private static frameStartTime: number = 0;
-  private static lastFrameTime: number = 0;
+  private static frameStartTime = 0;
+  private static lastFrameTime = 0;
 
   // Memory tracking
   private static waveMemorySnapshots: WaveMemorySnapshot[] = [];
-  private static lastMemoryCheck: number = 0;
+  private static lastMemoryCheck = 0;
   private static readonly MEMORY_CHECK_INTERVAL_MS = 1000; // Check every second
 
   // Thresholds
@@ -449,7 +449,7 @@ export class PerformanceMonitor {
 
     // Memory usage
     if (metrics.memoryUsage.heapUsed > 0) {
-      console.log(`\n💾 Memory Usage:`);
+      console.log('\n💾 Memory Usage:');
       console.log(`   Heap Used: ${metrics.memoryUsage.heapUsedMB.toFixed(2)} MB`);
       console.log(`   Heap Total: ${metrics.memoryUsage.heapTotalMB.toFixed(2)} MB`);
 

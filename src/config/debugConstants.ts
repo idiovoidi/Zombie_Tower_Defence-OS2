@@ -61,4 +61,3 @@ export const DebugConstants = {
   DISABLE_GAME_OVER: false, // Can't lose the game
   AUTO_WIN_WAVES: false, // Automatically complete waves
 };
-

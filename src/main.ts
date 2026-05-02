@@ -40,9 +40,6 @@ import { VisualEffects } from './utils/VisualEffects';
     background: '#101010',
     width: 1280,
     height: 768,
-    gcActive: true,
-    gcMaxUnusedTime: 60000, // 60s
-    gcFrequency: 30000, // 30s
   });
 
   // Enable culling for off-screen objects (per pixijs-performance skill)
@@ -205,10 +202,9 @@ import { VisualEffects } from './utils/VisualEffects';
       gameManager.spendMoney(cost);
       DebugUtils.debug(`Purchased camp upgrade: ${upgradeId} for $${cost}`);
       return true;
-    } else {
-      DebugUtils.debug('Not enough money for camp upgrade');
-      return false;
     }
+    DebugUtils.debug('Not enough money for camp upgrade');
+    return false;
   });
 
   // Create money animation system AFTER all UI components are registered

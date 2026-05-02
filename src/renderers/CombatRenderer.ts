@@ -7,7 +7,7 @@
 
 import type { Tower } from '@objects/Tower';
 import type { Zombie } from '@objects/Zombie';
-import { EventBus, GameEvents, type EventSubscription } from '@utils/EventBus';
+import { EventBus, type EventSubscription, GameEvents } from '@utils/EventBus';
 import type { EffectManager } from './effects/EffectManager';
 
 interface TargetHitEventData {
@@ -86,7 +86,7 @@ export interface FlameGroundHitEventData {
 export class CombatRenderer {
   private effectManager: EffectManager | null = null;
   private eventSubscriptions: EventSubscription[] = [];
-  private enabled: boolean = true;
+  private enabled = true;
 
   constructor(effectManager?: EffectManager) {
     if (effectManager) {
@@ -121,7 +121,7 @@ export class CombatRenderer {
 
     // Listen for target hit events (for projectile-based towers)
     this.eventSubscriptions.push(
-      eventBus.on<TargetHitEventData>(GameEvents.TARGET_HIT, (data) => {
+      eventBus.on<TargetHitEventData>(GameEvents.TARGET_HIT, data => {
         if (data && this.enabled) {
           this.onTargetHit(data);
         }
@@ -130,7 +130,7 @@ export class CombatRenderer {
 
     // Listen for lightning arc events (Tesla tower)
     this.eventSubscriptions.push(
-      eventBus.on<LightningArcEventData>(GameEvents.LIGHTNING_ARC, (data) => {
+      eventBus.on<LightningArcEventData>(GameEvents.LIGHTNING_ARC, data => {
         if (data && this.enabled) {
           this.onLightningArc(data);
         }
@@ -139,7 +139,7 @@ export class CombatRenderer {
 
     // Listen for sniper hit events
     this.eventSubscriptions.push(
-      eventBus.on<SniperHitEventData>(GameEvents.SNIPER_HIT, (data) => {
+      eventBus.on<SniperHitEventData>(GameEvents.SNIPER_HIT, data => {
         if (data && this.enabled) {
           this.onSniperHit(data);
         }
@@ -148,7 +148,7 @@ export class CombatRenderer {
 
     // Listen for shooting effect events
     this.eventSubscriptions.push(
-      eventBus.on<ShootingEffectEventData>(GameEvents.SHOOTING_EFFECT, (data) => {
+      eventBus.on<ShootingEffectEventData>(GameEvents.SHOOTING_EFFECT, data => {
         if (data && this.enabled) {
           this.onShootingEffect(data);
         }
@@ -157,7 +157,7 @@ export class CombatRenderer {
 
     // Listen for tower damaged events
     this.eventSubscriptions.push(
-      eventBus.on<TowerDamagedEventData>(GameEvents.TOWER_DAMAGED, (data) => {
+      eventBus.on<TowerDamagedEventData>(GameEvents.TOWER_DAMAGED, data => {
         if (data && this.enabled) {
           this.onTowerDamaged(data);
         }
@@ -166,7 +166,7 @@ export class CombatRenderer {
 
     // Listen for damage dealt events (for overkill gib explosions)
     this.eventSubscriptions.push(
-      eventBus.on<DamageDealtEventData>(GameEvents.DAMAGE_DEALT, (data) => {
+      eventBus.on<DamageDealtEventData>(GameEvents.DAMAGE_DEALT, data => {
         if (data && this.enabled) {
           this.onDamageDealt(data);
         }
@@ -175,7 +175,7 @@ export class CombatRenderer {
 
     // Listen for gib death events (unique overkill death animation)
     this.eventSubscriptions.push(
-      eventBus.on<GibDeathEventData>(GameEvents.GIB_DEATH, (data) => {
+      eventBus.on<GibDeathEventData>(GameEvents.GIB_DEATH, data => {
         if (data && this.enabled) {
           this.onGibDeath(data);
         }
@@ -184,7 +184,7 @@ export class CombatRenderer {
 
     // Listen for flame ground hit events (Flame tower fire pools)
     this.eventSubscriptions.push(
-      eventBus.on<FlameGroundHitEventData>(GameEvents.FLAME_GROUND_HIT, (data) => {
+      eventBus.on<FlameGroundHitEventData>(GameEvents.FLAME_GROUND_HIT, data => {
         if (data && this.enabled) {
           this.onFlameGroundHit(data);
         }
@@ -192,7 +192,7 @@ export class CombatRenderer {
     );
   }
 
-  private onTargetHit(data: TargetHitEventData): void {
+  private onTargetHit(_data: TargetHitEventData): void {
     // Effects are handled by projectiles in ProjectileManager
     // This event is for future extensibility (e.g., hit markers, damage numbers)
   }
@@ -225,18 +225,13 @@ export class CombatRenderer {
     }
 
     // Spawn bullet trail
-    this.effectManager.spawnBulletTrail(
-      data.startX,
-      data.startY,
-      data.targetX,
-      data.targetY
-    );
+    this.effectManager.spawnBulletTrail(data.startX, data.startY, data.targetX, data.targetY);
 
     // Spawn impact flash
     this.effectManager.spawnImpactFlash(data.targetX, data.targetY, data.isHeadshot);
   }
 
-  private onShootingEffect(data: ShootingEffectEventData): void {
+  private onShootingEffect(_data: ShootingEffectEventData): void {
     // The actual shooting effect is rendered by the Tower's renderer
     // This event is for additional global effects if needed
   }
@@ -253,7 +248,12 @@ export class CombatRenderer {
   private onDamageDealt(data: DamageDealtEventData): void {
     // Check for 100%+ overkill (overkill >= damage = zombie gibbed/exploded)
     // This creates satisfying "overkill" moments and prevents corpse spawning
-    if (data.killed && data.overkill >= data.damage && data.zombieX !== undefined && data.zombieY !== undefined) {
+    if (
+      data.killed &&
+      data.overkill >= data.damage &&
+      data.zombieX !== undefined &&
+      data.zombieY !== undefined
+    ) {
       // Determine gib type based on overkill magnitude
       // 100-199% overkill = small gib, 200-399% = medium, 400-799% = large, 800%+ = massive
       const overkillRatio = data.overkill / data.damage;
@@ -273,7 +273,9 @@ export class CombatRenderer {
         gibType,
       });
 
-      console.log(`💥 ${data.towerType} gibbed a zombie with ${data.overkill.toFixed(0)} overkill damage! (${gibType} gib)`);
+      console.log(
+        `💥 ${data.towerType} gibbed a zombie with ${data.overkill.toFixed(0)} overkill damage! (${gibType} gib)`
+      );
     }
   }
 
@@ -312,7 +314,9 @@ export class CombatRenderer {
         // Could add: this.effectManager.spawnScreenShake(0.3);
         // Could add: this.effectManager.spawnExplosion(data.x, data.y, 'massive');
         // Could add: this.effectManager.spawnBloodRain(data.x, data.y);
-        console.log(`🔴💥💥💥 MASSIVE GIB! ${data.towerType} VAPORIZED a zombie at (${data.x.toFixed(0)}, ${data.y.toFixed(0)})`);
+        console.log(
+          `🔴💥💥💥 MASSIVE GIB! ${data.towerType} VAPORIZED a zombie at (${data.x.toFixed(0)}, ${data.y.toFixed(0)})`
+        );
         break;
     }
 

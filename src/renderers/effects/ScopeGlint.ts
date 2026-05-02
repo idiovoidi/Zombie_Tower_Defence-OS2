@@ -5,9 +5,9 @@ import { Graphics } from 'pixi.js';
  * Subtle lens flare when sniper is aiming
  */
 export class ScopeGlint extends Graphics {
-  private lifetime: number = 0;
-  private maxLifetime: number = 300; // Brief glint
-  private pulseSpeed: number = 0.01;
+  private lifetime = 0;
+  private maxLifetime = 300; // Brief glint
+  private pulseSpeed = 0.01;
 
   constructor(x: number, y: number) {
     super();

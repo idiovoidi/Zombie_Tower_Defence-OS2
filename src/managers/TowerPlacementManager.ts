@@ -14,12 +14,12 @@ export class TowerPlacementManager {
   private placedTowers: Tower[] = [];
   private ghostTower: Graphics | null = null;
   private selectedTowerType: string | null = null;
-  private isPlacementMode: boolean = false;
+  private isPlacementMode = false;
   private selectedTower: Tower | null = null;
   private onTowerPlacedCallback: ((tower: Tower) => void) | null = null;
   private onTowerSelectedCallback: ((tower: Tower | null) => void) | null = null;
-  private canAffordTower: boolean = true;
-  private towersDirty: boolean = false; // Track when tower array changes
+  private canAffordTower = true;
+  private towersDirty = false; // Track when tower array changes
   private effectManager: EffectManager | null = null; // EffectManager for visual effects
 
   constructor(

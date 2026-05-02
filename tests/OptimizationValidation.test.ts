@@ -222,7 +222,7 @@ describe('Optimization Effectiveness Validation', () => {
       // Allow generous margin as performance can vary
       expect(firstTime).toBeLessThanOrEqual(rangeTime * 5); // Allow 5x margin for test stability
 
-      console.log(`\n⚡ Early Exit Optimization:`);
+      console.log('\n⚡ Early Exit Optimization:');
       console.log(`   queryFirst: ${firstTime.toFixed(2)}ms`);
       console.log(`   queryRange: ${rangeTime.toFixed(2)}ms`);
       console.log(`   Improvement: ${(rangeTime / firstTime).toFixed(2)}x`);
@@ -296,7 +296,7 @@ describe('Optimization Effectiveness Validation', () => {
       // With dirty flags, we only rebuild when changes occur (~10-20 times)
       expect(rebuildCount).toBeLessThan(frames * 0.5); // Less than 50% of frames
 
-      console.log(`\n📊 Array Rebuild Optimization:`);
+      console.log('\n📊 Array Rebuild Optimization:');
       console.log(`   Frames: ${frames}`);
       console.log(`   Rebuilds: ${rebuildCount}`);
       console.log(`   Rebuild Rate: ${((rebuildCount / frames) * 100).toFixed(1)}%`);
@@ -355,7 +355,7 @@ describe('Optimization Effectiveness Validation', () => {
 
       const reduction = ((rebuildsWithout - rebuildsWith) / rebuildsWithout) * 100;
 
-      console.log(`\n📊 Dirty Flag Optimization Results:`);
+      console.log('\n📊 Dirty Flag Optimization Results:');
       console.log(
         `   Without Optimization: ${rebuildsWithout} rebuilds in ${withoutTime.toFixed(2)}ms`
       );
@@ -434,7 +434,7 @@ describe('Optimization Effectiveness Validation', () => {
       const allocationReduction =
         ((allocationsWithPooling - stats.created) / allocationsWithPooling) * 100;
 
-      console.log(`\n📊 Object Pooling Results:`);
+      console.log('\n📊 Object Pooling Results:');
       console.log(
         `   Without Pooling: ${allocationsWithout} allocations in ${withoutTime.toFixed(2)}ms`
       );
@@ -498,7 +498,7 @@ describe('Optimization Effectiveness Validation', () => {
       // Release again
       objects.forEach(obj => void pool.release(obj));
 
-      console.log(`\n📊 Pool Statistics:`);
+      console.log('\n📊 Pool Statistics:');
       console.log(`   Created: ${stats.created}`);
       console.log(`   Reused: ${stats.reused}`);
       console.log(`   Active: ${stats.active}`);
@@ -601,7 +601,7 @@ describe('Optimization Effectiveness Validation', () => {
       const reduction =
         ((allocationRateWithout - allocationRateWith) / allocationRateWithout) * 100;
 
-      console.log(`\n📊 Allocation Rate Comparison:`);
+      console.log('\n📊 Allocation Rate Comparison:');
       console.log(`   Without Pooling: ${allocationRateWithout.toFixed(0)} allocations/sec`);
       console.log(`   With Pooling: ${allocationRateWith.toFixed(0)} allocations/sec`);
       console.log(`   Reduction: ${reduction.toFixed(1)}%`);
@@ -713,13 +713,13 @@ describe('Optimization Effectiveness Validation', () => {
       console.log(`\n📊 Combined Optimization Impact (${frames} frames):`);
       console.log(`   Total Time: ${totalTime.toFixed(2)}ms`);
       console.log(`   Avg Frame Time: ${(totalTime / frames).toFixed(2)}ms`);
-      console.log(`\n   Target Finding:`);
+      console.log('\n   Target Finding:');
       console.log(`     Avg Time: ${avgTargetFindTime.toFixed(3)}ms/frame`);
       console.log(`     Zombies: ${zombieCount}, Towers: ${towerCount}`);
-      console.log(`\n   Array Rebuilds:`);
+      console.log('\n   Array Rebuilds:');
       console.log(`     Rebuild Rate: ${rebuildRate.toFixed(1)}%`);
       console.log(`     Rebuilds Avoided: ${((1 - rebuildRate / 100) * 100).toFixed(1)}%`);
-      console.log(`\n   Object Pooling:`);
+      console.log('\n   Object Pooling:');
       console.log(`     Allocations: ${totalEffectAllocations}`);
       console.log(`     Reuse Rate: ${effectReuseRate.toFixed(1)}%`);
 

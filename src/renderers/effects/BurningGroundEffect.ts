@@ -16,14 +16,14 @@ interface FlameParticle {
  * Animated fire pool with flickering flames that rise and fade
  */
 export class BurningGroundEffect extends Graphics {
-  private lifetime: number = 0;
-  private maxLifetime: number = 2000; // 2 seconds
+  private lifetime = 0;
+  private maxLifetime = 2000; // 2 seconds
   private flames: FlameParticle[] = [];
   private smokeParticles: { x: number; y: number; size: number; alpha: number }[] = [];
-  private poolRadius: number = 25;
-  private upgradeLevel: number = 1;
+  private poolRadius = 25;
+  private upgradeLevel = 1;
 
-  constructor(x: number, y: number, upgradeLevel: number = 1) {
+  constructor(x: number, y: number, upgradeLevel = 1) {
     super();
 
     this.upgradeLevel = upgradeLevel;
@@ -69,7 +69,7 @@ export class BurningGroundEffect extends Graphics {
   private getFlameColor(randomValue: number): number {
     // Return colors from yellow (hot) to red (cool)
     if (randomValue < 0.25) return 0xffff00; // Yellow
-    if (randomValue < 0.5) return 0xffaa00;  // Orange-yellow
+    if (randomValue < 0.5) return 0xffaa00; // Orange-yellow
     if (randomValue < 0.75) return 0xff8800; // Orange
     return 0xff4500; // Red-orange
   }
@@ -167,7 +167,7 @@ export class BurningGroundEffect extends Graphics {
   /**
    * Reset the burning ground effect for reuse in object pool
    */
-  public reset(x: number, y: number, upgradeLevel: number = 1): void {
+  public reset(x: number, y: number, upgradeLevel = 1): void {
     this.position.set(x, y);
     this.lifetime = 0;
     this.alpha = 1;

@@ -265,7 +265,6 @@ export function calculateTowerDamage(type: string, upgradeLevel: number): number
   );
 }
 
-
 /**
  * Calculate tower range with upgrades
  */

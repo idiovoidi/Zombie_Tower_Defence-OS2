@@ -50,7 +50,7 @@ export class TerrainRenderer {
     color: number,
     minAlpha: number,
     maxAlpha: number,
-    angleJitter: number = 0
+    angleJitter = 0
   ): void {
     for (let i = 0; i < count; i++) {
       const x = Math.random() * mapData.width;

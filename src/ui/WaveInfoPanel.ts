@@ -4,7 +4,7 @@ import { UIPanel } from './UIPanel';
 
 export class WaveInfoPanel extends UIPanel {
   private waveManager: WaveManager | null = null;
-  private currentWave: number = 1;
+  private currentWave = 1;
   private waveInfoTexts: Text[] = [];
 
   constructor() {

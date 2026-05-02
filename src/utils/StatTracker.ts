@@ -69,12 +69,12 @@ export class StatTracker {
     IZombieStateProvider &
     IBalanceTrackingProvider;
   private stats: StatTrackerData;
-  private isTracking: boolean = false;
-  private currentWaveStartTime: number = 0;
-  private currentWaveLivesStart: number = 0;
-  private currentWaveTowersBuilt: number = 0;
-  private lastTrackedWave: number = 0;
-  private damageInLastSecond: number = 0;
+  private isTracking = false;
+  private currentWaveStartTime = 0;
+  private currentWaveLivesStart = 0;
+  private currentWaveTowersBuilt = 0;
+  private lastTrackedWave = 0;
+  private damageInLastSecond = 0;
 
   constructor(
     gameManager: IGameStateProvider &
@@ -130,7 +130,7 @@ export class StatTracker {
     };
   }
 
-  public startTracking(aiModeEnabled: boolean = false): void {
+  public startTracking(aiModeEnabled = false): void {
     this.stats = this.createEmptyStats();
     this.stats.startMoney = this.gameManager.getMoney();
     this.stats.startLives = this.gameManager.getLives();
@@ -206,12 +206,7 @@ export class StatTracker {
     }
   }
 
-  public trackDamage(
-    damage: number,
-    towerType: string,
-    zombieKilled: boolean,
-    overkill: number = 0
-  ): void {
+  public trackDamage(damage: number, towerType: string, zombieKilled: boolean, overkill = 0): void {
     if (!this.isTracking) {
       return;
     }
@@ -535,7 +530,7 @@ export class StatTracker {
         finalMoney: currentMoney,
         finalLives: currentLives,
         startLives: this.stats.startLives,
-        survivalRate: parseFloat(survivalRate.toFixed(1)),
+        survivalRate: Number.parseFloat(survivalRate.toFixed(1)),
         livesLost: livesLost,
       },
       aiData: {
@@ -545,14 +540,16 @@ export class StatTracker {
         moneyEarned: totalIncome,
         peakMoney: this.stats.peakMoney,
         lowestLives: this.stats.lowestLives,
-        averageBuildRate: parseFloat((this.stats.towersBuilt / (duration / 60000)).toFixed(2)),
+        averageBuildRate: Number.parseFloat(
+          (this.stats.towersBuilt / (duration / 60000)).toFixed(2)
+        ),
         towerComposition: towerComposition,
         upgradeDistribution: upgradeDistribution,
         waveStats: {
           completionTimes: this.stats.waveCompletionTimes,
-          averageCompletionTime: parseFloat((avgWaveTime / 1000).toFixed(1)),
+          averageCompletionTime: Number.parseFloat((avgWaveTime / 1000).toFixed(1)),
           livesLostPerWave: this.stats.livesLostPerWave,
-          averageLivesLostPerWave: parseFloat(avgLivesLostPerWave.toFixed(2)),
+          averageLivesLostPerWave: Number.parseFloat(avgLivesLostPerWave.toFixed(2)),
           towersBuiltPerWave: this.stats.towersBuiltPerWave,
           decisionsPerWave: this.stats.aiDecisionsPerWave,
         },
@@ -560,16 +557,16 @@ export class StatTracker {
         defenseRating: LogExporter.getDefenseRating(survivalRate),
       },
       combatStats: {
-        totalDamageDealt: parseFloat(this.stats.totalDamageDealt.toFixed(2)),
+        totalDamageDealt: Number.parseFloat(this.stats.totalDamageDealt.toFixed(2)),
         totalZombiesKilled: this.stats.zombiesKilled,
-        averageDPS: parseFloat(avgDPS.toFixed(2)),
-        peakDPS: parseFloat(this.stats.peakDPS.toFixed(2)),
+        averageDPS: Number.parseFloat(avgDPS.toFixed(2)),
+        peakDPS: Number.parseFloat(this.stats.peakDPS.toFixed(2)),
         damageByTowerType: damageByTowerType,
         killsByTowerType: killsByTowerType,
         damagePerWave: this.stats.damagePerWave,
         killsPerWave: this.stats.killsPerWave,
-        overkillDamage: parseFloat(this.stats.overkillDamage.toFixed(2)),
-        accuracyRate: parseFloat(accuracyRate.toFixed(2)),
+        overkillDamage: Number.parseFloat(this.stats.overkillDamage.toFixed(2)),
+        accuracyRate: Number.parseFloat(accuracyRate.toFixed(2)),
         shotsHit: this.stats.shotsHit,
         shotsMissed: this.stats.shotsMissed,
       },
@@ -578,24 +575,24 @@ export class StatTracker {
         moneyPerWave: this.stats.moneyPerWave,
         moneySpentPerWave: this.stats.moneySpentPerWave,
         netIncomePerWave: netIncomePerWave,
-        averageMoneyPerSecond: parseFloat(avgMoneyPerSecond.toFixed(2)),
+        averageMoneyPerSecond: Number.parseFloat(avgMoneyPerSecond.toFixed(2)),
         peakMoneyPerSecond: 0,
         totalIncome: totalIncome,
         totalExpenses: totalExpenses,
         netProfit: netProfit,
-        economyEfficiency: parseFloat(economyEfficiency.toFixed(2)),
+        economyEfficiency: Number.parseFloat(economyEfficiency.toFixed(2)),
         bankruptcyEvents: this.stats.bankruptcyEvents,
         cashFlowTrend: cashFlowTrend,
       },
       efficiencyStats: {
-        damagePerDollar: parseFloat(damagePerDollar.toFixed(2)),
-        killsPerDollar: parseFloat(killsPerDollar.toFixed(4)),
-        damagePerTower: parseFloat(damagePerTower.toFixed(2)),
-        killsPerTower: parseFloat(killsPerTower.toFixed(2)),
-        upgradeEfficiency: parseFloat(upgradeEfficiency.toFixed(2)),
-        resourceUtilization: parseFloat(resourceUtilization.toFixed(2)),
+        damagePerDollar: Number.parseFloat(damagePerDollar.toFixed(2)),
+        killsPerDollar: Number.parseFloat(killsPerDollar.toFixed(4)),
+        damagePerTower: Number.parseFloat(damagePerTower.toFixed(2)),
+        killsPerTower: Number.parseFloat(killsPerTower.toFixed(2)),
+        upgradeEfficiency: Number.parseFloat(upgradeEfficiency.toFixed(2)),
+        resourceUtilization: Number.parseFloat(resourceUtilization.toFixed(2)),
         towerDensity: this.stats.towersBuilt,
-        averageUpgradeLevel: parseFloat(avgUpgradeLevel.toFixed(2)),
+        averageUpgradeLevel: Number.parseFloat(avgUpgradeLevel.toFixed(2)),
         costEfficiencyRating: costEfficiencyRating,
       },
       timelineStats: {
@@ -653,8 +650,8 @@ export class StatTracker {
     return {
       waveMemorySnapshots: snapshots,
       memoryGrowthRate,
-      averageFrameTime: parseFloat(frameTime.toFixed(2)),
-      peakFrameTime: parseFloat(frameTime.toFixed(2)), // Could track peak separately
+      averageFrameTime: Number.parseFloat(frameTime.toFixed(2)),
+      peakFrameTime: Number.parseFloat(frameTime.toFixed(2)), // Could track peak separately
       averageFPS: currentFPS,
       lowestFPS: currentFPS, // Could track lowest separately
     };

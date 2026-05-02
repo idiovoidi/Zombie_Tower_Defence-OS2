@@ -14,7 +14,7 @@ export abstract class UIPanel extends UIComponent {
   protected background!: Graphics;
   protected contentContainer!: Container;
   protected toggleButton!: Container;
-  protected isExpanded: boolean = false;
+  protected isExpanded = false;
 
   // ── Toggle button ────────────────────────────────────────────────────────
 
@@ -48,8 +48,8 @@ export abstract class UIPanel extends UIComponent {
     title: string,
     subtitle: string,
     accentColor: number,
-    screenCenterX: number = 640,
-    screenCenterY: number = 384
+    screenCenterX = 640,
+    screenCenterY = 384
   ): void {
     this.contentContainer = new Container();
     this.contentContainer.visible = false;

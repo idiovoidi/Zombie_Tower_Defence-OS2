@@ -8,7 +8,7 @@ export class CampUpgradePanel extends UIComponent {
   private contentContainer!: Container;
   private campUpgradeManager: CampUpgradeManager | null = null;
   private upgradeButtons: Map<string, Container> = new Map();
-  private moneyAvailable: number = 0;
+  private moneyAvailable = 0;
   private onUpgradeCallback: ((upgradeId: string, cost: number) => boolean) | null = null;
 
   constructor() {

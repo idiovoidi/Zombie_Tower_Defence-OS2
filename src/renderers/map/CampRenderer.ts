@@ -10,9 +10,9 @@ import type { Waypoint } from '../../managers/PathfindingManager';
 export class CampRenderer {
   private pathGraphics: Graphics;
   private campAnimationContainer: Graphics;
-  private campX: number = 0;
-  private campY: number = 0;
-  private campAnimationTime: number = 0;
+  private campX = 0;
+  private campY = 0;
+  private campAnimationTime = 0;
 
   constructor(pathGraphics: Graphics, campAnimationContainer: Graphics) {
     this.pathGraphics = pathGraphics;

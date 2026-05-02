@@ -9,7 +9,7 @@ export class TextureGenerator {
   /**
    * Creates a rusty metal texture with scratches and wear
    */
-  static createRustyMetal(width: number, height: number, baseColor: number = 0x4a4a4a): Graphics {
+  static createRustyMetal(width: number, height: number, baseColor = 0x4a4a4a): Graphics {
     const graphics = new Graphics();
 
     // Base metal color
@@ -124,7 +124,7 @@ export class TextureGenerator {
   /**
    * Creates a bullet hole decal
    */
-  static createBulletHole(size: number = 8): Graphics {
+  static createBulletHole(size = 8): Graphics {
     const graphics = new Graphics();
 
     // Outer impact
@@ -170,7 +170,7 @@ export class TextureGenerator {
   /**
    * Creates a blood splatter texture
    */
-  static createBloodSplatter(size: number = 20): Graphics {
+  static createBloodSplatter(size = 20): Graphics {
     const graphics = new Graphics();
 
     // Main splatter

@@ -1,5 +1,5 @@
-import { Graphics, type Container } from 'pixi.js';
 import { EffectCleanupManager } from '@/utils/EffectCleanupManager';
+import { type Container, Graphics } from 'pixi.js';
 import type { ITowerRenderer } from './ITowerRenderer';
 
 export type BarrelRenderCallback = (graphics: Graphics, upgradeLevel: number) => void;
@@ -106,7 +106,7 @@ export abstract class BaseTowerRenderer implements ITowerRenderer {
    */
   protected renderCharacterBase(
     graphics: Graphics,
-    upgradeLevel: number,
+    _upgradeLevel: number,
     bodyColor: number,
     armColor = 0xffdbac,
     headY = -18
@@ -128,7 +128,12 @@ export abstract class BaseTowerRenderer implements ITowerRenderer {
    * @param level5 - Color for level 5
    * @param upgradeLevel - Current upgrade level
    */
-  protected getUpgradeColor(level1: number, level3: number, level5: number, upgradeLevel: number): number {
+  protected getUpgradeColor(
+    level1: number,
+    level3: number,
+    level5: number,
+    upgradeLevel: number
+  ): number {
     if (upgradeLevel >= 5) return level5;
     if (upgradeLevel >= 3) return level3;
     return level1;

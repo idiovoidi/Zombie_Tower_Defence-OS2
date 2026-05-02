@@ -17,7 +17,7 @@ export class InputManager {
     onKeyDown: ((key: string, event: KeyboardEvent) => void)[];
     onKeyUp: ((key: string, event: KeyboardEvent) => void)[];
   };
-  private debugMode: boolean = false; // Disable debug by default
+  private debugMode = false; // Disable debug by default
   private campClickArea: Container | null = null;
   private onCampClickCallback: (() => void) | null = null;
   private pressedKeys: Set<string> = new Set();

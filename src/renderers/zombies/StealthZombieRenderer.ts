@@ -1,8 +1,8 @@
 import type { Container } from 'pixi.js';
 import { BaseZombieRenderer } from './BaseZombieRenderer';
-import { GlowEffect, ShadowEffect } from './components/ZombieEffects';
 import { ParticleType } from './ZombieParticleSystem';
 import type { ZombieRenderState } from './ZombieRenderer';
+import { GlowEffect, ShadowEffect } from './components/ZombieEffects';
 
 export class StealthZombieRenderer extends BaseZombieRenderer {
   protected readonly ANIMATOR_TYPE = 'STEALTH';
@@ -25,7 +25,7 @@ export class StealthZombieRenderer extends BaseZombieRenderer {
     phase3YDrift: 0,
   };
 
-  private fadePhase: number = 0;
+  private fadePhase = 0;
 
   private readonly PRIMARY_COLOR = 0x3a2a4a;
   private readonly DARK_PURPLE = 0x2a1a3a;
@@ -155,5 +155,4 @@ export class StealthZombieRenderer extends BaseZombieRenderer {
       .circle(handX, handY, 1.5)
       .stroke({ color: 0x000000, width: 0.5, alpha: alpha * 0.3 });
   }
-
 }

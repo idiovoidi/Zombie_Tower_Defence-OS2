@@ -41,7 +41,7 @@ export class TowerCombatManager {
     return killed;
   }
 
-  constructor(worldWidth: number = 1024, worldHeight: number = 768) {
+  constructor(worldWidth = 1024, worldHeight = 768) {
     // Create spatial grid with 128px cells (optimal for typical tower ranges of 150-300px)
     this.zombieGrid = new SpatialGrid<Zombie & { [key: string]: unknown }>(
       worldWidth,
@@ -59,7 +59,6 @@ export class TowerCombatManager {
    * @deprecated EffectManager is now accessed via CombatRenderer through EventBus
    * This method is kept for backward compatibility but does nothing.
    */
-  // biome-ignore lint/correctness/noUnusedVariables: Kept for API compatibility
   public setEffectManager(_effectManager: unknown): void {
     // No-op: EffectManager is now handled by CombatRenderer via EventBus
   }
@@ -174,7 +173,7 @@ export class TowerCombatManager {
     speed: number,
     projectileType: string,
     target: Zombie | null,
-    includeUpgradeLevel: boolean = false
+    includeUpgradeLevel = false
   ) {
     if (!this.projectileManager) {
       return null;
@@ -400,7 +399,7 @@ export class TowerCombatManager {
     excludeZombies: Set<Zombie>
   ): Zombie | null {
     let nearestZombie: Zombie | null = null;
-    let nearestDistance = Infinity;
+    let nearestDistance = Number.POSITIVE_INFINITY;
 
     for (const zombie of this.zombies) {
       // Skip if zombie is destroyed, already hit, or out of range

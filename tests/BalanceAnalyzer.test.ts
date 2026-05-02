@@ -118,7 +118,7 @@ describe('BalanceAnalyzer', () => {
 
     it('should handle zero DPS', () => {
       const breakEven = BalanceAnalyzer.calculateBreakEvenPoint(100, 0, 10, 100);
-      expect(breakEven).toBe(Infinity);
+      expect(breakEven).toBe(Number.POSITIVE_INFINITY);
     });
   });
 

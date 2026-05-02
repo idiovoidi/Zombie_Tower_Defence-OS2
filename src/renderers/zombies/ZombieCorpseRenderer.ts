@@ -13,9 +13,9 @@ interface CorpseData {
 export class ZombieCorpseRenderer {
   private corpses: CorpseData[] = [];
   private graphics: Graphics;
-  private maxCorpses: number = 50; // Limit to prevent performance issues
-  private corpseLifetime: number = 30000; // 30 seconds before fade
-  private fadeDuration: number = 5000; // 5 seconds fade
+  private maxCorpses = 50; // Limit to prevent performance issues
+  private corpseLifetime = 30000; // 30 seconds before fade
+  private fadeDuration = 5000; // 5 seconds fade
 
   constructor(graphics: Graphics) {
     this.graphics = graphics;

@@ -214,7 +214,7 @@ export const WaveBalancing = {
   /**
    * Generate a balance report for multiple waves
    */
-  generateBalanceReport(startWave: number = 1, endWave: number = 10): string {
+  generateBalanceReport(startWave = 1, endWave = 10): string {
     let report = '=== WAVE BALANCE REPORT ===\n\n';
 
     for (let wave = startWave; wave <= endWave; wave++) {
@@ -271,6 +271,6 @@ export const WaveBalancing = {
 };
 
 // Export helper function for console testing
-export function printWaveBalance(startWave: number = 1, endWave: number = 10): void {
+export function printWaveBalance(startWave = 1, endWave = 10): void {
   console.log(WaveBalancing.generateBalanceReport(startWave, endWave));
 }

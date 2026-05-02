@@ -8,16 +8,16 @@ export class ProjectileManager {
   private projectiles: Projectile[] = [];
   private container: Container;
   private zombies: Zombie[] = [];
-  private projectilesDirty: boolean = false; // Track when projectile array changes
+  private projectilesDirty = false; // Track when projectile array changes
   private projectilePool: ObjectPool<Projectile>;
 
   constructor(container: Container) {
     this.container = container;
     this.projectilePool = new ObjectPool<Projectile>(
       () => new Projectile(),
-      (p) => { 
-        p.visible = false; 
-        if (p.parent) p.parent.removeChild(p); 
+      p => {
+        p.visible = false;
+        if (p.parent) p.parent.removeChild(p);
       },
       500 // maxSize
     );
@@ -34,20 +34,11 @@ export class ProjectileManager {
     targetY: number,
     damage: number,
     speed: number,
-    projectileType: string = 'bullet',
+    projectileType = 'bullet',
     target: Zombie | null = null
   ): Projectile {
     const projectile = this.projectilePool.acquire();
-    projectile.init(
-      x,
-      y,
-      targetX,
-      targetY,
-      damage,
-      speed,
-      projectileType,
-      target
-    );
+    projectile.init(x, y, targetX, targetY, damage, speed, projectileType, target);
     projectile.visible = true;
     projectile.setZombies(this.zombies); // Pass zombie list for collision detection
     this.projectiles.push(projectile);

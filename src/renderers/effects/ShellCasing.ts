@@ -7,12 +7,12 @@ import { Graphics } from 'pixi.js';
 export class ShellCasing extends Graphics {
   private velocity: { x: number; y: number };
   private rotationSpeed: number;
-  private lifetime: number = 0;
-  private maxLifetime: number = 2000; // 2 seconds
-  private gravity: number = 0.0002;
-  private bounced: boolean = false;
+  private lifetime = 0;
+  private maxLifetime = 2000; // 2 seconds
+  private gravity = 0.0002;
+  private bounced = false;
 
-  constructor(x: number, y: number, ejectAngle: number = 0) {
+  constructor(x: number, y: number, ejectAngle = 0) {
     super();
 
     // Create brass casing visual
@@ -94,7 +94,7 @@ export class ShellCasing extends Graphics {
   /**
    * Reset the shell casing for reuse in object pool
    */
-  public reset(x: number, y: number, ejectAngle: number = 0): void {
+  public reset(x: number, y: number, ejectAngle = 0): void {
     // Reset position
     this.position.set(x, y);
 

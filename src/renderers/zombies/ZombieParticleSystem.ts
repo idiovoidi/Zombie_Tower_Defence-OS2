@@ -1,15 +1,15 @@
 import { Graphics } from 'pixi.js';
 
 export enum ParticleType {
-  BLOOD_SPLATTER,
-  BLOOD_DRIP,
-  DECAY_CLOUD,
-  SPARKS,
-  SMOKE,
-  FIRE,
-  ELECTRICITY,
-  BONE_FRAGMENTS,
-  METAL_SHARDS,
+  BLOOD_SPLATTER = 0,
+  BLOOD_DRIP = 1,
+  DECAY_CLOUD = 2,
+  SPARKS = 3,
+  SMOKE = 4,
+  FIRE = 5,
+  ELECTRICITY = 6,
+  BONE_FRAGMENTS = 7,
+  METAL_SHARDS = 8,
 }
 
 interface Particle {
@@ -34,7 +34,7 @@ export interface ParticleConfig {
 export class ZombieParticleSystem {
   private particles: Particle[] = [];
   private graphics: Graphics;
-  private maxParticles: number = 100;
+  private maxParticles = 100;
 
   constructor() {
     this.graphics = new Graphics();

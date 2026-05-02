@@ -11,7 +11,7 @@ interface AIButton extends Container {
 
 export class AIControlPanel extends UIComponent {
   private button!: AIButton;
-  private isEnabled: boolean = false;
+  private isEnabled = false;
   private toggleCallback: ((enabled: boolean) => void) | null = null;
 
   constructor() {

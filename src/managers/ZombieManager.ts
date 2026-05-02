@@ -4,10 +4,10 @@ import type { Zombie } from '../objects/Zombie';
 import { ZombieFactory } from '../objects/ZombieFactory';
 import type { HasWaypoints } from '../types/zombie-waypoints';
 import { BloodParticleSystem } from '../utils/BloodParticleSystem';
+import { ObjectPool } from '../utils/ObjectPool';
 import { CorpseManager } from './CorpseManager';
 import type { MapManager } from './MapManager';
 import type { WaveManager } from './WaveManager';
-import { ObjectPool } from '../utils/ObjectPool';
 
 export class ZombieManager {
   private zombies: Zombie[] = [];
@@ -15,11 +15,11 @@ export class ZombieManager {
   private waveManager: WaveManager;
   private mapManager: MapManager;
   private spawnQueue: Array<{ type: string; delay: number }> = [];
-  private spawnTimer: number = 0;
-  private isSpawning: boolean = false;
+  private spawnTimer = 0;
+  private isSpawning = false;
   private bloodParticleSystem: BloodParticleSystem;
   private corpseManager: CorpseManager;
-  private zombiesDirty: boolean = false; // Track when zombie array changes
+  private zombiesDirty = false; // Track when zombie array changes
   private zombiePools: Map<string, ObjectPool<Zombie>> = new Map();
 
   constructor(container: Container, waveManager: WaveManager, mapManager: MapManager) {
@@ -44,17 +44,31 @@ export class ZombieManager {
 
   private getZombiePool(type: string): ObjectPool<Zombie> {
     if (!this.zombiePools.has(type)) {
-      this.zombiePools.set(type, new ObjectPool<Zombie>(
+      this.zombiePools.set(
+        type,
+        new ObjectPool<Zombie>(
+          () => ZombieFactory.createZombie(type, 0, 0, 1) as Zombie,
+          z => {
+            z.visible = false;
+            if (z.parent) z.parent.removeChild(z);
+            z.removeAllListeners('zombieDeath');
+          },
+          200
+        )
+      );
+    }
+    return (
+      this.zombiePools.get(type) ??
+      new ObjectPool<Zombie>(
         () => ZombieFactory.createZombie(type, 0, 0, 1) as Zombie,
-        (z) => {
+        z => {
           z.visible = false;
           if (z.parent) z.parent.removeChild(z);
           z.removeAllListeners('zombieDeath');
         },
         200
-      ));
-    }
-    return this.zombiePools.get(type)!;
+      )
+    );
   }
 
   // Start spawning zombies for the current wave
@@ -172,15 +186,18 @@ export class ZombieManager {
       }
 
       // Listen for zombie death to trigger effects
-      zombie.on('zombieDeath', (data: {
-        x: number;
-        y: number;
-        type: string;
-        size: number;
-        killerType: string;
-      }) => {
-        this.onZombieDeath(data);
-      });
+      zombie.on(
+        'zombieDeath',
+        (data: {
+          x: number;
+          y: number;
+          type: string;
+          size: number;
+          killerType: string;
+        }) => {
+          this.onZombieDeath(data);
+        }
+      );
 
       this.zombies.push(zombie);
       this.zombiesDirty = true; // Mark zombies as changed

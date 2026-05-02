@@ -1,7 +1,7 @@
 import { type ColorMatrixFilter, Container, Graphics, Text } from 'pixi.js';
 import { VisualPresets } from '../utils/VisualPresets';
-import type { SimpleRetroFilter } from './shaders/filters/SimpleRetroFilter';
 import { UIPanel } from './UIPanel';
+import type { SimpleRetroFilter } from './shaders/filters/SimpleRetroFilter';
 
 interface PixelArtRenderer {
   enable(scale: number): void;

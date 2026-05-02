@@ -2,12 +2,12 @@ import { GameConfig } from '../../config/gameConfig';
 import { Tower } from '../Tower';
 
 export class ShotgunTower extends Tower {
-  private burstCount: number = 0; // Track shots in current burst
+  private burstCount = 0; // Track shots in current burst
   private readonly shotsPerBurst: number = 2; // Double barrel
   private readonly burstDelay: number = 150; // 150ms between shots in burst
   private readonly reloadDelay: number = 1250; // 1.25s reload after burst
-  private lastBurstShotTime: number = 0;
-  private isReloading: boolean = false;
+  private lastBurstShotTime = 0;
+  private isReloading = false;
 
   constructor(x: number, y: number) {
     super(GameConfig.TOWER_TYPES.SHOTGUN, x, y);

@@ -17,8 +17,8 @@ export interface PoolStats {
 export class ObjectPool<T> {
   private available: T[] = [];
   private active: Set<T> = new Set();
-  private created: number = 0;
-  private reused: number = 0;
+  private created = 0;
+  private reused = 0;
 
   /**
    * Creates a new object pool

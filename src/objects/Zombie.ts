@@ -3,10 +3,10 @@ import { HealthComponent } from '../components/HealthComponent';
 import { TransformComponent } from '../components/TransformComponent';
 import { GameConfig } from '../config/gameConfig';
 import {
-  convertToTowerType,
-  getDamageModifier,
   type TowerType,
   type ZombieType,
+  convertToTowerType,
+  getDamageModifier,
 } from '../config/zombieResistances';
 import { ArmoredZombieRenderer } from '../renderers/zombies/ArmoredZombieRenderer';
 import { BasicZombieRenderer } from '../renderers/zombies/BasicZombieRenderer';
@@ -21,26 +21,26 @@ import { GameObject } from './GameObject';
 
 export class Zombie extends GameObject {
   private type: string;
-  private speed: number = 0;
-  private baseSpeed: number = 0; // Base speed before variation
-  private reward: number = 0;
-  private damage: number = 1; // Damage dealt to survivor camp
-  private currentWaypointIndex: number = 0;
+  private speed = 0;
+  private baseSpeed = 0; // Base speed before variation
+  private reward = 0;
+  private damage = 1; // Damage dealt to survivor camp
+  private currentWaypointIndex = 0;
   private waypoints: { x: number; y: number }[] = [];
   private healthBar: Container | null = null;
   private healthBarBg!: Graphics;
   private healthBarFg!: Graphics;
   private healthComponent!: HealthComponent;
   private transformComponent!: TransformComponent;
-  private swayTime: number = 0; // Time accumulator for sway animation
-  private swayOffset: number = 0; // Random offset for varied sway timing
-  private speedVariation: number = 1.0; // Random speed multiplier for variation
-  private isSlowed: boolean = false; // Track if zombie is currently slowed
-  private currentSlowPercent: number = 0; // Current slow percentage applied
+  private swayTime = 0; // Time accumulator for sway animation
+  private swayOffset = 0; // Random offset for varied sway timing
+  private speedVariation = 1.0; // Random speed multiplier for variation
+  private isSlowed = false; // Track if zombie is currently slowed
+  private currentSlowPercent = 0; // Current slow percentage applied
   private renderer: IZombieRenderer | null = null; // Modular renderer
-  private lastDamageSource: string = 'unknown'; // Track tower type that dealt damage
-  private isDying: boolean = false; // Track if death animation is in progress
-  private deathAnimationComplete: boolean = false; // Track if animation finished
+  private lastDamageSource = 'unknown'; // Track tower type that dealt damage
+  private isDying = false; // Track if death animation is in progress
+  private deathAnimationComplete = false; // Track if animation finished
 
   constructor(type: string, x: number, y: number, wave: number) {
     super();
@@ -73,7 +73,7 @@ export class Zombie extends GameObject {
   public init(x: number, y: number, wave: number): void {
     this.position.set(x, y);
     this.transformComponent.setPosition(x, y);
-    
+
     this.currentWaypointIndex = 0;
     this.isDying = false;
     this.deathAnimationComplete = false;
@@ -83,21 +83,21 @@ export class Zombie extends GameObject {
     this.alpha = 1;
     this.scale.set(1);
     this.swayTime = 0;
-    
+
     // Reset Health
     const health = ZombieStats.calculateZombieHealth(this.type, wave);
     if (this.healthComponent) {
       this.healthComponent.reset(health);
     }
-    
+
     // Restore base speed
     this.speedVariation = 0.85 + Math.random() * 0.3;
     this.speed = this.baseSpeed * this.speedVariation;
-    
+
     if (this.healthBar) {
       this.healthBar.visible = false;
     }
-    
+
     // Reset renderer
     if (this.renderer) {
       this.renderer.reset?.();
@@ -421,6 +421,14 @@ export class Zombie extends GameObject {
   // Getters
   public getType(): string {
     return this.type;
+  }
+
+  /**
+   * Get the renderer's graphics for visual effects
+   */
+  public getRendererGraphics(): Graphics | null {
+    // Access graphics property from BaseZombieRenderer
+    return (this.renderer as unknown as { graphics?: Graphics })?.graphics || null;
   }
 
   public getReward(): number {

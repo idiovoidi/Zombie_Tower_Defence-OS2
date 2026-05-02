@@ -107,7 +107,7 @@ export class StatisticalAnalyzer {
    * @param threshold - Number of standard deviations to consider as outlier (default: 2)
    * @returns OutlierAnalysis with detected outliers
    */
-  static detectOutliers(values: number[], threshold: number = 2): OutlierAnalysis {
+  static detectOutliers(values: number[], threshold = 2): OutlierAnalysis {
     // Handle edge cases
     if (!values || values.length === 0) {
       return {

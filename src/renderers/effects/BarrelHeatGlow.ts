@@ -1,14 +1,14 @@
-import { Container, Graphics } from 'pixi.js';
+import { type Container, Graphics } from 'pixi.js';
 
 /**
  * Barrel Heat Glow Effect
  * Visual indicator of barrel heating from sustained fire
  */
 export class BarrelHeatGlow {
-  private heatLevel: number = 0;
-  private maxHeat: number = 100;
-  private heatPerShot: number = 8;
-  private coolingRate: number = 0.015; // Heat units per millisecond
+  private heatLevel = 0;
+  private maxHeat = 100;
+  private heatPerShot = 8;
+  private coolingRate = 0.015; // Heat units per millisecond
   private glowGraphics: Graphics | null = null;
   private barrelGraphics: Container;
 

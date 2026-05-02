@@ -358,8 +358,12 @@ export class ResourceCleanupManager {
 
     try {
       // Per pixijs-performance skill: If cacheAsTexture is on, disable it before destroying
-      if ((container as unknown as { cacheAsTexture: { active: boolean } }).cacheAsTexture?.active) {
-        (container as unknown as { cacheAsTexture: (active: boolean) => void }).cacheAsTexture(false);
+      if (
+        (container as unknown as { cacheAsTexture: { active: boolean } }).cacheAsTexture?.active
+      ) {
+        (container as unknown as { cacheAsTexture: (active: boolean) => void }).cacheAsTexture(
+          false
+        );
       }
 
       // Per pixijs-scene-container: use { children: true } for recursive destroy

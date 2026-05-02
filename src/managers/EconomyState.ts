@@ -1,6 +1,6 @@
 /**
  * EconomyState - Contextual object that encapsulates resource and upgrade management
- * 
+ *
  * This groups ResourceManager and UpgradeManager to handle all economy-related
  * functionality in a cohesive unit, reducing direct dependencies in GameManager.
  */

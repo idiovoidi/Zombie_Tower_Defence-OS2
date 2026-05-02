@@ -24,8 +24,8 @@ export interface TimeControlState {
  */
 export class TimeControlManager {
   private currentSpeed: TimeSpeed = TimeSpeed.NORMAL;
-  private isPaused: boolean = false;
-  private isPlacementPause: boolean = false;
+  private isPaused = false;
+  private isPlacementPause = false;
   private prePlacementSpeed: TimeSpeed = TimeSpeed.NORMAL;
   private onStateChangeCallback: ((state: TimeControlState) => void) | null = null;
 
@@ -34,7 +34,7 @@ export class TimeControlManager {
   }
 
   private setupKeyboardShortcuts(): void {
-    window.addEventListener('keydown', (event) => {
+    window.addEventListener('keydown', event => {
       // Space to toggle pause (only if not in text input)
       if (event.code === 'Space' && !this.isInputElementActive()) {
         event.preventDefault();
@@ -65,9 +65,11 @@ export class TimeControlManager {
 
   private isInputElementActive(): boolean {
     const activeElement = document.activeElement;
-    return activeElement instanceof HTMLInputElement ||
-           activeElement instanceof HTMLTextAreaElement ||
-           activeElement instanceof HTMLSelectElement;
+    return (
+      activeElement instanceof HTMLInputElement ||
+      activeElement instanceof HTMLTextAreaElement ||
+      activeElement instanceof HTMLSelectElement
+    );
   }
 
   /**
@@ -117,7 +119,7 @@ export class TimeControlManager {
    * Start placement mode - auto-pause if setting enabled
    * Returns true if auto-pause was triggered
    */
-  public startPlacement(autoPauseEnabled: boolean = true): boolean {
+  public startPlacement(autoPauseEnabled = true): boolean {
     if (autoPauseEnabled && !this.isPaused) {
       this.prePlacementSpeed = this.currentSpeed;
       this.isPaused = true;
@@ -168,7 +170,6 @@ export class TimeControlManager {
       case TimeSpeed.FAST:
         this.setSpeed(TimeSpeed.VERY_FAST);
         break;
-      case TimeSpeed.VERY_FAST:
       default:
         this.setSpeed(TimeSpeed.NORMAL);
         break;

@@ -17,14 +17,14 @@ interface Corpse {
 export class CorpseManager {
   private corpses: Corpse[] = [];
   private container: Container;
-  private maxCorpses: number = 50; // Limit to prevent performance issues
+  private maxCorpses = 50; // Limit to prevent performance issues
 
   constructor(container: Container) {
     this.container = container;
   }
 
   // Create a corpse at the given position with zombie type styling
-  public createCorpse(x: number, y: number, zombieType: string, _size: number = 10): void {
+  public createCorpse(x: number, y: number, zombieType: string, _size = 10): void {
     // Remove oldest corpse BEFORE adding new one if at limit
     // This ensures we never exceed maxCorpses
     if (this.corpses.length >= this.maxCorpses) {

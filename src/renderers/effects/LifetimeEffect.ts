@@ -5,10 +5,10 @@ import { Graphics } from 'pixi.js';
  * Handles common patterns like lifetime tracking, fade out, and object pooling.
  */
 export abstract class LifetimeEffect extends Graphics {
-  protected lifetime: number = 0;
+  protected lifetime = 0;
   protected maxLifetime: number;
 
-  constructor(maxLifetime: number = 100) {
+  constructor(maxLifetime = 100) {
     super();
     this.maxLifetime = maxLifetime;
   }
@@ -45,7 +45,7 @@ export abstract class LifetimeEffect extends Graphics {
    * Reset the effect for reuse in object pool.
    * Override and call super.reset() for custom reset logic.
    */
-  public reset(...args: unknown[]): void {
+  public reset(..._args: unknown[]): void {
     this.lifetime = 0;
     this.alpha = 1;
     this.scale.set(1);

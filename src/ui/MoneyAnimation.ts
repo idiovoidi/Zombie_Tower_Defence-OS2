@@ -17,9 +17,9 @@ export class MoneyAnimation {
   private animations: Array<{ text: Text; startTime: number; duration: number }> = [];
 
   // Batching system to reduce text spam
-  private batchedAmount: number = 0;
-  private batchTimer: number = 0;
-  private lastGainTime: number = 0;
+  private batchedAmount = 0;
+  private batchTimer = 0;
+  private lastGainTime = 0;
   private readonly BATCH_INTERVAL = 500; // Batch gains every 500ms
   private readonly IMMEDIATE_THRESHOLD = 200; // Show immediately if >200ms since last gain
   private readonly MAX_ACTIVE_ANIMATIONS = 5; // Limit concurrent animations

@@ -6,9 +6,9 @@ export class ScaleManager {
   private app: Application;
   private baseWidth: number = GameConfig.SCREEN_WIDTH;
   private baseHeight: number = GameConfig.SCREEN_HEIGHT;
-  private scale: number = 1;
-  private offsetX: number = 0;
-  private offsetY: number = 0;
+  private scale = 1;
+  private offsetX = 0;
+  private offsetY = 0;
 
   constructor(app: Application) {
     this.app = app;

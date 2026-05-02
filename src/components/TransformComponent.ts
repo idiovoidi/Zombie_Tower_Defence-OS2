@@ -16,7 +16,7 @@ export class TransformComponent extends Component {
   public rotation: number;
   public scale: number;
 
-  constructor(x: number = 0, y: number = 0) {
+  constructor(x = 0, y = 0) {
     super('Transform');
     this.position = { x, y };
     this.velocity = { x: 0, y: 0 };

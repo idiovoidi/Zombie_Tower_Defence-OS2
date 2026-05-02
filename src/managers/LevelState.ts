@@ -1,23 +1,23 @@
 /**
  * LevelState - Contextual object that encapsulates all combat-related managers
- * 
+ *
  * This groups TowerManager, ZombieManager, WaveManager, TowerPlacementManager,
  * TowerCombatManager, ProjectileManager, and EffectManager to reduce the number
  * of direct dependencies in GameManager.
  */
 
-import { type Container } from 'pixi.js';
+import type { Container } from 'pixi.js';
 import type { Tower } from '../objects/Tower';
 import { CombatRenderer } from '../renderers/CombatRenderer';
 import type { EffectManager } from '../renderers/effects/EffectManager';
-import { EventBus, GameEvents, type EventSubscription } from '../utils/EventBus';
+import { EventBus, type EventSubscription, GameEvents } from '../utils/EventBus';
 import type { MapManager } from './MapManager';
-import { ProjectileManager } from './ProjectileManager';
-import { TowerCombatManager } from './TowerCombatManager';
-import { TowerManager } from './TowerManager';
-import { TowerPlacementManager } from './TowerPlacementManager';
-import { WaveManager } from './WaveManager';
-import { ZombieManager } from './ZombieManager';
+import type { ProjectileManager } from './ProjectileManager';
+import type { TowerCombatManager } from './TowerCombatManager';
+import type { TowerManager } from './TowerManager';
+import type { TowerPlacementManager } from './TowerPlacementManager';
+import type { WaveManager } from './WaveManager';
+import type { ZombieManager } from './ZombieManager';
 
 interface LevelStateConfig {
   container: Container;
@@ -32,11 +32,6 @@ interface LevelStateConfig {
   towerPlacementManager: TowerPlacementManager;
   towerCombatManager: TowerCombatManager;
   effectManager?: EffectManager | null;
-}
-
-interface CleanupOptions {
-  fullCleanup?: boolean;
-  waveOnly?: boolean;
 }
 
 export class LevelState {
@@ -57,9 +52,9 @@ export class LevelState {
 
   constructor(config: LevelStateConfig) {
     const {
-      mapManager,
-      worldWidth = 1024,
-      worldHeight = 768,
+      mapManager: _mapManager,
+      worldWidth: _worldWidth = 1024,
+      worldHeight: _worldHeight = 768,
       towerManager,
       waveManager,
       zombieManager,
@@ -326,7 +321,13 @@ export class LevelState {
   /**
    * Get effect counts for performance monitoring
    */
-  public getEffectCounts(): { casings: number; flashes: number; trails: number; impacts: number; glints: number } {
+  public getEffectCounts(): {
+    casings: number;
+    flashes: number;
+    trails: number;
+    impacts: number;
+    glints: number;
+  } {
     if (this.effectManager) {
       return this.effectManager.getEffectCounts();
     }

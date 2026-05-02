@@ -454,7 +454,6 @@ export class OilPaintingFilter extends Filter {
   }
 }
 
-
 /**
  * Kaleidoscope - Trippy mirror effect
  */

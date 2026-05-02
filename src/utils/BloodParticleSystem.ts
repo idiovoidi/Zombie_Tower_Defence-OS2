@@ -40,7 +40,7 @@ export class BloodParticleSystem {
     parent.addChild(this.particleContainer);
   }
 
-  public createBloodSplatter(x: number, y: number, intensity: number = 1): void {
+  public createBloodSplatter(x: number, y: number, intensity = 1): void {
     const particleCount = Math.floor(15 * intensity);
     const bloodTints = [0x8b0000, 0xa00000, 0xb00000, 0xc00000];
 

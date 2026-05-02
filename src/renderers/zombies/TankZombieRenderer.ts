@@ -1,8 +1,8 @@
 import type { Container } from 'pixi.js';
 import { BaseZombieRenderer } from './BaseZombieRenderer';
-import { GlowEffect, ShadowEffect } from './components/ZombieEffects';
 import { ParticleType } from './ZombieParticleSystem';
 import type { ZombieRenderState } from './ZombieRenderer';
+import { GlowEffect, ShadowEffect } from './components/ZombieEffects';
 
 export class TankZombieRenderer extends BaseZombieRenderer {
   protected readonly ANIMATOR_TYPE = 'TANK';
@@ -98,5 +98,4 @@ export class TankZombieRenderer extends BaseZombieRenderer {
       .circle(handX, handY, 2.5)
       .stroke({ color: 0x000000, width: 0.8, alpha: alpha * 0.5 });
   }
-
 }

@@ -373,7 +373,7 @@ export class LogExporter {
 
     console.log('');
     console.log(`✅ Downloaded ${logCount} logs to your Downloads folder`);
-    console.log(`💡 Move these files to the player_reports/ folder manually`);
+    console.log('💡 Move these files to the player_reports/ folder manually');
     console.log('');
     console.log('═══════════════════════════════════════════════════════');
   }
@@ -514,7 +514,9 @@ export class LogExporter {
     }
 
     // Format statistical analysis section
-    const statisticalAnalysis = balanceData.statisticalAnalysis as StatisticalAnalysisData | undefined;
+    const statisticalAnalysis = balanceData.statisticalAnalysis as
+      | StatisticalAnalysisData
+      | undefined;
 
     if (statisticalAnalysis) {
       result.statisticalAnalysis = {

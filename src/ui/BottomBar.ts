@@ -10,7 +10,7 @@ export class BottomBar extends UIComponent {
   private nextWaveCallback: (() => void) | null = null;
   private staticBg!: Container;
 
-  constructor(width: number = 1000) {
+  constructor(width = 1000) {
     super();
     this.cullableChildren = false; // Never cull children since this UI is always visible
     this.createBottomBar(width);
@@ -71,7 +71,7 @@ export class BottomBar extends UIComponent {
     wavePanel.position.set(xPos, 10);
     this.addChild(wavePanel);
     this.waveValue = wavePanel.getChildByName('value') as Text;
-    xPos += panelWidth + panelSpacing;
+    // xPos increment removed - not used after this point
 
     // Next wave button (right side)
     this.nextWaveButton = this.createNextWaveButton();

@@ -334,7 +334,6 @@ export const PATH = {
   HIGHLIGHT_ALPHA: 0.3,
 } as const;
 
-
 // ============================================================================
 // GRAVEYARD DETAILS
 // ============================================================================
@@ -505,10 +504,3 @@ export const FOG = {
   PULSE_MAX_FACTOR: 1.0, // 0.7 + 0.3
   SIZE_THRESHOLD: 30, // Determines if fog is "lower" type
 } as const;
-
-
-
-
-
-
-

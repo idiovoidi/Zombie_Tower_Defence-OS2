@@ -4,8 +4,8 @@ import { DevConfig } from '../config/devConfig';
 import { GameConfig } from '../config/gameConfig';
 import type { Tower } from '../objects/Tower';
 import type { Zombie } from '../objects/Zombie';
-import { EffectManager } from '../renderers/effects/EffectManager';
 import { VisualMapRenderer } from '../renderers/VisualMapRenderer';
+import { EffectManager } from '../renderers/effects/EffectManager';
 import { EffectCleanupManager } from '../utils/EffectCleanupManager';
 import { EventBus, GameEvents } from '../utils/EventBus';
 import { type GameLogEntry, LogExporter } from '../utils/LogExporter';
@@ -68,7 +68,7 @@ export class GameManager {
   private onGameOverCallback: ((score: number) => void) | null = null;
 
   // Wave tracking
-  private waveStartLives: number = 0;
+  private waveStartLives = 0;
 
   constructor(app: Application) {
     this.app = app;
@@ -149,15 +149,17 @@ export class GameManager {
 
   private setupEventListeners(): void {
     // Listen for damage events and forward to analytics
-    EventBus.getInstance().on<{ damage: number; towerType: string; killed: boolean; overkill: number }>(
-      GameEvents.DAMAGE_DEALT,
-      (data) => {
-        if (data && data.killed) {
-          // Award money for kills through event system
-          // (actual money reward handled in update loop for now)
-        }
+    EventBus.getInstance().on<{
+      damage: number;
+      towerType: string;
+      killed: boolean;
+      overkill: number;
+    }>(GameEvents.DAMAGE_DEALT, data => {
+      if (data?.killed) {
+        // Award money for kills through event system
+        // (actual money reward handled in update loop for now)
       }
-    );
+    });
   }
 
   private setupTowerPlacementCallbacks(): void {
@@ -286,9 +288,9 @@ export class GameManager {
     this.towerPlacementManager.startPlacement(starterTower.type);
     const tower = this.towerPlacementManager.placeTower(starterTower.x, starterTower.y);
     if (tower) {
-      console.log(`✓ Starter gunner placed successfully`);
+      console.log('✓ Starter gunner placed successfully');
     } else {
-      console.warn(`✗ Failed to place starter gunner`);
+      console.warn('✗ Failed to place starter gunner');
     }
 
     const placedTowers = this.towerPlacementManager.getPlacedTowers();
@@ -385,7 +387,7 @@ export class GameManager {
         startLives: DebugConstants.ENABLED
           ? DebugConstants.STARTING_LIVES
           : GameConfig.STARTING_LIVES,
-        survivalRate: parseFloat(
+        survivalRate: Number.parseFloat(
           (
             (this.lives /
               (DebugConstants.ENABLED
@@ -416,7 +418,10 @@ export class GameManager {
 
     let balanceData: Record<string, unknown> | undefined;
     if (this.analyticsState.isBalanceTrackingEnabled()) {
-      balanceData = this.analyticsState.getBalanceTrackingManager().generateReportData() as Record<string, unknown>;
+      balanceData = this.analyticsState.getBalanceTrackingManager().generateReportData() as Record<
+        string,
+        unknown
+      >;
       console.log('📊 Including balance analysis in report');
     }
 
@@ -488,7 +493,7 @@ export class GameManager {
     }
   }
 
-  public loseLife(amount: number = 1): void {
+  public loseLife(amount = 1): void {
     this.lives -= amount;
     if (this.onDamageFlashCallback) {
       this.onDamageFlashCallback();

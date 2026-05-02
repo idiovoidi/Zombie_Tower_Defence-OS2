@@ -46,26 +46,26 @@ export interface OptimizationReport {
  */
 // biome-ignore lint/complexity/noStaticOnlyClass: Stateless utility for validation
 export class OptimizationValidator {
-  private static enabled: boolean = false;
+  private static enabled = false;
 
   // Target finding tracking
-  private static targetFindingTests: number = 0;
-  private static totalLinearSearchTime: number = 0;
-  private static totalSpatialGridTime: number = 0;
-  private static totalLinearChecks: number = 0;
-  private static totalSpatialChecks: number = 0;
+  private static targetFindingTests = 0;
+  private static totalLinearSearchTime = 0;
+  private static totalSpatialGridTime = 0;
+  private static totalLinearChecks = 0;
+  private static totalSpatialChecks = 0;
 
   // Array rebuild tracking
-  private static frameCount: number = 0;
-  private static towerArrayChanges: number = 0;
-  private static zombieArrayChanges: number = 0;
-  private static projectileArrayChanges: number = 0;
+  private static frameCount = 0;
+  private static towerArrayChanges = 0;
+  private static zombieArrayChanges = 0;
+  private static projectileArrayChanges = 0;
 
   // Allocation tracking
-  private static allocationsTracked: number = 0;
-  private static pooledAllocations: number = 0;
-  private static newAllocations: number = 0;
-  private static poolReuses: number = 0;
+  private static allocationsTracked = 0;
+  private static pooledAllocations = 0;
+  private static newAllocations = 0;
+  private static poolReuses = 0;
 
   /**
    * Enable validation tracking
@@ -146,7 +146,7 @@ export class OptimizationValidator {
   /**
    * Track an object allocation
    */
-  public static trackAllocation(fromPool: boolean, reused: boolean = false): void {
+  public static trackAllocation(fromPool: boolean, reused = false): void {
     if (!OptimizationValidator.enabled) {
       return;
     }

@@ -7,7 +7,7 @@ import { LifetimeEffect } from './LifetimeEffect';
 export class MuzzleFlashLight extends LifetimeEffect {
   private radius: number;
 
-  constructor(x: number, y: number, radius: number = 30) {
+  constructor(x: number, y: number, radius = 30) {
     super(100); // Very brief flash
 
     this.radius = radius;
@@ -44,7 +44,7 @@ export class MuzzleFlashLight extends LifetimeEffect {
   /**
    * Reset the muzzle flash for reuse in object pool
    */
-  public reset(x: number, y: number, radius: number = 30): void {
+  public reset(x: number, y: number, radius = 30): void {
     super.reset();
     this.position.set(x, y);
     this.radius = radius;

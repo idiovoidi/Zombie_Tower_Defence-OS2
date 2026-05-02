@@ -45,14 +45,8 @@
     }
   },
   "files": {
-    "include": [
-      "src/**",
-      "tests/**",
-      "!!**/node_modules",
-      "!!**/coverage",
-      "!!**/*.d.ts",
-      "!!**/dependency-report.html"
-    ]
+    "include": ["src/**", "tests/**"],
+    "ignore": ["node_modules/**", "coverage/**", "**/*.d.ts", "dependency-report.html"]
   },
   "overrides": [
     {

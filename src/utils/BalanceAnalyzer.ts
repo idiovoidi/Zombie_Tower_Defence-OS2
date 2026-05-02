@@ -80,7 +80,7 @@ export class BalanceAnalyzer {
     zombieHP: number,
     zombieSpeed: number,
     pathLength: number,
-    wave: number = 0
+    wave = 0
   ): WaveDefenseAnalysis {
     // Calculate time zombies take to reach the end
     const timeToReachEnd = pathLength / zombieSpeed;
@@ -142,7 +142,7 @@ export class BalanceAnalyzer {
     range: number,
     accuracy: number,
     buildCost: number,
-    upgradeCost: number = 0
+    upgradeCost = 0
   ): number {
     const totalCost = buildCost + upgradeCost;
 
@@ -171,7 +171,7 @@ export class BalanceAnalyzer {
   static applyDiminishingReturns(
     stat: number,
     stackCount: number,
-    diminishingFactor: number = 100
+    diminishingFactor = 100
   ): number {
     // No diminishing returns for single tower
     if (stackCount <= 1) {
@@ -203,7 +203,7 @@ export class BalanceAnalyzer {
     speed: number,
     count: number,
     reward: number,
-    zombieType: string = 'Unknown'
+    zombieType = 'Unknown'
   ): ThreatScore {
     // Calculate threat score
     const threatScore = (health * speed * count) / (reward * 10);
@@ -281,7 +281,7 @@ export class BalanceAnalyzer {
   ): number {
     // Avoid division by zero
     if (towerDPS === 0 || averageZombieHP === 0) {
-      return Infinity;
+      return Number.POSITIVE_INFINITY;
     }
 
     // Calculate time to kill one zombie
@@ -292,7 +292,7 @@ export class BalanceAnalyzer {
 
     // Avoid division by zero
     if (revenuePerSecond === 0) {
-      return Infinity;
+      return Number.POSITIVE_INFINITY;
     }
 
     // Break-even time = Cost / Revenue per second

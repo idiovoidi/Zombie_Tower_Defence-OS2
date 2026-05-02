@@ -14,7 +14,7 @@ export class HealthComponent extends Component {
    * @param maxHealth The maximum health value
    * @param armor The armor value as a percentage (0-100), defaults to 0
    */
-  constructor(maxHealth: number, armor: number = 0) {
+  constructor(maxHealth: number, armor = 0) {
     super('Health');
     this.maxHealth = maxHealth;
     this.currentHealth = maxHealth;

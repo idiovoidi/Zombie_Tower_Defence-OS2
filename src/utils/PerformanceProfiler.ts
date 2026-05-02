@@ -44,8 +44,8 @@ export interface PerformanceReport {
  */
 export class PerformanceProfiler {
   private metrics: PerformanceMetrics[] = [];
-  private testStartTime: number = 0;
-  private testName: string = '';
+  private testStartTime = 0;
+  private testName = '';
   private frameRateMonitor: FrameRateMonitor | null = null;
 
   /**
@@ -90,7 +90,7 @@ export class PerformanceProfiler {
   public profileOperation(
     operationName: string,
     operation: () => void,
-    threshold: number = 5
+    threshold = 5
   ): PerformanceMetrics {
     const startTime = performance.now();
     try {
@@ -107,7 +107,7 @@ export class PerformanceProfiler {
   public async profileAsyncOperation(
     operationName: string,
     operation: () => Promise<void>,
-    threshold: number = 5
+    threshold = 5
   ): Promise<PerformanceMetrics> {
     const startTime = performance.now();
     try {
@@ -202,19 +202,19 @@ export class PerformanceProfiler {
 
     console.log(`\n⏱️  Test Duration: ${report.duration.toFixed(2)}ms`);
 
-    console.log(`\n📈 Summary Statistics:`);
+    console.log('\n📈 Summary Statistics:');
     console.log(`   Total Operations: ${report.summary.totalOperations}`);
     console.log(`   ✅ Passed: ${report.summary.passedOperations}`);
     console.log(`   ❌ Failed: ${report.summary.failedOperations}`);
     console.log(`   Pass Rate: ${report.summary.passRate.toFixed(1)}%`);
 
-    console.log(`\n⚡ Execution Times:`);
+    console.log('\n⚡ Execution Times:');
     console.log(`   Average: ${report.summary.averageExecutionTime.toFixed(3)}ms`);
     console.log(`   Maximum: ${report.summary.maxExecutionTime.toFixed(3)}ms`);
     console.log(`   Minimum: ${report.summary.minExecutionTime.toFixed(3)}ms`);
 
     if (report.frameRateImpact) {
-      console.log(`\n🎮 Frame Rate Impact:`);
+      console.log('\n🎮 Frame Rate Impact:');
       console.log(`   Baseline FPS: ${report.frameRateImpact.baselineFPS.toFixed(1)}`);
       console.log(`   Test FPS: ${report.frameRateImpact.testFPS.toFixed(1)}`);
       console.log(`   FPS Drop: ${report.frameRateImpact.fpsDropPercent.toFixed(1)}%`);
@@ -244,13 +244,11 @@ export class PerformanceProfiler {
  * FrameRateMonitor - Monitors frame rate during testing
  */
 class FrameRateMonitor {
-  private baselineFPS: number = 0;
-  private testFPS: number = 0;
-  private frameCount: number = 0;
-  private startTime: number = 0;
-  // biome-ignore lint/correctness/noUnusedPrivateClassMembers: Used in start() method
-  private _lastFrameTime: number = 0;
-  private isMonitoring: boolean = false;
+  private baselineFPS = 0;
+  private testFPS = 0;
+  private frameCount = 0;
+  private startTime = 0;
+  private isMonitoring = false;
   private animationFrameId: number | null = null;
 
   /**
@@ -260,7 +258,6 @@ class FrameRateMonitor {
     this.isMonitoring = true;
     this.frameCount = 0;
     this.startTime = performance.now();
-    this._lastFrameTime = this.startTime;
 
     // Measure baseline FPS (first 1 second)
     this.measureBaseline();

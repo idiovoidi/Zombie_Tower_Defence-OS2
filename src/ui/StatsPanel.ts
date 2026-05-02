@@ -9,7 +9,7 @@ export class StatsPanel extends UIComponent {
   private statsTexts: Map<string, Text> = new Map();
   private exportButton!: Container;
   private exportButtonText!: Text;
-  private isCollapsed: boolean = false;
+  private isCollapsed = false;
   private collapseButton!: Container;
   private collapseButtonText!: Text;
   private contentContainer!: Container;
@@ -342,12 +342,7 @@ export class StatsPanel extends UIComponent {
     }
   }
 
-  private updateStat(
-    label: string,
-    value: string,
-    yOffset: number,
-    color: number = 0xffffff
-  ): void {
+  private updateStat(label: string, value: string, yOffset: number, color = 0xffffff): void {
     const key = `${label}_${yOffset}`;
 
     if (!this.statsTexts.has(key)) {
@@ -367,7 +362,7 @@ export class StatsPanel extends UIComponent {
     if (!text) {
       return;
     }
-    
+
     if (text.style.fill !== color) {
       text.style.fill = color;
     }
@@ -380,6 +375,6 @@ export class StatsPanel extends UIComponent {
 
   public destroy(): void {
     this.statsTexts.clear();
-    super.destroy();
+    super.destroy({ children: true });
   }
 }

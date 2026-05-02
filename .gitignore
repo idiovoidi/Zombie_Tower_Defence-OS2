@@ -35,3 +35,7 @@ player_reports/*.json
 
 # Personal documentation
 design_docs/My_Docs/
+
+# TypeScript build artifacts
+*.d.ts
+*.d.ts.map

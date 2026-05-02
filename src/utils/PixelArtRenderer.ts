@@ -11,10 +11,10 @@ export class PixelArtRenderer {
   private renderTexture: RenderTexture | null = null;
   private displaySprite: Sprite | null = null;
   private displayContainer: Container | null = null;
-  private enabled: boolean = false;
-  private pixelScale: number = 3;
-  private renderWidth: number = 0;
-  private renderHeight: number = 0;
+  private enabled = false;
+  private pixelScale = 3;
+  private renderWidth = 0;
+  private renderHeight = 0;
 
   constructor(app: Application, gameContainer: Container) {
     this.app = app;
@@ -25,7 +25,7 @@ export class PixelArtRenderer {
    * Enable pixel art rendering
    * @param pixelScale - How many screen pixels per game pixel (2-6 recommended)
    */
-  enable(pixelScale: number = 3): void {
+  enable(pixelScale = 3): void {
     if (this.enabled) {
       this.disable();
     }

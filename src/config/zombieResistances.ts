@@ -111,4 +111,3 @@ export function convertToTowerType(towerTypeString: string): TowerType {
 export function getDamageModifier(zombieType: ZombieType, towerType: TowerType): number {
   return DAMAGE_MODIFIERS[zombieType]?.[towerType] ?? 1.0;
 }
-

@@ -26,7 +26,7 @@ interface FogParticle {
 export class FogRenderer {
   private fogContainer: Graphics;
   private fogParticles: FogParticle[] = [];
-  private fogTime: number = 0;
+  private fogTime = 0;
   private graveyardBounds: { x: number; y: number; width: number; height: number };
 
   constructor(fogContainer: Graphics) {
