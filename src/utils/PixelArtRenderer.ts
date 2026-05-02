@@ -83,12 +83,12 @@ export class PixelArtRenderer {
     }
 
     if (this.displaySprite) {
-      this.displaySprite.destroy();
+      this.displaySprite.destroy({ children: true });
       this.displaySprite = null;
     }
 
     if (this.displayContainer) {
-      this.displayContainer.destroy();
+      this.displayContainer.destroy({ children: true });
       this.displayContainer = null;
     }
 

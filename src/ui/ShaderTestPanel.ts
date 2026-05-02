@@ -250,11 +250,11 @@ export class ShaderTestPanel extends UIPanel {
     // Remove all existing sliders and texts
     this.sliders.forEach(slider => {
       this.contentContainer.removeChild(slider);
-      slider.destroy();
+      slider.destroy({ children: true });
     });
     this.settingTexts.forEach(text => {
       this.contentContainer.removeChild(text);
-      text.destroy();
+      text.destroy({ children: true });
     });
     this.sliders.clear();
     this.settingTexts.clear();

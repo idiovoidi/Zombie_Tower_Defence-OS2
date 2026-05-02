@@ -63,7 +63,7 @@ export class MoneyAnimation {
       const oldest = this.animations.shift();
       if (oldest) {
         this.container.removeChild(oldest.text);
-        oldest.text.destroy();
+        oldest.text.destroy({ children: true });
       }
     }
 
@@ -125,7 +125,7 @@ export class MoneyAnimation {
       if (progress >= 1) {
         // Animation complete, remove it
         this.container.removeChild(anim.text);
-        anim.text.destroy();
+        anim.text.destroy({ children: true });
         this.animations.splice(i, 1);
       } else {
         // Update animation
@@ -152,7 +152,7 @@ export class MoneyAnimation {
   public clear(): void {
     for (const anim of this.animations) {
       this.container.removeChild(anim.text);
-      anim.text.destroy();
+      anim.text.destroy({ children: true });
     }
     this.animations = [];
     this.batchedAmount = 0;

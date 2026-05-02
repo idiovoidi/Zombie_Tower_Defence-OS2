@@ -396,12 +396,28 @@ export abstract class BaseZombieRenderer implements IZombieRenderer {
     });
   }
 
+  reset(): void {
+    // Cancel any ongoing death animation
+    if (this.deathAnimationFrame !== null) {
+      cancelAnimationFrame(this.deathAnimationFrame);
+      this.deathAnimationFrame = null;
+    }
+    // Reset graphics transform and visibility
+    this.graphics.alpha = 1;
+    this.graphics.tint = 0xffffff;
+    this.graphics.position.set(0, 0);
+    this.graphics.rotation = 0;
+    this.graphics.scale.set(1, 1);
+    // Clear any particles
+    this.particles.clear?.();
+  }
+
   destroy(): void {
     if (this.deathAnimationFrame !== null) {
       cancelAnimationFrame(this.deathAnimationFrame);
       this.deathAnimationFrame = null;
     }
-    this.graphics.destroy();
+    this.graphics.destroy({ children: true });
     this.particles.destroy();
   }
 

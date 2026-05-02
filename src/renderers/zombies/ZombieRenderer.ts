@@ -17,6 +17,7 @@ export interface IZombieRenderer {
   showDamageEffect(damageType: string, amount: number): void;
   playDeathAnimation(killerType?: string): Promise<void>;
   destroy(): void;
+  reset(): void;
 }
 
 export enum AnimationState {

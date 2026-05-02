@@ -105,7 +105,7 @@ export class UIManager {
   public removeComponent(name: string): void {
     const component = this.components.get(name);
     if (component) {
-      component.destroy();
+      component.destroy({ children: true });
       this.components.delete(name);
     }
   }

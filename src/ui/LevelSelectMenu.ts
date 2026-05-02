@@ -61,8 +61,8 @@ export class LevelSelectMenu extends UIComponent {
   public updateLevels(levels: LevelData[]): void {
     // Clear existing level buttons
     this.levelButtons.forEach(item => {
-      item.button.destroy();
-      item.text.destroy();
+      item.button.destroy({ children: true });
+      item.text.destroy({ children: true });
     });
     this.levelButtons = [];
 

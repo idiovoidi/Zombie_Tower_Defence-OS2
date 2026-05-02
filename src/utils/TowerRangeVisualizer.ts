@@ -33,7 +33,7 @@ export class TowerRangeVisualizer {
   public hideRange(): void {
     if (this.rangeIndicator && this.container) {
       this.container.removeChild(this.rangeIndicator);
-      this.rangeIndicator.destroy();
+      this.rangeIndicator.destroy({ children: true });
       this.rangeIndicator = null;
       this.container = null;
     }

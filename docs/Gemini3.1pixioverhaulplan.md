@@ -9,19 +9,4 @@ This overhaul touches multiple core systems, particularly rendering loops and ob
 Proposed Changes
 
 
-3. Static UI Caching (cacheAsTexture)
-Problem: Complex UI panels like BottomBar are composed of many Graphics shapes (rivets, borders, background textures) that are drawn every frame.
-Solution:
-Apply cacheAsTexture(true) to static UI containers.
-This caches the subtree to a single texture, drastically reducing draw calls.
 
-Problem: Application.init() does not explicitly define Garbage Collection parameters, and destruction patterns could be more robust.
-Solution:
-Update main.ts to configure gcMaxUnusedTime and gcFrequency.
-Audit destroy() calls to ensure we pass { children: true } when appropriate to prevent memory leaks from nested graphics/sprites.
-Verification Plan
-Automated/Manual Testing
-Start the game and monitor the FPS.
-Open the UI and verify that the BottomBar and TowerInfoPanel render correctly and continue to update values.
-Spawn a large wave of zombies and verify that ZombieManager correctly reuses objects from the pool without leaking memory or crashing.
-Verify that projectiles properly hit and return to the pool without graphical glitches.

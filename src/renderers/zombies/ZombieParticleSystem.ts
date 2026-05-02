@@ -140,8 +140,12 @@ export class ZombieParticleSystem {
     }
   }
 
+  clear(): void {
+    this.particles = [];
+  }
+
   destroy(): void {
-    this.graphics.destroy();
+    this.graphics.destroy({ children: true });
     this.particles = [];
   }
 
