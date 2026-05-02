@@ -70,17 +70,8 @@ export class SwarmZombieRenderer extends BaseZombieRenderer {
     this.graphics.circle(headX + 1.5, headY - 0.5, 0.5).fill(this.EYE_GLOW);
     this.graphics.rect(headX - 1.2, headY + 1, 2.4, 0.8).fill({ color: 0x000000, alpha: 0.9 });
 
-    this.drawWounds(healthPercent, torsoY);
-
-    if (healthPercent < 0.75) {
-      this.graphics.tint = 0xcccccc;
-    }
-    if (healthPercent < 0.5) {
-      this.graphics.tint = 0xaaaaaa;
-    }
-    if (healthPercent < 0.25) {
-      this.graphics.tint = 0x888888;
-    }
+    this.drawWounds(healthPercent, torsoY, this.BLOOD_RED, 3, 5, 7, 0.5, 0.8, 0.8);
+    this.applyHealthTint(healthPercent);
 
     this.particles.render(this.graphics);
     container.addChild(this.graphics);
@@ -104,14 +95,4 @@ export class SwarmZombieRenderer extends BaseZombieRenderer {
       .stroke({ color: 0x000000, width: 0.4, alpha: alpha * 0.5 });
   }
 
-  private drawWounds(healthPercent: number, torsoY: number): void {
-    const woundCount = Math.floor((1 - healthPercent) * 3);
-    for (let i = 0; i < woundCount; i++) {
-      const x = (Math.random() - 0.5) * 5;
-      const y = torsoY + (Math.random() - 0.5) * 7;
-      this.graphics
-        .circle(x, y, 0.5 + Math.random() * 0.8)
-        .fill({ color: this.BLOOD_RED, alpha: 0.8 });
-    }
-  }
 }

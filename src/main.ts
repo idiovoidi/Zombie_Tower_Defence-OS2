@@ -6,6 +6,7 @@ import { CampUpgradeManager } from './managers/CampUpgradeManager';
 import { DebugTestUIManager } from './managers/DebugTestUIManager';
 import { GameManager } from './managers/GameManager';
 import { InputManager } from './managers/InputManager';
+import { TimeControlManager } from './managers/TimeControlManager';
 import type { Tower } from './objects/Tower';
 import { BottomBar } from './ui/BottomBar';
 import { CampUpgradePanel } from './ui/CampUpgradePanel';
@@ -15,6 +16,7 @@ import { HUD } from './ui/HUD';
 import { LevelSelectMenu } from './ui/LevelSelectMenu';
 import { MainMenu } from './ui/MainMenu';
 import { MoneyAnimation } from './ui/MoneyAnimation';
+import { TimeControlUI } from './ui/TimeControlUI';
 import { TowerInfoPanel } from './ui/TowerInfoPanel';
 import { TowerShop } from './ui/TowerShop';
 import { UIManager } from './ui/UIManager';
@@ -59,6 +61,9 @@ import { VisualEffects } from './utils/VisualEffects';
 
   // Create game manager
   const gameManager = new GameManager(app);
+
+  // Create time control manager for tactical pause and speed control
+  const timeControlManager = new TimeControlManager();
 
   // Create input manager for robust input handling
   const inputManager = new InputManager(app, scaleManager);
@@ -123,6 +128,11 @@ import { VisualEffects } from './utils/VisualEffects';
   const towerInfoPanelHeight = 300; // Panel height from TowerInfoPanel.ts
   towerInfoPanel.position.set(screenWidth - shopWidth, screenHeight - towerInfoPanelHeight);
   uiManager.registerComponent('towerInfoPanel', towerInfoPanel);
+
+  // Create time control UI (positioned in bottom bar, left side)
+  const timeControlUI = new TimeControlUI(timeControlManager);
+  timeControlUI.position.set(20, screenHeight - bottomBarHeight + 22);
+  uiManager.registerComponent('timeControlUI', timeControlUI);
 
   // Create debug test UI manager (handles shader test, wave info, bestiary)
   const debugTestUIManager = new DebugTestUIManager(app);

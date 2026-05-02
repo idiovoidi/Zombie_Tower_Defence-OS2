@@ -191,57 +191,15 @@ export class Projectile extends Container {
   }
 
   private checkZombieCollision(): Zombie | null {
-    const hitRadius = 15; // Collision detection radius
-
-    for (const zombie of this.zombies) {
-      if (!zombie.parent) {
-        continue;
-      }
-
-      const dx = zombie.position.x - this.position.x;
-      const dy = zombie.position.y - this.position.y;
-      const distance = Math.sqrt(dx * dx + dy * dy);
-
-      if (distance < hitRadius) {
-        return zombie;
-      }
-    }
-
-    return null;
+    return this.findZombieInRadius(15); // 15px collision detection radius
   }
 
   private onHitTarget(): void {
     this.isActive = false;
 
-    // Apply damage to target if it still exists
+    // Apply damage to target if it still exists in the scene
     if (this.target?.parent) {
-      // Apply damage modifier based on zombie type
-      const modifier = this.target.getDamageModifier(this.towerType);
-      const modifiedDamage = this.damage * modifier;
-
-      const healthBefore = this.target.getHealth();
-      this.target.takeDamage(modifiedDamage, this.towerType);
-      const healthAfter = this.target.getHealth();
-      const actualDamage = healthBefore - healthAfter;
-      const killed = healthAfter <= 0;
-      const overkill = killed ? Math.abs(healthAfter) : 0;
-
-      // Emit DAMAGE_DEALT event for tracking and analytics
-      // Include zombie position for overkill gib explosion effects
-      EventBus.getInstance().emit(GameEvents.DAMAGE_DEALT, {
-        damage: actualDamage,
-        towerType: this.towerType,
-        killed,
-        overkill,
-        zombieX: this.target.position.x,
-        zombieY: this.target.position.y,
-        zombieId: (this.target as { id?: string }).id || 'unknown',
-      });
-
-      // Legacy callback support (deprecated, for backward compatibility)
-      if (this.onDamageCallback) {
-        this.onDamageCallback(actualDamage, this.towerType, killed, overkill);
-      }
+      this.applyDamageToZombie(this.target, this.damage);
     }
 
     // Create hit effect based on projectile type
@@ -260,6 +218,68 @@ export class Projectile extends Container {
 
   public setUpgradeLevel(level: number): void {
     this.upgradeLevel = level;
+  }
+
+  /**
+   * Find first zombie within the specified radius of this projectile.
+   * @param radius - Search radius in pixels
+   * @returns First zombie found within radius, or null if none found
+   */
+  private findZombieInRadius(radius: number): Zombie | null {
+    for (const zombie of this.zombies) {
+      if (!zombie.parent) {
+        continue;
+      }
+
+      const dx = zombie.position.x - this.position.x;
+      const dy = zombie.position.y - this.position.y;
+      const distance = Math.sqrt(dx * dx + dy * dy);
+
+      if (distance < radius) {
+        return zombie;
+      }
+    }
+    return null;
+  }
+
+  /**
+   * Apply damage to a zombie and emit tracking events.
+   * @param zombie - Target zombie
+   * @param damageAmount - Base damage to apply
+   * @param damageMultiplier - Optional multiplier (e.g., for splash damage falloff)
+   */
+  private applyDamageToZombie(zombie: Zombie, damageAmount: number, damageMultiplier = 1): void {
+    // Guard against zombies that have been removed from the scene
+    if (!zombie.parent) {
+      return;
+    }
+
+    // Apply damage modifier based on zombie type
+    const modifier = zombie.getDamageModifier(this.towerType);
+    const modifiedDamage = damageAmount * damageMultiplier * modifier;
+
+    const healthBefore = zombie.getHealth();
+    zombie.takeDamage(modifiedDamage, this.towerType);
+    const healthAfter = zombie.getHealth();
+    const actualDamage = healthBefore - healthAfter;
+    const killed = healthAfter <= 0;
+    const overkill = killed ? Math.abs(healthAfter) : 0;
+
+    // Emit DAMAGE_DEALT event for tracking and analytics
+    EventBus.getInstance().emit(GameEvents.DAMAGE_DEALT, {
+      damage: actualDamage,
+      towerType: this.towerType,
+      killed,
+      overkill,
+      zombieX: zombie.position.x,
+      zombieY: zombie.position.y,
+      zombieId: (zombie as { id?: string }).id || 'unknown',
+    });
+
+    // Legacy callback support (deprecated, for backward compatibility)
+    if (this.onDamageCallback) {
+      this.onDamageCallback(actualDamage, this.towerType, killed, overkill);
+    }
   }
 
   private createHitEffect(): void {
@@ -317,35 +337,7 @@ export class Projectile extends Container {
       if (distance <= explosionRadius) {
         // Damage falls off with distance (100% at center, 30% at edge)
         const damageFalloff = 1 - (distance / explosionRadius) * 0.7;
-        const splashDamage = this.damage * damageFalloff;
-
-        // Apply damage modifier based on zombie type
-        const modifier = zombie.getDamageModifier(this.towerType);
-        const modifiedDamage = splashDamage * modifier;
-
-        const healthBefore = zombie.getHealth();
-        zombie.takeDamage(modifiedDamage, this.towerType);
-        const healthAfter = zombie.getHealth();
-        const actualDamage = healthBefore - healthAfter;
-        const killed = healthAfter <= 0;
-        const overkill = killed ? Math.abs(healthAfter) : 0;
-
-        // Emit DAMAGE_DEALT event for splash damage tracking
-        // Include zombie position for overkill gib explosion effects
-        EventBus.getInstance().emit(GameEvents.DAMAGE_DEALT, {
-          damage: actualDamage,
-          towerType: this.towerType,
-          killed,
-          overkill,
-          zombieX: zombie.position.x,
-          zombieY: zombie.position.y,
-          zombieId: (zombie as { id?: string }).id || 'unknown',
-        });
-
-        // Legacy callback support (deprecated, for backward compatibility)
-        if (this.onDamageCallback) {
-          this.onDamageCallback(actualDamage, this.towerType, killed, overkill);
-        }
+        this.applyDamageToZombie(zombie, this.damage, damageFalloff);
       }
     }
 

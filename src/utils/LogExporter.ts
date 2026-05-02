@@ -514,33 +514,13 @@ export class LogExporter {
     }
 
     // Format statistical analysis section
-    const statisticalAnalysis = balanceData.statisticalAnalysis as {
-      outliers: {
-        mean: number;
-        standardDeviation: number;
-        outliers: Array<{ value: number; index: number; deviation: number }>;
-        hasOutliers: boolean;
-      } | null;
-      trends: {
-        trend: string;
-        slope: number;
-        intercept: number;
-        rSquared: number;
-        confidence: string;
-      } | null;
-      predictions: Array<{
-        wave: number;
-        predictedDifficulty: number;
-        recommendedDPS: number;
-        confidenceInterval: { lower: number; upper: number };
-      }>;
-    };
+    const statisticalAnalysis = balanceData.statisticalAnalysis as StatisticalAnalysisData | undefined;
 
     if (statisticalAnalysis) {
       result.statisticalAnalysis = {
         outliers: statisticalAnalysis.outliers,
         trends: statisticalAnalysis.trends,
-        predictions: statisticalAnalysis.predictions || [],
+        predictions: statisticalAnalysis.predictions,
       };
     }
 
