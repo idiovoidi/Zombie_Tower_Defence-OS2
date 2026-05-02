@@ -34,5 +34,15 @@ declare global {
     debugPerformance: () => void;
     debugCleanup: () => void;
     debugToggleMonitoring: () => void;
+
+    // Time control commands
+    timeControl: {
+      pause: () => void;
+      resume: () => void;
+      toggle: () => void;
+      setNormal: () => void;
+      setSlow: () => void;
+      getState: () => { speed: number; isPaused: boolean; isPlacementPause: boolean };
+    };
   }
 }

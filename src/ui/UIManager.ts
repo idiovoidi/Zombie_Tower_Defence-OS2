@@ -39,6 +39,7 @@ const UI_STATE_CONFIG: StateVisibilityConfig = {
     towerInfoPanel: false,
     statsPanel: true,
     gameOverScreen: false,
+    timeControlUI: true,
   },
   [GameConfig.GAME_STATES.WAVE_COMPLETE]: {
     mainMenu: false,
@@ -49,6 +50,7 @@ const UI_STATE_CONFIG: StateVisibilityConfig = {
     towerInfoPanel: false,
     statsPanel: true,
     gameOverScreen: false,
+    timeControlUI: true,
   },
   [GameConfig.GAME_STATES.PAUSED]: {
     mainMenu: false,

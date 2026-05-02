@@ -308,6 +308,8 @@ import { VisualEffects } from './utils/VisualEffects';
     DebugUtils.debug(`Tower selected: ${type}`);
     const placementManager = gameManager.getTowerPlacementManager();
     placementManager.startPlacement(type);
+    // Auto-pause when entering placement mode (pause-with-placement)
+    timeControlManager.startPlacement(true);
   });
 
   // Set up tower placement callbacks
@@ -400,11 +402,15 @@ import { VisualEffects } from './utils/VisualEffects';
             if (tower) {
               gameManager.getStatTracker().trackTowerBuilt(selectedType, cost);
               towerShop.clearSelection();
+              // End placement pause when tower is successfully placed
+              timeControlManager.endPlacement();
             }
           } else {
             DebugUtils.debug('Not enough money to place tower');
             placementManager.cancelPlacement();
             towerShop.clearSelection();
+            // End placement pause when placement is cancelled
+            timeControlManager.endPlacement();
           }
         }
       } else {
@@ -435,6 +441,8 @@ import { VisualEffects } from './utils/VisualEffects';
     if (placementManager.isInPlacementMode()) {
       placementManager.cancelPlacement();
       towerShop.clearSelection();
+      // End placement pause when placement is cancelled
+      timeControlManager.endPlacement();
     }
   });
 
@@ -588,8 +596,15 @@ import { VisualEffects } from './utils/VisualEffects';
       deltaTime = maxDeltaTime;
     }
 
+    // Apply time control multiplier (pause, 0.5x speed, normal speed)
+    const timeMultiplier = timeControlManager.getTimeMultiplier();
+    const scaledDeltaTime = deltaTime * timeMultiplier;
+
     // Update game manager (handles zombies, waves, etc.)
-    gameManager.update(deltaTime);
+    // Only update if time is not paused (multiplier > 0)
+    if (scaledDeltaTime > 0) {
+      gameManager.update(scaledDeltaTime);
+    }
 
     // Update money animations
     moneyAnimation.update(deltaTime);
@@ -747,4 +762,23 @@ import { VisualEffects } from './utils/VisualEffects';
   console.log('  debugPerformance() - Log current performance metrics');
   console.log('  debugCleanup() - Force cleanup of wave resources');
   console.log('  debugToggleMonitoring() - Enable/disable performance monitoring');
+
+  // Expose time control commands to console
+  window.timeControl = {
+    pause: () => timeControlManager.pause(),
+    resume: () => timeControlManager.resume(),
+    toggle: () => timeControlManager.togglePause(),
+    setNormal: () => timeControlManager.setSpeed(1),
+    setSlow: () => timeControlManager.setSpeed(0.5),
+    getState: () => timeControlManager.getState(),
+  };
+  console.log('⏱️ Time Control available in console');
+  console.log('💡 Time Control Commands:');
+  console.log('  timeControl.pause() - Pause the game');
+  console.log('  timeControl.resume() - Resume the game');
+  console.log('  timeControl.toggle() - Toggle pause state');
+  console.log('  timeControl.setNormal() - Set 1× speed');
+  console.log('  timeControl.setSlow() - Set 0.5× speed');
+  console.log('  timeControl.getState() - Get current time control state');
+  console.log('⌨️ Hotkeys: Space = toggle pause, 1 = normal speed, 2 = 0.5× speed');
 })();
