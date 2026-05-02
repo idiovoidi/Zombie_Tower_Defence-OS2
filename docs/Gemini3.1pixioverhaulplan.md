@@ -8,22 +8,13 @@ This overhaul touches multiple core systems, particularly rendering loops and ob
 
 Proposed Changes
 
-2. Object Pooling for Frequent Entities
-Problem: Projectile and Zombie objects are instantiated with new and destroyed with destroy() rapidly during gameplay. This deallocates GPU resources and triggers garbage collection heavily.
-Solution:
-Implement a Pool<T> utility (or use Pixi's Pool).
-Refactor ProjectileManager and ZombieManager to recycle objects (toggle visibility, reset properties) instead of destroying and recreating them.
+
 3. Static UI Caching (cacheAsTexture)
 Problem: Complex UI panels like BottomBar are composed of many Graphics shapes (rivets, borders, background textures) that are drawn every frame.
 Solution:
 Apply cacheAsTexture(true) to static UI containers.
 This caches the subtree to a single texture, drastically reducing draw calls.
-4. Culling Optimization
-Problem: CullerPlugin is registered, but objects rarely utilize it.
-Solution:
-Set cullableChildren = false on static UI roots that are always visible to save CPU overhead.
-Ensure map tiles or entities that go off-screen utilize cullable = true.
-5. Memory Management & GC Configuration
+
 Problem: Application.init() does not explicitly define Garbage Collection parameters, and destruction patterns could be more robust.
 Solution:
 Update main.ts to configure gcMaxUnusedTime and gcFrequency.

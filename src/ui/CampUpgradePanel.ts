@@ -40,20 +40,28 @@ export class CampUpgradePanel extends UIComponent {
     const panelHeight = 500;
     this.contentContainer.position.set(640 - panelWidth / 2, 384 - panelHeight / 2);
 
+    // Static background container for caching
+    const staticBg = new Container();
+    staticBg.cullableChildren = false;
+    this.contentContainer.addChild(staticBg);
+
     // Background - corrugated metal
     const metalBg = TextureGenerator.createCorrugatedMetal(panelWidth + 20, panelHeight + 20);
     metalBg.position.set(-10, -10);
-    this.contentContainer.addChild(metalBg);
+    staticBg.addChild(metalBg);
 
     // Inner panel - rusty metal
     const innerBg = TextureGenerator.createRustyMetal(panelWidth, panelHeight);
-    this.contentContainer.addChild(innerBg);
+    staticBg.addChild(innerBg);
 
     // Title bar
     const titleBg = new Graphics();
     titleBg.rect(0, 0, panelWidth, 50);
     titleBg.fill(0x2a2a2a);
-    this.contentContainer.addChild(titleBg);
+    staticBg.addChild(titleBg);
+
+    // Cache the static background
+    staticBg.cacheAsTexture(true);
 
     const titleText = new Text({
       text: 'CAMP UPGRADES',

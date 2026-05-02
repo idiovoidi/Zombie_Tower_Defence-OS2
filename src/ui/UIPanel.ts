@@ -51,7 +51,6 @@ export abstract class UIPanel extends UIComponent {
     screenCenterX: number = 640,
     screenCenterY: number = 384
   ): void {
-    this.background = new Graphics();
     this.contentContainer = new Container();
     this.contentContainer.visible = false;
     this.contentContainer.position.set(
@@ -59,12 +58,18 @@ export abstract class UIPanel extends UIComponent {
       screenCenterY - panelHeight / 2
     );
 
+    // Static background container for caching
+    const staticBg = new Container();
+    staticBg.cullableChildren = false;
+    this.contentContainer.addChild(staticBg);
+
     // Background
+    this.background = new Graphics();
     this.background
       .roundRect(0, 0, panelWidth, panelHeight, 10)
       .fill({ color: 0x1a1a1a, alpha: 0.95 });
     this.background.stroke({ width: 3, color: accentColor });
-    this.contentContainer.addChild(this.background);
+    staticBg.addChild(this.background);
 
     // Title
     const titleText = new Text({
@@ -108,6 +113,9 @@ export abstract class UIPanel extends UIComponent {
     closeButton.position.set(panelWidth - 30, 20);
     closeButton.on('pointerdown', () => this.close());
     this.contentContainer.addChild(closeButton);
+
+    // Cache the static background
+    staticBg.cacheAsTexture(true);
 
     this.addChild(this.contentContainer);
   }

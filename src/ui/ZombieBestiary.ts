@@ -129,12 +129,20 @@ export class ZombieBestiary extends UIPanel {
     const panelLeft = 0;
     const panelTop = 0;
 
+    // Static background container for caching
+    const staticBg = new Container();
+    staticBg.cullableChildren = false;
+    this.contentContainer.addChild(staticBg);
+
     this.background = new Graphics();
     this.background
       .roundRect(panelLeft, panelTop, panelWidth, panelHeight, 10)
       .fill({ color: 0x1a1a1a, alpha: 0.98 });
     this.background.stroke({ width: 3, color: 0xff0000 });
-    this.contentContainer.addChild(this.background);
+    staticBg.addChild(this.background);
+
+    // Cache the static background
+    staticBg.cacheAsTexture(true);
 
     // Title
     const title = new Text({

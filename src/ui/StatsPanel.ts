@@ -29,8 +29,16 @@ export class StatsPanel extends UIComponent {
   private createPanel(): void {
     this.cullableChildren = false;
 
+    // Static background container for caching
+    const staticBg = new Container();
+    staticBg.cullableChildren = false;
+    this.addChild(staticBg);
+
     this.background = new Graphics();
-    this.addChild(this.background);
+    staticBg.addChild(this.background);
+
+    // Cache the static background (will be updated when drawBackground is called)
+    staticBg.cacheAsTexture(true);
 
     this.titleText = new Text({
       text: '📊 Performance Stats',
@@ -192,6 +200,12 @@ export class StatsPanel extends UIComponent {
     this.background.rect(0, 0, this.PANEL_WIDTH, height);
     this.background.fill({ color: 0x2a2a2a, alpha: 0.95 });
     this.background.stroke({ width: 2, color: 0x4a4a4a });
+
+    // Update cache after background changes
+    const staticBg = this.background.parent as Container;
+    if (staticBg && 'cacheAsTexture' in staticBg) {
+      staticBg.cacheAsTexture(true);
+    }
   }
 
   private handleExport(): void {

@@ -454,6 +454,8 @@ export abstract class BaseZombieRenderer implements IZombieRenderer {
       this.graphics.tint = 0xaaaaaa;
     } else if (healthPercent < 0.75) {
       this.graphics.tint = 0xcccccc;
+    } else {
+      this.graphics.tint = 0xffffff;
     }
   }
 

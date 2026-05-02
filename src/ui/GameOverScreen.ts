@@ -1,4 +1,4 @@
-import { Graphics, Text } from 'pixi.js';
+import { Container, Graphics, Text } from 'pixi.js';
 import { UIComponent } from './UIComponent';
 
 export class GameOverScreen extends UIComponent {
@@ -15,10 +15,18 @@ export class GameOverScreen extends UIComponent {
   constructor() {
     super();
 
+    // Static background container for caching
+    const staticBg = new Container();
+    staticBg.cullableChildren = false;
+    this.addChild(staticBg);
+
     // Create semi-transparent background overlay
     this.background = new Graphics();
     this.background.rect(0, 0, 1024, 768).fill({ color: 0x000000, alpha: 0.8 });
-    this.addChild(this.background);
+    staticBg.addChild(this.background);
+
+    // Cache the static background
+    staticBg.cacheAsTexture(true);
 
     // Create "GAME OVER" title
     this.titleText = new Text({
