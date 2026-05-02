@@ -1,0 +1,14 @@
+{
+  "entry": ["src/index.ts", "src/main.ts"],
+  "project": ["src/**/*.ts", "tests/**/*.ts"],
+  "ignore": [
+    "**/node_modules/**",
+    "**/dist/**",
+    "**/.git/**",
+    "**/*.d.ts"
+  ],
+  "ignoreBinaries": ["tsc", "vite", "vitest"],
+  "ignoreDependencies": [
+    "@types/node"
+  ]
+}
