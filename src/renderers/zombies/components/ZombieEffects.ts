@@ -22,9 +22,3 @@ export class ShadowEffect {
   }
 }
 
-// biome-ignore lint/complexity/noStaticOnlyClass: Stateless utility effect
-export class OutlineEffect {
-  static apply(graphics: Graphics, color: number, width: number): void {
-    graphics.stroke({ color, width });
-  }
-}

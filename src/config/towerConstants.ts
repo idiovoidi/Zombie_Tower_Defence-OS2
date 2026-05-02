@@ -265,26 +265,6 @@ export function calculateTowerDamage(type: string, upgradeLevel: number): number
   );
 }
 
-/**
- * Calculate tower fire rate with upgrades
- */
-export function calculateTowerFireRate(type: string, upgradeLevel: number): number {
-  return withTowerStats(
-    type,
-    stats => {
-      // Machine gun gets significant fire rate boost with upgrades
-      if (type === 'MachineGun') {
-        // +30% fire rate per level (8 → 10.4 → 13.5 → 17.6 → 22.9 → 29.7 shots/sec)
-        return stats.fireRate * (1 + upgradeLevel * 0.3);
-      }
-
-      // Other towers get minor fire rate boost
-      // +10% fire rate per level
-      return stats.fireRate * (1 + upgradeLevel * 0.1);
-    },
-    0
-  );
-}
 
 /**
  * Calculate tower range with upgrades

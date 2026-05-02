@@ -1,7 +1,6 @@
 import { EventBus, GameEvents } from '../utils/EventBus';
 
 export enum TimeSpeed {
-  PAUSED = 0,
   SLOW = 0.5,
   NORMAL = 1,
   FAST = 2,

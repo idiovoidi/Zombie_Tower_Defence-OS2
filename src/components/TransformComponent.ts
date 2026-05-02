@@ -1,11 +1,11 @@
 import { Component } from './Component';
 
-export interface Position {
+interface Position {
   x: number;
   y: number;
 }
 
-export interface Velocity {
+interface Velocity {
   x: number;
   y: number;
 }
