@@ -321,14 +321,18 @@ export class ShaderTestPanel extends UIPanel {
 
       if (isEnabled) {
         this.pixelArtRenderer.enable(3);
-        buttonText.text = 'Disable';
+        if (buttonText.text !== 'Disable') {
+          buttonText.text = 'Disable';
+        }
         buttonText.style.fill = 0x00ff00;
         bg.clear();
         bg.roundRect(0, 0, 120, 30, 5).fill({ color: 0x2a4a2a, alpha: 0.9 });
         bg.stroke({ width: 2, color: 0x00ff00 });
       } else {
         this.pixelArtRenderer.disable();
-        buttonText.text = 'Enable (3x)';
+        if (buttonText.text !== 'Enable (3x)') {
+          buttonText.text = 'Enable (3x)';
+        }
         buttonText.style.fill = 0xcccccc;
         bg.clear();
         bg.roundRect(0, 0, 120, 30, 5).fill({ color: 0x2a2a2a, alpha: 0.9 });

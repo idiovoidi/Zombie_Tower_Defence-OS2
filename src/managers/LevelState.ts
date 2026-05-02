@@ -19,7 +19,7 @@ import { TowerPlacementManager } from './TowerPlacementManager';
 import { WaveManager } from './WaveManager';
 import { ZombieManager } from './ZombieManager';
 
-export interface LevelStateConfig {
+interface LevelStateConfig {
   container: Container;
   mapManager: MapManager;
   worldWidth?: number;
@@ -34,7 +34,7 @@ export interface LevelStateConfig {
   effectManager?: EffectManager | null;
 }
 
-export interface CleanupOptions {
+interface CleanupOptions {
   fullCleanup?: boolean;
   waveOnly?: boolean;
 }

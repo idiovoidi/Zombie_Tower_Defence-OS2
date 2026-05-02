@@ -10,7 +10,7 @@
 export type ZombieType = 'BASIC' | 'FAST' | 'TANK' | 'ARMORED' | 'SWARM' | 'STEALTH' | 'MECHANICAL';
 export type TowerType = 'MACHINE_GUN' | 'SNIPER' | 'SHOTGUN' | 'FLAME' | 'TESLA' | 'GRENADE';
 
-export type DamageModifierMap = {
+type DamageModifierMap = {
   [key in ZombieType]: {
     [key in TowerType]: number;
   };
@@ -20,7 +20,7 @@ export type DamageModifierMap = {
  * Damage modifier matrix
  * zombie.getDamageModifier(towerType) returns the multiplier
  */
-export const DAMAGE_MODIFIERS: DamageModifierMap = {
+const DAMAGE_MODIFIERS: DamageModifierMap = {
   // Basic Zombie - No special resistances or weaknesses
   BASIC: {
     MACHINE_GUN: 1.0,

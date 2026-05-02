@@ -1,7 +1,7 @@
 import { type Container, Particle, ParticleContainer } from 'pixi.js';
 import { getRadialParticleTexture } from '../utils/particleTextures';
 
-export interface ParticleConfig {
+interface ParticleConfig {
   x: number;
   y: number;
   velocityX: number;

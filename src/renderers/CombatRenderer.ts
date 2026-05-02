@@ -10,7 +10,7 @@ import type { Zombie } from '@objects/Zombie';
 import { EventBus, GameEvents, type EventSubscription } from '@utils/EventBus';
 import type { EffectManager } from './effects/EffectManager';
 
-export interface TargetHitEventData {
+interface TargetHitEventData {
   tower: Tower;
   target: Zombie;
   spawnPos: { x: number; y: number };
@@ -20,7 +20,7 @@ export interface TargetHitEventData {
   isFirstHit: boolean;
 }
 
-export interface LightningArcEventData {
+interface LightningArcEventData {
   from: { x: number; y: number };
   to: { x: number; y: number };
   isFirstArc: boolean;

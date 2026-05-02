@@ -140,7 +140,9 @@ export class AIControlPanel extends UIComponent {
       innerBorder.clear();
       innerBorder.roundRect(3, 3, 74, 74, 6).stroke({ width: 1, color: 0x00ff00 });
 
-      statusText.text = 'ON';
+      if (statusText.text !== 'ON') {
+        statusText.text = 'ON';
+      }
       statusText.style.fill = 0x00ff00;
 
       // Animate eyes
@@ -161,7 +163,9 @@ export class AIControlPanel extends UIComponent {
       innerBorder.clear();
       innerBorder.roundRect(3, 3, 74, 74, 6).stroke({ width: 1, color: 0x444444 });
 
-      statusText.text = 'OFF';
+      if (statusText.text !== 'OFF') {
+        statusText.text = 'OFF';
+      }
       statusText.style.fill = 0x888888;
 
       // Reset icon

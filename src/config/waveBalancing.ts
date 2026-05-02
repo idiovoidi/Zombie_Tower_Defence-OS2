@@ -7,7 +7,7 @@
 
 import { TowerConstants } from './towerConstants';
 
-export interface WaveBalanceConfig {
+interface WaveBalanceConfig {
   // Base difficulty settings
   baseZombieHealth: number;
   baseZombieCount: number;

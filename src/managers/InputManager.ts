@@ -1,7 +1,7 @@
 import { type Application, Container, type FederatedPointerEvent, Graphics } from 'pixi.js';
 import type { ScaleManager } from '../utils/ScaleManager';
 
-export interface InputCoordinates {
+interface InputCoordinates {
   screen: { x: number; y: number };
   game: { x: number; y: number };
 }

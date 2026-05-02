@@ -108,7 +108,10 @@ export class GameOverScreen extends UIComponent {
   }
 
   public showGameOver(score: number): void {
-    this.scoreText.text = `Score: ${score}`;
+    const next = `Score: ${score}`;
+    if (this.scoreText.text !== next) {
+      this.scoreText.text = next;
+    }
     this.visible = true;
   }
 

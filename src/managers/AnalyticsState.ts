@@ -18,7 +18,7 @@ import type {
   IZombieStateProvider,
 } from './IGameManager';
 
-export interface AnalyticsConfig {
+interface AnalyticsConfig {
   gameManager: IGameStateProvider &
     IWaveStateProvider &
     ITowerStateProvider &

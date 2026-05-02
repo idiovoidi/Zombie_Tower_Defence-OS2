@@ -10,7 +10,7 @@ import { EventBus, GameEvents } from '../utils/EventBus';
 import { ResourceManager } from './ResourceManager';
 import { UpgradeManager } from './UpgradeManager';
 
-export interface EconomyConfig {
+interface EconomyConfig {
   startingMoney?: number;
 }
 

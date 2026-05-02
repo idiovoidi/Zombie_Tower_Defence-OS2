@@ -26,7 +26,7 @@ import type { IGameStateProvider } from './IGameManager';
 // Interfaces
 // ============================================================================
 
-export interface DamageEvent {
+interface DamageEvent {
   time: number;
   wave: number;
   towerType: string;
@@ -35,7 +35,7 @@ export interface DamageEvent {
   overkill: number;
 }
 
-export interface EconomyEvent {
+interface EconomyEvent {
   time: number;
   wave: number;
   money: number;
@@ -43,7 +43,7 @@ export interface EconomyEvent {
   amount: number;
 }
 
-export interface WaveEvent {
+interface WaveEvent {
   wave: number;
   startTime: number;
   endTime: number;
@@ -52,7 +52,7 @@ export interface WaveEvent {
   livesLost: number;
 }
 
-export interface TowerEvent {
+interface TowerEvent {
   time: number;
   wave: number;
   action: 'PLACED' | 'UPGRADED' | 'SOLD';
@@ -61,7 +61,7 @@ export interface TowerEvent {
   level: number;
 }
 
-export interface BalanceTrackingData {
+interface BalanceTrackingData {
   // Session info
   sessionId: string;
   startTime: number;

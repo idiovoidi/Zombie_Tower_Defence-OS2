@@ -153,10 +153,14 @@ export class TimeControlUI extends UIComponent {
     pauseBg.clear();
     if (state.isPaused) {
       pauseBg.rect(0, 0, this.buttonSize, this.buttonSize).fill({ color: this.buttonPauseBg });
-      pauseLabel.text = '▶';
+      if (pauseLabel.text !== '▶') {
+        pauseLabel.text = '▶';
+      }
     } else {
       pauseBg.rect(0, 0, this.buttonSize, this.buttonSize).fill({ color: this.buttonBg });
-      pauseLabel.text = '⏸';
+      if (pauseLabel.text !== '⏸') {
+        pauseLabel.text = '⏸';
+      }
     }
     pauseBg.stroke({ width: 2, color: state.isPaused ? 0xffaa00 : 0x666666 });
 
@@ -208,29 +212,41 @@ export class TimeControlUI extends UIComponent {
   private updateStatusText(state: TimeControlState): void {
     if (state.isPaused) {
       if (state.isPlacementPause) {
-        this.statusText.text = 'PAUSED (Placement)';
+        if (this.statusText.text !== 'PAUSED (Placement)') {
+          this.statusText.text = 'PAUSED (Placement)';
+        }
         this.statusText.style.fill = 0xffaa00;
       } else {
-        this.statusText.text = 'PAUSED';
+        if (this.statusText.text !== 'PAUSED') {
+          this.statusText.text = 'PAUSED';
+        }
         this.statusText.style.fill = 0xff6600;
       }
     } else {
       switch (state.speed) {
         case TimeSpeed.SLOW:
-          this.statusText.text = '0.5× Speed';
+          if (this.statusText.text !== '0.5× Speed') {
+            this.statusText.text = '0.5× Speed';
+          }
           this.statusText.style.fill = 0x66aaff;
           break;
         case TimeSpeed.FAST:
-          this.statusText.text = '2× Speed';
+          if (this.statusText.text !== '2× Speed') {
+            this.statusText.text = '2× Speed';
+          }
           this.statusText.style.fill = 0xffcc00;
           break;
         case TimeSpeed.VERY_FAST:
-          this.statusText.text = '4× Speed';
+          if (this.statusText.text !== '4× Speed') {
+            this.statusText.text = '4× Speed';
+          }
           this.statusText.style.fill = 0xff6600;
           break;
         case TimeSpeed.NORMAL:
         default:
-          this.statusText.text = '';
+          if (this.statusText.text !== '') {
+            this.statusText.text = '';
+          }
           break;
       }
     }

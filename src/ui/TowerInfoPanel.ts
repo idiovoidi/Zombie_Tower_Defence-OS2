@@ -160,7 +160,10 @@ export class TowerInfoPanel extends UIComponent {
     const fireRate = this.selectedTower.getFireRate();
 
     // Update info text
-    this.infoText.text = `Type: ${this.getTowerDisplayName(type)}\nLevel: ${level}/${this.selectedTower.getMaxUpgradeLevel()}`;
+    const infoNext = `Type: ${this.getTowerDisplayName(type)}\nLevel: ${level}/${this.selectedTower.getMaxUpgradeLevel()}`;
+    if (this.infoText.text !== infoNext) {
+      this.infoText.text = infoNext;
+    }
 
     // Update stats text - special handling for Sludge tower
     if (type === 'Sludge') {
@@ -169,9 +172,15 @@ export class TowerInfoPanel extends UIComponent {
       const slowPercent = Math.round((0.1 + (level - 1) * 0.075) * 100);
       // Calculate pool radius based on upgrade level
       const poolRadius = 35 + (level - 1) * 3;
-      this.statsText.text = `Slow: ${slowPercent}%\nPool Size: ${poolRadius}px\nRange: ${range}\nFire Rate: ${fireRate}/s\nHealth: ${this.selectedTower.getHealth()}/${this.selectedTower.getMaxHealth()}`;
+      const statsNext = `Slow: ${slowPercent}%\nPool Size: ${poolRadius}px\nRange: ${range}\nFire Rate: ${fireRate}/s\nHealth: ${this.selectedTower.getHealth()}/${this.selectedTower.getMaxHealth()}`;
+      if (this.statsText.text !== statsNext) {
+        this.statsText.text = statsNext;
+      }
     } else {
-      this.statsText.text = `Damage: ${damage}\nRange: ${range}\nFire Rate: ${fireRate}/s\nHealth: ${this.selectedTower.getHealth()}/${this.selectedTower.getMaxHealth()}`;
+      const statsNext = `Damage: ${damage}\nRange: ${range}\nFire Rate: ${fireRate}/s\nHealth: ${this.selectedTower.getHealth()}/${this.selectedTower.getMaxHealth()}`;
+      if (this.statsText.text !== statsNext) {
+        this.statsText.text = statsNext;
+      }
     }
 
     // Update upgrade button
@@ -180,11 +189,16 @@ export class TowerInfoPanel extends UIComponent {
     const upgradeText = this.upgradeButton.getChildAt(1) as Text;
 
     if (canUpgrade) {
-      upgradeText.text = `Upgrade ($${upgradeCost})`;
+      const upgradeNext = `Upgrade ($${upgradeCost})`;
+      if (upgradeText.text !== upgradeNext) {
+        upgradeText.text = upgradeNext;
+      }
       this.upgradeButton.alpha = 1;
       this.upgradeButton.eventMode = 'static';
     } else {
-      upgradeText.text = 'Max Level';
+      if (upgradeText.text !== 'Max Level') {
+        upgradeText.text = 'Max Level';
+      }
       this.upgradeButton.alpha = 0.5;
       this.upgradeButton.eventMode = 'none';
     }
@@ -197,7 +211,10 @@ export class TowerInfoPanel extends UIComponent {
     }
     const sellValue = Math.floor(totalCost * 0.75);
     const sellText = this.sellButton.getChildAt(1) as Text;
-    sellText.text = `Sell ($${sellValue})`;
+    const sellNext = `Sell ($${sellValue})`;
+    if (sellText.text !== sellNext) {
+      sellText.text = sellNext;
+    }
   }
 
   private getTowerDisplayName(type: string): string {

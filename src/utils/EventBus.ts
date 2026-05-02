@@ -117,8 +117,6 @@ export class EventBus {
   }
 }
 
-// Export singleton instance for convenience
-export const eventBus = EventBus.getInstance();
 
 // Predefined event names for type safety and consistency
 export const GameEvents = {

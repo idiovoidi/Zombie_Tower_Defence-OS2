@@ -11,7 +11,7 @@ import { BalanceAnalyzer } from './BalanceAnalyzer';
 import { PerformanceProfiler } from './PerformanceProfiler';
 import { StatisticalAnalyzer } from './StatisticalAnalyzer';
 
-export class BalanceAnalysisPerformanceTest {
+class BalanceAnalysisPerformanceTest {
   private profiler: PerformanceProfiler;
 
   constructor() {

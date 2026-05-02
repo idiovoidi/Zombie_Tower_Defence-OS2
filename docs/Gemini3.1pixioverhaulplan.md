@@ -7,11 +7,7 @@ WARNING
 This overhaul touches multiple core systems, particularly rendering loops and object lifecycle (spawning/destroying). I recommend testing thoroughly after these changes are applied to ensure visual consistency and stability. Do you approve this general direction?
 
 Proposed Changes
-1. Dynamic Text Optimization
-Problem: UI text components (e.g., BottomBar, HUD, StatsPanel) update text properties unconditionally every frame, triggering expensive canvas re-renders and GPU uploads.
-Solution:
-Add text update guards (e.g., if (text.text !== next) text.text = next;) to all dynamically updated text fields across the UI.
-Note: If a bitmap font is available, we will convert frequent updaters to BitmapText. Given the lack of a loaded .fnt asset, text guarding is the safest immediate performance win for canvas Text.
+
 2. Object Pooling for Frequent Entities
 Problem: Projectile and Zombie objects are instantiated with new and destroyed with destroy() rapidly during gameplay. This deallocates GPU resources and triggers garbage collection heavily.
 Solution:

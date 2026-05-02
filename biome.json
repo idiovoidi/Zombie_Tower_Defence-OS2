@@ -1,12 +1,6 @@
 {
   "$schema": "https://biomejs.dev/schemas/2.4.13/schema.json",
-  "assist": {
-    "actions": {
-      "source": {
-        "organizeImports": "on"
-      }
-    }
-  },
+
   "linter": {
     "enabled": true,
     "rules": {
@@ -51,10 +45,9 @@
     }
   },
   "files": {
-    "includes": [
+    "include": [
       "src/**",
       "tests/**",
-      "!!**/dist",
       "!!**/node_modules",
       "!!**/coverage",
       "!!**/*.d.ts",
@@ -63,12 +56,11 @@
   },
   "overrides": [
     {
-      "includes": ["tests/**"],
+      "include": ["tests/**"],
       "linter": {
         "rules": {
           "suspicious": {
-            "noExplicitAny": "warn",
-            "useIterableCallbackReturn": "warn"
+            "noExplicitAny": "warn"
           },
           "style": {
             "noNonNullAssertion": "warn"
