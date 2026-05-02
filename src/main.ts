@@ -129,9 +129,10 @@ import { VisualEffects } from './utils/VisualEffects';
   towerInfoPanel.position.set(screenWidth - shopWidth, screenHeight - towerInfoPanelHeight);
   uiManager.registerComponent('towerInfoPanel', towerInfoPanel);
 
-  // Create time control UI (positioned in bottom bar, left side)
+  // Create time control UI (positioned at top right, next to tower shop)
   const timeControlUI = new TimeControlUI(timeControlManager);
-  timeControlUI.position.set(20, screenHeight - bottomBarHeight + 22);
+  const timeControlWidth = timeControlUI.getControlWidth();
+  timeControlUI.position.set(screenWidth - shopWidth - timeControlWidth - 10, 10);
   uiManager.registerComponent('timeControlUI', timeControlUI);
 
   // Create debug test UI manager (handles shader test, wave info, bestiary)
