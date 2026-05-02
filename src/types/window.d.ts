@@ -42,6 +42,8 @@ declare global {
       toggle: () => void;
       setNormal: () => void;
       setSlow: () => void;
+      setFast: () => void;
+      setVeryFast: () => void;
       getState: () => { speed: number; isPaused: boolean; isPlacementPause: boolean };
     };
   }

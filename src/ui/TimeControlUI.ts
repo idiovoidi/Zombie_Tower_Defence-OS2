@@ -5,18 +5,22 @@ import { UIComponent } from './UIComponent';
 /**
  * TimeControlUI - UI component for controlling game speed and pause state
  *
- * Displays three buttons:
+ * Displays five buttons:
  * - Pause/Resume button (also controlled by Space key)
- * - Normal speed (1x)
  * - Slow speed (0.5x)
+ * - Normal speed (1x)
+ * - Fast speed (2x)
+ * - Very Fast speed (4x)
  *
  * Also displays current state indicator
  */
 export class TimeControlUI extends UIComponent {
   private timeControlManager: TimeControlManager;
   private pauseButton!: Container;
-  private normalSpeedButton!: Container;
   private slowSpeedButton!: Container;
+  private normalSpeedButton!: Container;
+  private fastSpeedButton!: Container;
+  private veryFastSpeedButton!: Container;
   private statusText!: Text;
   private buttonBg = 0x3a3a3a;
   private buttonHoverBg = 0x5a5a5a;
@@ -44,19 +48,33 @@ export class TimeControlUI extends UIComponent {
     this.pauseButton.position.set(0, 0);
     this.addChild(this.pauseButton);
 
-    // Create normal speed button (1x)
-    this.normalSpeedButton = this.createButton('1×', () => {
-      this.timeControlManager.setSpeed(TimeSpeed.NORMAL);
-    });
-    this.normalSpeedButton.position.set(this.buttonSize + this.buttonSpacing, 0);
-    this.addChild(this.normalSpeedButton);
-
     // Create slow speed button (0.5x)
     this.slowSpeedButton = this.createButton('½×', () => {
       this.timeControlManager.setSpeed(TimeSpeed.SLOW);
     });
-    this.slowSpeedButton.position.set((this.buttonSize + this.buttonSpacing) * 2, 0);
+    this.slowSpeedButton.position.set(this.buttonSize + this.buttonSpacing, 0);
     this.addChild(this.slowSpeedButton);
+
+    // Create normal speed button (1x)
+    this.normalSpeedButton = this.createButton('1×', () => {
+      this.timeControlManager.setSpeed(TimeSpeed.NORMAL);
+    });
+    this.normalSpeedButton.position.set((this.buttonSize + this.buttonSpacing) * 2, 0);
+    this.addChild(this.normalSpeedButton);
+
+    // Create fast speed button (2x)
+    this.fastSpeedButton = this.createButton('2×', () => {
+      this.timeControlManager.setSpeed(TimeSpeed.FAST);
+    });
+    this.fastSpeedButton.position.set((this.buttonSize + this.buttonSpacing) * 3, 0);
+    this.addChild(this.fastSpeedButton);
+
+    // Create very fast speed button (4x)
+    this.veryFastSpeedButton = this.createButton('4×', () => {
+      this.timeControlManager.setSpeed(TimeSpeed.VERY_FAST);
+    });
+    this.veryFastSpeedButton.position.set((this.buttonSize + this.buttonSpacing) * 4, 0);
+    this.addChild(this.veryFastSpeedButton);
 
     // Create status text
     this.statusText = new Text({
@@ -163,6 +181,28 @@ export class TimeControlUI extends UIComponent {
       slowBg.rect(0, 0, this.buttonSize, this.buttonSize).fill({ color: this.buttonBg });
       slowBg.stroke({ width: 2, color: 0x666666 });
     }
+
+    // Update fast speed button (2x)
+    const fastBg = (this.fastSpeedButton as unknown as { bg: Graphics }).bg;
+    fastBg.clear();
+    if (!state.isPaused && state.speed === TimeSpeed.FAST) {
+      fastBg.rect(0, 0, this.buttonSize, this.buttonSize).fill({ color: this.buttonActiveBg });
+      fastBg.stroke({ width: 2, color: 0x00ff00 });
+    } else {
+      fastBg.rect(0, 0, this.buttonSize, this.buttonSize).fill({ color: this.buttonBg });
+      fastBg.stroke({ width: 2, color: 0x666666 });
+    }
+
+    // Update very fast speed button (4x)
+    const veryFastBg = (this.veryFastSpeedButton as unknown as { bg: Graphics }).bg;
+    veryFastBg.clear();
+    if (!state.isPaused && state.speed === TimeSpeed.VERY_FAST) {
+      veryFastBg.rect(0, 0, this.buttonSize, this.buttonSize).fill({ color: this.buttonActiveBg });
+      veryFastBg.stroke({ width: 2, color: 0x00ff00 });
+    } else {
+      veryFastBg.rect(0, 0, this.buttonSize, this.buttonSize).fill({ color: this.buttonBg });
+      veryFastBg.stroke({ width: 2, color: 0x666666 });
+    }
   }
 
   private updateStatusText(state: TimeControlState): void {
@@ -180,6 +220,14 @@ export class TimeControlUI extends UIComponent {
           this.statusText.text = '0.5× Speed';
           this.statusText.style.fill = 0x66aaff;
           break;
+        case TimeSpeed.FAST:
+          this.statusText.text = '2× Speed';
+          this.statusText.style.fill = 0xffcc00;
+          break;
+        case TimeSpeed.VERY_FAST:
+          this.statusText.text = '4× Speed';
+          this.statusText.style.fill = 0xff6600;
+          break;
         case TimeSpeed.NORMAL:
         default:
           this.statusText.text = '';
@@ -192,7 +240,7 @@ export class TimeControlUI extends UIComponent {
    * Get the width of the control panel for positioning
    */
   public getControlWidth(): number {
-    return (this.buttonSize + this.buttonSpacing) * 3 - this.buttonSpacing;
+    return (this.buttonSize + this.buttonSpacing) * 5 - this.buttonSpacing;
   }
 
   /**

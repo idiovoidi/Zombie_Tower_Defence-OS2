@@ -764,13 +764,18 @@ import { VisualEffects } from './utils/VisualEffects';
   console.log('  debugCleanup() - Force cleanup of wave resources');
   console.log('  debugToggleMonitoring() - Enable/disable performance monitoring');
 
+  // Import TimeSpeed for console commands
+  const { TimeSpeed } = await import('./managers/TimeControlManager');
+
   // Expose time control commands to console
   window.timeControl = {
     pause: () => timeControlManager.pause(),
     resume: () => timeControlManager.resume(),
     toggle: () => timeControlManager.togglePause(),
-    setNormal: () => timeControlManager.setSpeed(1),
-    setSlow: () => timeControlManager.setSpeed(0.5),
+    setNormal: () => timeControlManager.setSpeed(TimeSpeed.NORMAL),
+    setSlow: () => timeControlManager.setSpeed(TimeSpeed.SLOW),
+    setFast: () => timeControlManager.setSpeed(TimeSpeed.FAST),
+    setVeryFast: () => timeControlManager.setSpeed(TimeSpeed.VERY_FAST),
     getState: () => timeControlManager.getState(),
   };
   console.log('⏱️ Time Control available in console');
@@ -780,6 +785,8 @@ import { VisualEffects } from './utils/VisualEffects';
   console.log('  timeControl.toggle() - Toggle pause state');
   console.log('  timeControl.setNormal() - Set 1× speed');
   console.log('  timeControl.setSlow() - Set 0.5× speed');
+  console.log('  timeControl.setFast() - Set 2× speed');
+  console.log('  timeControl.setVeryFast() - Set 4× speed');
   console.log('  timeControl.getState() - Get current time control state');
-  console.log('⌨️ Hotkeys: Space = toggle pause, 1 = normal speed, 2 = 0.5× speed');
+  console.log('⌨️ Hotkeys: Space = pause, 1 = 1×, 2 = 0.5×, 3 = 2×, 4 = 4×');
 })();

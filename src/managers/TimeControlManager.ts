@@ -4,6 +4,8 @@ export enum TimeSpeed {
   PAUSED = 0,
   SLOW = 0.5,
   NORMAL = 1,
+  FAST = 2,
+  VERY_FAST = 4,
 }
 
 export interface TimeControlState {
@@ -48,6 +50,16 @@ export class TimeControlManager {
       // 2 key for slow speed (0.5x)
       if (event.key === '2' && !this.isInputElementActive()) {
         this.setSpeed(TimeSpeed.SLOW);
+      }
+
+      // 3 key for fast speed (2x)
+      if (event.key === '3' && !this.isInputElementActive()) {
+        this.setSpeed(TimeSpeed.FAST);
+      }
+
+      // 4 key for very fast speed (4x)
+      if (event.key === '4' && !this.isInputElementActive()) {
+        this.setSpeed(TimeSpeed.VERY_FAST);
       }
     });
   }
@@ -144,13 +156,23 @@ export class TimeControlManager {
   }
 
   /**
-   * Cycle through available speeds: Normal -> Slow -> Normal
+   * Cycle through available speeds: Normal -> Slow -> Fast -> Very Fast -> Normal
    */
   public cycleSpeed(): void {
-    if (this.currentSpeed === TimeSpeed.NORMAL) {
-      this.setSpeed(TimeSpeed.SLOW);
-    } else {
-      this.setSpeed(TimeSpeed.NORMAL);
+    switch (this.currentSpeed) {
+      case TimeSpeed.NORMAL:
+        this.setSpeed(TimeSpeed.SLOW);
+        break;
+      case TimeSpeed.SLOW:
+        this.setSpeed(TimeSpeed.FAST);
+        break;
+      case TimeSpeed.FAST:
+        this.setSpeed(TimeSpeed.VERY_FAST);
+        break;
+      case TimeSpeed.VERY_FAST:
+      default:
+        this.setSpeed(TimeSpeed.NORMAL);
+        break;
     }
   }
 
