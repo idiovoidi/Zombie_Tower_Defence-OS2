@@ -1,184 +1,178 @@
 import { GameConfig } from '@config/gameConfig';
-import { type Container, Graphics } from 'pixi.js';
-import { ObjectPool } from './ObjectPool';
+import { type Container, Particle, ParticleContainer } from 'pixi.js';
+import { getRadialParticleTexture } from './particleTextures';
 
-interface BloodParticle {
-  graphics: Graphics;
+interface BloodSim {
+  particle: Particle;
   vx: number;
   vy: number;
   life: number;
   maxLife: number;
-  size: number;
-  color: number;
 }
 
+/**
+ * Blood splatter using Pixi v8 {@link ParticleContainer} + pooled {@link Particle} instances.
+ */
 export class BloodParticleSystem {
-  private particles: BloodParticle[] = [];
-  private container: Container;
-  private particlePool: ObjectPool<BloodParticle>;
-  private maxParticles: number = 200;
+  private readonly particleContainer: ParticleContainer;
+  private readonly texture = getRadialParticleTexture();
 
-  // Performance optimization thresholds
+  private active: BloodSim[] = [];
+  private pool: Particle[] = [];
+  private readonly maxParticles = 200;
+
+  private particlesCreated = 0;
+  private particlesReused = 0;
+
   private readonly SCREEN_WIDTH = GameConfig.SCREEN_WIDTH;
   private readonly SCREEN_HEIGHT = GameConfig.SCREEN_HEIGHT;
-  private readonly OFF_SCREEN_MARGIN = 50; // Extra margin for off-screen culling
-  private readonly DISTANT_THRESHOLD = 400; // Distance for simplified physics
+  private readonly OFF_SCREEN_MARGIN = 50;
+  private readonly DISTANT_THRESHOLD = 400;
 
-  constructor(container: Container) {
-    this.container = container;
-
-    // Initialize particle pool
-    this.particlePool = new ObjectPool<BloodParticle>(
-      () => ({
-        graphics: new Graphics(),
-        vx: 0,
-        vy: 0,
-        life: 1,
-        maxLife: 1,
-        size: 2,
-        color: 0x8b0000,
-      }),
-      (particle: BloodParticle) => {
-        particle.graphics.clear();
-        particle.graphics.alpha = 1;
-        particle.graphics.visible = true;
-        particle.graphics.x = 0;
-        particle.graphics.y = 0;
-        particle.vx = 0;
-        particle.vy = 0;
-        particle.life = 1;
-        particle.maxLife = 1;
-        particle.size = 2;
-        particle.color = 0x8b0000;
+  constructor(parent: Container) {
+    this.particleContainer = new ParticleContainer({
+      texture: this.texture,
+      dynamicProperties: {
+        position: true,
+        color: true,
       },
-      this.maxParticles
-    );
+    });
+    parent.addChild(this.particleContainer);
   }
 
-  // Create blood splatter effect at position
   public createBloodSplatter(x: number, y: number, intensity: number = 1): void {
     const particleCount = Math.floor(15 * intensity);
+    const bloodTints = [0x8b0000, 0xa00000, 0xb00000, 0xc00000];
 
     for (let i = 0; i < particleCount; i++) {
-      // Remove oldest particle if at limit
-      if (this.particles.length >= this.maxParticles) {
-        const oldest = this.particles.shift();
+      if (this.active.length >= this.maxParticles) {
+        const oldest = this.active.shift();
         if (oldest) {
-          this.container.removeChild(oldest.graphics);
-          this.particlePool.release(oldest);
+          this.recycle(oldest);
         }
       }
 
       const angle = Math.random() * Math.PI * 2;
       const speed = 50 + Math.random() * 100 * intensity;
-      const size = 2 + Math.random() * 4;
+      const baseScale = (2 + Math.random() * 4) / 16;
 
-      // Acquire particle from pool
-      const particle = this.particlePool.acquire();
-      particle.vx = Math.cos(angle) * speed;
-      particle.vy = Math.sin(angle) * speed;
-      particle.life = 1;
-      particle.maxLife = 0.5 + Math.random() * 0.5;
-      particle.size = size;
+      const p = this.acquireParticle();
+      p.x = x;
+      p.y = y;
+      p.anchorX = 0.5;
+      p.anchorY = 0.5;
+      p.scaleX = baseScale;
+      p.scaleY = baseScale;
+      p.rotation = Math.random() * Math.PI * 2;
+      p.tint = bloodTints[Math.floor(Math.random() * bloodTints.length)];
+      p.alpha = 0.8;
 
-      // Random blood colors (dark red to bright red)
-      const bloodColors = [0x8b0000, 0xa00000, 0xb00000, 0xc00000];
-      particle.color = bloodColors[Math.floor(Math.random() * bloodColors.length)];
-
-      particle.graphics.circle(0, 0, size).fill(particle.color);
-      particle.graphics.position.set(x, y);
-      particle.graphics.alpha = 0.8;
-
-      this.particles.push(particle);
-      this.container.addChild(particle.graphics);
+      this.particleContainer.addParticle(p);
+      this.active.push({
+        particle: p,
+        vx: Math.cos(angle) * speed,
+        vy: Math.sin(angle) * speed,
+        life: 1,
+        maxLife: 0.5 + Math.random() * 0.5,
+      });
     }
   }
 
-  // Update all particles
   public update(deltaTime: number): void {
     const dt = deltaTime / 1000;
 
-    for (let i = this.particles.length - 1; i >= 0; i--) {
-      const particle = this.particles[i];
+    for (let i = this.active.length - 1; i >= 0; i--) {
+      const sim = this.active[i];
+      const { particle: p } = sim;
 
-      // Check if particle is off-screen (with margin)
       const isOffScreen =
-        particle.graphics.x < -this.OFF_SCREEN_MARGIN ||
-        particle.graphics.x > this.SCREEN_WIDTH + this.OFF_SCREEN_MARGIN ||
-        particle.graphics.y < -this.OFF_SCREEN_MARGIN ||
-        particle.graphics.y > this.SCREEN_HEIGHT + this.OFF_SCREEN_MARGIN;
+        p.x < -this.OFF_SCREEN_MARGIN ||
+        p.x > this.SCREEN_WIDTH + this.OFF_SCREEN_MARGIN ||
+        p.y < -this.OFF_SCREEN_MARGIN ||
+        p.y > this.SCREEN_HEIGHT + this.OFF_SCREEN_MARGIN;
 
-      // Skip physics updates for off-screen particles (only update life)
       if (isOffScreen) {
-        particle.life -= dt / particle.maxLife;
-        particle.graphics.alpha = Math.max(0, particle.life * 0.8);
-
-        if (particle.life <= 0) {
-          this.container.removeChild(particle.graphics);
-          this.particlePool.release(particle);
-          this.particles.splice(i, 1);
+        sim.life -= dt / sim.maxLife;
+        p.alpha = Math.max(0, sim.life * 0.8);
+        if (sim.life <= 0) {
+          this.active.splice(i, 1);
+          this.recycle(sim);
         }
         continue;
       }
 
-      // Calculate distance from screen center for physics optimization
       const centerX = this.SCREEN_WIDTH / 2;
       const centerY = this.SCREEN_HEIGHT / 2;
-      const dx = particle.graphics.x - centerX;
-      const dy = particle.graphics.y - centerY;
+      const dx = p.x - centerX;
+      const dy = p.y - centerY;
       const distanceSquared = dx * dx + dy * dy;
       const isDistant = distanceSquared > this.DISTANT_THRESHOLD * this.DISTANT_THRESHOLD;
 
-      // Use simplified physics for distant particles
-      if (isDistant) {
-        // Simplified physics: only gravity and position update
-        particle.vy += 200 * dt;
-        particle.graphics.x += particle.vx * dt;
-        particle.graphics.y += particle.vy * dt;
-      } else {
-        // Full physics for nearby particles
-        particle.vy += 200 * dt;
-        particle.graphics.x += particle.vx * dt;
-        particle.graphics.y += particle.vy * dt;
-        particle.vx *= 0.98; // Friction only for nearby particles
+      sim.vy += 200 * dt;
+      p.x += sim.vx * dt;
+      p.y += sim.vy * dt;
+      if (!isDistant) {
+        sim.vx *= 0.98;
       }
 
-      // Decrease life
-      particle.life -= dt / particle.maxLife;
+      sim.life -= dt / sim.maxLife;
+      p.alpha = Math.max(0, sim.life * 0.8);
 
-      // Fade out
-      particle.graphics.alpha = Math.max(0, particle.life * 0.8);
-
-      // Remove dead particles
-      if (particle.life <= 0) {
-        this.container.removeChild(particle.graphics);
-        this.particlePool.release(particle);
-        this.particles.splice(i, 1);
+      if (sim.life <= 0) {
+        this.active.splice(i, 1);
+        this.recycle(sim);
       }
     }
   }
 
-  // Clear all particles
   public clear(): void {
-    for (const particle of this.particles) {
-      this.container.removeChild(particle.graphics);
-      this.particlePool.release(particle);
+    for (let i = this.active.length - 1; i >= 0; i--) {
+      this.recycle(this.active[i]);
     }
-    this.particles = [];
+    this.active = [];
   }
 
-  /**
-   * Get particle statistics
-   */
   public getStats(): {
     activeParticles: number;
     maxParticles: number;
-    poolStats: ReturnType<ObjectPool<BloodParticle>['getStats']>;
+    poolStats: {
+      active: number;
+      available: number;
+      created: number;
+      reused: number;
+    };
   } {
     return {
-      activeParticles: this.particles.length,
+      activeParticles: this.active.length,
       maxParticles: this.maxParticles,
-      poolStats: this.particlePool.getStats(),
+      poolStats: {
+        active: this.active.length,
+        available: this.pool.length,
+        created: this.particlesCreated,
+        reused: this.particlesReused,
+      },
     };
+  }
+
+  private acquireParticle(): Particle {
+    const pooled = this.pool.pop();
+    if (pooled) {
+      this.particlesReused++;
+      return pooled;
+    }
+    this.particlesCreated++;
+    return new Particle({
+      texture: this.texture,
+      anchorX: 0.5,
+      anchorY: 0.5,
+    });
+  }
+
+  private recycle(sim: BloodSim): void {
+    this.particleContainer.removeParticle(sim.particle);
+    sim.particle.alpha = 1;
+    if (this.pool.length < this.maxParticles) {
+      this.pool.push(sim.particle);
+    }
   }
 }
