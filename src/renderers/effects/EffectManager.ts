@@ -2,7 +2,7 @@ import type { Zombie } from '@objects/Zombie';
 import { EffectCleanupManager } from '@utils/EffectCleanupManager';
 import { ObjectPool } from '@utils/ObjectPool';
 import { ResourceCleanupManager } from '@utils/ResourceCleanupManager';
-import { type Container, Graphics, type Container as PixiContainer } from 'pixi.js';
+import { type Container, Graphics, type Container as PixiContainer, Rectangle } from 'pixi.js';
 import { BulletTrail } from './BulletTrail';
 import { BurningGroundEffect } from './BurningGroundEffect';
 import { ImpactFlash } from './ImpactFlash';
@@ -118,6 +118,10 @@ export class EffectManager {
   constructor(container: PixiContainer) {
     this.container = container;
 
+    // Enable culling for off-screen effects (per pixijs-performance skill)
+    container.cullable = true;
+    container.cullArea = new Rectangle(0, 0, 1280, 768);
+
     // Initialize object pools
     this.shellCasingPool = new ObjectPool(
       () => new ShellCasing(0, 0, 0),
@@ -191,7 +195,7 @@ export class EffectManager {
         if (this.poolingEnabled) {
           this.shellCasingPool.release(oldest);
         } else {
-          oldest.destroy();
+          oldest.destroy({ children: true });
         }
       }
     }
@@ -222,7 +226,7 @@ export class EffectManager {
         if (this.poolingEnabled) {
           this.muzzleFlashPool.release(oldest);
         } else {
-          oldest.destroy();
+          oldest.destroy({ children: true });
         }
       }
     }
@@ -271,7 +275,7 @@ export class EffectManager {
         if (this.poolingEnabled) {
           this.bulletTrailPool.release(oldest);
         } else {
-          oldest.destroy();
+          oldest.destroy({ children: true });
         }
       }
     }
@@ -302,7 +306,7 @@ export class EffectManager {
         if (this.poolingEnabled) {
           this.impactFlashPool.release(oldest);
         } else {
-          oldest.destroy();
+          oldest.destroy({ children: true });
         }
       }
     }
@@ -333,7 +337,7 @@ export class EffectManager {
         if (this.poolingEnabled) {
           this.scopeGlintPool.release(oldest);
         } else {
-          oldest.destroy();
+          oldest.destroy({ children: true });
         }
       }
     }
@@ -362,7 +366,7 @@ export class EffectManager {
         if (this.poolingEnabled) {
           this.burningGroundPool.release(oldest);
         } else {
-          oldest.destroy();
+          oldest.destroy({ children: true });
         }
       }
     }
@@ -409,7 +413,7 @@ export class EffectManager {
         if (lightningGraphics.parent) {
           lightningGraphics.parent.removeChild(lightningGraphics);
         }
-        lightningGraphics.destroy();
+        lightningGraphics.destroy({ children: true });
       }, 150)
     );
   }
@@ -594,7 +598,7 @@ export class EffectManager {
         if (flameGraphics.parent) {
           flameGraphics.parent.removeChild(flameGraphics);
         }
-        flameGraphics.destroy();
+        flameGraphics.destroy({ children: true });
       }, 120)
     );
   }
@@ -713,7 +717,7 @@ export class EffectManager {
           if (damageFlash.parent) {
             damageFlash.parent.removeChild(damageFlash);
           }
-          damageFlash.destroy();
+          damageFlash.destroy({ children: true });
         }
       }, 100)
     );
@@ -765,7 +769,7 @@ export class EffectManager {
         if (this.poolingEnabled) {
           this.bulletTrailPool.release(trail);
         } else {
-          trail.destroy();
+          trail.destroy({ children: true });
         }
         this.bulletTrails.splice(i, 1);
       }
@@ -781,7 +785,7 @@ export class EffectManager {
         if (this.poolingEnabled) {
           this.impactFlashPool.release(flash);
         } else {
-          flash.destroy();
+          flash.destroy({ children: true });
         }
         this.impactFlashes.splice(i, 1);
       }
@@ -797,7 +801,7 @@ export class EffectManager {
         if (this.poolingEnabled) {
           this.scopeGlintPool.release(glint);
         } else {
-          glint.destroy();
+          glint.destroy({ children: true });
         }
         this.scopeGlints.splice(i, 1);
       }
@@ -813,7 +817,7 @@ export class EffectManager {
         if (this.poolingEnabled) {
           this.burningGroundPool.release(effect);
         } else {
-          effect.destroy();
+          effect.destroy({ children: true });
         }
         this.burningGroundEffects.splice(i, 1);
       }

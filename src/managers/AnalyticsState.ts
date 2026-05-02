@@ -195,7 +195,8 @@ export class AnalyticsState {
   public update(deltaTime: number): void {
     this.statTracker.update(deltaTime);
     this.balanceTrackingManager.update(deltaTime);
-    this.aiPlayerManager.update(deltaTime);
+    // Note: AIPlayerManager is updated directly in main.ts with unscaled time
+    // so it can make decisions even when the game is paused
   }
 
   /**

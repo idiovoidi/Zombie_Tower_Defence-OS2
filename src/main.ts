@@ -1,4 +1,5 @@
-import { Application } from 'pixi.js';
+import { Application, extensions } from 'pixi.js';
+import { CullerPlugin } from 'pixi.js';
 import { DebugConstants } from './config/debugConstants';
 import { DevConfig } from './config/devConfig';
 import { GameConfig } from './config/gameConfig';
@@ -40,6 +41,10 @@ import { VisualEffects } from './utils/VisualEffects';
     width: 1280,
     height: 768,
   });
+
+  // Enable culling for off-screen objects (per pixijs-performance skill)
+  extensions.add(CullerPlugin);
+  console.log('🎮 Culling enabled for off-screen objects');
 
   // Append the application canvas to the document body
   document.getElementById('pixi-container')?.appendChild(app.canvas);
@@ -600,6 +605,10 @@ import { VisualEffects } from './utils/VisualEffects';
     // Apply time control multiplier (pause, 0.5x speed, normal speed)
     const timeMultiplier = timeControlManager.getTimeMultiplier();
     const scaledDeltaTime = deltaTime * timeMultiplier;
+
+    // Update AI player manager always (even when paused, so AI can make decisions)
+    // AI uses unscaled time so its decision-making isn't affected by time controls
+    gameManager.getAIPlayerManager().update(deltaTime / 1000);
 
     // Update game manager (handles zombies, waves, etc.)
     // Only update if time is not paused (multiplier > 0)

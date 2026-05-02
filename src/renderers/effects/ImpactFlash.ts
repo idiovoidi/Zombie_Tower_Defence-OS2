@@ -83,15 +83,16 @@ export class ImpactFlash extends Graphics {
 
   /**
    * Clean up particles
+   * Per pixijs-scene-container skill: pass destroy options to properly clean up children
    */
-  public override destroy(): void {
+  public override destroy(options?: { children?: boolean; texture?: boolean; textureSource?: boolean; baseTexture?: boolean }): void {
     for (const particle of this.burstParticles) {
       if (particle && !particle.destroyed) {
-        particle.destroy();
+        particle.destroy(options);
       }
     }
     this.burstParticles = [];
-    super.destroy();
+    super.destroy(options);
   }
 
   /**

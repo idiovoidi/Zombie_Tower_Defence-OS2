@@ -528,7 +528,7 @@ export class Projectile extends Container {
           if (sludgePool.parent) {
             sludgePool.parent.removeChild(sludgePool);
           }
-          sludgePool.destroy();
+          sludgePool.destroy({ children: true });
         }, poolDuration)
       );
 
@@ -538,7 +538,8 @@ export class Projectile extends Container {
     }
 
     // Destroy the projectile immediately
-    this.destroy();
+    // Per pixijs-scene-container skill: use { children: true } for proper cleanup
+    this.destroy({ children: true });
   }
 
   public isDestroyed(): boolean {

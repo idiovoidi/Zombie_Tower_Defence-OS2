@@ -175,11 +175,12 @@ export class ResourceCleanupManager {
       }
 
       // Remove from parent and destroy graphics
+      // Per pixijs-scene-container skill: use { children: true } for proper cleanup
       try {
         if (effect.graphics.parent) {
           effect.graphics.parent.removeChild(effect.graphics);
         }
-        effect.graphics.destroy();
+        effect.graphics.destroy({ children: true });
       } catch (error) {
         console.error('Error destroying persistent effect:', error);
       }
@@ -328,6 +329,7 @@ export class ResourceCleanupManager {
 
   /**
    * Utility: Safely destroy a Graphics object
+   * Per pixijs-scene-container skill: use destroy options for proper cleanup
    */
   public static destroyGraphics(graphics: Graphics | null | undefined): void {
     if (!graphics) {
@@ -338,7 +340,8 @@ export class ResourceCleanupManager {
       if (graphics.parent) {
         graphics.parent.removeChild(graphics);
       }
-      graphics.destroy();
+      // Proper destroy with children cleanup
+      graphics.destroy({ children: true });
     } catch (error) {
       console.error('Error destroying graphics:', error);
     }
@@ -346,6 +349,7 @@ export class ResourceCleanupManager {
 
   /**
    * Utility: Safely destroy a Container and all its children
+   * Per pixijs-scene-container skill: use { children: true } instead of manual cleanup
    */
   public static destroyContainer(container: Container | null | undefined): void {
     if (!container) {
@@ -353,20 +357,16 @@ export class ResourceCleanupManager {
     }
 
     try {
-      // Destroy all children first
-      while (container.children.length > 0) {
-        const child = container.children[0];
-        container.removeChild(child);
-        if ('destroy' in child && typeof child.destroy === 'function') {
-          child.destroy();
-        }
+      // Per pixijs-performance skill: If cacheAsTexture is on, disable it before destroying
+      if ((container as unknown as { cacheAsTexture: { active: boolean } }).cacheAsTexture?.active) {
+        (container as unknown as { cacheAsTexture: (active: boolean) => void }).cacheAsTexture(false);
       }
 
-      // Destroy the container itself
+      // Per pixijs-scene-container: use { children: true } for recursive destroy
       if (container.parent) {
         container.parent.removeChild(container);
       }
-      container.destroy();
+      container.destroy({ children: true });
     } catch (error) {
       console.error('Error destroying container:', error);
     }
