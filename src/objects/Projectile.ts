@@ -25,8 +25,35 @@ export class Projectile extends Container {
   private travelProgress: number = 0;
   private arcHeight: number = 80; // Height of the arc
   private upgradeLevel: number = 1; // Tower upgrade level for scaling effects
+  private isHitEffectActive: boolean = false;
 
   constructor(
+    x: number = 0,
+    y: number = 0,
+    targetX: number = 0,
+    targetY: number = 0,
+    damage: number = 0,
+    speed: number = 0,
+    projectileType: string = 'bullet',
+    target: Zombie | null = null
+  ) {
+    super();
+    this.startX = x;
+    this.startY = y;
+    this.targetX = targetX;
+    this.targetY = targetY;
+    this.damage = damage;
+    this.speed = speed;
+    this.projectileType = projectileType;
+    this.target = target;
+    
+    this.visual = new Graphics();
+    this.addChild(this.visual);
+    
+    this.init(x, y, targetX, targetY, damage, speed, projectileType, target);
+  }
+
+  public init(
     x: number,
     y: number,
     targetX: number,
@@ -35,8 +62,7 @@ export class Projectile extends Container {
     speed: number,
     projectileType: string = 'bullet',
     target: Zombie | null = null
-  ) {
-    super();
+  ): void {
     this.position.set(x, y);
     this.startX = x;
     this.startY = y;
@@ -46,9 +72,12 @@ export class Projectile extends Container {
     this.speed = speed;
     this.projectileType = projectileType;
     this.target = target;
-
-    this.visual = new Graphics();
-    this.addChild(this.visual);
+    this.isActive = true;
+    this.isHitEffectActive = false;
+    this.travelProgress = 0;
+    this.rotation = 0;
+    this.visual.alpha = 1;
+    this.visual.scale.set(1);
     this.createVisual();
   }
 
@@ -298,17 +327,21 @@ export class Projectile extends Container {
         break;
       case 'tesla':
         this.visual.circle(0, 0, 10).fill({ color: 0x00bfff, alpha: 0.6 });
+        this.isActive = false;
+        this.isHitEffectActive = true;
         EffectCleanupManager.registerTimeout(
           setTimeout(() => {
-            this.destroy();
+            this.isHitEffectActive = false;
           }, 100)
         );
         break;
       default:
         this.visual.circle(0, 0, 5).fill({ color: 0xffff00, alpha: 0.6 });
+        this.isActive = false;
+        this.isHitEffectActive = true;
         EffectCleanupManager.registerTimeout(
           setTimeout(() => {
-            this.destroy();
+            this.isHitEffectActive = false;
           }, 100)
         );
     }
@@ -414,8 +447,8 @@ export class Projectile extends Container {
       );
     }
 
-    // Destroy the projectile immediately
-    this.destroy();
+    // Deactivate the projectile immediately
+    this.isActive = false;
   }
 
   private createFirePool(): void {
@@ -426,8 +459,8 @@ export class Projectile extends Container {
       upgradeLevel: this.upgradeLevel,
     });
 
-    // Destroy the projectile immediately
-    this.destroy();
+    // Deactivate the projectile immediately
+    this.isActive = false;
   }
 
   private createSludgePool(): void {
@@ -537,13 +570,12 @@ export class Projectile extends Container {
       // that checks all active pools once per frame, not per-pool intervals
     }
 
-    // Destroy the projectile immediately
-    // Per pixijs-scene-container skill: use { children: true } for proper cleanup
-    this.destroy({ children: true });
+    // Deactivate the projectile immediately
+    this.isActive = false;
   }
 
   public isDestroyed(): boolean {
-    return !this.isActive;
+    return !this.isActive && !this.isHitEffectActive;
   }
 
   public getDamage(): number {

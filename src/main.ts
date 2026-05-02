@@ -40,6 +40,9 @@ import { VisualEffects } from './utils/VisualEffects';
     background: '#101010',
     width: 1280,
     height: 768,
+    gcActive: true,
+    gcMaxUnusedTime: 60000, // 60s
+    gcFrequency: 30000, // 30s
   });
 
   // Enable culling for off-screen objects (per pixijs-performance skill)

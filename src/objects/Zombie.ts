@@ -70,6 +70,40 @@ export class Zombie extends GameObject {
     this.initializeVisual();
   }
 
+  public init(x: number, y: number, wave: number): void {
+    this.position.set(x, y);
+    this.transformComponent.setPosition(x, y);
+    
+    this.currentWaypointIndex = 0;
+    this.isDying = false;
+    this.deathAnimationComplete = false;
+    this.isSlowed = false;
+    this.currentSlowPercent = 0;
+    this.visible = true;
+    this.alpha = 1;
+    this.scale.set(1);
+    this.swayTime = 0;
+    
+    // Reset Health
+    const health = ZombieStats.calculateZombieHealth(this.type, wave);
+    if (this.healthComponent) {
+      this.healthComponent.reset(health);
+    }
+    
+    // Restore base speed
+    this.speedVariation = 0.85 + Math.random() * 0.3;
+    this.speed = this.baseSpeed * this.speedVariation;
+    
+    if (this.healthBar) {
+      this.healthBar.visible = false;
+    }
+    
+    // Reset renderer
+    if (this.renderer) {
+      this.renderer.reset?.();
+    }
+  }
+
   private initializeHealth(wave: number): void {
     const health = ZombieStats.calculateZombieHealth(this.type, wave);
 

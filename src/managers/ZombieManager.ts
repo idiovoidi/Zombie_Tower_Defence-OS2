@@ -7,6 +7,7 @@ import { BloodParticleSystem } from '../utils/BloodParticleSystem';
 import { CorpseManager } from './CorpseManager';
 import type { MapManager } from './MapManager';
 import type { WaveManager } from './WaveManager';
+import { ObjectPool } from '../utils/ObjectPool';
 
 export class ZombieManager {
   private zombies: Zombie[] = [];
@@ -19,6 +20,7 @@ export class ZombieManager {
   private bloodParticleSystem: BloodParticleSystem;
   private corpseManager: CorpseManager;
   private zombiesDirty: boolean = false; // Track when zombie array changes
+  private zombiePools: Map<string, ObjectPool<Zombie>> = new Map();
 
   constructor(container: Container, waveManager: WaveManager, mapManager: MapManager) {
     this.container = container;
@@ -37,8 +39,22 @@ export class ZombieManager {
     this.bloodParticleSystem = new BloodParticleSystem(corpseContainer); // Blood on ground layer
     this.corpseManager = new CorpseManager(corpseContainer); // Corpses on ground layer
 
-    // Update zombie container reference
     this.container = zombieContainer;
+  }
+
+  private getZombiePool(type: string): ObjectPool<Zombie> {
+    if (!this.zombiePools.has(type)) {
+      this.zombiePools.set(type, new ObjectPool<Zombie>(
+        () => ZombieFactory.createZombie(type, 0, 0, 1) as Zombie,
+        (z) => {
+          z.visible = false;
+          if (z.parent) z.parent.removeChild(z);
+          z.removeAllListeners('zombieDeath');
+        },
+        200
+      ));
+    }
+    return this.zombiePools.get(type)!;
   }
 
   // Start spawning zombies for the current wave
@@ -144,12 +160,9 @@ export class ZombieManager {
 
     console.log(`Spawning zombie: ${type} at (${spawnX.toFixed(1)}, ${spawnY.toFixed(1)})`);
 
-    const zombie = ZombieFactory.createZombie(
-      type,
-      spawnX,
-      spawnY,
-      this.waveManager.getCurrentWave()
-    );
+    const pool = this.getZombiePool(type);
+    const zombie = pool.acquire();
+    zombie.init(spawnX, spawnY, this.waveManager.getCurrentWave());
 
     if (zombie) {
       // Set waypoints for zombie path
@@ -198,7 +211,7 @@ export class ZombieManager {
   public removeZombie(index: number): Zombie {
     const zombie = this.zombies[index];
     this.container.removeChild(zombie);
-    zombie.destroy(); // CRITICAL: Destroy zombie to free memory and clean up event listeners
+    this.getZombiePool(zombie.getType()).release(zombie);
     this.zombies.splice(index, 1);
     this.zombiesDirty = true; // Mark zombies as changed
     return zombie;
@@ -228,7 +241,7 @@ export class ZombieManager {
   public clear(): void {
     for (const zombie of this.zombies) {
       this.container.removeChild(zombie);
-      zombie.destroy(); // CRITICAL: Destroy zombie to free memory and clean up event listeners
+      this.getZombiePool(zombie.getType()).release(zombie);
     }
     this.zombies = [];
     this.zombiesDirty = true; // Mark zombies as changed

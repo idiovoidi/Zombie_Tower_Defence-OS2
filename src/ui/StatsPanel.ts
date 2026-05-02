@@ -27,6 +27,8 @@ export class StatsPanel extends UIComponent {
   }
 
   private createPanel(): void {
+    this.cullableChildren = false;
+
     this.background = new Graphics();
     this.addChild(this.background);
 
@@ -48,6 +50,7 @@ export class StatsPanel extends UIComponent {
     this.addChild(hideButton);
 
     this.contentContainer = new Container();
+    this.contentContainer.cullableChildren = false;
     this.addChild(this.contentContainer);
 
     this.exportButton = this.createExportButton();
@@ -350,12 +353,14 @@ export class StatsPanel extends UIComponent {
     if (!text) {
       return;
     }
-    text.style.fill = color;
+    
+    if (text.style.fill !== color) {
+      text.style.fill = color;
+    }
 
-    if (value) {
-      text.text = `${label}: ${value}`;
-    } else {
-      text.text = label;
+    const nextText = value ? `${label}: ${value}` : label;
+    if (text.text !== nextText) {
+      text.text = nextText;
     }
   }
 

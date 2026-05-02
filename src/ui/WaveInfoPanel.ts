@@ -9,6 +9,7 @@ export class WaveInfoPanel extends UIPanel {
 
   constructor() {
     super();
+    this.cullableChildren = false;
     this.createToggleButton('📊 Wave Info', 120, 0xffcc00);
     this.createPanelFrame(320, 600, 'Wave Information', 'Upcoming Wave Composition', 0xffcc00);
   }

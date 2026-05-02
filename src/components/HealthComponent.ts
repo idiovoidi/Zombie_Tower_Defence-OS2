@@ -48,6 +48,17 @@ export class HealthComponent extends Component {
   }
 
   /**
+   * Resets health to maximum, optionally updating the max health value.
+   * @param maxHealth Optional new maximum health
+   */
+  public reset(maxHealth?: number): void {
+    if (maxHealth !== undefined) {
+      this.maxHealth = maxHealth;
+    }
+    this.currentHealth = this.maxHealth;
+  }
+
+  /**
    * Checks if the entity is still alive (health > 0).
    * @returns True if the entity is alive, false otherwise
    */

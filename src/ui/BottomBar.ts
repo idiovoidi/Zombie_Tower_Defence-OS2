@@ -8,34 +8,40 @@ export class BottomBar extends UIComponent {
   private waveValue!: Text;
   private nextWaveButton!: Container;
   private nextWaveCallback: (() => void) | null = null;
+  private staticBg!: Container;
 
   constructor(width: number = 1000) {
     super();
+    this.cullableChildren = false; // Never cull children since this UI is always visible
     this.createBottomBar(width);
   }
 
   private createBottomBar(width: number): void {
     const barHeight = 80;
 
+    this.staticBg = new Container();
+    this.staticBg.cullableChildren = false;
+    this.addChild(this.staticBg);
+
     // Main background - corrugated metal
     const metalBg = TextureGenerator.createCorrugatedMetal(width, barHeight);
-    this.addChild(metalBg);
+    this.staticBg.addChild(metalBg);
 
     // Inner panel - rusty metal
     const innerBg = TextureGenerator.createRustyMetal(width - 20, barHeight - 20);
     innerBg.position.set(10, 10);
-    this.addChild(innerBg);
+    this.staticBg.addChild(innerBg);
 
     // Top border with rivets
     const topBorder = new Graphics();
     topBorder.rect(0, 0, width, 3).fill(0x2a2a2a);
-    this.addChild(topBorder);
+    this.staticBg.addChild(topBorder);
 
     // Add rivets along top
     for (let x = 20; x < width; x += 80) {
       const rivet = this.createRivet();
       rivet.position.set(x, 3);
-      this.addChild(rivet);
+      this.staticBg.addChild(rivet);
     }
 
     // Calculate responsive panel widths
@@ -76,14 +82,17 @@ export class BottomBar extends UIComponent {
     // Bottom warning stripe
     const warningStripe = new Graphics();
     warningStripe.rect(0, barHeight - 5, width, 5).fill(0xffcc00);
-    this.addChild(warningStripe);
+    this.staticBg.addChild(warningStripe);
 
     // Add diagonal stripes to warning
     for (let x = -10; x < width; x += 20) {
       const stripe = new Graphics();
       stripe.rect(x, barHeight - 5, 10, 5).fill(0x1a1a1a);
-      this.addChild(stripe);
+      this.staticBg.addChild(stripe);
     }
+
+    // Cache the static background
+    this.staticBg.cacheAsTexture(true);
   }
 
   private createRivet(): Graphics {
@@ -102,25 +111,29 @@ export class BottomBar extends UIComponent {
   ): Container {
     const panel = new Container();
 
+    // Group static panel parts
+    const staticParts = new Container();
+    panel.addChild(staticParts);
+
     // Panel background - concrete
     const concreteBg = TextureGenerator.createConcrete(width, 60);
     concreteBg.alpha = 0.8;
-    panel.addChild(concreteBg);
+    staticParts.addChild(concreteBg);
 
     // Metal frame
     const frame = new Graphics();
     frame.rect(0, 0, width, 60).stroke({ width: 2, color: 0x3a3a3a });
-    panel.addChild(frame);
+    staticParts.addChild(frame);
 
     // Inner border
     const innerBorder = new Graphics();
     innerBorder.rect(2, 2, width - 4, 56).stroke({ width: 1, color: 0x5a5a5a });
-    panel.addChild(innerBorder);
+    staticParts.addChild(innerBorder);
 
     // Label background
     const labelBg = new Graphics();
     labelBg.rect(5, 5, width - 10, 18).fill(0x2a2a2a);
-    panel.addChild(labelBg);
+    staticParts.addChild(labelBg);
 
     // Label text
     const labelText = new Text({
@@ -156,7 +169,10 @@ export class BottomBar extends UIComponent {
     const led = new Graphics();
     led.circle(width - 10, 14, 3).fill(valueColor);
     led.alpha = 0.7;
-    panel.addChild(led);
+    staticParts.addChild(led);
+
+    // Cache the static parts
+    staticParts.cacheAsTexture(true);
 
     return panel;
   }
@@ -231,15 +247,24 @@ export class BottomBar extends UIComponent {
 
   // Update methods
   public updateMoney(money: number): void {
-    this.moneyValue.text = `$${money}`;
+    const next = `$${money}`;
+    if (this.moneyValue.text !== next) {
+      this.moneyValue.text = next;
+    }
   }
 
   public updateLives(lives: number): void {
-    this.livesValue.text = `${lives}`;
+    const next = `${lives}`;
+    if (this.livesValue.text !== next) {
+      this.livesValue.text = next;
+    }
   }
 
   public updateWave(wave: number): void {
-    this.waveValue.text = `${wave}`;
+    const next = `${wave}`;
+    if (this.waveValue.text !== next) {
+      this.waveValue.text = next;
+    }
   }
 
   public showNextWaveButton(): void {

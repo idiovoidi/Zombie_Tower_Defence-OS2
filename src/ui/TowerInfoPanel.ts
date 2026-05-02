@@ -15,17 +15,22 @@ export class TowerInfoPanel extends UIComponent {
 
   constructor() {
     super();
+    this.cullableChildren = false;
     this.towerManager = new TowerManager();
     this.createPanelUI();
     this.visible = false; // Hidden by default
   }
 
   private createPanelUI(): void {
+    const staticBg = new Container();
+    staticBg.cullableChildren = false;
+    this.addChild(staticBg);
+
     // Panel background
     const bg = new Graphics();
     bg.roundRect(0, 0, 200, 300, 10).fill({ color: 0x1a1a1a, alpha: 0.9 });
     bg.stroke({ width: 2, color: 0x444444 });
-    this.addChild(bg);
+    staticBg.addChild(bg);
 
     // Title
     const title = new Text({
@@ -39,7 +44,9 @@ export class TowerInfoPanel extends UIComponent {
     });
     title.anchor.set(0.5, 0);
     title.position.set(100, 10);
-    this.addChild(title);
+    staticBg.addChild(title);
+
+    staticBg.cacheAsTexture(true);
 
     // Info text
     this.infoText = new Text({
