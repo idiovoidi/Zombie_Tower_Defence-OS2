@@ -1,16 +1,14 @@
-import { Graphics } from 'pixi.js';
+import { LifetimeEffect } from './LifetimeEffect';
 
 /**
  * Muzzle Flash Light Effect
  * Creates an illumination effect around the muzzle flash
  */
-export class MuzzleFlashLight extends Graphics {
-  private lifetime: number = 0;
-  private maxLifetime: number = 100; // Very brief flash
+export class MuzzleFlashLight extends LifetimeEffect {
   private radius: number;
 
   constructor(x: number, y: number, radius: number = 30) {
-    super();
+    super(100); // Very brief flash
 
     this.radius = radius;
     this.position.set(x, y);
@@ -32,38 +30,24 @@ export class MuzzleFlashLight extends Graphics {
   }
 
   /**
-   * Update light effect (fade out)
-   * @returns true if still alive, false if should be removed
+   * Override onUpdate for custom fade and scale behavior
    */
-  public update(deltaTime: number): boolean {
-    this.lifetime += deltaTime;
-
-    if (this.lifetime >= this.maxLifetime) {
-      return false;
-    }
-
+  protected onUpdate(lifetime: number, maxLifetime: number): void {
     // Rapid fade out
-    const fadeProgress = this.lifetime / this.maxLifetime;
+    const fadeProgress = lifetime / maxLifetime;
     this.alpha = 1 - fadeProgress;
 
     // Slight expansion
     this.scale.set(1 + fadeProgress * 0.2);
-
-    return true;
   }
 
   /**
    * Reset the muzzle flash for reuse in object pool
    */
   public reset(x: number, y: number, radius: number = 30): void {
+    super.reset();
     this.position.set(x, y);
     this.radius = radius;
-    this.lifetime = 0;
-    this.alpha = 1;
-    this.scale.set(1);
-
-    // Clear and recreate graphics
-    this.clear();
     this.createLightEffect();
   }
 }

@@ -63,55 +63,27 @@ export class GrenadeRenderer extends BaseTowerRenderer {
   }
 
   private renderBarrel(barrel: Container, upgradeLevel: number): void {
-    const existingGraphics = barrel.getChildByLabel?.('barrelGraphics') as Graphics | undefined;
-    if (existingGraphics) {
-      existingGraphics.clear();
-    }
-
-    const graphics = existingGraphics ?? new Graphics();
-    graphics.label = 'barrelGraphics';
+    const graphics = this.manageBarrelGraphics(barrel);
+    const headY = -18;
 
     // Body - tactical gear
-    let bodyColor = 0x6b8e23; // Olive
-    if (upgradeLevel >= 3) {
-      bodyColor = 0x556b2f; // Dark olive
-    }
-    if (upgradeLevel >= 5) {
-      bodyColor = 0x3a4a1f; // Military green
-    }
-    graphics.rect(-3, -13, 6, 8).fill(bodyColor);
-
-    // Arms
+    const bodyColor = this.getUpgradeColor(0x6b8e23, 0x556b2f, 0x3a4a1f, upgradeLevel);
     const armColor = upgradeLevel >= 3 ? 0x556b2f : 0xffdbac;
-    graphics.rect(-4, -11, 2, 4).fill(armColor);
-    graphics.rect(2, -11, 2, 4).fill(armColor);
+    this.renderCharacterBase(graphics, upgradeLevel, bodyColor, armColor, headY);
 
     // Grenade launcher - tube style
     const launcherSize = 3 + upgradeLevel * 0.3;
     graphics.rect(-launcherSize, -10, launcherSize * 2, 8).fill(0x2f4f2f);
     graphics.rect(-launcherSize - 1, -11, launcherSize * 2 + 2, 2).fill(0x1a1a1a);
 
-    // Head
-    graphics.circle(0, -18, 5).fill(0xffdbac);
-    graphics.stroke({ width: 1, color: 0x000000 });
-
     // Headgear
-    if (upgradeLevel <= 2) {
-      // Basic helmet
-      graphics.rect(-5, -21, 10, 3).fill(0x6b8e23);
-    } else if (upgradeLevel <= 4) {
-      // Tactical helmet
-      graphics.circle(0, -20, 5).fill(0x556b2f);
-      graphics.rect(-4, -21, 8, 2).fill(0x3a4a1f);
-    } else {
-      // Full combat helmet
-      graphics.circle(0, -20, 5).fill(0x2a2a2a);
-      graphics.rect(-3, -21, 6, 2).fill(0x1a1a1a);
-    }
+    this.renderHeadgear(graphics, upgradeLevel, headY, [
+      { type: 'cap', color: 0x6b8e23 },
+      { type: 'helmet', color: 0x556b2f, details: 0x3a4a1f },
+      { type: 'helmet', color: 0x2a2a2a, details: 0x1a1a1a },
+    ]);
 
-    if (!existingGraphics) {
-      barrel.addChild(graphics);
-    }
+    this.finalizeBarrelGraphics(barrel, graphics);
   }
 
   public renderShootingEffect(barrel: Container, _type: string, _upgradeLevel: number): void {

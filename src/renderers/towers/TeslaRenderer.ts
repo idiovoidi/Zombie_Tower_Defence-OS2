@@ -85,29 +85,14 @@ export class TeslaRenderer extends BaseTowerRenderer {
   }
 
   private renderBarrel(barrel: Container, upgradeLevel: number): void {
-    const existingGraphics = barrel.getChildByLabel?.('barrelGraphics') as Graphics | undefined;
-    if (existingGraphics) {
-      existingGraphics.clear();
-    }
-
-    const graphics = existingGraphics ?? new Graphics();
-    graphics.label = 'barrelGraphics';
+    const graphics = this.manageBarrelGraphics(barrel);
+    const headY = -18;
 
     // Body - tech suit improves
-    let suitColor = 0x4a4a4a; // Gray
-    if (upgradeLevel >= 3) {
-      suitColor = 0x00ced1; // Cyan suit
-    }
-    if (upgradeLevel >= 5) {
-      suitColor = 0x00ffff; // Glowing suit
-    }
-
-    // Render character body
-    graphics.rect(-3, -13, 6, 8).fill(suitColor);
-    // Arms
+    const suitColor = this.getUpgradeColor(0x4a4a4a, 0x00ced1, 0x00ffff, upgradeLevel);
     const armColor = upgradeLevel >= 3 ? 0x00ced1 : 0xffdbac;
-    graphics.rect(-4, -11, 2, 4).fill(armColor);
-    graphics.rect(2, -11, 2, 4).fill(armColor);
+    this.renderCharacterBase(graphics, upgradeLevel, suitColor, armColor, headY);
+
     // Tesla coil gun - gets bigger
     const coilSize = 3 + upgradeLevel * 0.5;
     graphics.circle(0, -10, coilSize).fill(0x7fffd4);
@@ -120,29 +105,19 @@ export class TeslaRenderer extends BaseTowerRenderer {
         .lineTo(2, -6 + offset)
         .stroke({ width: 1, color: 0xffffff });
     }
-    // Head
-    graphics.circle(0, -18, 5).fill(0xffdbac);
-    graphics.stroke({ width: 1, color: 0x000000 });
 
     // Tech gear improves with level
-    if (upgradeLevel <= 2) {
-      // Basic goggles
-      graphics.rect(-4, -19, 8, 2).fill(0x4a4a4a);
-    } else if (upgradeLevel <= 4) {
-      // Tech visor
-      graphics.rect(-4, -19, 8, 3).fill(0x00ffff);
-      graphics.rect(-4, -19, 8, 3).fill({ color: 0x00ffff, alpha: 0.5 });
-    } else {
-      // Full tech helmet
-      graphics.circle(0, -18, 5).fill(0x00ced1);
-      graphics.rect(-4, -19, 8, 3).fill({ color: 0x00ffff, alpha: 0.7 });
-      graphics.rect(-5, -21, 2, 4).fill(0x00ced1);
-      graphics.rect(3, -21, 2, 4).fill(0x00ced1);
+    this.renderHeadgear(graphics, upgradeLevel, headY, [
+      { type: 'cap', color: 0x4a4a4a },
+      { type: 'visor', color: 0x00ffff, details: 0x00ffff },
+      { type: 'helmet', color: 0x00ced1, details: 0x00ced1 },
+    ]);
+    if (upgradeLevel >= 5) {
+      graphics.rect(-5, headY - 3, 2, 4).fill(0x00ced1);
+      graphics.rect(3, headY - 3, 2, 4).fill(0x00ced1);
     }
 
-    if (!existingGraphics) {
-      barrel.addChild(graphics);
-    }
+    this.finalizeBarrelGraphics(barrel, graphics);
   }
 
   public renderShootingEffect(barrel: Container, _type: string, _upgradeLevel: number): void {

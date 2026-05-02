@@ -1,19 +1,17 @@
-import { Graphics } from 'pixi.js';
+import { LifetimeEffect } from './LifetimeEffect';
 
 /**
  * Bullet Trail Effect
  * Visible tracer line from sniper barrel to target
  */
-export class BulletTrail extends Graphics {
-  private lifetime: number = 0;
-  private maxLifetime: number = 150; // Very brief trail
+export class BulletTrail extends LifetimeEffect {
   private startX: number;
   private startY: number;
   private endX: number;
   private endY: number;
 
   constructor(startX: number, startY: number, endX: number, endY: number) {
-    super();
+    super(150); // Very brief trail
 
     this.startX = startX;
     this.startY = startY;
@@ -41,36 +39,23 @@ export class BulletTrail extends Graphics {
   }
 
   /**
-   * Update bullet trail (fade out)
-   * @returns true if still alive, false if should be removed
+   * Override onUpdate for custom fade behavior
    */
-  public update(deltaTime: number): boolean {
-    this.lifetime += deltaTime;
-
-    if (this.lifetime >= this.maxLifetime) {
-      return false;
-    }
-
+  protected onUpdate(lifetime: number, maxLifetime: number): void {
     // Rapid fade out
-    const fadeProgress = this.lifetime / this.maxLifetime;
+    const fadeProgress = lifetime / maxLifetime;
     this.alpha = 1 - fadeProgress;
-
-    return true;
   }
 
   /**
    * Reset the bullet trail for reuse in object pool
    */
   public reset(startX: number, startY: number, endX: number, endY: number): void {
+    super.reset();
     this.startX = startX;
     this.startY = startY;
     this.endX = endX;
     this.endY = endY;
-    this.lifetime = 0;
-    this.alpha = 1;
-
-    // Clear and recreate graphics
-    this.clear();
     this.createTrailEffect();
   }
 }

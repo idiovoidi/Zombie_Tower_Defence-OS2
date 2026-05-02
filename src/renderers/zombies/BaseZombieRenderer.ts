@@ -408,4 +408,93 @@ export abstract class BaseZombieRenderer implements IZombieRenderer {
   getGraphics(): Graphics {
     return this.graphics;
   }
+
+  /**
+   * Draw wound circles on the zombie body based on health percentage.
+   * @param healthPercent - Current health / max health
+   * @param torsoY - Y position of torso center for wound placement
+   * @param woundColor - Color for wounds (usually blood red)
+   * @param maxWounds - Maximum number of wounds at 0 health (default 4)
+   * @param spreadX - Horizontal spread of wounds (default 7)
+   * @param spreadY - Vertical spread of wounds (default 9)
+   * @param baseSize - Base wound size (default 1)
+   * @param sizeVar - Size variance (default 1.2)
+   * @param alpha - Alpha for wounds (default 0.7)
+   */
+  protected drawWounds(
+    healthPercent: number,
+    torsoY: number,
+    woundColor: number,
+    maxWounds = 4,
+    spreadX = 7,
+    spreadY = 9,
+    baseSize = 1,
+    sizeVar = 1.2,
+    alpha = 0.7
+  ): void {
+    const woundCount = Math.floor((1 - healthPercent) * maxWounds);
+    for (let i = 0; i < woundCount; i++) {
+      const x = (Math.random() - 0.5) * spreadX;
+      const y = torsoY + (Math.random() - 0.5) * spreadY;
+      this.graphics
+        .circle(x, y, baseSize + Math.random() * sizeVar)
+        .fill({ color: woundColor, alpha });
+    }
+  }
+
+  /**
+   * Apply standard grey tint based on health percentage.
+   * Tints get darker as health decreases (75%, 50%, 25% thresholds).
+   * @param healthPercent - Current health / max health
+   */
+  protected applyHealthTint(healthPercent: number): void {
+    if (healthPercent < 0.25) {
+      this.graphics.tint = 0x888888;
+    } else if (healthPercent < 0.5) {
+      this.graphics.tint = 0xaaaaaa;
+    } else if (healthPercent < 0.75) {
+      this.graphics.tint = 0xcccccc;
+    }
+  }
+
+  /**
+   * Draw a simple arm for zombie.
+   * @param x - Arm start X
+   * @param y - Arm start Y
+   * @param angle - Arm angle
+   * @param alpha - Opacity
+   * @param armColor - Arm color
+   * @param armLength - Arm length (default 7)
+   * @param outlineColor - Outline color (default black)
+   */
+  protected drawSimpleArm(
+    x: number,
+    y: number,
+    angle: number,
+    alpha: number,
+    armColor: number,
+    armLength = 7,
+    outlineColor = 0x000000
+  ): void {
+    const handX = x + Math.cos(angle) * armLength;
+    const handY = y + Math.sin(angle) * armLength;
+
+    // Draw arm line
+    this.graphics
+      .moveTo(x, y)
+      .lineTo(handX, handY)
+      .stroke({ color: armColor, width: 2, alpha });
+
+    // Hand
+    this.graphics.circle(handX, handY, 1.5).fill({ color: armColor, alpha });
+
+    // Outline
+    this.graphics
+      .moveTo(x, y)
+      .lineTo(handX, handY)
+      .stroke({ color: outlineColor, width: 2.5, alpha: alpha * 0.3 });
+    this.graphics
+      .circle(handX, handY, 1.5)
+      .stroke({ color: outlineColor, width: 0.5, alpha: alpha * 0.3 });
+  }
 }

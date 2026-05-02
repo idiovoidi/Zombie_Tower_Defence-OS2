@@ -75,54 +75,26 @@ export class SniperRenderer extends BaseTowerRenderer {
   }
 
   private renderBarrel(barrel: Container, upgradeLevel: number): void {
-    const existingGraphics = barrel.getChildByLabel?.('barrelGraphics') as Graphics | undefined;
-    if (existingGraphics) {
-      existingGraphics.clear();
-    }
-
-    const graphics = existingGraphics ?? new Graphics();
-    graphics.label = 'barrelGraphics';
+    const graphics = this.manageBarrelGraphics(barrel);
+    const headY = -20;
 
     // Body - camo improves
-    let bodyColor = 0x654321; // Brown
-    if (upgradeLevel >= 3) {
-      bodyColor = 0x3a4a2a; // Camo green
-    }
-    if (upgradeLevel >= 5) {
-      bodyColor = 0x1a1a1a; // Black ops
-    }
+    const bodyColor = this.getUpgradeColor(0x654321, 0x3a4a2a, 0x1a1a1a, upgradeLevel);
+    this.renderCharacterBase(graphics, upgradeLevel, bodyColor, 0xffdbac, headY);
 
-    // Render character body
-    graphics.rect(-3, -15, 6, 8).fill(bodyColor);
-    // Arms
-    graphics.rect(-4, -13, 2, 4).fill(0xffdbac);
-    graphics.rect(2, -13, 2, 4).fill(0xffdbac);
     // Sniper rifle - gets longer
     const rifleLength = 12 + upgradeLevel * 2;
-    graphics.rect(-1, -12, 2, rifleLength).fill(0x1a1a1a);
-    graphics.circle(0, -13, 2 + upgradeLevel * 0.5).fill(0x1a1a1a); // Scope
-    // Head
-    graphics.circle(0, -20, 5).fill(0xffdbac);
-    graphics.stroke({ width: 1, color: 0x000000 });
+    graphics.rect(-1, headY + 8, 2, rifleLength).fill(0x1a1a1a);
+    graphics.circle(0, headY + 7, 2 + upgradeLevel * 0.5).fill(0x1a1a1a); // Scope
 
     // Headgear
-    if (upgradeLevel <= 2) {
-      // Boonie hat
-      graphics.circle(0, -23, 6).fill(0x654321);
-      graphics.rect(-6, -21, 12, 1).fill(0x654321);
-    } else if (upgradeLevel <= 4) {
-      // Tactical cap with sunglasses
-      graphics.rect(-5, -22, 10, 3).fill(0x3a4a2a);
-      graphics.rect(-4, -20, 8, 2).fill(0x1a1a1a); // Sunglasses
-    } else {
-      // Full tactical helmet with visor
-      graphics.circle(0, -20, 5).fill(0x1a1a1a);
-      graphics.rect(-4, -20, 8, 2).fill(0x4a4a4a); // Visor
-    }
+    this.renderHeadgear(graphics, upgradeLevel, headY, [
+      { type: 'cap', color: 0x654321 },
+      { type: 'visor', color: 0x3a4a2a, details: 0x1a1a1a },
+      { type: 'helmet', color: 0x1a1a1a, details: 0x4a4a4a },
+    ]);
 
-    if (!existingGraphics) {
-      barrel.addChild(graphics);
-    }
+    this.finalizeBarrelGraphics(barrel, graphics);
   }
 
   public renderShootingEffect(barrel: Container, _type: string, upgradeLevel: number): void {

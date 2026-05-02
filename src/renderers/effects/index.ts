@@ -11,4 +11,5 @@ export { ImpactFlash } from './ImpactFlash';
 export { LaserSight } from './LaserSight';
 export { MuzzleFlashLight } from './MuzzleFlashLight';
 export { ScopeGlint } from './ScopeGlint';
+export { LifetimeEffect } from './LifetimeEffect';
 export { ShellCasing } from './ShellCasing';

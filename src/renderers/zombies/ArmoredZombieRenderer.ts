@@ -92,17 +92,8 @@ export class ArmoredZombieRenderer extends BaseZombieRenderer {
       this.graphics.circle(headX + 1.5, headY - 2, 0.8).fill({ color: this.DARK_GRAY, alpha: 0.8 });
     }
 
-    this.drawWounds(healthPercent, torsoY);
-
-    if (healthPercent < 0.75) {
-      this.graphics.tint = 0xcccccc;
-    }
-    if (healthPercent < 0.5) {
-      this.graphics.tint = 0xaaaaaa;
-    }
-    if (healthPercent < 0.25) {
-      this.graphics.tint = 0x888888;
-    }
+    this.drawWounds(healthPercent, torsoY, this.BLOOD_RED);
+    this.applyHealthTint(healthPercent);
 
     this.particles.render(this.graphics);
     container.addChild(this.graphics);
@@ -163,14 +154,4 @@ export class ArmoredZombieRenderer extends BaseZombieRenderer {
     }
   }
 
-  private drawWounds(healthPercent: number, torsoY: number): void {
-    const woundCount = Math.floor((1 - healthPercent) * 4);
-    for (let i = 0; i < woundCount; i++) {
-      const x = (Math.random() - 0.5) * 7;
-      const y = torsoY + (Math.random() - 0.5) * 9;
-      this.graphics
-        .circle(x, y, 1 + Math.random() * 1.2)
-        .fill({ color: this.BLOOD_RED, alpha: 0.7 });
-    }
-  }
 }

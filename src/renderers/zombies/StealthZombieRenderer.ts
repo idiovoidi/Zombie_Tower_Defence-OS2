@@ -83,18 +83,10 @@ export class StealthZombieRenderer extends BaseZombieRenderer {
     this.graphics.circle(headX + 2, headY - 0.5, 0.8).fill(this.EYE_GLOW);
     this.graphics.rect(headX - 1.5, headY + 1.5, 3, 1).fill({ color: 0x000000, alpha: 0.6 });
 
-    this.drawWounds(healthPercent, torsoY, baseAlpha);
+    this.drawWounds(healthPercent, torsoY, this.BLOOD_RED, 4, 7, 9, 1, 1.5, 0.5 * baseAlpha);
 
     this.graphics.alpha = baseAlpha;
-    if (healthPercent < 0.75) {
-      this.graphics.tint = 0xcccccc;
-    }
-    if (healthPercent < 0.5) {
-      this.graphics.tint = 0xaaaaaa;
-    }
-    if (healthPercent < 0.25) {
-      this.graphics.tint = 0x888888;
-    }
+    this.applyHealthTint(healthPercent);
 
     this.particles.render(this.graphics);
     container.addChild(this.graphics);
@@ -164,14 +156,4 @@ export class StealthZombieRenderer extends BaseZombieRenderer {
       .stroke({ color: 0x000000, width: 0.5, alpha: alpha * 0.3 });
   }
 
-  private drawWounds(healthPercent: number, torsoY: number, baseAlpha: number): void {
-    const woundCount = Math.floor((1 - healthPercent) * 4);
-    for (let i = 0; i < woundCount; i++) {
-      const x = (Math.random() - 0.5) * 7;
-      const y = torsoY + (Math.random() - 0.5) * 9;
-      this.graphics
-        .circle(x, y, 1 + Math.random() * 1.5)
-        .fill({ color: this.BLOOD_RED, alpha: 0.5 * baseAlpha });
-    }
-  }
 }

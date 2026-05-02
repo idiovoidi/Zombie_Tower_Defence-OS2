@@ -82,56 +82,30 @@ export class FlameRenderer extends BaseTowerRenderer {
   }
 
   private renderBarrel(barrel: Container, upgradeLevel: number): void {
-    const existingGraphics = barrel.getChildByLabel?.('barrelGraphics') as Graphics | undefined;
-    if (existingGraphics) {
-      existingGraphics.clear();
-    }
-
-    const graphics = existingGraphics ?? new Graphics();
-    graphics.label = 'barrelGraphics';
+    const graphics = this.manageBarrelGraphics(barrel);
+    const headY = -18;
 
     // Body - protective gear improves
-    let suitColor = 0x654321; // Brown clothes
-    if (upgradeLevel >= 3) {
-      suitColor = 0xff4500; // Fire suit
-    }
-    if (upgradeLevel >= 5) {
-      suitColor = 0xff6347; // Advanced suit
-    }
-
-    // Render character body
-    graphics.rect(-3, -13, 6, 8).fill(suitColor);
-    // Arms
+    const suitColor = this.getUpgradeColor(0x654321, 0xff4500, 0xff6347, upgradeLevel);
     const armColor = upgradeLevel >= 3 ? 0xff4500 : 0xffdbac;
-    graphics.rect(-4, -11, 2, 4).fill(armColor);
-    graphics.rect(2, -11, 2, 4).fill(armColor);
+    this.renderCharacterBase(graphics, upgradeLevel, suitColor, armColor, headY);
+
     // Flamethrower - gets bigger
     const tankSize = 3 + upgradeLevel * 0.5;
     graphics.rect(-tankSize / 2, -10, tankSize, 8).fill(0xff0000);
     graphics.rect(-1, -11, 2, 6).fill(0x8b0000);
-    // Head
-    graphics.circle(0, -18, 5).fill(0xffdbac);
-    graphics.stroke({ width: 1, color: 0x000000 });
 
     // Protective gear improves with level
-    if (upgradeLevel <= 2) {
-      // Bandana/goggles
-      graphics.rect(-4, -19, 8, 2).fill(0x1a1a1a);
-    } else if (upgradeLevel <= 4) {
-      // Gas mask
-      graphics.circle(0, -18, 4).fill(0x4a4a4a);
-      graphics.circle(-2, -19, 1.5).fill(0x1a1a1a);
-      graphics.circle(2, -19, 1.5).fill(0x1a1a1a);
-      graphics.circle(0, -15, 2).fill(0x2a2a2a);
-    } else {
-      // Full hazmat helmet
-      graphics.circle(0, -18, 5).fill(0xff4500);
-      graphics.rect(-3, -19, 6, 3).fill({ color: 0x1a1a1a, alpha: 0.5 }); // Visor
+    this.renderHeadgear(graphics, upgradeLevel, headY, [
+      { type: 'cap', color: 0x1a1a1a },
+      { type: 'visor', color: 0x4a4a4a, details: 0x1a1a1a },
+      { type: 'helmet', color: 0xff4500, details: 0x1a1a1a },
+    ]);
+    if (upgradeLevel <= 4) {
+      graphics.circle(0, headY - 3, 2).fill(0x2a2a2a);
     }
 
-    if (!existingGraphics) {
-      barrel.addChild(graphics);
-    }
+    this.finalizeBarrelGraphics(barrel, graphics);
   }
 
   public renderShootingEffect(barrel: Container, _type: string, _upgradeLevel: number): void {

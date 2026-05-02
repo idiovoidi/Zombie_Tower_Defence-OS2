@@ -79,62 +79,34 @@ export class SludgeRenderer extends BaseTowerRenderer {
   }
 
   private renderBarrel(barrel: Container, upgradeLevel: number): void {
-    const existingGraphics = barrel.getChildByLabel?.('barrelGraphics') as Graphics | undefined;
-    if (existingGraphics) {
-      existingGraphics.clear();
-    }
-
-    const graphics = existingGraphics ?? new Graphics();
-    graphics.label = 'barrelGraphics';
+    const graphics = this.manageBarrelGraphics(barrel);
+    const headY = -18;
 
     // Body - hazmat suit improves
-    let suitColor = 0x654321; // Brown clothes
-    if (upgradeLevel >= 3) {
-      suitColor = 0xffff00; // Yellow hazmat
-    }
-    if (upgradeLevel >= 5) {
-      suitColor = 0x32cd32; // Advanced hazmat
-    }
-    graphics.rect(-3, -13, 6, 8).fill(suitColor);
-
-    // Arms
+    const suitColor = this.getUpgradeColor(0x654321, 0xffff00, 0x32cd32, upgradeLevel);
     const armColor = upgradeLevel >= 3 ? suitColor : 0xffdbac;
-    graphics.rect(-4, -11, 2, 4).fill(armColor);
-    graphics.rect(2, -11, 2, 4).fill(armColor);
+    this.renderCharacterBase(graphics, upgradeLevel, suitColor, armColor, headY);
 
     // Sludge launcher - barrel style
-    const barrelSize = 4 + upgradeLevel * 0.4;
+    const barrelSize = 3 + upgradeLevel * 0.4;
     graphics.rect(-barrelSize / 2, -10, barrelSize, 10).fill(0x228b22);
     graphics.rect(-barrelSize / 2 - 1, -11, barrelSize + 2, 2).fill(0x1a6b1a);
 
     // Toxic drip
     graphics.circle(0, 1, 1.5).fill({ color: 0x32cd32, alpha: 0.7 });
 
-    // Head
-    graphics.circle(0, -18, 5).fill(0xffdbac);
-    graphics.stroke({ width: 1, color: 0x000000 });
-
     // Protective gear
-    if (upgradeLevel <= 2) {
-      // Gas mask
-      graphics.circle(0, -18, 4).fill(0x4a4a4a);
-      graphics.circle(-2, -19, 1.5).fill(0x1a1a1a);
-      graphics.circle(2, -19, 1.5).fill(0x1a1a1a);
-    } else if (upgradeLevel <= 4) {
-      // Full hazmat hood
-      graphics.circle(0, -18, 5).fill(0xffff00);
-      graphics.rect(-3, -19, 6, 3).fill({ color: 0x1a1a1a, alpha: 0.4 }); // Visor
-    } else {
-      // Advanced sealed helmet
-      graphics.circle(0, -18, 5).fill(0x32cd32);
-      graphics.rect(-3, -19, 6, 3).fill({ color: 0x00ff00, alpha: 0.5 }); // Glowing visor
-      graphics.circle(-3, -20, 1).fill(0x00ff00); // Indicator lights
-      graphics.circle(3, -20, 1).fill(0x00ff00);
+    this.renderHeadgear(graphics, upgradeLevel, headY, [
+      { type: 'visor', color: 0x4a4a4a, details: 0x1a1a1a },
+      { type: 'helmet', color: 0xffff00, details: 0x1a1a1a },
+      { type: 'helmet', color: 0x32cd32, details: 0x00ff00 },
+    ]);
+    if (upgradeLevel >= 5) {
+      graphics.circle(-3, headY - 2, 1).fill(0x00ff00); // Indicator lights
+      graphics.circle(3, headY - 2, 1).fill(0x00ff00);
     }
 
-    if (!existingGraphics) {
-      barrel.addChild(graphics);
-    }
+    this.finalizeBarrelGraphics(barrel, graphics);
   }
 
   public renderShootingEffect(barrel: Container, _type: string, _upgradeLevel: number): void {

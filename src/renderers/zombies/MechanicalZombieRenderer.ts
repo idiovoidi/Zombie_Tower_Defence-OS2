@@ -97,15 +97,7 @@ export class MechanicalZombieRenderer extends BaseZombieRenderer {
         .fill({ color: 0x000000, alpha: 0.6 });
     }
 
-    if (healthPercent < 0.75) {
-      this.graphics.tint = 0xcccccc;
-    }
-    if (healthPercent < 0.5) {
-      this.graphics.tint = 0xaaaaaa;
-    }
-    if (healthPercent < 0.25) {
-      this.graphics.tint = 0x888888;
-    }
+    this.applyHealthTint(healthPercent);
 
     this.particles.render(this.graphics);
     container.addChild(this.graphics);
