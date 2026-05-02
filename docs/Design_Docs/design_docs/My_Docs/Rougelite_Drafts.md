@@ -1,0 +1,2 @@
+Roguelite draft between waves	Works well because your existing towers already have strong identities and counters. Roguelite TD examples emphasize variety and anti-spam incentives. 
+Pick 1 of 3 perks: +Tesla chain, cheaper Shotgun, zombies drop volatile barrels.
