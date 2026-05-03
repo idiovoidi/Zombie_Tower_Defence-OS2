@@ -42,33 +42,23 @@ export class ZombieManager {
     this.container = zombieContainer;
   }
 
+  private createZombiePool(type: string): ObjectPool<Zombie> {
+    return new ObjectPool<Zombie>(
+      () => ZombieFactory.createZombie(type, 0, 0, 1) as Zombie,
+      z => {
+        z.visible = false;
+        if (z.parent) z.parent.removeChild(z);
+        z.removeAllListeners('zombieDeath');
+      },
+      200
+    );
+  }
+
   private getZombiePool(type: string): ObjectPool<Zombie> {
     if (!this.zombiePools.has(type)) {
-      this.zombiePools.set(
-        type,
-        new ObjectPool<Zombie>(
-          () => ZombieFactory.createZombie(type, 0, 0, 1) as Zombie,
-          z => {
-            z.visible = false;
-            if (z.parent) z.parent.removeChild(z);
-            z.removeAllListeners('zombieDeath');
-          },
-          200
-        )
-      );
+      this.zombiePools.set(type, this.createZombiePool(type));
     }
-    return (
-      this.zombiePools.get(type) ??
-      new ObjectPool<Zombie>(
-        () => ZombieFactory.createZombie(type, 0, 0, 1) as Zombie,
-        z => {
-          z.visible = false;
-          if (z.parent) z.parent.removeChild(z);
-          z.removeAllListeners('zombieDeath');
-        },
-        200
-      )
-    );
+    return this.zombiePools.get(type) ?? this.createZombiePool(type);
   }
 
   // Start spawning zombies for the current wave

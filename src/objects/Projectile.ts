@@ -250,11 +250,12 @@ export class Projectile extends Container {
   }
 
   /**
-   * Find first zombie within the specified radius of this projectile.
+   * Get all active zombies within the specified radius.
    * @param radius - Search radius in pixels
-   * @returns First zombie found within radius, or null if none found
+   * @returns Array of zombies within radius with their distances
    */
-  private findZombieInRadius(radius: number): Zombie | null {
+  private getZombiesInRadius(radius: number): Array<{ zombie: Zombie; distance: number }> {
+    const result: Array<{ zombie: Zombie; distance: number }> = [];
     for (const zombie of this.zombies) {
       if (!zombie.parent) {
         continue;
@@ -264,11 +265,21 @@ export class Projectile extends Container {
       const dy = zombie.position.y - this.position.y;
       const distance = Math.sqrt(dx * dx + dy * dy);
 
-      if (distance < radius) {
-        return zombie;
+      if (distance <= radius) {
+        result.push({ zombie, distance });
       }
     }
-    return null;
+    return result;
+  }
+
+  /**
+   * Find first zombie within the specified radius of this projectile.
+   * @param radius - Search radius in pixels
+   * @returns First zombie found within radius, or null if none found
+   */
+  private findZombieInRadius(radius: number): Zombie | null {
+    const zombiesInRadius = this.getZombiesInRadius(radius);
+    return zombiesInRadius.length > 0 ? zombiesInRadius[0].zombie : null;
   }
 
   /**
@@ -358,20 +369,11 @@ export class Projectile extends Container {
     const explosionRadius = baseRadius + (this.upgradeLevel - 1) * radiusPerLevel;
 
     // Apply splash damage to all zombies in radius
-    for (const zombie of this.zombies) {
-      if (!zombie.parent) {
-        continue;
-      }
-
-      const dx = zombie.position.x - this.position.x;
-      const dy = zombie.position.y - this.position.y;
-      const distance = Math.sqrt(dx * dx + dy * dy);
-
-      if (distance <= explosionRadius) {
-        // Damage falls off with distance (100% at center, 30% at edge)
-        const damageFalloff = 1 - (distance / explosionRadius) * 0.7;
-        this.applyDamageToZombie(zombie, this.damage, damageFalloff);
-      }
+    const zombiesInRadius = this.getZombiesInRadius(explosionRadius);
+    for (const { zombie, distance } of zombiesInRadius) {
+      // Damage falls off with distance (100% at center, 30% at edge)
+      const damageFalloff = 1 - (distance / explosionRadius) * 0.7;
+      this.applyDamageToZombie(zombie, this.damage, damageFalloff);
     }
 
     // Create visual explosion effect
