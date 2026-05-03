@@ -301,10 +301,10 @@ export class TowerCombatManager {
       const damagePerPellet = damage / pelletCount;
 
       // Knockback force for shotgun pellets (pixels)
-      // Starts as a small nudge and increases with upgrades
-      // Level 1: 15px, Level 2: 20px, Level 3: 25px, Level 4: 30px, Level 5: 35px
+      // Gentle nudge that scales subtly with upgrades
+      // Level 1: 10px, Level 2: 12px, Level 3: 14px, Level 4: 16px, Level 5: 18px
       const upgradeLevel = tower.getUpgradeLevel();
-      const baseKnockbackForce = 15 + (upgradeLevel - 1) * 5;
+      const baseKnockbackForce = 10 + (upgradeLevel - 1) * 2;
 
       for (let i = 0; i < pelletCount; i++) {
         // Spread pellets in a cone pattern
