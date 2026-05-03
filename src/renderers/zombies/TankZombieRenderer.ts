@@ -56,8 +56,16 @@ export class TankZombieRenderer extends BaseZombieRenderer {
         .fill({ color: this.DARK_RED, alpha: 0.7 });
     }
 
-    this.drawArm(-7, torsoY + 3, anim.leftArmAngle, 0.7);
-    this.drawArm(7, torsoY + 3, anim.rightArmAngle, 1.0);
+    this.drawArm(-7, torsoY + 3, anim.leftArmAngle, 0.7, this.PRIMARY_COLOR, 9, {
+      lineWidth: 3,
+      outlineWidth: 4,
+      handRadius: 2.5,
+    });
+    this.drawArm(7, torsoY + 3, anim.rightArmAngle, 1.0, this.PRIMARY_COLOR, 9, {
+      lineWidth: 3,
+      outlineWidth: 4,
+      handRadius: 2.5,
+    });
 
     const headY = torsoY - 8;
     const headX = anim.headSway;
@@ -79,23 +87,5 @@ export class TankZombieRenderer extends BaseZombieRenderer {
 
     this.particles.render(this.graphics);
     container.addChild(this.graphics);
-  }
-
-  private drawArm(x: number, y: number, angle: number, alpha: number): void {
-    const armLength = 9;
-    const handX = x + Math.cos(angle) * armLength;
-    const handY = y + Math.sin(angle) * armLength;
-    this.graphics
-      .moveTo(x, y)
-      .lineTo(handX, handY)
-      .stroke({ color: 0x000000, width: 4, alpha: alpha * 0.5 });
-    this.graphics
-      .moveTo(x, y)
-      .lineTo(handX, handY)
-      .stroke({ color: this.PRIMARY_COLOR, width: 3, alpha });
-    this.graphics.circle(handX, handY, 2.5).fill({ color: this.PRIMARY_COLOR, alpha });
-    this.graphics
-      .circle(handX, handY, 2.5)
-      .stroke({ color: 0x000000, width: 0.8, alpha: alpha * 0.5 });
   }
 }

@@ -66,8 +66,24 @@ export class ArmoredZombieRenderer extends BaseZombieRenderer {
       this.drawRust(healthPercent, torsoY);
     }
 
-    this.drawArm(-5, torsoY + 2, anim.leftArmAngle, 0.7);
-    this.drawArm(5, torsoY + 2, anim.rightArmAngle, 1.0);
+    this.drawArm(-5, torsoY + 2, anim.leftArmAngle, 0.7, this.PRIMARY_COLOR, 7, {
+      lineWidth: 2.5,
+      midJointColor: this.ZOMBIE_GREEN,
+      midJointRadius: 1.2,
+      jointColor: this.PRIMARY_COLOR,
+      jointRadius: 1.8,
+      innerJointColor: this.DARK_GRAY,
+      innerJointRadius: 1,
+    });
+    this.drawArm(5, torsoY + 2, anim.rightArmAngle, 1.0, this.PRIMARY_COLOR, 7, {
+      lineWidth: 2.5,
+      midJointColor: this.ZOMBIE_GREEN,
+      midJointRadius: 1.2,
+      jointColor: this.PRIMARY_COLOR,
+      jointRadius: 1.8,
+      innerJointColor: this.DARK_GRAY,
+      innerJointRadius: 1,
+    });
 
     const headY = torsoY - 6;
     const headX = anim.headSway;
@@ -110,32 +126,6 @@ export class ArmoredZombieRenderer extends BaseZombieRenderer {
         size: 2,
       });
     }
-  }
-
-  private drawArm(x: number, y: number, angle: number, alpha: number): void {
-    const armLength = 7;
-    const handX = x + Math.cos(angle) * armLength;
-    const handY = y + Math.sin(angle) * armLength;
-    const midX = x + Math.cos(angle) * (armLength * 0.5);
-    const midY = y + Math.sin(angle) * (armLength * 0.5);
-    this.graphics
-      .moveTo(x, y)
-      .lineTo(handX, handY)
-      .stroke({ color: this.ZOMBIE_GREEN, width: 2.8, alpha: alpha * 0.7 });
-    this.graphics
-      .moveTo(x, y)
-      .lineTo(handX, handY)
-      .stroke({ color: 0x000000, width: 2.5, alpha: alpha * 0.5 });
-    this.graphics
-      .moveTo(x, y)
-      .lineTo(handX, handY)
-      .stroke({ color: this.PRIMARY_COLOR, width: 2.5, alpha });
-    this.graphics.circle(handX, handY, 1.8).fill({ color: this.PRIMARY_COLOR, alpha });
-    this.graphics
-      .circle(handX, handY, 1.8)
-      .stroke({ color: 0x000000, width: 0.5, alpha: alpha * 0.5 });
-    this.graphics.circle(midX, midY, 1.2).fill({ color: this.ZOMBIE_GREEN, alpha: alpha * 0.8 });
-    this.graphics.circle(midX, midY, 1).fill({ color: this.DARK_GRAY, alpha: alpha * 0.6 });
   }
 
   private drawRivet(x: number, y: number): void {

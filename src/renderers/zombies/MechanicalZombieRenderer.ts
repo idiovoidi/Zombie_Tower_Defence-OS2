@@ -71,8 +71,30 @@ export class MechanicalZombieRenderer extends BaseZombieRenderer {
       this.drawDamage(healthPercent, torsoY);
     }
 
-    this.drawArm(-6, torsoY + 3, anim.leftArmAngle, 0.7);
-    this.drawArm(6, torsoY + 3, anim.rightArmAngle, 1.0);
+    this.drawArm(-6, torsoY + 3, anim.leftArmAngle, 0.7, this.PRIMARY_COLOR, 8, {
+      lineWidth: 2.5,
+      outlineWidth: 2.8,
+      midJointColor: this.DARK_METAL,
+      midJointRadius: 1.5,
+      midInnerJointColor: this.LIGHT_METAL,
+      midInnerJointRadius: 0.8,
+      jointColor: this.PRIMARY_COLOR,
+      jointRadius: 2,
+      innerJointColor: this.DARK_METAL,
+      innerJointRadius: 1,
+    });
+    this.drawArm(6, torsoY + 3, anim.rightArmAngle, 1.0, this.PRIMARY_COLOR, 8, {
+      lineWidth: 2.5,
+      outlineWidth: 2.8,
+      midJointColor: this.DARK_METAL,
+      midJointRadius: 1.5,
+      midInnerJointColor: this.LIGHT_METAL,
+      midInnerJointRadius: 0.8,
+      jointColor: this.PRIMARY_COLOR,
+      jointRadius: 2,
+      innerJointColor: this.DARK_METAL,
+      innerJointRadius: 1,
+    });
 
     const headY = torsoY - 7;
     const headX = anim.headSway;
@@ -148,29 +170,6 @@ export class MechanicalZombieRenderer extends BaseZombieRenderer {
       };
       animate();
     });
-  }
-
-  private drawArm(x: number, y: number, angle: number, alpha: number): void {
-    const armLength = 8;
-    const handX = x + Math.cos(angle) * armLength;
-    const handY = y + Math.sin(angle) * armLength;
-    const elbowX = x + Math.cos(angle) * (armLength * 0.5);
-    const elbowY = y + Math.sin(angle) * (armLength * 0.5);
-    this.graphics
-      .moveTo(x, y)
-      .lineTo(handX, handY)
-      .stroke({ color: 0x000000, width: 2.8, alpha: alpha * 0.5 });
-    this.graphics
-      .moveTo(x, y)
-      .lineTo(handX, handY)
-      .stroke({ color: this.PRIMARY_COLOR, width: 2.5, alpha });
-    this.graphics.circle(elbowX, elbowY, 1.5).fill({ color: this.DARK_METAL, alpha });
-    this.graphics.circle(elbowX, elbowY, 0.8).fill({ color: this.LIGHT_METAL, alpha });
-    this.graphics.circle(handX, handY, 2).fill({ color: this.PRIMARY_COLOR, alpha });
-    this.graphics
-      .circle(handX, handY, 2)
-      .stroke({ color: 0x000000, width: 0.5, alpha: alpha * 0.5 });
-    this.graphics.circle(handX, handY, 1).fill({ color: this.DARK_METAL, alpha });
   }
 
   private drawBolt(x: number, y: number): void {

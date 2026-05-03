@@ -8,13 +8,15 @@ import {
   convertToTowerType,
   getDamageModifier,
 } from '../config/zombieResistances';
-import { ArmoredZombieRenderer } from '../renderers/zombies/ArmoredZombieRenderer';
-import { BasicZombieRenderer } from '../renderers/zombies/BasicZombieRenderer';
-import { FastZombieRenderer } from '../renderers/zombies/FastZombieRenderer';
-import { MechanicalZombieRenderer } from '../renderers/zombies/MechanicalZombieRenderer';
-import { StealthZombieRenderer } from '../renderers/zombies/StealthZombieRenderer';
-import { SwarmZombieRenderer } from '../renderers/zombies/SwarmZombieRenderer';
-import { TankZombieRenderer } from '../renderers/zombies/TankZombieRenderer';
+import {
+  ArmoredZombieRenderer,
+  BasicZombieRenderer,
+  FastZombieRenderer,
+  MechanicalZombieRenderer,
+  StealthZombieRenderer,
+  SwarmZombieRenderer,
+  TankZombieRenderer,
+} from '../renderers/zombies';
 import type { IZombieRenderer, ZombieRenderState } from '../renderers/zombies/ZombieRenderer';
 import { ZombieStats } from '../utils/ZombieStats';
 import { GameObject } from './GameObject';

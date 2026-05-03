@@ -473,40 +473,107 @@ export abstract class BaseZombieRenderer implements IZombieRenderer {
   }
 
   /**
-   * Draw a simple arm for zombie.
+   * Draw a zombie arm with configurable parameters.
    * @param x - Arm start X
    * @param y - Arm start Y
    * @param angle - Arm angle
    * @param alpha - Opacity
    * @param armColor - Arm color
    * @param armLength - Arm length (default 7)
-   * @param outlineColor - Outline color (default black)
+   * @param options - Additional styling options
    */
-  protected drawSimpleArm(
+  protected drawArm(
     x: number,
     y: number,
     angle: number,
     alpha: number,
     armColor: number,
     armLength = 7,
-    outlineColor = 0x000000
+    options: {
+      outlineColor?: number;
+      lineWidth?: number;
+      outlineWidth?: number;
+      handRadius?: number;
+      jointColor?: number;
+      jointRadius?: number;
+      innerJointColor?: number;
+      innerJointRadius?: number;
+      secondaryColor?: number;
+      midJointColor?: number;
+      midJointRadius?: number;
+      midInnerJointColor?: number;
+      midInnerJointRadius?: number;
+      outlineAlpha?: number;
+    } = {}
   ): void {
+    const {
+      outlineColor = 0x000000,
+      lineWidth = 2,
+      outlineWidth = 2.5,
+      handRadius = 1.5,
+      jointColor,
+      jointRadius,
+      innerJointColor,
+      innerJointRadius,
+      secondaryColor,
+      midJointColor,
+      midJointRadius,
+      midInnerJointColor,
+      midInnerJointRadius,
+      outlineAlpha = alpha * 0.5,
+    } = options;
+
     const handX = x + Math.cos(angle) * armLength;
     const handY = y + Math.sin(angle) * armLength;
 
-    // Draw arm line
-    this.graphics.moveTo(x, y).lineTo(handX, handY).stroke({ color: armColor, width: 2, alpha });
+    // Optional secondary arm line (for thicker arms like Tank)
+    if (secondaryColor !== undefined) {
+      this.graphics
+        .moveTo(x, y)
+        .lineTo(handX, handY)
+        .stroke({ color: secondaryColor, width: outlineWidth, alpha });
+    }
 
-    // Hand
-    this.graphics.circle(handX, handY, 1.5).fill({ color: armColor, alpha });
-
-    // Outline
+    // Draw main arm outline
     this.graphics
       .moveTo(x, y)
       .lineTo(handX, handY)
-      .stroke({ color: outlineColor, width: 2.5, alpha: alpha * 0.3 });
+      .stroke({ color: outlineColor, width: outlineWidth, alpha: outlineAlpha });
+
+    // Draw main arm line
     this.graphics
-      .circle(handX, handY, 1.5)
-      .stroke({ color: outlineColor, width: 0.5, alpha: alpha * 0.3 });
+      .moveTo(x, y)
+      .lineTo(handX, handY)
+      .stroke({ color: armColor, width: lineWidth, alpha });
+
+    // Joint at midpoint (for mechanical/armored zombies)
+    if (midJointColor !== undefined && midJointRadius !== undefined) {
+      const midX = x + Math.cos(angle) * (armLength * 0.5);
+      const midY = y + Math.sin(angle) * (armLength * 0.5);
+      this.graphics.circle(midX, midY, midJointRadius).fill({ color: midJointColor, alpha });
+      if (midInnerJointColor !== undefined && midInnerJointRadius !== undefined) {
+        this.graphics
+          .circle(midX, midY, midInnerJointRadius)
+          .fill({ color: midInnerJointColor, alpha });
+      }
+    }
+
+    // Outer joint circle (for segmented arms)
+    if (jointColor !== undefined && jointRadius !== undefined) {
+      this.graphics.circle(handX, handY, jointRadius).fill({ color: jointColor, alpha });
+    }
+
+    // Main hand
+    this.graphics.circle(handX, handY, handRadius).fill({ color: armColor, alpha });
+
+    // Inner joint circle
+    if (innerJointColor !== undefined && innerJointRadius !== undefined) {
+      this.graphics.circle(handX, handY, innerJointRadius).fill({ color: innerJointColor, alpha });
+    }
+
+    // Hand outline
+    this.graphics
+      .circle(handX, handY, handRadius)
+      .stroke({ color: outlineColor, width: 0.5, alpha: outlineAlpha });
   }
 }

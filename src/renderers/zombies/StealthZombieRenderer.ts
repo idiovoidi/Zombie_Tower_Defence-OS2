@@ -63,8 +63,12 @@ export class StealthZombieRenderer extends BaseZombieRenderer {
         .fill({ color: this.BONE_WHITE, alpha: 0.2 });
     }
 
-    this.drawArm(-5, torsoY + 2, anim.leftArmAngle, 0.7 * baseAlpha);
-    this.drawArm(5, torsoY + 2, anim.rightArmAngle, 1.0 * baseAlpha);
+    this.drawArm(-5, torsoY + 2, anim.leftArmAngle, 0.7 * baseAlpha, this.PRIMARY_COLOR, 7, {
+      outlineAlpha: 0.7 * baseAlpha * 0.3,
+    });
+    this.drawArm(5, torsoY + 2, anim.rightArmAngle, 1.0 * baseAlpha, this.PRIMARY_COLOR, 7, {
+      outlineAlpha: 1.0 * baseAlpha * 0.3,
+    });
 
     const headY = torsoY - 6;
     const headX = anim.headSway;
@@ -136,23 +140,5 @@ export class StealthZombieRenderer extends BaseZombieRenderer {
       };
       animate();
     });
-  }
-
-  private drawArm(x: number, y: number, angle: number, alpha: number): void {
-    const armLength = 7;
-    const handX = x + Math.cos(angle) * armLength;
-    const handY = y + Math.sin(angle) * armLength;
-    this.graphics
-      .moveTo(x, y)
-      .lineTo(handX, handY)
-      .stroke({ color: 0x000000, width: 2.5, alpha: alpha * 0.3 });
-    this.graphics
-      .moveTo(x, y)
-      .lineTo(handX, handY)
-      .stroke({ color: this.PRIMARY_COLOR, width: 2, alpha });
-    this.graphics.circle(handX, handY, 1.5).fill({ color: this.PRIMARY_COLOR, alpha });
-    this.graphics
-      .circle(handX, handY, 1.5)
-      .stroke({ color: 0x000000, width: 0.5, alpha: alpha * 0.3 });
   }
 }
