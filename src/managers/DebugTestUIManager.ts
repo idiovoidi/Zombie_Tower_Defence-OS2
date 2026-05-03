@@ -1,5 +1,6 @@
 import type { Application } from 'pixi.js';
 import { DebugConstants } from '../config/debugConstants';
+import { GameConfig } from '../config/gameConfig';
 import { AIControlPanel } from '../ui/AIControlPanel';
 import { ShaderTestPanel } from '../ui/ShaderTestPanel';
 import { StatsPanel } from '../ui/StatsPanel';
@@ -158,8 +159,8 @@ export class DebugTestUIManager {
    * Layout all panel toggle buttons to avoid overlap
    */
   private layoutPanels(): void {
-    const screenWidth = this.app.screen.width;
-    const screenHeight = this.app.screen.height;
+    const screenWidth = GameConfig.SCREEN_WIDTH;
+    const screenHeight = GameConfig.SCREEN_HEIGHT;
 
     // Left side panels (shader test, stats, AI control)
     const leftX = this.LEFT_SIDE_X;
@@ -179,9 +180,10 @@ export class DebugTestUIManager {
       this.aiControlPanel.position.set(leftX, 10);
     }
 
-    // Position stats panel (left side, below AI control)
+    // Position stats panel (top right corner)
     if (this.statsPanel) {
-      this.statsPanel.position.set(leftX, 100);
+      const panelWidth = 280; // StatsPanel.PANEL_WIDTH
+      this.statsPanel.position.set(rightX - panelWidth, 10);
     }
 
     // Position wave info panel (right side, near bottom)
