@@ -1,5 +1,12 @@
 import { type Container, Graphics } from 'pixi.js';
 import { EffectCleanupManager } from '../../utils/EffectCleanupManager';
+import {
+  calculateDeathImpulses,
+  createRagdollConfig,
+  getDeathBloodConfig,
+  getDetachableBones,
+} from './RagdollConfig';
+import { RagdollSkeleton } from './RagdollSkeleton';
 import { ZombieAnimator } from './ZombieAnimator';
 import { ParticleType, ZombieParticleSystem } from './ZombieParticleSystem';
 import type { IZombieRenderer, ZombieRenderState } from './ZombieRenderer';
@@ -38,6 +45,9 @@ export interface DeathParticleConfig {
  * Abstract base for all zombie renderers.
  * Provides shared constructor, destroy, update, showDamageEffect, playDeathAnimation, getGraphics.
  * Subclasses implement render() and supply config via protected readonly properties.
+ *
+ * Death animations now use a procedural ragdoll skeleton system with directional
+ * impulses based on the killing tower type and impact direction.
  */
 export abstract class BaseZombieRenderer implements IZombieRenderer {
   protected graphics: Graphics;
@@ -48,6 +58,15 @@ export abstract class BaseZombieRenderer implements IZombieRenderer {
   // Burning effect properties
   protected isBurning = false;
   protected burnParticleTimer = 0;
+
+  // Ragdoll death state
+  private ragdoll: RagdollSkeleton | null = null;
+  private isInRagdollDeath = false;
+  private ragdollGraphics: Graphics | null = null;
+  private ragdollAlpha = 1;
+
+  // Track last known zombie type for ragdoll config
+  private zombieTypeName = 'Basic';
 
   /** Animator type string passed to ZombieAnimator */
   protected abstract readonly ANIMATOR_TYPE: string;
@@ -77,15 +96,46 @@ export abstract class BaseZombieRenderer implements IZombieRenderer {
     return this.ANIMATOR_TYPE;
   }
 
+  /**
+   * Set the zombie type name for ragdoll configuration.
+   * Called by subclasses or externally to configure death physics.
+   */
+  public setZombieType(typeName: string): void {
+    this.zombieTypeName = typeName;
+  }
+
   abstract render(container: Container, state: ZombieRenderState): void;
 
   update(deltaTime: number, state: ZombieRenderState): void {
-    this.animator.update(deltaTime, state);
+    // Pass health info to animator for damage-reactive animations
+    this.animator.update(deltaTime, {
+      isMoving: state.isMoving,
+      health: state.health,
+      maxHealth: state.maxHealth,
+    });
     this.particles.update(deltaTime);
     this.updateBurningEffect(deltaTime);
+
+    // Update ragdoll if active
+    if (this.isInRagdollDeath && this.ragdoll) {
+      this.ragdoll.update(deltaTime);
+
+      // Render ragdoll onto its dedicated graphics
+      if (this.ragdollGraphics && !this.ragdollGraphics.destroyed) {
+        this.ragdollGraphics.clear();
+
+        // Fade alpha as ragdoll settles
+        if (this.ragdoll.isSettled()) {
+          this.ragdollAlpha = Math.max(0, this.ragdollAlpha - deltaTime / 2000);
+        }
+
+        this.ragdoll.render(this.ragdollGraphics, this.ragdollAlpha);
+        this.particles.render(this.ragdollGraphics);
+      }
+    }
   }
 
-  showDamageEffect(_damageType: string, _amount: number): void {
+  showDamageEffect(damageType: string, _amount: number): void {
     const originalTint = this.graphics.tint;
     this.graphics.tint = this.DAMAGE_FLASH_TINT;
     const timeout = EffectCleanupManager.registerTimeout(
@@ -96,306 +146,174 @@ export abstract class BaseZombieRenderer implements IZombieRenderer {
         }
       }, 100)
     );
+
+    // Emit directional damage particles if we have a damage direction
+    const direction =
+      damageType !== 'unknown'
+        ? { angle: Math.random() * Math.PI * 2, spread: Math.PI * 1.5 }
+        : undefined;
+
     for (const p of this.DAMAGE_PARTICLES) {
-      this.particles.emit(p.type, 0, 0, {
-        count: p.count,
-        velocity: p.velocity,
-        lifetime: p.lifetime,
-        size: p.size,
-      });
-    }
-  }
-
-  async playDeathAnimation(killerType?: string): Promise<void> {
-    // Route to tower-specific animation variant
-    switch (killerType) {
-      case 'Flame':
-        return this.playBurnDeathAnimation();
-      case 'Grenade':
-      case 'Tesla':
-        return this.playExplosiveDeathAnimation();
-      case 'Shotgun':
-        return this.playKnockbackDeathAnimation();
-      case 'Sniper':
-        return this.playPrecisionDeathAnimation();
-      default:
-        return this.playDefaultDeathAnimation();
-    }
-  }
-
-  private async playDefaultDeathAnimation(): Promise<void> {
-    return new Promise(resolve => {
-      const cfg = this.DEATH_ANIM;
-      const p1End = cfg.phase1Duration;
-      const p2End = p1End + cfg.phase2Duration;
-      const p3End = p2End + cfg.phase3Duration;
-      const startTime = Date.now();
-
-      const animate = () => {
-        if (this.graphics.destroyed) {
-          resolve();
-          return;
-        }
-        const elapsed = Date.now() - startTime;
-
-        if (elapsed < p1End) {
-          const t = elapsed / p1End;
-          this.graphics.rotation = t * cfg.phase1MaxRotation;
-          this.graphics.scale.set(1 + t * cfg.phase1MaxScale);
-        } else if (elapsed < p2End) {
-          const t = (elapsed - p1End) / cfg.phase2Duration;
-          this.graphics.rotation =
-            cfg.phase1MaxRotation + t * (Math.PI / 2 - cfg.phase1MaxRotation);
-          this.graphics.scale.y = 1 + cfg.phase1MaxScale - t * (0.9 + cfg.phase1MaxScale);
-          this.graphics.alpha = 1 - t * 0.5;
-        } else if (elapsed < p3End) {
-          const t = (elapsed - p2End) / cfg.phase3Duration;
-          this.graphics.alpha = 0.5 - t * 0.5;
-          this.graphics.y += t * cfg.phase3YDrift;
-        } else {
-          this.deathAnimationFrame = null;
-          resolve();
-          return;
-        }
-        this.deathAnimationFrame = requestAnimationFrame(animate);
-      };
-
-      for (const p of this.DEATH_PARTICLES) {
-        this.particles.emit(p.type, 0, 0, {
+      this.particles.emit(
+        p.type,
+        0,
+        0,
+        {
           count: p.count,
           velocity: p.velocity,
           lifetime: p.lifetime,
           size: p.size,
-        });
-      }
-      animate();
-    });
+        },
+        direction
+      );
+    }
   }
 
-  private async playBurnDeathAnimation(): Promise<void> {
-    // Flame tower: Burning collapse with orange tint and smoke
+  /**
+   * Play death animation using procedural ragdoll physics.
+   *
+   * @param killerType - The tower type that killed this zombie
+   * @param impactAngle - Direction from damage source to zombie (radians)
+   */
+  async playDeathAnimation(
+    killerType?: string,
+    impactAngle?: number
+  ): Promise<void> {
+    const angle = impactAngle ?? Math.random() * Math.PI * 2;
+    const killer = killerType ?? 'unknown';
+
+    // Create ragdoll skeleton from zombie type config
+    const config = createRagdollConfig(this.zombieTypeName, 18);
+    this.ragdoll = new RagdollSkeleton(config);
+
+    // Initialize from current position (center of graphics)
+    this.ragdoll.initializeFromPose(0, 0, 0);
+
+    // Calculate and apply death impulses
+    const impulses = calculateDeathImpulses(
+      killer,
+      angle,
+      this.zombieTypeName
+    );
+    this.ragdoll.applyImpulses(impulses);
+
+    // Detach bones for extreme deaths
+    const detachable = getDetachableBones(killer);
+    for (const boneName of detachable) {
+      this.ragdoll.detachBone(boneName);
+    }
+
+    // Add blood emission points
+    const bloodConfig = getDeathBloodConfig(killer);
+    for (const bp of bloodConfig) {
+      this.ragdoll.addBloodEmitPoint(
+        bp.boneName,
+        bp.boneT,
+        bp.rate,
+        bp.duration
+      );
+    }
+
+    // Wire ragdoll blood emission to particle system
+    this.ragdoll.onBloodEmit = (x, y, vx, vy) => {
+      this.particles.emitWithVelocity(
+        ParticleType.BLOOD_TRAIL,
+        x,
+        y,
+        vx,
+        vy,
+        { lifetime: 600, size: 2 }
+      );
+    };
+
+    // Create ragdoll graphics
+    this.ragdollGraphics = new Graphics();
+    this.isInRagdollDeath = true;
+    this.ragdollAlpha = 1;
+
+    // Hide original zombie graphics
+    this.graphics.alpha = 0;
+
+    // Emit initial death particles in impact direction
+    for (const p of this.DEATH_PARTICLES) {
+      this.particles.emit(
+        p.type,
+        0,
+        0,
+        {
+          count: Math.floor(p.count * 1.5),
+          velocity: p.velocity * 1.2,
+          lifetime: p.lifetime,
+          size: p.size,
+        },
+        { angle, spread: 1.2 }
+      );
+    }
+
+    // Blood mist for explosive deaths
+    if (killer === 'Grenade' || killer === 'Tesla') {
+      this.particles.emit(
+        ParticleType.BLOOD_MIST,
+        0,
+        0,
+        { count: 8, velocity: 40, lifetime: 1200, size: 6 }
+      );
+    }
+
+    // Gore chunks for heavy kills
+    if (
+      killer === 'Grenade' ||
+      killer === 'Shotgun' ||
+      killer === 'Tesla'
+    ) {
+      this.particles.emit(
+        ParticleType.GORE_CHUNK,
+        0,
+        0,
+        {
+          count: killer === 'Grenade' ? 6 : 3,
+          velocity: killer === 'Grenade' ? 120 : 80,
+          lifetime: 1500,
+          size: 4,
+        },
+        { angle, spread: killer === 'Grenade' ? 3.0 : 1.5 }
+      );
+    }
+
+    // Wait for ragdoll to settle
     return new Promise(resolve => {
-      const duration = 1200;
-      const startTime = Date.now();
-
-      // Apply orange burn tint
-      this.graphics.tint = 0xff6600;
-
-      const animate = () => {
-        if (this.graphics.destroyed) {
-          resolve();
-          return;
-        }
-        const elapsed = Date.now() - startTime;
-        const t = Math.min(elapsed / duration, 1);
-
-        // Collapse to ground
-        this.graphics.rotation = (t * Math.PI) / 2;
-        this.graphics.scale.y = 1 - t * 0.4;
-        this.graphics.scale.x = 1 + t * 0.1;
-
-        // Darken as it burns
-        const burnProgress = Math.min(t * 1.5, 1);
-        const r = Math.floor(255 * (1 - burnProgress * 0.8));
-        const g = Math.floor(102 * (1 - burnProgress * 0.6));
-        const b = Math.floor(0 * (1 - burnProgress));
-        this.graphics.tint = (r << 16) | (g << 8) | b;
-
-        // Fade out at end
-        if (t > 0.7) {
-          this.graphics.alpha = 1 - ((t - 0.7) / 0.3) * 0.5;
-        }
-
-        if (t >= 1) {
-          this.deathAnimationFrame = null;
-          resolve();
-          return;
-        }
-        this.deathAnimationFrame = requestAnimationFrame(animate);
-      };
-
-      // Emit smoke particles
-      this.particles.emit(ParticleType.SMOKE, 0, -10, {
-        count: 8,
-        velocity: 30,
-        lifetime: 1000,
-        size: 6,
-      });
-
-      animate();
-    });
-  }
-
-  private async playExplosiveDeathAnimation(): Promise<void> {
-    // Grenade/Tesla: Violent ragdoll with debris
-    return new Promise(resolve => {
-      const duration = 800;
-      const startTime = Date.now();
-
-      // Random explosive direction
-      const throwX = (Math.random() - 0.5) * 60;
-      const throwY = -30 - Math.random() * 20;
-      const rotationDir = Math.random() > 0.5 ? 1 : -1;
-
-      const animate = () => {
-        if (this.graphics.destroyed) {
-          resolve();
-          return;
-        }
-        const elapsed = Date.now() - startTime;
-        const t = Math.min(elapsed / duration, 1);
-
-        // Arc trajectory
-        const arcHeight = Math.sin(t * Math.PI) * throwY;
-        this.graphics.x = throwX * t;
-        this.graphics.y = arcHeight * (1 - t * 0.5);
-
-        // Rapid rotation
-        this.graphics.rotation = t * Math.PI * 2 * rotationDir;
-
-        // Scale stretch during explosion
-        if (t < 0.3) {
-          const stretch = 1 + (0.3 - t) * 2;
-          this.graphics.scale.set(1 / stretch, stretch);
+      const checkDone = () => {
+        if (!this.ragdoll || this.ragdoll.isSettled()) {
+          // Give a brief fade-out period after settlement
+          setTimeout(() => {
+            this.isInRagdollDeath = false;
+            if (this.ragdollGraphics && !this.ragdollGraphics.destroyed) {
+              this.ragdollGraphics.destroy();
+              this.ragdollGraphics = null;
+            }
+            this.ragdoll = null;
+            resolve();
+          }, 300);
         } else {
-          this.graphics.scale.set(1, 1);
+          this.deathAnimationFrame = requestAnimationFrame(checkDone);
         }
-
-        // Quick fade
-        if (t > 0.6) {
-          this.graphics.alpha = 1 - (t - 0.6) / 0.4;
-        }
-
-        if (t >= 1) {
-          this.deathAnimationFrame = null;
-          resolve();
-          return;
-        }
-        this.deathAnimationFrame = requestAnimationFrame(animate);
       };
-
-      // Emit debris particles
-      this.particles.emit(ParticleType.BONE_FRAGMENTS, 0, 0, {
-        count: 12,
-        velocity: 80,
-        lifetime: 600,
-        size: 4,
-      });
-
-      animate();
+      this.deathAnimationFrame = requestAnimationFrame(checkDone);
     });
   }
 
-  private async playKnockbackDeathAnimation(): Promise<void> {
-    // Shotgun: Violent knockback throw
-    return new Promise(resolve => {
-      const duration = 900;
-      const startTime = Date.now();
-
-      // Strong horizontal throw
-      const knockbackX = -50 - Math.random() * 30; // Always thrown backward
-      const knockbackY = -20;
-
-      const animate = () => {
-        if (this.graphics.destroyed) {
-          resolve();
-          return;
-        }
-        const elapsed = Date.now() - startTime;
-        const t = Math.min(elapsed / duration, 1);
-
-        // Sharp initial impulse, then deceleration
-        const impulse = (1 - t) ** 0.5;
-        this.graphics.x = knockbackX * (1 - impulse);
-        this.graphics.y = knockbackY * Math.sin(t * Math.PI) * impulse;
-
-        // Rotation from impact
-        this.graphics.rotation = (-t * Math.PI) / 3;
-
-        // Scale compression on impact
-        if (t < 0.2) {
-          const compression = 1 - t * 0.3;
-          this.graphics.scale.set(1 / compression, compression);
-        } else {
-          this.graphics.scale.set(1, 1);
-        }
-
-        // Blood spray fade
-        if (t > 0.5) {
-          this.graphics.alpha = 1 - (t - 0.5) / 0.5;
-        }
-
-        if (t >= 1) {
-          this.deathAnimationFrame = null;
-          resolve();
-          return;
-        }
-        this.deathAnimationFrame = requestAnimationFrame(animate);
-      };
-
-      // Emit blood spray particles
-      this.particles.emit(ParticleType.BLOOD_SPLATTER, 0, 0, {
-        count: 15,
-        velocity: 60,
-        lifetime: 500,
-        size: 5,
-      });
-
-      animate();
-    });
+  /**
+   * Get the ragdoll graphics for rendering by the zombie container.
+   */
+  public getRagdollGraphics(): Graphics | null {
+    return this.ragdollGraphics;
   }
 
-  private async playPrecisionDeathAnimation(): Promise<void> {
-    // Sniper: Clean headshot with delayed body collapse
-    return new Promise(resolve => {
-      const headshotDuration = 200;
-      const collapseDuration = 800;
-      const startTime = Date.now();
-
-      // Flash effect for headshot
-      this.graphics.tint = 0xffffff;
-      setTimeout(() => {
-        if (!this.graphics.destroyed) {
-          this.graphics.tint = 0xffffff;
-        }
-      }, 50);
-
-      const animate = () => {
-        if (this.graphics.destroyed) {
-          resolve();
-          return;
-        }
-        const elapsed = Date.now() - startTime;
-
-        if (elapsed < headshotDuration) {
-          // Headshot flash - minimal movement
-          const t = elapsed / headshotDuration;
-          this.graphics.scale.y = 1 - t * 0.1; // Slight head drop
-        } else if (elapsed < headshotDuration + collapseDuration) {
-          // Delayed body collapse
-          const t = (elapsed - headshotDuration) / collapseDuration;
-          this.graphics.rotation = (t * Math.PI) / 2;
-          this.graphics.scale.y = 0.9 - t * 0.3;
-          this.graphics.alpha = 1 - t * 0.3;
-        } else {
-          this.deathAnimationFrame = null;
-          resolve();
-          return;
-        }
-
-        this.deathAnimationFrame = requestAnimationFrame(animate);
-      };
-
-      // Minimal blood - clean kill
-      this.particles.emit(ParticleType.BLOOD_SPLATTER, 0, -15, {
-        count: 5,
-        velocity: 30,
-        lifetime: 400,
-        size: 3,
-      });
-
-      animate();
-    });
+  /**
+   * Check if currently in ragdoll death mode.
+   */
+  public isRagdolling(): boolean {
+    return this.isInRagdollDeath;
   }
 
   reset(): void {
@@ -414,6 +332,15 @@ export abstract class BaseZombieRenderer implements IZombieRenderer {
     this.particles.clear?.();
     // Stop burning effect
     this.stopBurningEffect();
+
+    // Clean up ragdoll state
+    this.isInRagdollDeath = false;
+    this.ragdoll = null;
+    this.ragdollAlpha = 1;
+    if (this.ragdollGraphics && !this.ragdollGraphics.destroyed) {
+      this.ragdollGraphics.destroy();
+      this.ragdollGraphics = null;
+    }
   }
 
   destroy(): void {
@@ -423,6 +350,10 @@ export abstract class BaseZombieRenderer implements IZombieRenderer {
     }
     this.graphics.destroy({ children: true });
     this.particles.destroy();
+
+    if (this.ragdollGraphics && !this.ragdollGraphics.destroyed) {
+      this.ragdollGraphics.destroy();
+    }
   }
 
   getGraphics(): Graphics {
@@ -485,7 +416,8 @@ export abstract class BaseZombieRenderer implements IZombieRenderer {
 
     // Emit fire particles periodically while burning
     this.burnParticleTimer += deltaTime;
-    if (this.burnParticleTimer >= 200) { // Every 200ms
+    if (this.burnParticleTimer >= 200) {
+      // Every 200ms
       this.burnParticleTimer = 0;
 
       // Random position around the zombie body

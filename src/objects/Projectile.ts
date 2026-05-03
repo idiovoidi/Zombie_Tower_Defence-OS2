@@ -323,7 +323,7 @@ export class Projectile extends Container {
       zombie.applyKnockback(this.knockbackForce, this.position.x, this.position.y);
     }
 
-    zombie.takeDamage(modifiedDamage, this.towerType);
+    zombie.takeDamage(modifiedDamage, this.towerType, this.position.x, this.position.y);
     const healthAfter = zombie.getHealth();
     const actualDamage = healthBefore - healthAfter;
     const killed = healthAfter <= 0;

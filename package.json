@@ -39,6 +39,7 @@
     "quality:full": "npm run quality && npm run knip && npm run dupcheck"
   },
   "dependencies": {
+    "@pixi/spine-pixi": "^2.0.0",
     "cors": "^2.8.5",
     "express": "^4.18.2",
     "mathjs": "^15.0.0",

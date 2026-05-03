@@ -26,7 +26,14 @@ export class CorpseManager {
   }
 
   // Create a corpse at the given position with zombie type styling
-  public createCorpse(x: number, y: number, zombieType: string, _size = 10): void {
+  public createCorpse(
+    x: number,
+    y: number,
+    zombieType: string,
+    _size = 10,
+    killerType?: string,
+    impactAngle?: number
+  ): void {
     // Remove oldest corpse BEFORE adding new one if at limit
     // This ensures we never exceed maxCorpses
     if (this.corpses.length >= this.maxCorpses) {
@@ -46,7 +53,7 @@ export class CorpseManager {
     const deathPose = Math.floor(Math.random() * 3); // 0, 1, or 2
 
     // Render the zombie in death pose
-    this.renderDeadZombie(corpseContainer, zombieType, deathPose);
+    this.renderDeadZombie(corpseContainer, zombieType, deathPose, killerType);
 
     const corpse: Corpse = {
       container: corpseContainer,
@@ -58,7 +65,7 @@ export class CorpseManager {
     this.container.addChild(corpseContainer);
   }
 
-  private renderDeadZombie(container: Container, zombieType: string, deathPose: number): void {
+  private renderDeadZombie(container: Container, zombieType: string, deathPose: number, killerType?: string): void {
     // Create the appropriate zombie renderer
     let renderer: IZombieRenderer;
 
@@ -105,14 +112,75 @@ export class CorpseManager {
 
     // Draw blood pool underneath (before applying rotation)
     const bloodGraphics = new Graphics();
-    this.drawBloodPool(bloodGraphics, zombieType);
+    this.drawBloodPool(bloodGraphics, zombieType, killerType);
     container.addChildAt(bloodGraphics, 0); // Add at bottom layer
 
     // Apply death pose transformation
     this.applyDeathPose(container, deathPose);
 
+    // Apply killer-specific effects
+    this.applyKillerEffects(container, killerType);
+
     // Remove glow effects (dead eyes don't glow)
     this.removeGlowEffects(container);
+  }
+
+  /**
+   * Apply visual effects based on what killed the zombie.
+   */
+  private applyKillerEffects(container: Container, killerType?: string): void {
+    if (!killerType) return;
+
+    switch (killerType) {
+      case 'Flame': {
+        // Charred/burnt tint
+        for (const child of container.children) {
+          if (child instanceof Graphics) {
+            child.tint = 0x444444;
+          }
+        }
+        // Add char marks
+        const charGraphics = new Graphics();
+        for (let i = 0; i < 5; i++) {
+          const cx = (Math.random() - 0.5) * 20;
+          const cy = (Math.random() - 0.5) * 20;
+          charGraphics.circle(cx, cy, 2 + Math.random() * 3).fill({
+            color: 0x111111,
+            alpha: 0.5 + Math.random() * 0.3,
+          });
+        }
+        container.addChild(charGraphics);
+        break;
+      }
+      case 'Tesla': {
+        // Electrical burn marks
+        const sparkGraphics = new Graphics();
+        for (let i = 0; i < 3; i++) {
+          const sx = (Math.random() - 0.5) * 15;
+          const sy = (Math.random() - 0.5) * 15;
+          sparkGraphics
+            .moveTo(sx, sy)
+            .lineTo(sx + (Math.random() - 0.5) * 8, sy + (Math.random() - 0.5) * 8)
+            .stroke({ color: 0x00aaaa, width: 1, alpha: 0.4 });
+        }
+        container.addChild(sparkGraphics);
+        break;
+      }
+      case 'Grenade': {
+        // Fragmentation/debris around corpse
+        const debrisGraphics = new Graphics();
+        for (let i = 0; i < 4; i++) {
+          const dx = (Math.random() - 0.5) * 25;
+          const dy = (Math.random() - 0.5) * 25;
+          debrisGraphics.circle(dx, dy, 1 + Math.random() * 2).fill({
+            color: 0x333333,
+            alpha: 0.5,
+          });
+        }
+        container.addChild(debrisGraphics);
+        break;
+      }
+    }
   }
 
   private applyDeathPose(container: Container, pose: number): void {
@@ -155,7 +223,7 @@ export class CorpseManager {
     }
   }
 
-  private drawBloodPool(graphics: Graphics, zombieType: string): void {
+  private drawBloodPool(graphics: Graphics, zombieType: string, killerType?: string): void {
     // Mechanical zombies leak oil instead of blood
     if (zombieType === 'Mechanical') {
       graphics.ellipse(0, 12, 20, 15).fill({ color: 0x1a1a1a, alpha: 0.7 });
@@ -170,8 +238,27 @@ export class CorpseManager {
       return;
     }
 
-    // Create irregular blood pool
-    const poolSize = 15;
+    // Flame kills: scorched ground, minimal blood
+    if (killerType === 'Flame') {
+      // Scorch mark
+      graphics.ellipse(0, 12, 14, 10).fill({ color: 0x222222, alpha: 0.5 });
+      graphics.ellipse(0, 12, 10, 7).fill({ color: 0x1a1a1a, alpha: 0.6 });
+      // Tiny blood traces
+      for (let i = 0; i < 3; i++) {
+        const angle = Math.random() * Math.PI * 2;
+        const dist = 8 + Math.random() * 6;
+        graphics.circle(
+          Math.cos(angle) * dist,
+          12 + Math.sin(angle) * dist,
+          1.5
+        ).fill({ color: 0x3a0000, alpha: 0.4 });
+      }
+      return;
+    }
+
+    // Grenade kills: larger, more scattered blood
+    const poolSizeMultiplier = killerType === 'Grenade' ? 1.4 : 1.0;
+    const poolSize = 15 * poolSizeMultiplier;
 
     // Outer blood splatter (irregular)
     for (let i = 0; i < 8; i++) {

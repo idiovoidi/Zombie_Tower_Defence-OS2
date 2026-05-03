@@ -200,10 +200,70 @@ export class ZombieManager {
     type: string;
     size: number;
     killerType: string;
+    impactAngle?: number;
   }): void {
-    // Create blood splatter
     const intensity = data.size / 10; // Scale intensity based on zombie size
-    this.bloodParticleSystem.createBloodSplatter(data.x, data.y, intensity);
+    const angle = data.impactAngle ?? Math.random() * Math.PI * 2;
+
+    // Use directional blood splatter based on killer type
+    switch (data.killerType) {
+      case 'Shotgun':
+        // Heavy directional spray
+        this.bloodParticleSystem.createDirectionalBloodSplatter(
+          data.x,
+          data.y,
+          angle,
+          intensity * 2.0,
+          0.6 // Tight cone
+        );
+        break;
+
+      case 'Sniper':
+        // Precise blood drip/spray
+        this.bloodParticleSystem.createBloodDrip(
+          data.x,
+          data.y,
+          angle,
+          intensity * 1.5
+        );
+        break;
+
+      case 'Grenade':
+      case 'Tesla':
+        // Explosive blood mist + omnidirectional splatter
+        this.bloodParticleSystem.createBloodMist(
+          data.x,
+          data.y,
+          20 * intensity,
+          intensity * 1.5
+        );
+        this.bloodParticleSystem.createBloodSplatter(
+          data.x,
+          data.y,
+          intensity * 1.2
+        );
+        break;
+
+      case 'Flame':
+        // Minimal blood (cauterized) - just a small splatter
+        this.bloodParticleSystem.createBloodSplatter(
+          data.x,
+          data.y,
+          intensity * 0.3
+        );
+        break;
+
+      default:
+        // Default directional splatter
+        this.bloodParticleSystem.createDirectionalBloodSplatter(
+          data.x,
+          data.y,
+          angle,
+          intensity,
+          1.0
+        );
+        break;
+    }
 
     // Create corpse with killer type for potential corpse styling
     this.corpseManager.createCorpse(data.x, data.y, data.type, data.size);

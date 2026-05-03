@@ -17,6 +17,7 @@ import {
   SwarmZombieRenderer,
   TankZombieRenderer,
 } from '../renderers/zombies';
+import type { BaseZombieRenderer } from '../renderers/zombies/BaseZombieRenderer';
 import type { IZombieRenderer, ZombieRenderState } from '../renderers/zombies/ZombieRenderer';
 import { ZombieStats } from '../utils/ZombieStats';
 import { GameObject } from './GameObject';
@@ -41,6 +42,7 @@ export class Zombie extends GameObject {
   private currentSlowPercent = 0; // Current slow percentage applied
   private renderer: IZombieRenderer | null = null; // Modular renderer
   private lastDamageSource = 'unknown'; // Track tower type that dealt damage
+  private lastDamageSourcePosition: { x: number; y: number } | null = null; // Position of last damage source
   private isDying = false; // Track if death animation is in progress
   private deathAnimationComplete = false; // Track if animation finished
 
@@ -92,6 +94,7 @@ export class Zombie extends GameObject {
     this.currentWaypointIndex = 0;
     this.isDying = false;
     this.deathAnimationComplete = false;
+    this.lastDamageSourcePosition = null;
     this.isSlowed = false;
     this.currentSlowPercent = 0;
     this.isBeingKnockedBack = false;
@@ -208,6 +211,11 @@ export class Zombie extends GameObject {
         break;
     }
 
+    // Set zombie type name for ragdoll configuration
+    if (this.renderer) {
+      (this.renderer as BaseZombieRenderer).setZombieType(this.type);
+    }
+
     // Create health bar
     this.healthBarBg = new Graphics();
     this.healthBarBg.rect(-15, -25, 30, 5).fill(0xff0000);
@@ -231,6 +239,15 @@ export class Zombie extends GameObject {
         this.renderer.update(deltaTime, this.getRenderState());
         // Continue rendering even while dying
         this.renderer.render(this, this.getRenderState());
+
+        // Add ragdoll graphics to the zombie container if active
+        const baseRenderer = this.renderer as BaseZombieRenderer;
+        if (baseRenderer.isRagdolling?.()) {
+          const ragdollGfx = baseRenderer.getRagdollGraphics?.();
+          if (ragdollGfx && !ragdollGfx.parent) {
+            this.addChild(ragdollGfx);
+          }
+        }
       }
       return;
     }
@@ -460,10 +477,15 @@ export class Zombie extends GameObject {
     return this.healthComponent.getHealth();
   }
 
-  public takeDamage(damage: number, towerType?: string): number {
+  public takeDamage(damage: number, towerType?: string, sourceX?: number, sourceY?: number): number {
     // Track damage source for death animation selection
     if (towerType && damage > 0) {
       this.lastDamageSource = towerType;
+    }
+
+    // Track source position for directional death effects
+    if (sourceX !== undefined && sourceY !== undefined) {
+      this.lastDamageSourcePosition = { x: sourceX, y: sourceY };
     }
 
     // Apply damage to health component
@@ -500,6 +522,18 @@ export class Zombie extends GameObject {
     if (this.isDying) return;
     this.isDying = true;
 
+    // Calculate impact direction (angle FROM source TO zombie = direction blood flies)
+    let impactAngle = 0;
+    if (this.lastDamageSourcePosition) {
+      impactAngle = Math.atan2(
+        this.position.y - this.lastDamageSourcePosition.y,
+        this.position.x - this.lastDamageSourcePosition.x
+      );
+    } else {
+      // Default: random direction if no source tracked
+      impactAngle = Math.random() * Math.PI * 2;
+    }
+
     // Emit death event IMMEDIATELY for blood/corpse systems
     // This ensures corpse appears at death location before animation moves the zombie
     this.emit('zombieDeath', {
@@ -508,11 +542,12 @@ export class Zombie extends GameObject {
       type: this.type,
       size: this.getVisualSize(),
       killerType: this.lastDamageSource,
+      impactAngle,
     });
 
     // Play death animation if using new renderer
     if (this.renderer) {
-      await this.renderer.playDeathAnimation(this.lastDamageSource);
+      await this.renderer.playDeathAnimation(this.lastDamageSource, impactAngle);
     }
 
     // Mark animation complete so ZombieManager can remove this zombie
