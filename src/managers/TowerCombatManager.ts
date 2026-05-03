@@ -301,8 +301,10 @@ export class TowerCombatManager {
       const damagePerPellet = damage / pelletCount;
 
       // Knockback force for shotgun pellets (pixels)
-      // Small zombies get knocked back ~20-30 pixels, larger ones less
-      const baseKnockbackForce = 35;
+      // Starts as a small nudge and increases with upgrades
+      // Level 1: 15px, Level 2: 20px, Level 3: 25px, Level 4: 30px, Level 5: 35px
+      const upgradeLevel = tower.getUpgradeLevel();
+      const baseKnockbackForce = 15 + (upgradeLevel - 1) * 5;
 
       for (let i = 0; i < pelletCount; i++) {
         // Spread pellets in a cone pattern
