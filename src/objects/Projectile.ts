@@ -489,8 +489,10 @@ export class Projectile extends Container {
   }
 
   private createSludgePool(): void {
-    // Create toxic sludge pool that slows zombies
+    // Create toxic sludge pool container
+    const sludgeContainer = new Container();
     const sludgePool = new Graphics();
+    sludgeContainer.addChild(sludgePool);
 
     // Scale pool radius with upgrade level - SMALL pools for path coverage
     // Level 1: 35px, Level 2: 38px, Level 3: 41px, Level 4: 44px, Level 5: 47px
@@ -508,7 +510,7 @@ export class Projectile extends Container {
     const durationPerLevel = [0, 1000, 1000, 2000, 3000]; // Cumulative
     const poolDuration = baseDuration + (durationPerLevel[this.upgradeLevel - 1] || 0);
 
-    // Draw toxic pool with bubbling effect
+    // Draw toxic pool base layers
     // Outer edge - darker green
     sludgePool.circle(0, 0, poolRadius).fill({ color: 0x1a6b1a, alpha: 0.6 });
 
@@ -518,27 +520,121 @@ export class Projectile extends Container {
     // Inner layer - bright toxic
     sludgePool.circle(0, 0, poolRadius * 0.6).fill({ color: 0x32cd32, alpha: 0.8 });
 
-    // Bubbles and toxic particles - fewer for smaller pool
-    const bubbleCount = 8 + this.upgradeLevel * 2;
-    for (let i = 0; i < bubbleCount; i++) {
-      const angle = Math.random() * Math.PI * 2;
-      const dist = Math.random() * poolRadius * 0.9;
-      const x = Math.cos(angle) * dist;
-      const y = Math.sin(angle) * dist;
-      const size = 1 + Math.random() * 2;
-      const color = Math.random() > 0.5 ? 0x00ff00 : 0x32cd32;
-      sludgePool.circle(x, y, size).fill({ color, alpha: 0.6 + Math.random() * 0.4 });
-    }
-
-    // Toxic glow effect
+    // Toxic glow effect at center
     sludgePool.circle(0, 0, poolRadius * 0.4).fill({ color: 0x00ff00, alpha: 0.3 });
+
+    // Container for animated bubbles
+    const bubblesContainer = new Container();
+    sludgeContainer.addChild(bubblesContainer);
+
+    // Track active animations for cleanup
+    let isPoolActive = true;
+    const activeBubbles: Array<{ graphics: Graphics; age: number; maxAge: number; startX: number; startY: number; maxSize: number }> = [];
+
+    // Spawn a new bubble
+    const spawnBubble = () => {
+      if (!isPoolActive) return;
+
+      const bubble = new Graphics();
+      const angle = Math.random() * Math.PI * 2;
+      const dist = Math.random() * poolRadius * 0.85;
+      const startX = Math.cos(angle) * dist;
+      const startY = Math.sin(angle) * dist;
+      const maxSize = 2 + Math.random() * 3 + this.upgradeLevel * 0.5;
+      const bubbleColor = Math.random() > 0.5 ? 0x00ff00 : 0x7fff00;
+
+      // Initial bubble draw
+      bubble.circle(0, 0, 0.5).fill({ color: bubbleColor, alpha: 0.8 });
+      bubble.position.set(startX, startY);
+      bubblesContainer.addChild(bubble);
+
+      activeBubbles.push({
+        graphics: bubble,
+        age: 0,
+        maxAge: 30 + Math.random() * 40, // Frames to live
+        startX,
+        startY,
+        maxSize,
+      });
+    };
+
+    // Animation tick for bubbles
+    const animateBubbles = () => {
+      if (!isPoolActive) return;
+
+      // Spawn new bubbles occasionally (more bubbles at higher levels)
+      const spawnChance = 0.1 + this.upgradeLevel * 0.03;
+      if (Math.random() < spawnChance) {
+        spawnBubble();
+      }
+
+      // Update existing bubbles
+      for (let i = activeBubbles.length - 1; i >= 0; i--) {
+        const b = activeBubbles[i];
+        b.age++;
+
+        const progress = b.age / b.maxAge;
+
+        // Grow phase (first 60%), then pop
+        if (progress < 0.6) {
+          const growProgress = progress / 0.6;
+          const currentSize = 0.5 + (b.maxSize - 0.5) * growProgress;
+          const alpha = 0.8 - growProgress * 0.3;
+          const riseOffset = b.age * 0.3; // Float upward slightly
+
+          b.graphics.clear();
+          b.graphics.circle(0, 0, currentSize).fill({
+            color: progress < 0.3 ? 0x00ff00 : 0x7fff00,
+            alpha,
+          });
+          // Add glow ring as bubble grows
+          if (growProgress > 0.5) {
+            b.graphics.circle(0, 0, currentSize * 1.3).stroke({
+              width: 1,
+              color: 0x32cd32,
+              alpha: alpha * 0.5,
+            });
+          }
+          b.graphics.position.set(b.startX, b.startY - riseOffset);
+        } else {
+          // Pop phase - fade out and expand
+          const popProgress = (progress - 0.6) / 0.4;
+          const popSize = b.maxSize * (1 + popProgress * 0.5);
+          const alpha = 0.5 * (1 - popProgress);
+
+          b.graphics.clear();
+          b.graphics.circle(0, 0, popSize).stroke({
+            width: 2 - popProgress,
+            color: 0xadff2f,
+            alpha,
+          });
+        }
+
+        // Remove dead bubbles
+        if (b.age >= b.maxAge) {
+          if (b.graphics.parent) {
+            b.graphics.parent.removeChild(b.graphics);
+          }
+          b.graphics.destroy();
+          activeBubbles.splice(i, 1);
+        }
+      }
+
+      // Continue animation loop
+      if (isPoolActive && sludgeContainer.parent) {
+        requestAnimationFrame(animateBubbles);
+      }
+    };
 
     // Add sludge pool to parent at current position
     if (this.parent) {
-      sludgePool.position.set(this.position.x, this.position.y);
+      sludgeContainer.position.set(this.position.x, this.position.y);
       // Set z-index low so zombies appear on top
-      sludgePool.zIndex = -100;
-      this.parent.addChild(sludgePool);
+      sludgeContainer.zIndex = -100;
+      this.parent.addChild(sludgeContainer);
+
+      // Start bubble animation
+      animateBubbles();
 
       // Store pool data for zombie slow effect
       const poolData = {
@@ -550,10 +646,12 @@ export class Projectile extends Container {
       };
 
       // Register sludge pool as persistent effect for immediate cleanup
-      ResourceCleanupManager.registerPersistentEffect(sludgePool, {
+      ResourceCleanupManager.registerPersistentEffect(sludgeContainer as unknown as Graphics, {
         type: 'sludge_pool',
         duration: poolDuration,
         onCleanup: () => {
+          // Stop bubble animations
+          isPoolActive = false;
           // Remove slow from all affected zombies
           for (const zombie of poolData.affectedZombies) {
             if (zombie.parent) {
@@ -563,18 +661,16 @@ export class Projectile extends Container {
         },
       });
 
-      // CRITICAL FIX: Replace setInterval with single timeout to prevent massive memory leak
-      // The old code created 2 intervals per sludge projectile, running for 5 seconds each
-      // With 5 sludge towers shooting every 4 seconds, this created 50+ active intervals
-      // Each interval held references to ALL zombies, preventing garbage collection
-
       // Store pool data for potential future slow checking (if needed by game manager)
-      (sludgePool as unknown as Record<string, unknown>)._poolData = poolData;
+      (sludgeContainer as unknown as Record<string, unknown>)._poolData = poolData;
 
       // Single timeout to clean up after duration
       EffectCleanupManager.registerTimeout(
         setTimeout(() => {
-          ResourceCleanupManager.unregisterPersistentEffect(sludgePool);
+          ResourceCleanupManager.unregisterPersistentEffect(sludgeContainer as unknown as Graphics);
+
+          // Stop bubble animations
+          isPoolActive = false;
 
           // Remove slow from all affected zombies
           for (const zombie of poolData.affectedZombies) {
@@ -583,10 +679,10 @@ export class Projectile extends Container {
             }
           }
 
-          if (sludgePool.parent) {
-            sludgePool.parent.removeChild(sludgePool);
+          if (sludgeContainer.parent) {
+            sludgeContainer.parent.removeChild(sludgeContainer);
           }
-          sludgePool.destroy({ children: true });
+          sludgeContainer.destroy({ children: true });
         }, poolDuration)
       );
 

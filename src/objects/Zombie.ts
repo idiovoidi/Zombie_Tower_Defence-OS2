@@ -50,6 +50,13 @@ export class Zombie extends GameObject {
   private knockbackSpeed = 200; // Pixels per second for knockback movement
   private isBeingKnockedBack = false; // Track if currently in knockback state
 
+  // Burn/fire properties
+  private fireExposureTime = 0; // Time spent in fire (ms) - resets when leaving fire
+  private isBurning = false; // Whether zombie is currently ignited
+  private burnDurationRemaining = 0; // Remaining burn time (ms)
+  private burnDamagePerSecond = 60; // Base burn damage per second
+  private wasInFireLastFrame = false; // Track fire exposure for reset logic
+
   constructor(type: string, x: number, y: number, wave: number) {
     super();
     this.type = type;
@@ -112,6 +119,12 @@ export class Zombie extends GameObject {
     if (this.renderer) {
       this.renderer.reset?.();
     }
+
+    // Reset burn state
+    this.fireExposureTime = 0;
+    this.isBurning = false;
+    this.burnDurationRemaining = 0;
+    this.wasInFireLastFrame = false;
   }
 
   private initializeHealth(wave: number): void {
@@ -243,6 +256,16 @@ export class Zombie extends GameObject {
 
     // Move towards next waypoint
     this.moveTowardsWaypoint(deltaTime);
+
+    // Update burn state (apply damage if burning)
+    this.updateBurn(deltaTime);
+
+    // Reset fire exposure tracking if not in fire this frame
+    // (This will be set to true by the fire pool system if zombie is in fire)
+    if (!this.wasInFireLastFrame && !this.isBurning) {
+      this.fireExposureTime = 0;
+    }
+    this.wasInFireLastFrame = false;
   }
 
   private getRenderState(): ZombieRenderState {
@@ -610,5 +633,102 @@ export class Zombie extends GameObject {
    */
   public getIsDying(): boolean {
     return this.isDying;
+  }
+
+  /**
+   * Update fire exposure - called when zombie is standing in fire
+   * After 1 second of continuous exposure, zombie gets ignited
+   */
+  public updateFireExposure(deltaTime: number): void {
+    this.wasInFireLastFrame = true;
+
+    // If already burning, don't accumulate more exposure time
+    // Instead, extend burn duration slightly (refresh the fire)
+    if (this.isBurning) {
+      // Refresh burn duration up to max (add 0.5s per frame in fire, cap at 3s)
+      const maxBurnDuration = 3000; // 3 seconds
+      this.burnDurationRemaining = Math.min(
+        this.burnDurationRemaining + deltaTime * 0.5,
+        maxBurnDuration
+      );
+      return;
+    }
+
+    // Accumulate fire exposure time
+    this.fireExposureTime += deltaTime;
+
+    // Ignite after 1 second of continuous fire exposure
+    const igniteTime = 1000; // 1 second
+    if (this.fireExposureTime >= igniteTime) {
+      this.applyIgnition();
+    }
+  }
+
+  /**
+   * Apply ignition - set zombie on fire for 3 seconds
+   */
+  private applyIgnition(): void {
+    if (this.isBurning || this.isDying) {
+      return;
+    }
+
+    this.isBurning = true;
+    this.burnDurationRemaining = 3000; // 3 seconds of burn damage
+
+    // Visual feedback via renderer
+    if (this.renderer) {
+      this.renderer.showBurningEffect?.();
+    }
+  }
+
+  /**
+   * Update burn state - apply damage and manage burn duration
+   */
+  private updateBurn(deltaTime: number): void {
+    if (!this.isBurning || this.isDying) {
+      return;
+    }
+
+    // Calculate damage for this frame
+    const damageThisFrame = (this.burnDamagePerSecond * deltaTime) / 1000;
+    this.takeDamage(damageThisFrame, 'Flame');
+
+    // Reduce burn duration
+    this.burnDurationRemaining -= deltaTime;
+
+    // Stop burning when duration expires
+    if (this.burnDurationRemaining <= 0) {
+      this.isBurning = false;
+      this.burnDurationRemaining = 0;
+
+      // Stop visual effect via renderer
+      if (this.renderer) {
+        this.renderer.stopBurningEffect?.();
+      }
+    }
+  }
+
+  /**
+   * Check if zombie is currently burning
+   */
+  public getIsBurning(): boolean {
+    return this.isBurning;
+  }
+
+  /**
+   * Get remaining burn duration (for visual effects)
+   */
+  public getBurnDurationRemaining(): number {
+    return this.burnDurationRemaining;
+  }
+
+  /**
+   * Get fire exposure progress (0 to 1, where 1 = ignited)
+   */
+  public getFireExposureProgress(): number {
+    if (this.isBurning) {
+      return 1;
+    }
+    return Math.min(this.fireExposureTime / 1000, 1);
   }
 }
