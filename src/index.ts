@@ -1,3 +1,4 @@
+// biome-ignore-all lint/performance/noBarrelFile: intentional barrel file for main exports
 // Main entry point exports
 
 // Re-export from subdirectories

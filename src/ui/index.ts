@@ -1,3 +1,4 @@
+// biome-ignore lint/performance/noBarrelFile: intentional barrel file for UI exports
 export { BottomBar } from './BottomBar';
 export { CampUpgradePanel } from './CampUpgradePanel';
 export { GameOverScreen } from './GameOverScreen';

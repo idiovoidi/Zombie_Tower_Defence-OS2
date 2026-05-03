@@ -1,3 +1,4 @@
+// biome-ignore lint/performance/noBarrelFile: intentional barrel file for zombie renderer exports
 export { ArmoredZombieRenderer } from './ArmoredZombieRenderer';
 export { BasicZombieRenderer } from './BasicZombieRenderer';
 export { FastZombieRenderer } from './FastZombieRenderer';

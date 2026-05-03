@@ -1,3 +1,4 @@
+// biome-ignore lint/performance/noBarrelFile: intentional barrel file for object exports
 export { GameObject } from './GameObject';
 export { Tower } from './Tower';
 export { TowerFactory } from './TowerFactory';

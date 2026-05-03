@@ -1,3 +1,4 @@
+// biome-ignore lint/performance/noBarrelFile: intentional barrel file for utility exports
 export { BloodParticleSystem } from './BloodParticleSystem';
 export { DebugUtils } from './DebugUtils';
 export { GraphicsPool } from './GraphicsPool';

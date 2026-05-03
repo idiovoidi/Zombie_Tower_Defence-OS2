@@ -1,3 +1,4 @@
+// biome-ignore lint/performance/noBarrelFile: intentional barrel file for manager exports
 export { CampUpgradeManager } from './CampUpgradeManager';
 export { CorpseManager } from './CorpseManager';
 export { GameManager } from './GameManager';
