@@ -33,9 +33,9 @@
 
     /* Additional Type Checking */
     "exactOptionalPropertyTypes": false,
-    "noImplicitOverride": false,
-    "noImplicitReturns": false,
-    "noPropertyAccessFromIndexSignature": false,
+    "noImplicitOverride": true,
+    "noImplicitReturns": true,
+    "noPropertyAccessFromIndexSignature": true,
     "forceConsistentCasingInFileNames": true,
 
     /* Module Resolution */

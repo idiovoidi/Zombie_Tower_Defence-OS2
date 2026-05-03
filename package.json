@@ -11,7 +11,7 @@
     "server": "node server.js",
     "test:server": "node test-server.js",
     "test:write": "node test-write-direct.js",
-    "build": "npm run check && tsc && vite build",
+    "build": "npm run quality && tsc && vite build",
     "preview": "vite preview",
     "lint": "biome lint .",
     "lint:fix": "biome lint . --write",
@@ -34,7 +34,9 @@
     "api-extractor:ci": "npm run build:types && api-extractor run",
     "api-documenter": "api-documenter markdown -i temp -o docs/api",
     "eslint": "eslint src/**/*.ts",
-    "eslint:fix": "eslint src/**/*.ts --fix"
+    "eslint:fix": "eslint src/**/*.ts --fix",
+    "quality": "biome check . && tsc --noEmit && eslint src/**/*.ts && depcruise src --config .dependency-cruiser.cjs",
+    "quality:full": "npm run quality && npm run knip && npm run dupcheck"
   },
   "dependencies": {
     "cors": "^2.8.5",
@@ -45,7 +47,7 @@
     "simple-statistics": "^7.8.8"
   },
   "devDependencies": {
-    "@biomejs/biome": "^1.9.4",
+    "@biomejs/biome": "^2.4.14",
     "@eslint/js": "^10.0.1",
     "@microsoft/api-documenter": "^7.30.5",
     "@microsoft/api-extractor": "^7.58.7",

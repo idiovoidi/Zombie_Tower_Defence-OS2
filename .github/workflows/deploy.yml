@@ -40,8 +40,12 @@ jobs:
         run: npm ci
         working-directory: ./Z_TD
 
+      - name: Quality checks
+        run: npm run quality
+        working-directory: ./Z_TD
+
       - name: Build with Vite
-        run: npx vite build # Skip linting for deployment
+        run: npx vite build
         working-directory: ./Z_TD
 
       - name: Upload artifact

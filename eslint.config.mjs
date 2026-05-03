@@ -24,43 +24,43 @@ export default [
       boundaries,
     },
     settings: {
-      'boundaries/include': ['src/**/*'],
+      'boundaries/include': ['src/**/*.ts'],
       'boundaries/elements': [
         {
           type: 'config',
-          pattern: ['src/config/*', 'src/config/**/*'],
+          pattern: ['src/config/**/*.ts'],
         },
         {
           type: 'managers',
-          pattern: ['src/managers/*', 'src/managers/**/*'],
+          pattern: ['src/managers/**/*.ts'],
         },
         {
           type: 'objects',
-          pattern: ['src/objects/*', 'src/objects/**/*'],
+          pattern: ['src/objects/**/*.ts'],
         },
         {
           type: 'components',
-          pattern: ['src/components/*', 'src/components/**/*'],
+          pattern: ['src/components/**/*.ts'],
         },
         {
           type: 'renderers',
-          pattern: ['src/renderers/*', 'src/renderers/**/*'],
+          pattern: ['src/renderers/**/*.ts'],
         },
         {
           type: 'systems',
-          pattern: ['src/systems/*', 'src/systems/**/*'],
+          pattern: ['src/systems/**/*.ts'],
         },
         {
           type: 'ui',
-          pattern: ['src/ui/*', 'src/ui/**/*'],
+          pattern: ['src/ui/**/*.ts'],
         },
         {
           type: 'utils',
-          pattern: ['src/utils/*', 'src/utils/**/*'],
+          pattern: ['src/utils/**/*.ts'],
         },
         {
           type: 'types',
-          pattern: ['src/types/*', 'src/types/**/*'],
+          pattern: ['src/types/**/*.ts'],
         },
         {
           type: 'main',
@@ -80,15 +80,42 @@ export default [
     },
   },
   
-  // Boundary rules - disabled, using dependency-cruiser instead
-  // {
-  //   files: ['src/**/*.ts'],
-  //   rules: {
-  //     'boundaries/element-types': ['error', { ... }],
-  //     'boundaries/no-unknown': ['error'],
-  //     'boundaries/no-private': ['error'],
-  //   },
- // },
+  // Boundary rules - enforce architectural layer dependencies
+  {
+    files: ['src/**/*.ts'],
+    rules: {
+      'boundaries/element-types': [
+        'error',
+        {
+          default: 'disallow',
+          message: '${file.type} is not allowed to import ${dependency.type}',
+          rules: [
+            // config - no internal imports (only node_modules)
+            { from: 'config', allow: [] },
+            // types - only config
+            { from: 'types', allow: ['config'] },
+            // utils - config, types
+            { from: 'utils', allow: ['config', 'types'] },
+            // components - config, types
+            { from: 'components', allow: ['config', 'types'] },
+            // objects - config, types, components, utils, renderers
+            { from: 'objects', allow: ['config', 'types', 'components', 'utils', 'renderers'] },
+            // renderers - config, types, components, utils, objects
+            { from: 'renderers', allow: ['config', 'types', 'components', 'utils', 'objects'] },
+            // managers - config, types, components, utils, objects, renderers
+            { from: 'managers', allow: ['config', 'types', 'components', 'utils', 'objects', 'renderers'] },
+            // ui - config, types, components, utils, objects, managers, renderers
+            { from: 'ui', allow: ['config', 'types', 'components', 'utils', 'objects', 'managers', 'renderers'] },
+            // main - everything
+            { from: 'main', allow: ['config', 'types', 'utils', 'components', 'objects', 'renderers', 'managers', 'ui', 'systems'] },
+            // systems - config, types, components, utils, objects, renderers, managers
+            { from: 'systems', allow: ['config', 'types', 'components', 'utils', 'objects', 'renderers', 'managers'] },
+          ],
+        },
+      ],
+      'boundaries/no-unknown': ['error'],
+    },
+  },
   
   // Ignore patterns
   {

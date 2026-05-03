@@ -1,5 +1,5 @@
 {
-  "$schema": "https://biomejs.dev/schemas/2.4.13/schema.json",
+  "$schema": "https://biomejs.dev/schemas/2.4.14/schema.json",
 
   "linter": {
     "enabled": true,
@@ -8,23 +8,49 @@
       "correctness": {
         "noUnusedVariables": "error",
         "noUnusedImports": "error",
-        "noUnusedPrivateClassMembers": "error"
+        "noUnusedPrivateClassMembers": "error",
+        "noUndeclaredVariables": "error",
+        "noSwitchDeclarations": "error"
       },
       "suspicious": {
         "noExplicitAny": "error",
         "noDebugger": "error",
         "noDoubleEquals": "error",
-        "useIsArray": "error"
+        "useIsArray": "error",
+        "noConsole": "warn",
+        "noEmptyBlockStatements": "error",
+        "noConfusingVoidType": "error",
+        "noMisleadingCharacterClass": "error",
+        "noSelfCompare": "error",
+        "noFallthroughSwitchClause": "error",
+        "noShadowRestrictedNames": "error"
       },
       "style": {
         "noNonNullAssertion": "error",
         "useConst": "error",
         "useTemplate": "error",
-        "useNodejsImportProtocol": "off"
+        "useNodejsImportProtocol": "off",
+        "useExponentiationOperator": "error",
+        "noDefaultExport": "error",
+        "useEnumInitializers": "error",
+        "useImportType": "error",
+        "useExportType": "error",
+        "noParameterAssign": "error",
+        "useSelfClosingElements": "error",
+        "useNumberNamespace": "error"
       },
       "complexity": {
         "noForEach": "off",
-        "useOptionalChain": "error"
+        "useOptionalChain": "error",
+        "noExcessiveCognitiveComplexity": "warn",
+        "noUselessTypeConstraint": "error",
+        "noUselessSwitchCase": "error",
+        "noVoid": "error"
+      },
+      "performance": {
+        "noAccumulatingSpread": "warn",
+        "noDelete": "warn",
+        "noBarrelFile": "warn"
       }
     }
   },
@@ -45,19 +71,44 @@
     }
   },
   "files": {
-    "include": ["src/**", "tests/**"],
-    "ignore": ["node_modules/**", "coverage/**", "**/*.d.ts", "dependency-report.html"]
+    "includes": ["src/**", "tests/**", "!**/node_modules/**", "!**/coverage/**", "!**/*.d.ts", "!dependency-report.html"]
   },
   "overrides": [
     {
-      "include": ["tests/**"],
+      "includes": ["src/main.ts"],
       "linter": {
         "rules": {
           "suspicious": {
-            "noExplicitAny": "warn"
+            "noConsole": "off"
+          }
+        }
+      }
+    },
+    {
+      "includes": ["tests/**"],
+      "javascript": {
+        "globals": [
+          "describe",
+          "it",
+          "expect",
+          "beforeEach",
+          "afterEach",
+          "beforeAll",
+          "afterAll",
+          "vi"
+        ]
+      },
+      "linter": {
+        "rules": {
+          "suspicious": {
+            "noExplicitAny": "warn",
+            "noConsole": "off"
           },
           "style": {
             "noNonNullAssertion": "warn"
+          },
+          "complexity": {
+            "noExcessiveCognitiveComplexity": "off"
           }
         }
       }
