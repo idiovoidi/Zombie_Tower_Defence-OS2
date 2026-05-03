@@ -1,8 +1,8 @@
 import { Container, Graphics } from 'pixi.js';
+import { ExplosionEffect } from '../renderers/effects/ExplosionEffect';
+import { ImpactEffect } from '../renderers/effects/ImpactEffect';
 import { SludgePoolEffect } from '../renderers/effects/SludgePoolEffect';
-import { EffectCleanupManager } from '../utils/EffectCleanupManager';
 import { EventBus, GameEvents } from '../utils/EventBus';
-import { ResourceCleanupManager } from '../utils/ResourceCleanupManager';
 import type { Zombie } from './Zombie';
 
 export class Projectile extends Container {
@@ -361,116 +361,43 @@ export class Projectile extends Container {
         this.createSludgePool();
         break;
       case 'tesla':
-        this.visual.circle(0, 0, 10).fill({ color: 0x00bfff, alpha: 0.6 });
+        if (this.parent) {
+          this.parent.addChild(new ImpactEffect(this.position.x, this.position.y, 'tesla', 100));
+        }
         this.isActive = false;
         this.isHitEffectActive = true;
-        EffectCleanupManager.registerTimeout(
-          setTimeout(() => {
-            this.isHitEffectActive = false;
-          }, 100)
-        );
         break;
       default:
-        this.visual.circle(0, 0, 5).fill({ color: 0xffff00, alpha: 0.6 });
+        if (this.parent) {
+          this.parent.addChild(new ImpactEffect(this.position.x, this.position.y, 'bullet', 100));
+        }
         this.isActive = false;
         this.isHitEffectActive = true;
-        EffectCleanupManager.registerTimeout(
-          setTimeout(() => {
-            this.isHitEffectActive = false;
-          }, 100)
-        );
     }
   }
 
   private createExplosion(): void {
-    // Create explosion effect with splash damage
-    const explosion = new Graphics();
+    if (!this.parent) {
+      this.isActive = false;
+      return;
+    }
 
-    // Scale explosion radius with upgrade level
-    // Level 1: 45px, Level 2: 56px, Level 3: 67px, Level 4: 78px, Level 5: 90px
-    const baseRadius = 45;
-    const radiusPerLevel = 11;
-    const explosionRadius = baseRadius + (this.upgradeLevel - 1) * radiusPerLevel;
+    // Create explosion visual effect
+    const explosionEffect = new ExplosionEffect(
+      this.position.x,
+      this.position.y,
+      this.upgradeLevel,
+      400
+    );
+    this.parent.addChild(explosionEffect);
 
-    // Apply splash damage to all zombies in radius
+    // Apply splash damage to all zombies in radius (gameplay logic stays in Projectile)
+    const explosionRadius = explosionEffect.getExplosionRadius();
     const zombiesInRadius = this.getZombiesInRadius(explosionRadius);
     for (const { zombie, distance } of zombiesInRadius) {
       // Damage falls off with distance (100% at center, 30% at edge)
       const damageFalloff = 1 - (distance / explosionRadius) * 0.7;
       this.applyDamageToZombie(zombie, this.damage, damageFalloff);
-    }
-
-    // Create visual explosion effect
-    // Outer shockwave ring
-    explosion.circle(0, 0, explosionRadius).stroke({ width: 4, color: 0xff6600, alpha: 0.8 });
-    explosion.circle(0, 0, explosionRadius - 5).stroke({ width: 3, color: 0xff8800, alpha: 0.6 });
-
-    // Multiple explosion layers - scale with explosion radius
-    const radiusScale = explosionRadius / 60; // Normalize to original 60px radius
-    const layers = [
-      { radius: 50 * radiusScale, color: 0xff4500, alpha: 0.7 },
-      { radius: 40 * radiusScale, color: 0xff6600, alpha: 0.8 },
-      { radius: 30 * radiusScale, color: 0xff8800, alpha: 0.85 },
-      { radius: 20 * radiusScale, color: 0xffaa00, alpha: 0.9 },
-      { radius: 12 * radiusScale, color: 0xffff00, alpha: 0.95 },
-      { radius: 6 * radiusScale, color: 0xffffff, alpha: 1.0 },
-    ];
-
-    for (const layer of layers) {
-      explosion.circle(0, 0, layer.radius).fill({ color: layer.color, alpha: layer.alpha });
-    }
-
-    // Explosion debris/particles - more debris for higher levels
-    const debrisCount = 15 + this.upgradeLevel * 3;
-    for (let i = 0; i < debrisCount; i++) {
-      const angle = (i / debrisCount) * Math.PI * 2;
-      const distance = (25 + Math.random() * 20) * radiusScale;
-      const x = Math.cos(angle) * distance;
-      const y = Math.sin(angle) * distance;
-      const size = (2 + Math.random() * 4) * radiusScale;
-      const color = Math.random() > 0.5 ? 0xff6600 : 0x8b4513;
-      explosion.circle(x, y, size).fill({ color, alpha: 0.8 });
-    }
-
-    // Smoke puffs - more smoke for higher levels
-    const smokeCount = 10 + this.upgradeLevel * 2;
-    for (let i = 0; i < smokeCount; i++) {
-      const angle = (i / smokeCount) * Math.PI * 2;
-      const distance = (30 + Math.random() * 15) * radiusScale;
-      const x = Math.cos(angle) * distance;
-      const y = Math.sin(angle) * distance;
-      const size = (8 + Math.random() * 8) * radiusScale;
-      explosion.circle(x, y, size).fill({ color: 0x4a4a4a, alpha: 0.5 });
-    }
-
-    // Add explosion to parent at current position
-    if (this.parent) {
-      explosion.position.set(this.position.x, this.position.y);
-      this.parent.addChild(explosion);
-
-      // Register explosion as persistent effect for immediate cleanup
-      ResourceCleanupManager.registerPersistentEffect(explosion, {
-        type: 'explosion',
-        duration: 400,
-      });
-
-      // OPTIMIZATION: Use single timeout instead of setInterval (prevents memory leak)
-      // setInterval creates persistent references that prevent garbage collection
-      const duration = 400; // Explosion lasts 400ms
-      const initialScale = 0.5;
-      explosion.scale.set(initialScale);
-      explosion.alpha = 1;
-
-      // Single timeout to clean up after duration
-      EffectCleanupManager.registerTimeout(
-        setTimeout(() => {
-          ResourceCleanupManager.unregisterPersistentEffect(explosion);
-          if (explosion.parent) {
-            explosion.parent.removeChild(explosion);
-          }
-          explosion.destroy();
-        }, duration)
-      );
     }
 
     // Deactivate the projectile immediately
