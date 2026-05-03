@@ -137,11 +137,12 @@ export const TowerConstants = {
 
   // Flame Tower - Area damage over time, burning effect
   // BALANCED: Reduced damage from 300 to 180 (-40%) - advanced sim showed 83.3% overkill, DoT towers should tick slowly
+  // Fire rate 0.5 = 1 shot every 2 seconds, allowing burn damage to work between shots
   FLAME: {
     cost: 750,
     damage: 180,
     range: 120,
-    fireRate: 0.75,
+    fireRate: 0.5,
     health: 90,
     specialAbility: 'Area damage over time, burning effect',
     upgradeCostMultiplier: 0.75,

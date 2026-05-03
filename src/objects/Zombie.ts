@@ -54,7 +54,7 @@ export class Zombie extends GameObject {
   private fireExposureTime = 0; // Time spent in fire (ms) - resets when leaving fire
   private isBurning = false; // Whether zombie is currently ignited
   private burnDurationRemaining = 0; // Remaining burn time (ms)
-  private burnDamagePerSecond = 60; // Base burn damage per second
+  private burnDamagePerSecond = 25; // Base burn damage per second (75 total over 3s)
   private wasInFireLastFrame = false; // Track fire exposure for reset logic
 
   constructor(type: string, x: number, y: number, wave: number) {
