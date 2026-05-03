@@ -186,7 +186,9 @@ export class GameManager {
       this.towerCombatManager.setTowers(this.towerPlacementManager.getPlacedTowers());
     }
     if (this.zombieManager.getZombies().length > 0) {
-      this.towerCombatManager.setZombies(this.zombieManager.getZombies());
+      const zombies = this.zombieManager.getZombies();
+      this.towerCombatManager.setZombies(zombies);
+      this.effectManager.setZombies(zombies); // For fire pool damage
     }
 
     PerformanceMonitor.recordWaveMemory(this.wave);
@@ -648,6 +650,7 @@ export class GameManager {
         const zombies = this.zombieManager.getZombies();
         this.towerCombatManager.setZombies(zombies);
         this.projectileManager.setZombies(zombies);
+        this.effectManager.setZombies(zombies); // For fire pool damage detection
         this.zombieManager.clearZombiesDirty();
         OptimizationValidator.trackArrayRebuild('zombies');
         if (DevConfig.PERFORMANCE.LOG_DIRTY_FLAGS) {

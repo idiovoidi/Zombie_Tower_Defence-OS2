@@ -96,6 +96,9 @@ export class EffectManager {
   private scopeGlints: ScopeGlint[] = [];
   private burningGroundEffects: BurningGroundEffect[] = [];
 
+  // Zombie tracking for fire pool damage
+  private zombies: Zombie[] = [];
+
   // Configurable limits for each effect type
   private limits: EffectLimits = {
     maxShellCasings: 50,
@@ -117,6 +120,8 @@ export class EffectManager {
 
   constructor(container: PixiContainer) {
     this.container = container;
+
+    // Initialize zombie tracking for fire effects
 
     // Enable culling for off-screen effects (per pixijs-performance skill)
     container.cullable = true;
@@ -805,10 +810,13 @@ export class EffectManager {
       }
     }
 
-    // Update burning ground effects
+    // Update burning ground effects and apply fire exposure to zombies
     for (let i = this.burningGroundEffects.length - 1; i >= 0; i--) {
       const effect = this.burningGroundEffects[i];
       const isAlive = effect.update(deltaTime);
+
+      // Check for zombies in fire and update their fire exposure
+      this.checkZombiesInFire(effect, deltaTime);
 
       if (!isAlive) {
         this.container.removeChild(effect);
@@ -818,6 +826,40 @@ export class EffectManager {
           effect.destroy({ children: true });
         }
         this.burningGroundEffects.splice(i, 1);
+      }
+    }
+  }
+
+  /**
+   * Set zombie list for fire pool damage detection
+   */
+  public setZombies(zombies: Zombie[]): void {
+    this.zombies = zombies;
+  }
+
+  /**
+   * Check which zombies are in the fire pool and update their fire exposure
+   */
+  private checkZombiesInFire(effect: BurningGroundEffect, deltaTime: number): void {
+    const fireX = effect.position.x;
+    const fireY = effect.position.y;
+    // Base pool radius is 25, increases with upgrade level
+    const poolRadius = 28; // Slightly larger to match visual radius
+
+    for (const zombie of this.zombies) {
+      // Skip dead/dying zombies
+      if (!zombie.parent || zombie.getIsDying()) {
+        continue;
+      }
+
+      // Calculate distance to fire center
+      const dx = zombie.position.x - fireX;
+      const dy = zombie.position.y - fireY;
+      const distance = Math.sqrt(dx * dx + dy * dy);
+
+      // If zombie is in fire, update fire exposure
+      if (distance <= poolRadius) {
+        zombie.updateFireExposure(deltaTime);
       }
     }
   }

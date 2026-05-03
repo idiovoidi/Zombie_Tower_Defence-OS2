@@ -45,6 +45,10 @@ export abstract class BaseZombieRenderer implements IZombieRenderer {
   protected particles: ZombieParticleSystem;
   protected deathAnimationFrame: number | null = null;
 
+  // Burning effect properties
+  protected isBurning = false;
+  protected burnParticleTimer = 0;
+
   /** Animator type string passed to ZombieAnimator */
   protected abstract readonly ANIMATOR_TYPE: string;
 
@@ -78,6 +82,7 @@ export abstract class BaseZombieRenderer implements IZombieRenderer {
   update(deltaTime: number, state: ZombieRenderState): void {
     this.animator.update(deltaTime, state);
     this.particles.update(deltaTime);
+    this.updateBurningEffect(deltaTime);
   }
 
   showDamageEffect(_damageType: string, _amount: number): void {
@@ -407,6 +412,8 @@ export abstract class BaseZombieRenderer implements IZombieRenderer {
     this.graphics.scale.set(1, 1);
     // Clear any particles
     this.particles.clear?.();
+    // Stop burning effect
+    this.stopBurningEffect();
   }
 
   destroy(): void {
@@ -420,6 +427,78 @@ export abstract class BaseZombieRenderer implements IZombieRenderer {
 
   getGraphics(): Graphics {
     return this.graphics;
+  }
+
+  /**
+   * Show burning effect - emit fire particles from zombie
+   */
+  showBurningEffect(): void {
+    if (this.isBurning) {
+      return;
+    }
+    this.isBurning = true;
+    this.burnParticleTimer = 0;
+
+    // Apply orange tint to indicate burning
+    this.graphics.tint = 0xff6600;
+
+    // Emit initial burst of fire particles
+    this.particles.emit(ParticleType.FIRE, 0, -5, {
+      count: 8,
+      velocity: 40,
+      lifetime: 800,
+      size: 5,
+    });
+
+    // Emit smoke
+    this.particles.emit(ParticleType.SMOKE, 0, -10, {
+      count: 4,
+      velocity: 25,
+      lifetime: 1200,
+      size: 6,
+    });
+  }
+
+  /**
+   * Stop burning effect
+   */
+  stopBurningEffect(): void {
+    if (!this.isBurning) {
+      return;
+    }
+    this.isBurning = false;
+    this.burnParticleTimer = 0;
+
+    // Reset tint if not already dead
+    if (!this.graphics.destroyed && this.graphics.alpha > 0.5) {
+      this.graphics.tint = 0xffffff;
+    }
+  }
+
+  /**
+   * Update burning effect - emit continuous fire particles
+   */
+  updateBurningEffect(deltaTime: number): void {
+    if (!this.isBurning) {
+      return;
+    }
+
+    // Emit fire particles periodically while burning
+    this.burnParticleTimer += deltaTime;
+    if (this.burnParticleTimer >= 200) { // Every 200ms
+      this.burnParticleTimer = 0;
+
+      // Random position around the zombie body
+      const offsetX = (Math.random() - 0.5) * 20;
+      const offsetY = -5 - Math.random() * 10;
+
+      this.particles.emit(ParticleType.FIRE, offsetX, offsetY, {
+        count: 2,
+        velocity: 30,
+        lifetime: 600,
+        size: 4,
+      });
+    }
   }
 
   /**

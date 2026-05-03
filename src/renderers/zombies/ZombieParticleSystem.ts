@@ -90,6 +90,15 @@ export class ZombieParticleSystem {
         // Decay cloud floats up slowly
         p.vy -= 20 * dt;
         p.vx *= 0.98; // Air resistance
+      } else if (p.color === 0xff6600) {
+        // Fire particles rise up with turbulence
+        p.vy -= 60 * dt; // Strong upward force
+        p.vx += (Math.random() - 0.5) * 30 * dt; // Turbulence
+        p.vx *= 0.95; // Air resistance
+      } else if (p.color === 0x333333) {
+        // Smoke rises slowly with spread
+        p.vy -= 30 * dt;
+        p.vx *= 0.97;
       } else {
         // Blood particles fall with gravity
         p.vy += 200 * dt;
