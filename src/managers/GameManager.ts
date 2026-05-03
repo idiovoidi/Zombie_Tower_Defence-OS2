@@ -81,21 +81,16 @@ export class GameManager {
     this.score = 0;
 
     if (DebugConstants.ENABLED) {
-      console.log('🔧 Debug Mode Enabled');
-      console.log(`💰 Starting Money: ${this.money}`);
-      console.log(`❤️ Starting Lives: ${this.lives}`);
-      console.log(`🌊 Starting Wave: ${this.wave}`);
+      // Debug mode active - constants applied above
     }
 
     // Create game container for all game objects
     this.gameContainer = new Container();
     this.gameContainer.sortableChildren = true;
     app.stage.addChild(this.gameContainer);
-    console.log('Game container created and added to stage');
 
     // Initialize EffectManager first (needed by other managers)
     this.effectManager = new EffectManager(this.gameContainer);
-    console.log('EffectManager initialized');
 
     // Initialize map and level managers
     this.mapManager = new MapManager();
@@ -158,6 +153,7 @@ export class GameManager {
       if (data?.killed) {
         // Award money for kills through event system
         // (actual money reward handled in update loop for now)
+        // Intentionally empty - placeholder for future implementation
       }
     });
   }
@@ -166,21 +162,19 @@ export class GameManager {
     this.towerPlacementManager.setTowerPlacedCallback((tower: Tower) => {
       const cost = this.towerManager.getTowerCost(tower.getType());
       if (this.spendMoney(cost)) {
-        console.log(`Tower placed: ${tower.getType()} for $${cost}`);
-
         // Emit event for tower placement - AnalyticsState listens and handles tracking
         EventBus.getInstance().emit(GameEvents.TOWER_PLACED, {
           type: tower.getType(),
           cost: cost,
         });
       } else {
-        console.warn(`Failed to deduct money for tower: ${tower.getType()}`);
+        // Insufficient funds - tower placement cancelled
       }
     });
   }
 
   public init(): void {
-    console.log('Initializing game...');
+    // Initialization complete - GameManager ready
   }
 
   public startGame(): void {
@@ -196,14 +190,12 @@ export class GameManager {
     }
 
     PerformanceMonitor.recordWaveMemory(this.wave);
-    console.log('Game started');
   }
 
   public startGameWithLevel(levelId: string): void {
     if (this.levelManager.loadLevel(levelId)) {
       const level = this.levelManager.getCurrentLevel();
       if (level) {
-        console.log('🧹 Cleaning up previous game state...');
         this.clearGameState();
         EffectCleanupManager.clearAll();
         LogExporter.newSession();
@@ -218,18 +210,15 @@ export class GameManager {
         this.waveManager.reset();
 
         if (DebugConstants.ENABLED) {
-          console.log('🔧 Using debug starting values instead of level defaults');
+          // Debug constants already applied
         } else {
           this.money = level.startingMoney;
           this.lives = level.startingLives;
         }
-
-        console.log(`Rendering map: ${level.map}`);
         if (this.visualMapRenderer) {
           this.visualMapRenderer.renderMap(level.map);
-          console.log('Map rendered');
         } else {
-          console.error('VisualMapRenderer not initialized');
+          // Visual map renderer not initialized yet
         }
 
         this.currentState = GameConfig.GAME_STATES.PLAYING;
@@ -249,11 +238,9 @@ export class GameManager {
 
         // Emit wave start event - AnalyticsState listens and handles tracking
         EventBus.getInstance().emit(GameEvents.WAVE_START, { wave: this.wave });
-
-        console.log(`Game started with level: ${level.name}`);
       }
     } else {
-      console.error(`Failed to load level: ${levelId}`);
+      // Failed to load level - level ID may be invalid
     }
   }
 
@@ -274,46 +261,37 @@ export class GameManager {
       projectileManager: this.projectileManager,
       effectManager: this.effectManager,
     });
-    console.log('  ✓ Old corpses will fade naturally');
 
     // Emit cleanup event
     EventBus.getInstance().emit(GameEvents.CLEANUP_WAVE);
   }
 
   private spawnStarterTower(): void {
-    console.log('Spawning starter gunner near graveyard entrance...');
     const starterTower = { x: 280, y: 440, type: GameConfig.TOWER_TYPES.MACHINE_GUN };
-
-    console.log(`Placing starter gunner at (${starterTower.x}, ${starterTower.y})`);
     this.towerPlacementManager.startPlacement(starterTower.type);
     const tower = this.towerPlacementManager.placeTower(starterTower.x, starterTower.y);
     if (tower) {
-      console.log('✓ Starter gunner placed successfully');
+      // Starter tower placed successfully
     } else {
-      console.warn('✗ Failed to place starter gunner');
+      // Failed to place starter tower - position may be invalid
     }
 
-    const placedTowers = this.towerPlacementManager.getPlacedTowers();
-    console.log(`Total towers placed: ${placedTowers.length}`);
+    const _placedTowers = this.towerPlacementManager.getPlacedTowers();
   }
 
   private spawnTestTowers(): void {
-    console.log('Spawning test towers...');
     const testTowers = [
       { x: 300, y: 300, type: GameConfig.TOWER_TYPES.SNIPER },
       { x: 500, y: 300, type: GameConfig.TOWER_TYPES.SHOTGUN },
     ];
 
-    testTowers.forEach((config, index) => {
-      console.log(
-        `Attempting to place test tower ${index + 1}: ${config.type} at (${config.x}, ${config.y})`
-      );
+    testTowers.forEach((config, _index) => {
       this.towerPlacementManager.startPlacement(config.type);
       const tower = this.towerPlacementManager.placeTower(config.x, config.y);
       if (tower) {
-        console.log(`✓ Test tower ${index + 1} (${config.type}) placed successfully`);
+        // Test tower placed successfully
       } else {
-        console.warn(`✗ Failed to place test tower ${index + 1} (${config.type})`);
+        // Failed to place test tower
       }
     });
   }
@@ -322,7 +300,6 @@ export class GameManager {
     if (this.currentState === GameConfig.GAME_STATES.PLAYING) {
       this.currentState = GameConfig.GAME_STATES.PAUSED;
       EventBus.getInstance().emit(GameEvents.GAME_PAUSE);
-      console.log('Game paused');
     }
   }
 
@@ -330,7 +307,6 @@ export class GameManager {
     if (this.currentState === GameConfig.GAME_STATES.PAUSED) {
       this.currentState = GameConfig.GAME_STATES.PLAYING;
       EventBus.getInstance().emit(GameEvents.GAME_RESUME);
-      console.log('Game resumed');
     }
   }
 
@@ -340,11 +316,9 @@ export class GameManager {
     }
 
     this.currentState = GameConfig.GAME_STATES.GAME_OVER;
-    console.log(`🔴 GAME OVER - Lives: ${this.lives}`);
 
     const finalScore = this.wave * 1000 + this.money;
     this.score = finalScore;
-    console.log(`📊 Final Score: ${this.score}`);
 
     // Emit game over event
     EventBus.getInstance().emit(GameEvents.GAME_OVER, { score: finalScore });
@@ -358,14 +332,12 @@ export class GameManager {
     }
 
     if (this.onGameOverCallback) {
-      console.log('🎮 Triggering game over UI callback');
       this.onGameOverCallback(this.score);
     } else {
-      console.warn('⚠️ No game over callback registered!');
+      // No game over callback registered
     }
 
     setTimeout(() => {
-      console.log('🧹 Cleaning up game state after game over...');
       this.clearGameState();
     }, 100);
   }
@@ -422,24 +394,19 @@ export class GameManager {
         string,
         unknown
       >;
-      console.log('📊 Including balance analysis in report');
     }
 
     LogExporter.exportLog(logEntry, balanceData);
-    console.log('📊 Manual game log exported with performance data');
   }
 
   public victory(): void {
     this.currentState = GameConfig.GAME_STATES.VICTORY;
-    console.log('Victory!');
 
     EventBus.getInstance().emit(GameEvents.GAME_VICTORY);
 
     if (this.analyticsState.isBalanceTrackingEnabled()) {
       this.analyticsState.getBalanceTrackingManager().performEndGameAnalysis();
     }
-
-    console.log('🧹 Cleaning up game state after victory...');
     this.clearGameState();
   }
 
@@ -501,7 +468,6 @@ export class GameManager {
     // Emit life lost event
     EventBus.getInstance().emit(GameEvents.LIFE_LOST, { amount, lives: this.lives });
     if (this.lives <= 0) {
-      console.log(`🔴 GAME OVER TRIGGERED - Lives: ${this.lives}`);
       this.lives = 0;
       this.gameOver();
     }
@@ -665,7 +631,6 @@ export class GameManager {
       const zombiesDirty = this.zombieManager.areZombiesDirty();
 
       if (DevConfig.PERFORMANCE.LOG_DIRTY_FLAGS && !towersDirty && !zombiesDirty) {
-        console.log('⚡ Dirty flags prevented array rebuilds this frame');
       }
 
       if (towersDirty) {
@@ -674,7 +639,6 @@ export class GameManager {
         this.towerPlacementManager.clearTowersDirty();
         OptimizationValidator.trackArrayRebuild('towers');
         if (DevConfig.PERFORMANCE.LOG_DIRTY_FLAGS) {
-          console.log(`🔄 Towers array rebuilt (${towers.length} towers)`);
         }
       }
 
@@ -685,7 +649,6 @@ export class GameManager {
         this.zombieManager.clearZombiesDirty();
         OptimizationValidator.trackArrayRebuild('zombies');
         if (DevConfig.PERFORMANCE.LOG_DIRTY_FLAGS) {
-          console.log(`🔄 Zombies array rebuilt (${zombies.length} zombies)`);
         }
       }
 
@@ -717,16 +680,11 @@ export class GameManager {
             reward,
             type: zombie.getType(),
           });
-
-          console.log(`💰 Zombie killed! +$${reward}`);
           continue;
         }
 
         if (zombie.hasReachedEnd()) {
           const damage = zombie.getDamage();
-          console.log(
-            `💀 ${zombie.getType()} zombie reached camp! -${damage} survivors (current: ${this.lives})`
-          );
           this.loseLife(damage);
           this.zombieManager.removeZombie(i);
         }
@@ -772,10 +730,7 @@ export class GameManager {
   }
 
   private onWaveComplete(): void {
-    console.log(`Wave ${this.wave} complete!`);
     this.currentState = GameConfig.GAME_STATES.WAVE_COMPLETE;
-
-    console.log('🧹 Cleaning up wave objects...');
     this.cleanupWaveObjects();
 
     // Calculate wave stats for event
@@ -804,13 +759,10 @@ export class GameManager {
   public startNextWave(): void {
     this.wave++;
     this.waveManager.nextWave();
-
-    console.log('🧹 Pre-wave cleanup check...');
     ResourceCleanupManager.cleanupWaveResources({
       projectileManager: this.projectileManager,
       effectManager: this.effectManager,
     });
-    console.log('  ✓ Pre-wave cleanup complete');
 
     this.zombieManager.startWave();
     this.currentState = GameConfig.GAME_STATES.PLAYING;
@@ -820,7 +772,5 @@ export class GameManager {
 
     // Emit wave start event - AnalyticsState listens and handles tracking
     EventBus.getInstance().emit(GameEvents.WAVE_START, { wave: this.wave });
-
-    console.log(`Starting wave ${this.wave}`);
   }
 }

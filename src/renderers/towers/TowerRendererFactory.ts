@@ -44,7 +44,6 @@ export class TowerRendererFactory {
         return new SludgeRenderer();
 
       default:
-        console.warn(`Unknown tower type: ${type}, using default renderer`);
         return new DefaultTowerRenderer();
     }
   }

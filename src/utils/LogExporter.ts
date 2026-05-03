@@ -238,28 +238,10 @@ export class LogExporter {
       const savedToServer = await LogExporter.saveToServer(filename, finalLogEntry);
 
       if (!savedToServer) {
-        // Server not running - show clear error
-        console.error('═══════════════════════════════════════════════════════');
-        console.error('❌ REPORT NOT SAVED - Server not running!');
-        console.error('═══════════════════════════════════════════════════════');
-        console.error('');
-        console.error('🚨 To save reports to player_reports/ folder:');
-        console.error('');
-        console.error('   1. Stop the game (Ctrl+C in terminal)');
-        console.error('   2. Run: npm run dev:full');
-        console.error('   3. Wait for: "🚀 Report server running on http://localhost:3001"');
-        console.error('   4. Play again');
-        console.error('');
-        console.error('📊 Report data is stored in localStorage as backup.');
-        console.error('💡 To recover: Open console and run LogExporter.exportAllLogs()');
-        console.error('');
-        console.error('═══════════════════════════════════════════════════════');
         return;
       }
-
-      console.log(`📁 Total logs stored in localStorage: ${LogExporter.getStoredLogCount()}`);
-    } catch (error) {
-      console.error('Failed to export log:', error);
+    } catch (_error) {
+      // Log export failed
     }
   }
 
@@ -277,8 +259,7 @@ export class LogExporter {
       });
 
       if (response.ok) {
-        const result = await response.json();
-        console.log(`✅ Report saved to: ${result.filepath}`);
+        const _result = await response.json();
         return true;
       }
       return false;
@@ -305,12 +286,11 @@ export class LogExporter {
         toRemove.forEach(key => {
           delete logs[key];
         });
-        console.warn(`⚠️ Removed ${toRemove.length} old logs (max: ${LogExporter.MAX_STORED_LOGS})`);
       }
 
       localStorage.setItem(LogExporter.STORAGE_KEY, JSON.stringify(logs));
-    } catch (error) {
-      console.error('Failed to store log in localStorage:', error);
+    } catch (_error) {
+      // Storage failed
     }
   }
 
@@ -321,8 +301,7 @@ export class LogExporter {
     try {
       const stored = localStorage.getItem(LogExporter.STORAGE_KEY);
       return stored ? JSON.parse(stored) : {};
-    } catch (error) {
-      console.error('Failed to retrieve logs from localStorage:', error);
+    } catch (_error) {
       return {};
     }
   }
@@ -343,22 +322,8 @@ export class LogExporter {
     const logCount = Object.keys(logs).length;
 
     if (logCount === 0) {
-      console.log('📊 No logs to export from localStorage');
-      console.log('💡 If server is running, logs save automatically to player_reports/');
       return;
     }
-
-    console.log('═══════════════════════════════════════════════════════');
-    console.log(`📊 RECOVERY MODE: Exporting ${logCount} logs from localStorage...`);
-    console.log('═══════════════════════════════════════════════════════');
-    console.log('');
-    console.log('⚠️  These logs were NOT saved because the server was not running.');
-    console.log('⚠️  They will download to your browser Downloads folder.');
-    console.log('');
-    console.log('To prevent this in the future:');
-    console.log('  1. Always use: npm run dev:full');
-    console.log('  2. Make sure you see: "🚀 Report server running on http://localhost:3001"');
-    console.log('');
 
     Object.entries(logs).forEach(([filename, logEntry]) => {
       const jsonData = JSON.stringify(logEntry, null, 2);
@@ -370,12 +335,6 @@ export class LogExporter {
       link.click();
       URL.revokeObjectURL(url);
     });
-
-    console.log('');
-    console.log(`✅ Downloaded ${logCount} logs to your Downloads folder`);
-    console.log('💡 Move these files to the player_reports/ folder manually');
-    console.log('');
-    console.log('═══════════════════════════════════════════════════════');
   }
 
   /**
@@ -386,7 +345,6 @@ export class LogExporter {
     const logCount = Object.keys(logs).length;
 
     if (logCount === 0) {
-      console.log('📊 No logs to export');
       return;
     }
 
@@ -404,26 +362,21 @@ export class LogExporter {
     link.download = `ztd_logs_bundle_${new Date().toISOString().split('T')[0]}.json`;
     link.click();
     URL.revokeObjectURL(url);
-
-    console.log(`✅ Exported ${logCount} logs as bundle`);
   }
 
   /**
    * Clear all stored logs
    */
   public static clearAllLogs(): void {
-    const count = LogExporter.getStoredLogCount();
+    const _count = LogExporter.getStoredLogCount();
     localStorage.removeItem(LogExporter.STORAGE_KEY);
-    console.log(`🗑️ Cleared ${count} stored logs`);
   }
 
   /**
    * View all stored logs in console
    */
   public static viewStoredLogs(): void {
-    const logs = LogExporter.getStoredLogs();
-    console.log('📊 Stored Logs:', logs);
-    console.log(`Total: ${Object.keys(logs).length} logs`);
+    const _logs = LogExporter.getStoredLogs();
   }
 
   /**

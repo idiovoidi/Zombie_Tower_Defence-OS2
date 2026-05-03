@@ -290,7 +290,6 @@ export class CampUpgradePanel extends UIComponent {
   }
 
   public show(): void {
-    console.log('🏕️ CampUpgradePanel.show() called');
     this.visible = true;
     this.updateUpgradeDisplay();
   }

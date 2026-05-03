@@ -39,7 +39,6 @@ export class DebugTestUIManager {
     waveManager: WaveManager,
     pixelArtRenderer: PixelArtRenderer
   ): void {
-    console.log('🔧 DebugTestUIManager: Initializing...');
     this.gameManager = gameManager;
     this.waveManager = waveManager;
 
@@ -50,14 +49,12 @@ export class DebugTestUIManager {
     this.createAIControlPanel();
 
     this.layoutPanels();
-    console.log('✅ DebugTestUIManager: Initialization complete');
   }
 
   /**
    * Create and setup shader test panel
    */
   private createShaderTestPanel(pixelArtRenderer: PixelArtRenderer): void {
-    console.log('🎨 Creating Shader Test Panel...');
     this.shaderTestPanel = new ShaderTestPanel();
     this.shaderTestPanel.setGameStage(this.app.stage);
     this.shaderTestPanel.setPixelArtRenderer(pixelArtRenderer);
@@ -71,10 +68,8 @@ export class DebugTestUIManager {
     // Show/hide based on debug settings
     if (DebugConstants.ENABLED) {
       this.shaderTestPanel.show();
-      console.log('✅ Shader Test Panel created and shown');
     } else {
       this.shaderTestPanel.hide();
-      console.log('✅ Shader Test Panel created but hidden');
     }
   }
 
@@ -83,11 +78,8 @@ export class DebugTestUIManager {
    */
   private createWaveInfoPanel(): void {
     if (!this.waveManager) {
-      console.warn('⚠️ Wave manager not available, skipping wave info panel');
       return;
     }
-
-    console.log('📊 Creating Wave Info Panel...');
     this.waveInfoPanel = new WaveInfoPanel();
     this.waveInfoPanel.setWaveManager(this.waveManager);
 
@@ -100,10 +92,8 @@ export class DebugTestUIManager {
     // Show/hide based on debug settings
     if (DebugConstants.ENABLED) {
       this.waveInfoPanel.show();
-      console.log('✅ Wave Info Panel created and shown');
     } else {
       this.waveInfoPanel.hide();
-      console.log('✅ Wave Info Panel created but hidden');
     }
   }
 
@@ -111,7 +101,6 @@ export class DebugTestUIManager {
    * Create and setup bestiary panel
    */
   private createBestiaryPanel(): void {
-    console.log('📖 Creating Bestiary Panel...');
     this.bestiaryPanel = new ZombieBestiary();
 
     // Add toggle button to stage
@@ -123,10 +112,8 @@ export class DebugTestUIManager {
     // Show/hide based on debug settings
     if (DebugConstants.ENABLED) {
       this.bestiaryPanel.show();
-      console.log('✅ Bestiary Panel created and shown');
     } else {
       this.bestiaryPanel.hide();
-      console.log('✅ Bestiary Panel created but hidden');
     }
   }
 
@@ -135,11 +122,8 @@ export class DebugTestUIManager {
    */
   private createStatsPanel(): void {
     if (!this.gameManager) {
-      console.warn('⚠️ Game manager not available, skipping stats panel');
       return;
     }
-
-    console.log('📊 Creating Stats Panel...');
     this.statsPanel = new StatsPanel(this.gameManager);
 
     // Add to stage
@@ -148,10 +132,8 @@ export class DebugTestUIManager {
     // Show/hide based on debug settings
     if (DebugConstants.ENABLED) {
       this.statsPanel.show();
-      console.log('✅ Stats Panel created and shown');
     } else {
       this.statsPanel.hide();
-      console.log('✅ Stats Panel created but hidden');
     }
   }
 
@@ -159,7 +141,6 @@ export class DebugTestUIManager {
    * Create and setup AI control panel
    */
   private createAIControlPanel(): void {
-    console.log('🤖 Creating AI Control Panel...');
     this.aiControlPanel = new AIControlPanel();
 
     // Add to stage
@@ -168,10 +149,8 @@ export class DebugTestUIManager {
     // Show/hide based on debug settings
     if (DebugConstants.ENABLED) {
       this.aiControlPanel.show();
-      console.log('✅ AI Control Panel created and shown');
     } else {
       this.aiControlPanel.hide();
-      console.log('✅ AI Control Panel created but hidden');
     }
   }
 
@@ -193,32 +172,27 @@ export class DebugTestUIManager {
     // Position shader test panel (bottom-left)
     if (this.shaderTestPanel) {
       this.shaderTestPanel.position.set(leftX, shaderTestY);
-      console.log(`🎨 Shader Test Panel positioned at (${leftX}, ${shaderTestY})`);
     }
 
     // Position AI control panel (left side, top-left corner)
     if (this.aiControlPanel) {
       this.aiControlPanel.position.set(leftX, 10);
-      console.log(`🤖 AI Control Panel positioned at (${leftX}, 10)`);
     }
 
     // Position stats panel (left side, below AI control)
     if (this.statsPanel) {
       this.statsPanel.position.set(leftX, 100);
-      console.log(`📊 Stats Panel positioned at (${leftX}, 100)`);
     }
 
     // Position wave info panel (right side, near bottom)
     if (this.waveInfoPanel) {
       this.waveInfoPanel.position.set(rightX, rightYOffset);
-      console.log(`📊 Wave Info Panel positioned at (${rightX}, ${rightYOffset})`);
       rightYOffset += 46; // Move down for next panel
     }
 
     // Position bestiary panel (right side, below wave info)
     if (this.bestiaryPanel) {
       this.bestiaryPanel.position.set(rightX, rightYOffset);
-      console.log(`📖 Bestiary Panel positioned at (${rightX}, ${rightYOffset})`);
     }
   }
 

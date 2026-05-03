@@ -22,7 +22,6 @@ class BalanceAnalysisPerformanceTest {
    * Run all performance tests
    */
   public runAllTests(): void {
-    console.log('🚀 Starting Balance Analysis Performance Tests...\n');
 
     // Test 1: BalanceAnalyzer operations
     this.testBalanceAnalyzerPerformance();
@@ -35,8 +34,6 @@ class BalanceAnalysisPerformanceTest {
 
     // Test 4: Load testing
     this.testLoadPerformance();
-
-    console.log('✅ All performance tests completed!\n');
   }
 
   /**
@@ -245,7 +242,6 @@ class BalanceAnalysisPerformanceTest {
    * Test with frame rate monitoring
    */
   public async testWithFrameRateMonitoring(): Promise<void> {
-    console.log('🎮 Starting Frame Rate Impact Test...\n');
 
     this.profiler.startTest('Frame Rate Impact Test');
     this.profiler.startFrameRateMonitoring();
@@ -255,7 +251,7 @@ class BalanceAnalysisPerformanceTest {
 
     // Run analysis operations for 3 seconds
     const startTime = Date.now();
-    let operationCount = 0;
+    let _operationCount = 0;
 
     while (Date.now() - startTime < 3000) {
       // Simulate real-time analysis
@@ -266,11 +262,9 @@ class BalanceAnalysisPerformanceTest {
         economyEfficiency: 120,
       });
 
-      operationCount++;
+      _operationCount++;
       await this.sleep(10); // 10ms between operations (100 ops/sec)
     }
-
-    console.log(`📊 Performed ${operationCount} operations during test`);
 
     this.profiler.endTest();
   }

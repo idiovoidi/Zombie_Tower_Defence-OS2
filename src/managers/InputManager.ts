@@ -99,7 +99,6 @@ export class InputManager {
 
       // Debug logging
       if (this.debugMode) {
-        console.log(`⌨️ Key Down: ${event.key}`);
       }
 
       // Call all registered callbacks
@@ -114,7 +113,6 @@ export class InputManager {
 
       // Debug logging
       if (this.debugMode) {
-        console.log(`⌨️ Key Up: ${event.key}`);
       }
 
       // Call all registered callbacks
@@ -144,9 +142,6 @@ export class InputManager {
 
     // Debug logging
     if (this.debugMode) {
-      console.log(
-        `🎯 Input: Screen(${screenX.toFixed(1)}, ${screenY.toFixed(1)}) -> Game(${gameCoords.x.toFixed(1)}, ${gameCoords.y.toFixed(1)})`
-      );
     }
 
     return {
@@ -218,9 +213,7 @@ export class InputManager {
 
   // Camp click area management
   public setCampClickCallback(callback: () => void): void {
-    console.log('🏕️ setCampClickCallback called, callback is:', typeof callback);
     this.onCampClickCallback = callback;
-    console.log('🏕️ Callback stored, onCampClickCallback is now:', typeof this.onCampClickCallback);
   }
 
   public createCampClickArea(campX: number, campY: number): void {
@@ -229,8 +222,6 @@ export class InputManager {
       this.app.stage.removeChild(this.campClickArea);
       this.campClickArea.destroy();
     }
-
-    console.log('🏕️ Creating camp click area at', campX, campY);
 
     // Create new clickable container
     this.campClickArea = new Container();
@@ -250,39 +241,28 @@ export class InputManager {
 
     // Hover events
     this.campClickArea.on('pointerover', () => {
-      console.log('🏕️ Camp hover');
       hoverBorder.clear();
       hoverBorder.rect(campX - 65, campY - 60, 130, 110).stroke({ width: 3, color: 0xffcc00 });
       hoverBorder.visible = true;
     });
 
     this.campClickArea.on('pointerout', () => {
-      console.log('🏕️ Camp hover out');
       hoverBorder.visible = false;
     });
 
     // Click event
     this.campClickArea.on('pointerdown', event => {
-      console.log('🏕️ Camp pointerdown event fired!');
       event.stopPropagation();
       event.preventDefault();
       if (this.onCampClickCallback) {
-        console.log('🏕️ Calling camp click callback');
         this.onCampClickCallback();
       } else {
-        console.log('⚠️ No camp click callback set!');
       }
     });
 
     // Add to stage at a high z-index to ensure it's on top
-    const stageChildCount = this.app.stage.children.length;
-    console.log('🏕️ Stage has', stageChildCount, 'children, adding camp click area');
+    const _stageChildCount = this.app.stage.children.length;
     this.app.stage.addChild(this.campClickArea);
-    console.log(
-      '🏕️ Camp click area added, now stage has',
-      this.app.stage.children.length,
-      'children'
-    );
   }
 
   public clearCampClickArea(): void {

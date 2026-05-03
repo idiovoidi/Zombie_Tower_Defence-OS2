@@ -88,7 +88,6 @@ export class PerformanceMonitor {
    */
   public static toggle(): void {
     PerformanceMonitor.enabled = !PerformanceMonitor.enabled;
-    console.log(`🔧 Performance monitoring ${PerformanceMonitor.enabled ? 'enabled' : 'disabled'}`);
     if (!PerformanceMonitor.enabled) {
       PerformanceMonitor.reset();
     }
@@ -147,7 +146,6 @@ export class PerformanceMonitor {
 
     const measurement = PerformanceMonitor.currentMeasurements.get(systemName);
     if (!measurement) {
-      console.warn(`⚠️ No measurement started for system: ${systemName}`);
       return;
     }
 
@@ -284,16 +282,10 @@ export class PerformanceMonitor {
 
     PerformanceMonitor.waveMemorySnapshots.push(snapshot);
 
-    // Log wave memory
-    console.log(
-      `📊 Wave ${wave} Memory: ${memory.heapUsedMB.toFixed(2)} MB (Total: ${memory.heapTotalMB.toFixed(2)} MB)`
-    );
-
     // Calculate and log growth rate if we have previous waves
     if (PerformanceMonitor.waveMemorySnapshots.length > 1) {
       const growthRate = PerformanceMonitor.calculateMemoryGrowthRate();
       if (growthRate !== null) {
-        console.log(`📈 Memory growth rate: ${growthRate.toFixed(2)} MB/wave`);
 
         // Check if growth rate exceeds threshold after wave 5
         if (wave > 5 && growthRate > PerformanceMonitor.MAX_MEMORY_GROWTH_PER_WAVE) {
@@ -408,7 +400,6 @@ export class PerformanceMonitor {
     }
 
     PerformanceMonitor.warnings.push(message);
-    console.warn(`⚠️ ${message}`);
   }
 
   /**
@@ -416,65 +407,46 @@ export class PerformanceMonitor {
    */
   public static logMetrics(): void {
     if (!PerformanceMonitor.enabled) {
-      console.log('📊 Performance monitoring is disabled');
       return;
     }
 
     const metrics = PerformanceMonitor.getMetrics();
 
-    console.log('\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-    console.log('📊 Performance Metrics');
-    console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-
     // Frame time
-    const fps = metrics.frameTime > 0 ? Math.round(1000 / metrics.frameTime) : 0;
-    console.log(`\n⏱️  Frame Time: ${metrics.frameTime.toFixed(2)}ms (${fps} FPS)`);
+    const _fps = metrics.frameTime > 0 ? Math.round(1000 / metrics.frameTime) : 0;
 
     // System times
     if (metrics.systemTimes.size > 0) {
-      console.log('\n🔧 System Times (average):');
-      metrics.systemTimes.forEach((time, system) => {
-        const icon = time > PerformanceMonitor.SLOW_SYSTEM_THRESHOLD_MS ? '⚠️' : '✅';
-        console.log(`   ${icon} ${system}: ${time.toFixed(2)}ms`);
+      metrics.systemTimes.forEach((time, _system) => {
+        const _icon = time > PerformanceMonitor.SLOW_SYSTEM_THRESHOLD_MS ? '⚠️' : '✅';
       });
     }
 
     // Entity counts
     if (metrics.entityCounts.size > 0) {
-      console.log('\n📦 Entity Counts:');
-      metrics.entityCounts.forEach((count, type) => {
-        console.log(`   ${type}: ${count}`);
+      metrics.entityCounts.forEach((_count, _type) => {
       });
     }
 
     // Memory usage
     if (metrics.memoryUsage.heapUsed > 0) {
-      console.log('\n💾 Memory Usage:');
-      console.log(`   Heap Used: ${metrics.memoryUsage.heapUsedMB.toFixed(2)} MB`);
-      console.log(`   Heap Total: ${metrics.memoryUsage.heapTotalMB.toFixed(2)} MB`);
 
       // Show memory growth rate if available
       const growthRate = PerformanceMonitor.getMemoryGrowthRate();
       if (growthRate !== null) {
-        const icon = growthRate > PerformanceMonitor.MAX_MEMORY_GROWTH_PER_WAVE ? '⚠️' : '✅';
-        console.log(`   ${icon} Growth Rate: ${growthRate.toFixed(2)} MB/wave`);
+        const _icon = growthRate > PerformanceMonitor.MAX_MEMORY_GROWTH_PER_WAVE ? '⚠️' : '✅';
       }
 
       // Show wave memory history
       if (PerformanceMonitor.waveMemorySnapshots.length > 0) {
-        console.log(`   Wave History: ${PerformanceMonitor.waveMemorySnapshots.length} snapshots`);
       }
     }
 
     // Warnings
     if (metrics.warnings.length > 0) {
-      console.log('\n⚠️  Warnings:');
-      metrics.warnings.forEach(warning => {
-        console.log(`   - ${warning}`);
+      metrics.warnings.forEach(_warning => {
       });
     }
-
-    console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n');
   }
 
   /**
@@ -526,7 +498,6 @@ if (typeof window !== 'undefined') {
    * Usage: window.debugPerformance() or debugPerformance() in console
    */
   window.debugPerformance = () => {
-    console.log('🔍 Performance Debug Command');
     PerformanceMonitor.logMetrics();
   };
 
@@ -535,14 +506,10 @@ if (typeof window !== 'undefined') {
    * Usage: window.debugCleanup() or debugCleanup() in console
    */
   window.debugCleanup = () => {
-    console.log('🔍 Cleanup Debug Command');
     // Import ResourceCleanupManager dynamically to avoid circular dependencies
     import('./ResourceCleanupManager').then(({ ResourceCleanupManager }) => {
-      console.log('📊 Current state before cleanup:');
       ResourceCleanupManager.logState();
-      console.log('\n🧹 Forcing cleanup...');
       ResourceCleanupManager.forceCleanup();
-      console.log('\n📊 State after cleanup:');
       ResourceCleanupManager.logState();
     });
   };
@@ -552,10 +519,6 @@ if (typeof window !== 'undefined') {
    * Usage: window.debugToggleMonitoring() or debugToggleMonitoring() in console
    */
   window.debugToggleMonitoring = () => {
-    console.log('🔍 Toggle Monitoring Debug Command');
     PerformanceMonitor.toggle();
-    console.log(
-      `Performance monitoring is now ${PerformanceMonitor.isEnabled() ? 'ENABLED' : 'DISABLED'}`
-    );
   };
 }

@@ -165,18 +165,13 @@ export class ShaderTestPanel extends UIPanel {
     return button;
   }
 
-  private updateButtonStates(selectedShader: string): void {
-    // Update button appearances to show selection
-    // This is a simplified version - in a full implementation you'd track button references
-    console.log(`Selected shader: ${selectedShader}`);
+  private updateButtonStates(_selectedShader: string): void {
   }
 
   private selectShader(shaderName: string): void {
-    console.log(`🎨 Selecting shader: ${shaderName}`);
 
     // Remove current filter
     if (this.currentFilter && this.gameStage) {
-      console.log('🗑️ Removing current filter:', this.currentFilter.constructor.name);
 
       // Clear filters first
       this.gameStage.filters = null;
@@ -185,9 +180,7 @@ export class ShaderTestPanel extends UIPanel {
       if ('dispose' in this.currentFilter && typeof this.currentFilter.dispose === 'function') {
         try {
           this.currentFilter.dispose();
-          console.log('🗑️ Filter disposed successfully');
-        } catch (e) {
-          console.warn('🗑️ Error disposing filter:', e);
+        } catch (_e) {
         }
       } else if (
         'destroy' in this.currentFilter &&
@@ -195,9 +188,7 @@ export class ShaderTestPanel extends UIPanel {
       ) {
         try {
           this.currentFilter.destroy();
-          console.log('🗑️ Filter destroyed successfully');
-        } catch (e) {
-          console.warn('🗑️ Error destroying filter:', e);
+        } catch (_e) {
         }
       }
       this.currentFilter = null;
@@ -227,19 +218,13 @@ export class ShaderTestPanel extends UIPanel {
       'Inscryption',
     ];
     if (presets.includes(shaderName)) {
-      console.log(`🎨 Applying preset: ${shaderName}`);
       if (this.visualPresets) {
         this.visualPresets.applyPreset(shaderName.toLowerCase());
-        console.log(`✅ Preset applied: ${shaderName}`);
       } else {
-        console.error('❌ VisualPresets not initialized!');
       }
       this.clearSliders();
       return;
     }
-
-    // If we get here, it's not a preset - just clear filters
-    console.log('❌ Unknown shader:', shaderName);
     if (this.visualPresets) {
       this.visualPresets.clear();
     }
@@ -313,7 +298,6 @@ export class ShaderTestPanel extends UIPanel {
 
     button.on('pointerdown', () => {
       if (!this.pixelArtRenderer) {
-        console.warn('⚠️ Pixel Art Renderer not available');
         return;
       }
 

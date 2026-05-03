@@ -122,16 +122,12 @@ export class BalanceTrackingManager {
    */
   public enable(): void {
     if (this.data.enabled) {
-      console.log('⚠️ Balance tracking already enabled');
       return;
     }
 
     this.data.enabled = true;
     this.data.sessionId = `balance_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
     this.data.startTime = Date.now();
-
-    console.log('✅ Balance tracking enabled');
-    console.log(`📊 Session ID: ${this.data.sessionId}`);
   }
 
   /**
@@ -139,12 +135,10 @@ export class BalanceTrackingManager {
    */
   public disable(): void {
     if (!this.data.enabled) {
-      console.log('⚠️ Balance tracking already disabled');
       return;
     }
 
     this.data.enabled = false;
-    console.log('❌ Balance tracking disabled');
   }
 
   /**
@@ -161,7 +155,6 @@ export class BalanceTrackingManager {
     this.data = this.createEmptyData();
     this.lastAnalysisTime = 0;
     this.currentWaveStartTime = 0;
-    console.log('🔄 Balance tracking data reset');
   }
 
   /**
@@ -245,7 +238,6 @@ export class BalanceTrackingManager {
     }
 
     this.currentWaveStartTime = Date.now();
-    console.log(`📊 Wave ${this.gameManager.getWave()} tracking started`);
   }
 
   /**
@@ -272,10 +264,6 @@ export class BalanceTrackingManager {
 
     // Trigger wave-end analysis
     this.performWaveAnalysis();
-
-    console.log(
-      `📊 Wave ${wave} tracking complete (${zombiesKilled} zombies, ${livesLost} lives lost)`
-    );
   }
 
   /**
@@ -477,15 +465,14 @@ export class BalanceTrackingManager {
       // Track performance
       const elapsed = performance.now() - startTime;
       this.recordAnalysisPerformance(elapsed);
-    } catch (error) {
-      console.error('❌ Error in real-time analysis:', error);
+    } catch (_error) {
     }
   }
 
   /**
    * Helper to wrap analysis with performance tracking and error handling
    */
-  private runAnalysis<T>(name: string, analysisFn: () => T): T | undefined {
+  private runAnalysis<T>(_name: string, analysisFn: () => T): T | undefined {
     const startTime = performance.now();
 
     try {
@@ -493,8 +480,7 @@ export class BalanceTrackingManager {
       const elapsed = performance.now() - startTime;
       this.recordAnalysisPerformance(elapsed);
       return result;
-    } catch (error) {
-      console.error(`❌ Error in ${name}:`, error);
+    } catch (_error) {
       return undefined;
     }
   }
@@ -527,8 +513,6 @@ export class BalanceTrackingManager {
         ];
         const predictions = StatisticalAnalyzer.predictWaveDifficulty(waveData, futureWaves);
         this.data.statisticalAnalysis.predictions = predictions;
-
-        console.log(`📈 Trend: ${trend.trend} (confidence: ${trend.confidence})`);
       }
     });
   }
@@ -538,7 +522,6 @@ export class BalanceTrackingManager {
    */
   public performEndGameAnalysis(): void {
     this.runAnalysis('end-game analysis', () => {
-      console.log('📊 Performing end-game analysis...');
 
       // Calculate tower efficiencies
       // TODO: Get tower stats from TowerManager to calculate full efficiency metrics
@@ -553,8 +536,6 @@ export class BalanceTrackingManager {
 
       // Final balance issue check
       this.performRealTimeAnalysis();
-
-      console.log('✅ End-game analysis complete');
     });
   }
 
@@ -568,56 +549,37 @@ export class BalanceTrackingManager {
    */
   private logBalanceIssues(issues: BalanceIssue[]): void {
     if (issues.length === 0) {
-      // Log success if no issues detected
-      console.log('✅ Balance Check: No issues detected');
       return;
     }
 
-    // Header with separator
-    console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-    console.log('⚠️  BALANCE ISSUES DETECTED');
-    console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-
     // Log each issue with appropriate icon and formatting
-    issues.forEach((issue, index) => {
+    issues.forEach((issue, _index) => {
       // Select icon based on severity
-      let icon: string;
-      let severityColor: string;
+      let _icon: string;
+      let _severityColor: string;
 
       switch (issue.severity) {
         case 'CRITICAL':
-          icon = '❌';
-          severityColor = 'CRITICAL';
+          _icon = '❌';
+          _severityColor = 'CRITICAL';
           break;
         case 'HIGH':
-          icon = '⚠️';
-          severityColor = 'HIGH';
+          _icon = '⚠️';
+          _severityColor = 'HIGH';
           break;
         case 'MEDIUM':
-          icon = '⚡';
-          severityColor = 'MEDIUM';
+          _icon = '⚡';
+          _severityColor = 'MEDIUM';
           break;
         case 'LOW':
-          icon = 'ℹ️';
-          severityColor = 'LOW';
+          _icon = 'ℹ️';
+          _severityColor = 'LOW';
           break;
         default:
-          icon = '⚠️';
-          severityColor = issue.severity;
+          _icon = '⚠️';
+          _severityColor = issue.severity;
       }
-
-      // Issue header
-      console.log(`\n${icon} Issue #${index + 1}: ${issue.type}`);
-      console.log(`   Severity: ${severityColor}`);
-      console.log(`   ${issue.message}`);
-      console.log(`   Current: ${issue.value.toFixed(2)} | Threshold: ${issue.threshold}`);
-      console.log(`   💡 Recommendation: ${issue.recommendation}`);
     });
-
-    // Footer with separator
-    console.log('\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-    console.log(`Total Issues: ${issues.length}`);
-    console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n');
   }
 
   // ============================================================================
@@ -638,7 +600,6 @@ export class BalanceTrackingManager {
 
     // Warn if analysis exceeds 5ms
     if (elapsed > 5) {
-      console.warn(`⚠️ Balance analysis took ${elapsed.toFixed(2)}ms (target: <5ms)`);
     }
   }
 

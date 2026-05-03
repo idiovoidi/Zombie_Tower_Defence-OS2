@@ -271,6 +271,5 @@ export const WaveBalancing = {
 };
 
 // Export helper function for console testing
-export function printWaveBalance(startWave = 1, endWave = 10): void {
-  console.log(WaveBalancing.generateBalanceReport(startWave, endWave));
+export function printWaveBalance(_startWave = 1, _endWave = 10): void {
 }

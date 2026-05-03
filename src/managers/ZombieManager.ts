@@ -149,7 +149,6 @@ export class ZombieManager {
     const waypoints = this.mapManager.getWaypoints();
 
     if (!spawnPoint) {
-      console.warn('No spawn point found on map');
       return;
     }
 
@@ -162,8 +161,6 @@ export class ZombieManager {
     const spawnX = spawnPoint.x + lateralOffset;
     const spawnY = spawnPoint.y + depthOffset;
 
-    console.log(`Spawning zombie: ${type} at (${spawnX.toFixed(1)}, ${spawnY.toFixed(1)})`);
-
     const pool = this.getZombiePool(type);
     const zombie = pool.acquire();
     zombie.init(spawnX, spawnY, this.waveManager.getCurrentWave());
@@ -172,7 +169,6 @@ export class ZombieManager {
       // Set waypoints for zombie path
       if (waypoints.length > 0) {
         (zombie as unknown as HasWaypoints).waypoints = waypoints;
-        console.log(`Zombie waypoints set: ${waypoints.length} waypoints`);
       }
 
       // Listen for zombie death to trigger effects
@@ -192,9 +188,8 @@ export class ZombieManager {
       this.zombies.push(zombie);
       this.zombiesDirty = true; // Mark zombies as changed
       this.container.addChild(zombie);
-      console.log(`✓ Zombie spawned successfully. Total zombies: ${this.zombies.length}`);
     } else {
-      console.warn('Failed to create zombie');
+      // Failed to create zombie
     }
   }
 

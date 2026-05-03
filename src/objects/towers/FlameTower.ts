@@ -9,7 +9,5 @@ export class FlameTower extends Tower {
   // Override shoot method for flame specific behavior
   public shoot(): void {
     super.shoot();
-    // Flame specific shooting logic
-    console.log('Flame tower shooting');
   }
 }

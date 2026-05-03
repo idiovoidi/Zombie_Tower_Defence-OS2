@@ -141,7 +141,6 @@ export class UIManager {
     const visibilityConfig = UI_STATE_CONFIG[this.currentState];
 
     if (!visibilityConfig) {
-      console.warn(`No UI configuration found for state: ${this.currentState}`);
       return;
     }
 

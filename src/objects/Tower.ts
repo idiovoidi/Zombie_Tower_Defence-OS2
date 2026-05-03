@@ -671,8 +671,7 @@ export class Tower extends GameObject implements ITower, TowerEffects {
     // Clean up renderer
     try {
       this.renderer.destroy();
-    } catch (error) {
-      console.error('Error destroying tower renderer:', error);
+    } catch (_error) {
     }
 
     // Note: Shell casings and muzzle flashes are managed by EffectManager

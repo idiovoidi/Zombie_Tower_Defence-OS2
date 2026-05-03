@@ -57,7 +57,6 @@ export class MainMenu extends UIComponent {
   }
 
   private onStartClicked(): void {
-    console.log('Start button clicked');
     if (this.onStartCallback) {
       this.onStartCallback();
     }

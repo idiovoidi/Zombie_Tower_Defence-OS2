@@ -27,7 +27,6 @@ export class TowerFactory {
       case GameConfig.TOWER_TYPES.SLUDGE:
         return new SludgeTower(x, y);
       default:
-        console.warn(`Unknown tower type: ${type}`);
         return null;
     }
   }

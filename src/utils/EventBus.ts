@@ -85,8 +85,7 @@ export class EventBus {
       callbacks.forEach(callback => {
         try {
           callback(payload);
-        } catch (error) {
-          console.error(`Error in event handler for ${event}:`, error);
+        } catch (_error) {
         }
       });
     }

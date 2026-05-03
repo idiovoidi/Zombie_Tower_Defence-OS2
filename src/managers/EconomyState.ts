@@ -24,14 +24,6 @@ export class EconomyState {
     this.upgradeManager = new UpgradeManager(this.resourceManager);
   }
 
-  private setupEventListeners(): void {
-    // Note: EconomyState does NOT listen to MONEY_EARNED/SPENT events
-    // to avoid circular dependencies. Other systems call EconomyState methods
-    // directly, and EconomyState emits events for notification only.
-    // This prevents event loops where an event triggers a method that emits
-    // the same event again.
-  }
-
   // Money management
   public addMoney(amount: number): void {
     this.resourceManager.add(amount);

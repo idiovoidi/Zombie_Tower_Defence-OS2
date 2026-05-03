@@ -76,14 +76,12 @@ export class LevelManager {
 
   public loadLevel(levelId: string): boolean {
     if (!this.levels.has(levelId) || !this.unlockedLevels.has(levelId)) {
-      console.warn(`Level ${levelId} not found or not unlocked`);
       return false;
     }
 
     this.currentLevel = levelId;
     const level = this.levels.get(levelId);
     if (!level) {
-      console.error(`Level ${levelId} not found`);
       return false;
     }
 

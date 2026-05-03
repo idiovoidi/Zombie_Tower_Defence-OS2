@@ -69,7 +69,6 @@ export class ObjectPool<T> {
    */
   release(obj: T): void {
     if (!this.active.has(obj)) {
-      console.warn('Attempted to release object not acquired from this pool');
       return;
     }
 

@@ -110,14 +110,12 @@ export class LevelSelectMenu extends UIComponent {
   }
 
   private onLevelSelected(levelId: string): void {
-    console.log(`Level selected: ${levelId}`);
     if (this.onLevelSelectCallback) {
       this.onLevelSelectCallback(levelId);
     }
   }
 
   private onBackClicked(): void {
-    console.log('Back button clicked');
     if (this.onBackCallback) {
       this.onBackCallback();
     }

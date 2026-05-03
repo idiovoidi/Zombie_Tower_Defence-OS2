@@ -9,7 +9,5 @@ export class GrenadeTower extends Tower {
   // Override shoot method for grenade specific behavior
   public shoot(): void {
     super.shoot();
-    // Grenade specific shooting logic
-    console.log('Grenade tower shooting');
   }
 }

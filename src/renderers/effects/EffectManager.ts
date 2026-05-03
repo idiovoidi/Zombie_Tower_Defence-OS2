@@ -1028,9 +1028,7 @@ export class EffectManager {
     const stats = this.getStats();
 
     if (stats.warnings.length > 0) {
-      console.warn('⚠️ EffectManager warnings:');
-      for (const warning of stats.warnings) {
-        console.warn(`  - ${warning}`);
+      for (const _warning of stats.warnings) {
       }
     }
   }

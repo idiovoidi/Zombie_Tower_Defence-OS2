@@ -160,7 +160,6 @@ export class StatisticalAnalyzer {
         hasOutliers: outliers.length > 0,
       };
     } catch (error) {
-      console.error('Error detecting outliers:', error);
       return {
         mean: 0,
         standardDeviation: 0,
@@ -249,7 +248,6 @@ export class StatisticalAnalyzer {
         confidence,
       };
     } catch (error) {
-      console.error('Error analyzing trend:', error);
       return {
         trend: 'STABLE',
         slope: 0,
@@ -324,8 +322,7 @@ export class StatisticalAnalyzer {
       });
 
       return predictions;
-    } catch (error) {
-      console.error('Error predicting wave difficulty:', error);
+    } catch (_error) {
       return futureWaves.map(wave => ({
         wave,
         predictedDifficulty: 0,
@@ -412,7 +409,6 @@ export class StatisticalAnalyzer {
         range,
       };
     } catch (error) {
-      console.error('Error calculating summary:', error);
       return {
         mean: 0,
         median: 0,

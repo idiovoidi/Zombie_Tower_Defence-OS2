@@ -124,14 +124,12 @@ export class GameOverScreen extends UIComponent {
   }
 
   private onRestartClicked(): void {
-    console.log('Restart button clicked');
     if (this.onRestartCallback) {
       this.onRestartCallback();
     }
   }
 
   private onMainMenuClicked(): void {
-    console.log('Main menu button clicked');
     if (this.onMainMenuCallback) {
       this.onMainMenuCallback();
     }

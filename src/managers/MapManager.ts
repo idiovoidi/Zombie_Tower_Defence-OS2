@@ -86,7 +86,6 @@ export class MapManager {
   // Load a map
   public loadMap(mapName: string): boolean {
     if (!this.maps.has(mapName)) {
-      console.warn(`Map ${mapName} not found`);
       return false;
     }
 

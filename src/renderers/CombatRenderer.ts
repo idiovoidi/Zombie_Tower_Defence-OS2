@@ -272,10 +272,6 @@ export class CombatRenderer {
         towerType: data.towerType,
         gibType,
       });
-
-      console.log(
-        `💥 ${data.towerType} gibbed a zombie with ${data.overkill.toFixed(0)} overkill damage! (${gibType} gib)`
-      );
     }
   }
 
@@ -290,33 +286,21 @@ export class CombatRenderer {
       case 'small':
         // Small pop - quick explosion, minimal gibs
         this.effectManager.spawnImpactFlash(data.x, data.y, true);
-        console.log(`🔴 Small gib at (${data.x.toFixed(0)}, ${data.y.toFixed(0)})`);
         break;
 
       case 'medium':
         // Medium explosion - visible gibs, blood spray
         this.effectManager.spawnImpactFlash(data.x, data.y, true);
-        // Could add: this.effectManager.spawnBloodSpray(data.x, data.y, 'medium');
-        console.log(`🔴💥 Medium gib at (${data.x.toFixed(0)}, ${data.y.toFixed(0)})`);
         break;
 
       case 'large':
         // Large explosion - chunks fly everywhere
         this.effectManager.spawnImpactFlash(data.x, data.y, true);
-        // Could add: this.effectManager.spawnGibs(data.x, data.y, 5); // 5 chunks
-        // Could add: this.effectManager.spawnBloodPool(data.x, data.y);
-        console.log(`🔴💥💥 LARGE GIB at (${data.x.toFixed(0)}, ${data.y.toFixed(0)})`);
         break;
 
       case 'massive':
         // Massive overkill - screen shake, huge explosion, no body left
         this.effectManager.spawnImpactFlash(data.x, data.y, true);
-        // Could add: this.effectManager.spawnScreenShake(0.3);
-        // Could add: this.effectManager.spawnExplosion(data.x, data.y, 'massive');
-        // Could add: this.effectManager.spawnBloodRain(data.x, data.y);
-        console.log(
-          `🔴💥💥💥 MASSIVE GIB! ${data.towerType} VAPORIZED a zombie at (${data.x.toFixed(0)}, ${data.y.toFixed(0)})`
-        );
         break;
     }
 

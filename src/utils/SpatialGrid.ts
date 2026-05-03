@@ -393,15 +393,9 @@ export class SpatialGrid<T extends SpatialEntity> {
 
     // Log warnings when grid becomes inefficient
     if (maxEntitiesInCell > 20) {
-      console.warn(
-        `⚠️ Spatial grid inefficient: ${maxEntitiesInCell} entities in one cell. Consider smaller cell size.`
-      );
     }
 
     if (occupiedCells > totalCells * 0.8) {
-      console.warn(
-        `⚠️ Spatial grid highly occupied: ${occupiedCells}/${totalCells} cells. Consider larger grid or cell size.`
-      );
     }
 
     return stats;

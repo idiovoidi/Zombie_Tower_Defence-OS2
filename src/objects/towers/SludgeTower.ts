@@ -9,7 +9,5 @@ export class SludgeTower extends Tower {
   // Override shoot method for sludge specific behavior
   public shoot(): void {
     super.shoot();
-    // Sludge specific shooting logic
-    console.log('Sludge tower shooting toxic barrel');
   }
 }

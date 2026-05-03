@@ -73,7 +73,6 @@ export class OptimizationValidator {
   public static enable(): void {
     OptimizationValidator.enabled = true;
     OptimizationValidator.reset();
-    console.log('🔍 Optimization validation enabled');
   }
 
   /**
@@ -81,7 +80,6 @@ export class OptimizationValidator {
    */
   public static disable(): void {
     OptimizationValidator.enabled = false;
-    console.log('🔍 Optimization validation disabled');
   }
 
   /**
@@ -219,9 +217,6 @@ export class OptimizationValidator {
 
     // Verify results match (sanity check)
     if (closestLinear !== closestSpatial) {
-      console.warn(
-        '⚠️ Target finding results differ between linear and spatial grid (this may be expected due to filtering)'
-      );
     }
   }
 
@@ -381,12 +376,10 @@ export class OptimizationValidator {
    */
   public static logReport(): void {
     if (!OptimizationValidator.enabled) {
-      console.log('🔍 Optimization validation is disabled');
       return;
     }
 
-    const report = OptimizationValidator.generateReport();
-    console.log(`\n${report.summary}`);
+    const _report = OptimizationValidator.generateReport();
   }
 
   /**
@@ -413,7 +406,6 @@ if (typeof window !== 'undefined') {
    * Usage: window.debugOptimizations() or debugOptimizations() in console
    */
   window.debugOptimizations = () => {
-    console.log('🔍 Optimization Validation Report');
     OptimizationValidator.logReport();
   };
 
@@ -422,7 +414,6 @@ if (typeof window !== 'undefined') {
    * Usage: window.debugOptimizationsEnable() or debugOptimizationsEnable() in console
    */
   window.debugOptimizationsEnable = () => {
-    console.log('🔍 Enabling Optimization Validation');
     OptimizationValidator.enable();
   };
 
@@ -431,7 +422,6 @@ if (typeof window !== 'undefined') {
    * Usage: window.debugOptimizationsDisable() or debugOptimizationsDisable() in console
    */
   window.debugOptimizationsDisable = () => {
-    console.log('🔍 Disabling Optimization Validation');
     OptimizationValidator.disable();
   };
 }

@@ -209,28 +209,21 @@ export class StatsPanel extends UIComponent {
   }
 
   private handleExport(): void {
-    console.log('📊 Export button clicked');
     const statTracker = this.gameManager.getStatTracker();
-    console.log('📊 StatTracker:', statTracker ? 'exists' : 'null');
 
     if (statTracker) {
       const isActive = statTracker.isActive();
-      console.log('📊 StatTracker isActive:', isActive);
 
       if (isActive) {
-        console.log('📊 Calling exportCurrentStats()...');
         statTracker.exportCurrentStats();
         this.showExportFeedback();
-        console.log('📊 Export complete');
       } else {
-        console.warn('⚠️ StatTracker is not active. Start a game to enable tracking.');
         this.exportButtonText.text = '⚠️ Not Tracking';
         setTimeout(() => {
           this.exportButtonText.text = '📥 Export Report';
         }, 2000);
       }
     } else {
-      console.error('❌ StatTracker not found');
     }
   }
 

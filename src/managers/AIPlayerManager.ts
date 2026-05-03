@@ -12,9 +12,6 @@ export class AIPlayerManager {
   private updateTimer = 0;
   private updateInterval = 1.0; // Check every 1 second
   private placementZones: PlacementZone[] = [];
-  private lastState = '';
-  private currentWaveDecisions = 0;
-  private lastLogTime = 0;
 
   constructor(gameManager: IGameStateProvider & IStatTrackerProvider) {
     this.gameManager = gameManager;
@@ -64,20 +61,9 @@ export class AIPlayerManager {
       this.lastLogTime = Date.now();
       this.lastState = this.gameManager.getCurrentState();
       this.currentWaveDecisions = 0;
-      console.log('🤖 ═══════════════════════════════════════════════════════');
-      console.log('🤖 AI Player ENABLED - Alpha Testing Mode');
-      console.log('🤖 Starting Stats:');
-      console.log(`🤖   Money: ${this.gameManager.getMoney()}`);
-      console.log(`🤖   Lives: ${this.gameManager.getLives()}`);
-      console.log(`🤖   Wave: ${this.gameManager.getWave()}`);
-      console.log(`🤖   State: ${this.lastState}`);
-      console.log('🤖 ═══════════════════════════════════════════════════════');
     } else {
-      console.log('🤖 ═══════════════════════════════════════════════════════');
-      console.log('🤖 AI Player DISABLED');
       this.logFinalStats();
       statTracker.exportCurrentStats();
-      console.log('🤖 ═══════════════════════════════════════════════════════');
     }
   }
 
@@ -98,10 +84,5 @@ export class AIPlayerManager {
   }
 
   private logFinalStats(): void {
-    console.log('🤖 Final AI stats:');
-    console.log(`🤖   Decisions made: ${this.currentWaveDecisions}`);
-    console.log(`🤖   Current wave: ${this.gameManager.getWave()}`);
-    console.log(`🤖   Money: ${this.gameManager.getMoney()}`);
-    console.log(`🤖   Lives: ${this.gameManager.getLives()}`);
   }
 }

@@ -48,11 +48,9 @@ export class ShotgunTower extends Tower {
     this.lastBurstShotTime = performance.now();
     this.burstCount++;
 
-    // Log for debugging
-    if (this.burstCount === 1) {
-      console.log('Shotgun: First barrel fired');
-    } else if (this.burstCount === 2) {
-      console.log('Shotgun: Second barrel fired - reloading...');
+    // Log for debugging - burst fired
+    if (this.burstCount === 1 || this.burstCount === 2) {
+      // Burst shot fired, no additional action needed
     }
   }
 

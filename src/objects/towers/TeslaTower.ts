@@ -9,7 +9,5 @@ export class TeslaTower extends Tower {
   // Override shoot method for tesla specific behavior
   public shoot(): void {
     super.shoot();
-    // Tesla specific shooting logic
-    console.log('Tesla tower shooting');
   }
 }

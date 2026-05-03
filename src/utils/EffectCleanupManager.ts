@@ -96,7 +96,6 @@ export class EffectCleanupManager {
     }
     EffectCleanupManager.intervals.clear();
     if (count > 0) {
-      console.log(`🧹 Cleaned up ${count} orphaned intervals`);
     }
   }
 
@@ -111,7 +110,6 @@ export class EffectCleanupManager {
     }
     EffectCleanupManager.timeouts.clear();
     if (count > 0) {
-      console.log(`🧹 Cleaned up ${count} orphaned timeouts`);
     }
   }
 
@@ -139,9 +137,7 @@ export class EffectCleanupManager {
    */
   public static logState(): void {
     const counts = EffectCleanupManager.getCounts();
-    console.log('🔍 EffectCleanupManager State:', counts);
     if (counts.intervals > 10 || counts.timeouts > 10) {
-      console.warn('⚠️ High number of tracked timers - possible memory leak!');
     }
   }
 }

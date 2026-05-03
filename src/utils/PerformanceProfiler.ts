@@ -55,7 +55,6 @@ export class PerformanceProfiler {
     this.testName = testName;
     this.testStartTime = performance.now();
     this.metrics = [];
-    console.log(`🔬 Performance Test Started: ${testName}`);
   }
 
   /**
@@ -77,10 +76,7 @@ export class PerformanceProfiler {
       threshold,
     };
     this.metrics.push(metric);
-    const icon = passed ? '✅' : '❌';
-    console.log(
-      `${icon} ${operationName}: ${executionTime.toFixed(3)}ms [${passed ? 'PASS' : 'FAIL'}] (threshold: ${threshold}ms)`
-    );
+    const _icon = passed ? '✅' : '❌';
     return metric;
   }
 
@@ -95,8 +91,7 @@ export class PerformanceProfiler {
     const startTime = performance.now();
     try {
       operation();
-    } catch (error) {
-      console.error(`❌ Error in operation ${operationName}:`, error);
+    } catch (_error) {
     }
     return this.recordMetric(operationName, startTime, performance.now(), threshold);
   }
@@ -112,8 +107,7 @@ export class PerformanceProfiler {
     const startTime = performance.now();
     try {
       await operation();
-    } catch (error) {
-      console.error(`❌ Error in async operation ${operationName}:`, error);
+    } catch (_error) {
     }
     return this.recordMetric(operationName, startTime, performance.now(), threshold);
   }
@@ -196,40 +190,16 @@ export class PerformanceProfiler {
    * Log performance report to console
    */
   private logReport(report: PerformanceReport): void {
-    console.log('\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-    console.log(`📊 Performance Test Report: ${report.testName}`);
-    console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-
-    console.log(`\n⏱️  Test Duration: ${report.duration.toFixed(2)}ms`);
-
-    console.log('\n📈 Summary Statistics:');
-    console.log(`   Total Operations: ${report.summary.totalOperations}`);
-    console.log(`   ✅ Passed: ${report.summary.passedOperations}`);
-    console.log(`   ❌ Failed: ${report.summary.failedOperations}`);
-    console.log(`   Pass Rate: ${report.summary.passRate.toFixed(1)}%`);
-
-    console.log('\n⚡ Execution Times:');
-    console.log(`   Average: ${report.summary.averageExecutionTime.toFixed(3)}ms`);
-    console.log(`   Maximum: ${report.summary.maxExecutionTime.toFixed(3)}ms`);
-    console.log(`   Minimum: ${report.summary.minExecutionTime.toFixed(3)}ms`);
 
     if (report.frameRateImpact) {
-      console.log('\n🎮 Frame Rate Impact:');
-      console.log(`   Baseline FPS: ${report.frameRateImpact.baselineFPS.toFixed(1)}`);
-      console.log(`   Test FPS: ${report.frameRateImpact.testFPS.toFixed(1)}`);
-      console.log(`   FPS Drop: ${report.frameRateImpact.fpsDropPercent.toFixed(1)}%`);
-      const impactIcon = report.frameRateImpact.acceptable ? '✅' : '❌';
-      const impactStatus = report.frameRateImpact.acceptable ? 'ACCEPTABLE' : 'UNACCEPTABLE';
-      console.log(`   ${impactIcon} Impact: ${impactStatus}`);
+      const _impactIcon = report.frameRateImpact.acceptable ? '✅' : '❌';
+      const _impactStatus = report.frameRateImpact.acceptable ? 'ACCEPTABLE' : 'UNACCEPTABLE';
     }
 
     // Overall result
     const overallPass = report.summary.passRate === 100;
-    const resultIcon = overallPass ? '✅' : '❌';
-    const resultStatus = overallPass ? 'PASSED' : 'FAILED';
-    console.log(`\n${resultIcon} Overall Result: ${resultStatus}`);
-
-    console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n');
+    const _resultIcon = overallPass ? '✅' : '❌';
+    const _resultStatus = overallPass ? 'PASSED' : 'FAILED';
   }
 
   /**
@@ -278,7 +248,6 @@ class FrameRateMonitor {
         requestAnimationFrame(baselineLoop);
       } else {
         this.baselineFPS = baselineFrameCount;
-        console.log(`📊 Baseline FPS: ${this.baselineFPS.toFixed(1)}`);
 
         // Start test monitoring
         this.startTestMonitoring();

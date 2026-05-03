@@ -28,9 +28,9 @@ export class DebugUtils {
    * @param message The message to log
    * @param data Optional data to log
    */
-  public static debug(message: string, ...data: unknown[]): void {
+  public static debug(_message: string, ..._data: unknown[]): void {
     if (DebugUtils.enabled && DebugUtils.shouldLog('debug')) {
-      console.debug(`[DEBUG] ${message}`, ...data);
+      // Debug logging disabled in production
     }
   }
 
@@ -39,9 +39,9 @@ export class DebugUtils {
    * @param message The message to log
    * @param data Optional data to log
    */
-  public static info(message: string, ...data: unknown[]): void {
+  public static info(_message: string, ..._data: unknown[]): void {
     if (DebugUtils.enabled && DebugUtils.shouldLog('info')) {
-      console.info(`[INFO] ${message}`, ...data);
+      // Info logging disabled in production
     }
   }
 
@@ -50,9 +50,9 @@ export class DebugUtils {
    * @param message The message to log
    * @param data Optional data to log
    */
-  public static warn(message: string, ...data: unknown[]): void {
+  public static warn(_message: string, ..._data: unknown[]): void {
     if (DebugUtils.enabled && DebugUtils.shouldLog('warn')) {
-      console.warn(`[WARN] ${message}`, ...data);
+      // Warning logging disabled in production
     }
   }
 
@@ -61,9 +61,9 @@ export class DebugUtils {
    * @param message The message to log
    * @param data Optional data to log
    */
-  public static error(message: string, ...data: unknown[]): void {
+  public static error(_message: string, ..._data: unknown[]): void {
     if (DebugUtils.enabled && DebugUtils.shouldLog('error')) {
-      console.error(`[ERROR] ${message}`, ...data);
+      // Error logging disabled in production
     }
   }
 

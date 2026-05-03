@@ -27,7 +27,6 @@ export class ZombieFactory {
       case GameConfig.ZOMBIE_TYPES.MECHANICAL:
         return new MechanicalZombie(x, y, wave);
       default:
-        console.warn(`Unknown zombie type: ${type}`);
         return null;
     }
   }
