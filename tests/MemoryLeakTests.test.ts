@@ -338,12 +338,12 @@ describe('Memory Leak Tests', () => {
 
       // Simulate timers
       for (let i = 0; i < beforeCleanup.intervals; i++) {
-        const interval = setInterval(() => {}, 16);
+        const interval = setInterval(() => { /* no-op timer for testing */ }, 16);
         EffectCleanupManager.registerInterval(interval);
       }
 
       for (let i = 0; i < beforeCleanup.timeouts; i++) {
-        const timeout = setTimeout(() => {}, 1000);
+        const timeout = setTimeout(() => { /* no-op timer for testing */ }, 1000);
         EffectCleanupManager.registerTimeout(timeout);
       }
 
@@ -406,7 +406,7 @@ describe('Memory Leak Tests', () => {
       }
 
       for (let i = 0; i < 30; i++) {
-        const interval = setInterval(() => {}, 16);
+        const interval = setInterval(() => { /* no-op timer for testing */ }, 16);
         EffectCleanupManager.registerInterval(interval);
       }
 
@@ -615,7 +615,7 @@ describe('Memory Leak Tests', () => {
     test('should detect high timer counts', () => {
       // Create many timers (above threshold)
       for (let i = 0; i < 25; i++) {
-        const interval = setInterval(() => {}, 16);
+        const interval = setInterval(() => { /* no-op timer for testing */ }, 16);
         EffectCleanupManager.registerInterval(interval);
       }
 

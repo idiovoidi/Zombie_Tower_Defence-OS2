@@ -58,7 +58,7 @@ export class Tower extends GameObject implements ITower, TowerEffects {
     IdleAnimationType,
     (tower: Tower, deltaTime: number) => void
   > = {
-    none: () => {},
+    none: () => { /* no idle animation */ },
     machineGun: (tower, dt) => tower.idleAnimationMachineGun(dt),
     sniper: (tower, dt) => tower.idleAnimationSniper(dt),
     shotgun: (tower, dt) => tower.idleAnimationShotgun(dt),
@@ -672,6 +672,7 @@ export class Tower extends GameObject implements ITower, TowerEffects {
     try {
       this.renderer.destroy();
     } catch (_error) {
+      // Renderer already destroyed
     }
 
     // Note: Shell casings and muzzle flashes are managed by EffectManager

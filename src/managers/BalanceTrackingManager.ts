@@ -466,6 +466,7 @@ export class BalanceTrackingManager {
       const elapsed = performance.now() - startTime;
       this.recordAnalysisPerformance(elapsed);
     } catch (_error) {
+      // Analysis error handled gracefully
     }
   }
 
@@ -600,6 +601,7 @@ export class BalanceTrackingManager {
 
     // Warn if analysis exceeds 5ms
     if (elapsed > 5) {
+      // Performance warning: analysis took longer than 5ms
     }
   }
 

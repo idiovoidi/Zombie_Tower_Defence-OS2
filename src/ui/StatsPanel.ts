@@ -224,6 +224,7 @@ export class StatsPanel extends UIComponent {
         }, 2000);
       }
     } else {
+      // Stat tracker not available
     }
   }
 

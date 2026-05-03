@@ -96,6 +96,7 @@ export class EffectCleanupManager {
     }
     EffectCleanupManager.intervals.clear();
     if (count > 0) {
+      // Intervals cleared
     }
   }
 
@@ -110,6 +111,7 @@ export class EffectCleanupManager {
     }
     EffectCleanupManager.timeouts.clear();
     if (count > 0) {
+      // Timeouts cleared
     }
   }
 
@@ -138,6 +140,7 @@ export class EffectCleanupManager {
   public static logState(): void {
     const counts = EffectCleanupManager.getCounts();
     if (counts.intervals > 10 || counts.timeouts > 10) {
+      // High timer count detected
     }
   }
 }

@@ -272,4 +272,5 @@ export const WaveBalancing = {
 
 // Export helper function for console testing
 export function printWaveBalance(_startWave = 1, _endWave = 10): void {
+  // Wave balance printing placeholder for console testing
 }

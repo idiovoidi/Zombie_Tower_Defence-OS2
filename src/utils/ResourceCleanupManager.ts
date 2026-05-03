@@ -182,6 +182,7 @@ export class ResourceCleanupManager {
         }
         effect.graphics.destroy({ children: true });
       } catch (_error) {
+        // Graphics already destroyed
       }
 
       // Track effect types for logging

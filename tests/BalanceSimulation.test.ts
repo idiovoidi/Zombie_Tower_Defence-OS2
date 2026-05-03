@@ -287,7 +287,9 @@ describe('Automated Balance Analysis', () => {
     // Print recommendations
     if (recommendations.length > 0) {
       console.log('\n📋 ACTIONABLE CHANGES:');
-      recommendations.forEach(rec => console.log(`   ${rec}`));
+      for (const rec of recommendations) {
+        console.log(`   ${rec}`);
+      }
     } else {
       console.log('\n✅ All towers reasonably balanced!');
     }

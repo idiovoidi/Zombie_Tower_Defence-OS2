@@ -84,5 +84,6 @@ export class AIPlayerManager {
   }
 
   private logFinalStats(): void {
+    // AI stats logging placeholder
   }
 }

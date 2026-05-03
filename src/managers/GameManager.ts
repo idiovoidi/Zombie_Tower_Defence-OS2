@@ -631,6 +631,7 @@ export class GameManager {
       const zombiesDirty = this.zombieManager.areZombiesDirty();
 
       if (DevConfig.PERFORMANCE.LOG_DIRTY_FLAGS && !towersDirty && !zombiesDirty) {
+        // No dirty flags - arrays are up to date
       }
 
       if (towersDirty) {
@@ -639,6 +640,7 @@ export class GameManager {
         this.towerPlacementManager.clearTowersDirty();
         OptimizationValidator.trackArrayRebuild('towers');
         if (DevConfig.PERFORMANCE.LOG_DIRTY_FLAGS) {
+          // Tower arrays rebuilt
         }
       }
 
@@ -649,6 +651,7 @@ export class GameManager {
         this.zombieManager.clearZombiesDirty();
         OptimizationValidator.trackArrayRebuild('zombies');
         if (DevConfig.PERFORMANCE.LOG_DIRTY_FLAGS) {
+          // Zombie arrays rebuilt
         }
       }
 

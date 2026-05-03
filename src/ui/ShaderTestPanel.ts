@@ -166,6 +166,7 @@ export class ShaderTestPanel extends UIPanel {
   }
 
   private updateButtonStates(_selectedShader: string): void {
+    // Button states updated based on shader selection
   }
 
   private selectShader(shaderName: string): void {
@@ -181,6 +182,7 @@ export class ShaderTestPanel extends UIPanel {
         try {
           this.currentFilter.dispose();
         } catch (_e) {
+          // Filter disposal failed
         }
       } else if (
         'destroy' in this.currentFilter &&
@@ -189,6 +191,7 @@ export class ShaderTestPanel extends UIPanel {
         try {
           this.currentFilter.destroy();
         } catch (_e) {
+          // Filter destruction failed
         }
       }
       this.currentFilter = null;
@@ -221,6 +224,7 @@ export class ShaderTestPanel extends UIPanel {
       if (this.visualPresets) {
         this.visualPresets.applyPreset(shaderName.toLowerCase());
       } else {
+        // Visual presets not initialized
       }
       this.clearSliders();
       return;

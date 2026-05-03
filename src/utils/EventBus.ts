@@ -86,6 +86,7 @@ export class EventBus {
         try {
           callback(payload);
         } catch (_error) {
+          // Event handler error - continue with other callbacks
         }
       });
     }

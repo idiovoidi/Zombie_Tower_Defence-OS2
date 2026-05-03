@@ -339,7 +339,9 @@ export class LevelState {
    */
   public dispose(): void {
     // Unsubscribe from all events
-    this.eventSubscriptions.forEach(sub => sub.unsubscribe());
+    for (const sub of this.eventSubscriptions) {
+      sub.unsubscribe();
+    }
     this.eventSubscriptions = [];
 
     // Dispose combat renderer

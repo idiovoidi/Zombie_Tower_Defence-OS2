@@ -321,7 +321,9 @@ export class CombatRenderer {
    * Clean up event listeners
    */
   public dispose(): void {
-    this.eventSubscriptions.forEach(sub => sub.unsubscribe());
+    for (const sub of this.eventSubscriptions) {
+      sub.unsubscribe();
+    }
     this.eventSubscriptions = [];
   }
 }

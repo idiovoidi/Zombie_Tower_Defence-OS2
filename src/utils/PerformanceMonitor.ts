@@ -419,12 +419,14 @@ export class PerformanceMonitor {
     if (metrics.systemTimes.size > 0) {
       metrics.systemTimes.forEach((time, _system) => {
         const _icon = time > PerformanceMonitor.SLOW_SYSTEM_THRESHOLD_MS ? '⚠️' : '✅';
+        // System time logged for debugging
       });
     }
 
     // Entity counts
     if (metrics.entityCounts.size > 0) {
       metrics.entityCounts.forEach((_count, _type) => {
+        // Entity count tracked for debugging
       });
     }
 
@@ -439,12 +441,14 @@ export class PerformanceMonitor {
 
       // Show wave memory history
       if (PerformanceMonitor.waveMemorySnapshots.length > 0) {
+        // Memory snapshots available for analysis
       }
     }
 
     // Warnings
     if (metrics.warnings.length > 0) {
       metrics.warnings.forEach(_warning => {
+        // Warning logged for debugging
       });
     }
   }

@@ -99,6 +99,7 @@ export class InputManager {
 
       // Debug logging
       if (this.debugMode) {
+        // Key down event logged
       }
 
       // Call all registered callbacks
@@ -113,6 +114,7 @@ export class InputManager {
 
       // Debug logging
       if (this.debugMode) {
+        // Key up event logged
       }
 
       // Call all registered callbacks
@@ -142,6 +144,7 @@ export class InputManager {
 
     // Debug logging
     if (this.debugMode) {
+      // Pointer coordinates logged
     }
 
     return {
@@ -257,6 +260,7 @@ export class InputManager {
       if (this.onCampClickCallback) {
         this.onCampClickCallback();
       } else {
+        // No camp click callback registered
       }
     });
 

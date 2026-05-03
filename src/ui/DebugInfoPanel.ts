@@ -136,5 +136,7 @@ export class DebugInfoPanel extends UIPanel {
     this.contentContainer.addChild(configText);
   }
 
-  public update(_deltaTime: number): void {}
+  public update(_deltaTime: number): void {
+    // Debug info updates handled on toggle
+  }
 }

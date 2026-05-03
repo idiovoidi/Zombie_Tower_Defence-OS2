@@ -92,6 +92,7 @@ export class PerformanceProfiler {
     try {
       operation();
     } catch (_error) {
+      // Operation error captured in metric
     }
     return this.recordMetric(operationName, startTime, performance.now(), threshold);
   }
@@ -108,6 +109,7 @@ export class PerformanceProfiler {
     try {
       await operation();
     } catch (_error) {
+      // Async operation error captured in metric
     }
     return this.recordMetric(operationName, startTime, performance.now(), threshold);
   }

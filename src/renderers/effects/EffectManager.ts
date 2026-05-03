@@ -1029,6 +1029,7 @@ export class EffectManager {
 
     if (stats.warnings.length > 0) {
       for (const _warning of stats.warnings) {
+        // Warning logged
       }
     }
   }

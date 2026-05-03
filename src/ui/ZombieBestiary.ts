@@ -413,5 +413,7 @@ export class ZombieBestiary extends UIPanel {
     this.togglePanel();
   }
 
-  public update(_deltaTime: number): void {}
+  public update(_deltaTime: number): void {
+    // Bestiary UI updates handled on toggle
+  }
 }

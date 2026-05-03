@@ -217,6 +217,7 @@ export class OptimizationValidator {
 
     // Verify results match (sanity check)
     if (closestLinear !== closestSpatial) {
+      // Results mismatch - this should not happen
     }
   }
 

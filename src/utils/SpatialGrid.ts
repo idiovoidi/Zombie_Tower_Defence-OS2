@@ -393,9 +393,11 @@ export class SpatialGrid<T extends SpatialEntity> {
 
     // Log warnings when grid becomes inefficient
     if (maxEntitiesInCell > 20) {
+      // Warning: too many entities in one cell, consider resizing
     }
 
     if (occupiedCells > totalCells * 0.8) {
+      // Warning: grid density high, consider increasing grid size
     }
 
     return stats;

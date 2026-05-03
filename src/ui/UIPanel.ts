@@ -165,7 +165,9 @@ export abstract class UIPanel extends UIComponent {
   }
 
   /** Called when the panel is opened. Override to refresh content. */
-  protected onOpen(): void {}
+  protected onOpen(): void {
+    // Override in subclasses to refresh content
+  }
 
   public open(): void {
     this.isExpanded = true;
