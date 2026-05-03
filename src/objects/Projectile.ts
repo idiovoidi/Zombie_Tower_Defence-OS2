@@ -26,6 +26,7 @@ export class Projectile extends Container {
   private arcHeight = 80; // Height of the arc
   private upgradeLevel = 1; // Tower upgrade level for scaling effects
   private isHitEffectActive = false;
+  private knockbackForce = 0; // Knockback force in pixels (0 = no knockback)
 
   constructor(
     x = 0,
@@ -78,6 +79,7 @@ export class Projectile extends Container {
     this.rotation = 0;
     this.visual.alpha = 1;
     this.visual.scale.set(1);
+    this.knockbackForce = 0; // Reset knockback
     this.createVisual();
   }
 
@@ -250,6 +252,21 @@ export class Projectile extends Container {
   }
 
   /**
+   * Set the knockback force for this projectile
+   * @param force - Knockback distance in pixels (0 = no knockback)
+   */
+  public setKnockbackForce(force: number): void {
+    this.knockbackForce = force;
+  }
+
+  /**
+   * Get the current knockback force
+   */
+  public getKnockbackForce(): number {
+    return this.knockbackForce;
+  }
+
+  /**
    * Get all active zombies within the specified radius.
    * @param radius - Search radius in pixels
    * @returns Array of zombies within radius with their distances
@@ -299,6 +316,12 @@ export class Projectile extends Container {
     const modifiedDamage = damageAmount * damageMultiplier * modifier;
 
     const healthBefore = zombie.getHealth();
+
+    // Apply knockback if this projectile has knockback force and zombie isn't dying
+    if (this.knockbackForce > 0 && !zombie.getIsDying()) {
+      zombie.applyKnockback(this.knockbackForce, this.position.x, this.position.y);
+    }
+
     zombie.takeDamage(modifiedDamage, this.towerType);
     const healthAfter = zombie.getHealth();
     const actualDamage = healthBefore - healthAfter;

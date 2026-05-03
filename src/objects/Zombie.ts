@@ -44,6 +44,12 @@ export class Zombie extends GameObject {
   private isDying = false; // Track if death animation is in progress
   private deathAnimationComplete = false; // Track if animation finished
 
+  // Knockback properties
+  private knockbackDistance = 0; // Remaining knockback distance to travel
+  private knockbackDirection = { x: 0, y: 0 }; // Direction of knockback
+  private knockbackSpeed = 200; // Pixels per second for knockback movement
+  private isBeingKnockedBack = false; // Track if currently in knockback state
+
   constructor(type: string, x: number, y: number, wave: number) {
     super();
     this.type = type;
@@ -81,6 +87,8 @@ export class Zombie extends GameObject {
     this.deathAnimationComplete = false;
     this.isSlowed = false;
     this.currentSlowPercent = 0;
+    this.isBeingKnockedBack = false;
+    this.knockbackDistance = 0;
     this.visible = true;
     this.alpha = 1;
     this.scale.set(1);
@@ -201,7 +209,7 @@ export class Zombie extends GameObject {
     this.addChild(this.healthBar);
   }
 
-  public update(deltaTime: number): void {
+  public override update(deltaTime: number): void {
     super.update(deltaTime);
 
     // If dying, only update renderer (for death animation), skip movement/AI
@@ -260,6 +268,12 @@ export class Zombie extends GameObject {
       return;
     }
 
+    // Handle knockback movement first (takes priority over normal movement)
+    if (this.isBeingKnockedBack && this.knockbackDistance > 0) {
+      this.updateKnockback(deltaTime);
+      return;
+    }
+
     const target = this.waypoints[this.currentWaypointIndex];
 
     // Calculate direction vector
@@ -304,6 +318,96 @@ export class Zombie extends GameObject {
 
     // Update transform component to stay in sync
     this.transformComponent.setPosition(this.position.x, this.position.y);
+  }
+
+  /**
+   * Apply knockback to the zombie, pushing it back along the path
+   * @param force - The knockback force (distance in pixels)
+   * @param sourceX - X position of the knockback source (for direction)
+   * @param sourceY - Y position of the knockback source (for direction)
+   * @returns True if knockback was applied, false if zombie resists knockback
+   */
+  public applyKnockback(force: number, sourceX: number, sourceY: number): boolean {
+    // Calculate knockback resistance based on zombie type
+    const resistance = this.getKnockbackResistance();
+    const actualForce = force * (1 - resistance);
+
+    // If resistance completely nullifies knockback, don't apply
+    if (actualForce <= 0) {
+      return false;
+    }
+
+    // Calculate knockback direction (away from source, along path)
+    const dx = this.position.x - sourceX;
+    const dy = this.position.y - sourceY;
+    const distance = Math.sqrt(dx * dx + dy * dy);
+
+    if (distance === 0) {
+      return false;
+    }
+
+    // Normalize direction
+    this.knockbackDirection.x = dx / distance;
+    this.knockbackDirection.y = dy / distance;
+    this.knockbackDistance = actualForce;
+    this.isBeingKnockedBack = true;
+
+    return true;
+  }
+
+  /**
+   * Get knockback resistance based on zombie type
+   * Tank and Armored zombies resist knockback, small zombies are vulnerable
+   */
+  private getKnockbackResistance(): number {
+    switch (this.type) {
+      case GameConfig.ZOMBIE_TYPES.TANK:
+        return 0.9; // 90% resistant (hard to knock back)
+      case GameConfig.ZOMBIE_TYPES.ARMORED:
+        return 0.7; // 70% resistant
+      case GameConfig.ZOMBIE_TYPES.MECHANICAL:
+        return 0.6; // 60% resistant
+      case GameConfig.ZOMBIE_TYPES.STEALTH:
+        return 0.3; // 30% resistant
+      case GameConfig.ZOMBIE_TYPES.FAST:
+        return 0.2; // 20% resistant
+      case GameConfig.ZOMBIE_TYPES.SWARM:
+        return 0.1; // 10% resistant (very vulnerable)
+      case GameConfig.ZOMBIE_TYPES.BASIC:
+      default:
+        return 0.3; // 30% resistant (early game vulnerable to knockback)
+    }
+  }
+
+  /**
+   * Update knockback movement
+   */
+  private updateKnockback(deltaTime: number): void {
+    const moveDistance = this.knockbackSpeed * (deltaTime / 1000);
+    const actualMove = Math.min(moveDistance, this.knockbackDistance);
+
+    // Apply knockback movement
+    this.position.x += this.knockbackDirection.x * actualMove;
+    this.position.y += this.knockbackDirection.y * actualMove;
+
+    // Update remaining knockback distance
+    this.knockbackDistance -= actualMove;
+
+    // End knockback when distance is depleted
+    if (this.knockbackDistance <= 0) {
+      this.isBeingKnockedBack = false;
+      this.knockbackDistance = 0;
+    }
+
+    // Update transform component
+    this.transformComponent.setPosition(this.position.x, this.position.y);
+  }
+
+  /**
+   * Check if zombie is currently being knocked back
+   */
+  public getIsBeingKnockedBack(): boolean {
+    return this.isBeingKnockedBack;
   }
 
   // Get sway amplitude based on zombie type (reduced for subtler movement)

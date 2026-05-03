@@ -300,6 +300,10 @@ export class TowerCombatManager {
       const shotgunRange = tower.getRange(); // Use tower's actual range
       const damagePerPellet = damage / pelletCount;
 
+      // Knockback force for shotgun pellets (pixels)
+      // Small zombies get knocked back ~20-30 pixels, larger ones less
+      const baseKnockbackForce = 35;
+
       for (let i = 0; i < pelletCount; i++) {
         // Spread pellets in a cone pattern
         const offset = (i - (pelletCount - 1) / 2) * (coneSpread / (pelletCount - 1));
@@ -309,7 +313,7 @@ export class TowerCombatManager {
         const targetX = spawnPos.x + Math.cos(adjustedAngle) * shotgunRange;
         const targetY = spawnPos.y + Math.sin(adjustedAngle) * shotgunRange;
 
-        this.createTargetedProjectile(
+        const projectile = this.createTargetedProjectile(
           tower,
           spawnPos,
           { x: targetX, y: targetY },
@@ -318,6 +322,11 @@ export class TowerCombatManager {
           projectileType,
           null // No specific target - pellets hit whatever they encounter
         );
+
+        // Apply knockback force to shotgun pellets
+        if (projectile) {
+          projectile.setKnockbackForce(baseKnockbackForce);
+        }
       }
     } else {
       // Single projectile
