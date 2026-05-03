@@ -1,4 +1,4 @@
-import { Container, Graphics } from 'pixi.js';
+import { Container, Graphics, Ticker } from 'pixi.js';
 import type { Zombie } from '../../objects/Zombie';
 import { EffectCleanupManager } from '../../utils/EffectCleanupManager';
 import { ResourceCleanupManager } from '../../utils/ResourceCleanupManager';
@@ -16,6 +16,7 @@ export class SludgePoolEffect extends Container {
   private poolRadius: number;
   private upgradeLevel: number;
   private poolDuration: number;
+  private ticker: Ticker;
   private poolData: {
     x: number;
     y: number;
@@ -65,6 +66,7 @@ export class SludgePoolEffect extends Container {
     this.bubblesContainer = new Container();
     this.addChild(this.bubblesContainer);
 
+    this.ticker = new Ticker();
     this.drawPoolBase();
     this.startAnimation();
     this.registerForCleanup();
@@ -120,7 +122,7 @@ export class SludgePoolEffect extends Container {
    * Animation loop for bubbles
    */
   private animateBubbles(): void {
-    if (!this.isActive || !this.parent) return;
+    if (!this.isActive) return;
 
     // Spawn new bubbles occasionally (more bubbles at higher levels)
     const spawnChance = 0.1 + this.upgradeLevel * 0.03;
@@ -179,18 +181,14 @@ export class SludgePoolEffect extends Container {
         this.activeBubbles.splice(i, 1);
       }
     }
-
-    // Continue animation loop
-    if (this.isActive && this.parent) {
-      requestAnimationFrame(() => this.animateBubbles());
-    }
   }
 
   /**
    * Start the bubble animation
    */
   private startAnimation(): void {
-    this.animateBubbles();
+    this.ticker.add(() => this.animateBubbles(), this);
+    this.ticker.start();
   }
 
   /**
@@ -237,6 +235,10 @@ export class SludgePoolEffect extends Container {
     if (!this.isActive) return;
 
     this.isActive = false;
+
+    // Stop the ticker
+    this.ticker.stop();
+    this.ticker.destroy();
 
     // Stop animation flag will let bubbles clean themselves up
     this.activeBubbles.length = 0;
