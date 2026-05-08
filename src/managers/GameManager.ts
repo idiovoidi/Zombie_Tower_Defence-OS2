@@ -4,8 +4,9 @@ import { DevConfig } from '../config/devConfig';
 import { GameConfig } from '../config/gameConfig';
 import type { Tower } from '../objects/Tower';
 import type { Zombie } from '../objects/Zombie';
-import { VisualMapRenderer } from '../renderers/VisualMapRenderer';
 import { EffectManager } from '../renderers/effects/EffectManager';
+import type { SludgePoolEffect } from '../renderers/effects/SludgePoolEffect';
+import { VisualMapRenderer } from '../renderers/VisualMapRenderer';
 import { EffectCleanupManager } from '../utils/EffectCleanupManager';
 import { EventBus, GameEvents } from '../utils/EventBus';
 import { type GameLogEntry, LogExporter } from '../utils/LogExporter';
@@ -19,6 +20,7 @@ import { LevelManager } from './LevelManager';
 import { LevelState } from './LevelState';
 import { MapManager } from './MapManager';
 import { ProjectileManager } from './ProjectileManager';
+import { SludgePoolManager } from './SludgePoolManager';
 import { TowerCombatManager } from './TowerCombatManager';
 import { TowerManager } from './TowerManager';
 import { TowerPlacementManager } from './TowerPlacementManager';
@@ -58,6 +60,7 @@ export class GameManager {
   private waveManager: WaveManager;
   private projectileManager: ProjectileManager;
   private towerCombatManager: TowerCombatManager;
+  private sludgePoolManager: SludgePoolManager;
 
   // Game container
   private gameContainer: Container;
@@ -108,6 +111,7 @@ export class GameManager {
       this.effectManager
     );
     this.towerCombatManager = new TowerCombatManager(1024, 768);
+    this.sludgePoolManager = new SludgePoolManager();
 
     // Initialize contextual state objects with injected managers
     this.initializeStateObjects();
@@ -154,6 +158,13 @@ export class GameManager {
         // Award money for kills through event system
         // (actual money reward handled in update loop for now)
         // Intentionally empty - placeholder for future implementation
+      }
+    });
+
+    // Listen for sludge pool creation events
+    EventBus.getInstance().on<{ pool: SludgePoolEffect }>(GameEvents.SLUDGE_POOL_CREATED, data => {
+      if (data?.pool) {
+        this.sludgePoolManager.addPool(data.pool);
       }
     });
   }
@@ -263,6 +274,9 @@ export class GameManager {
       projectileManager: this.projectileManager,
       effectManager: this.effectManager,
     });
+
+    // Clear sludge pools and goo effects
+    this.sludgePoolManager.clear();
 
     // Emit cleanup event
     EventBus.getInstance().emit(GameEvents.CLEANUP_WAVE);
@@ -621,6 +635,11 @@ export class GameManager {
     PerformanceMonitor.startMeasure('effectManager');
     this.effectManager.update(deltaTime);
     PerformanceMonitor.endMeasure('effectManager');
+
+    // Update sludge pool manager
+    PerformanceMonitor.startMeasure('sludgePoolManager');
+    this.sludgePoolManager.update(this.zombieManager.getZombies());
+    PerformanceMonitor.endMeasure('sludgePoolManager');
 
     if (this.currentState === GameConfig.GAME_STATES.PLAYING) {
       // Update zombie manager

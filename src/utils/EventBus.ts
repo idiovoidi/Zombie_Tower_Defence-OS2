@@ -154,6 +154,7 @@ export const GameEvents = {
   SHOOTING_EFFECT: 'combat:shooting:effect',
   TOWER_ROTATION: 'combat:tower:rotation',
   FLAME_GROUND_HIT: 'combat:flame:ground:hit',
+  SLUDGE_POOL_CREATED: 'combat:sludge:pool:created',
 
   // Cleanup events
   CLEANUP_GAME: 'cleanup:game',

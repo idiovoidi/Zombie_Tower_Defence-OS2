@@ -450,6 +450,11 @@ export class Projectile extends Container {
     // Store pool data reference for external systems
     (sludgePool as unknown as Record<string, unknown>)['_poolData'] = sludgePool.getPoolData();
 
+    // Emit event to register sludge pool with SludgePoolManager
+    EventBus.getInstance().emit(GameEvents.SLUDGE_POOL_CREATED, {
+      pool: sludgePool,
+    });
+
     // Deactivate the projectile immediately
     this.isActive = false;
   }
