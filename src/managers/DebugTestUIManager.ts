@@ -319,6 +319,31 @@ export class DebugTestUIManager {
   }
 
   /**
+   * Progress to Level 2 - unlocks and loads level 2
+   */
+  public progressToLevel2(): void {
+    if (!this.gameManager) {
+      console.warn('Cannot progress to level 2: GameManager not initialized');
+      return;
+    }
+
+    const levelManager = this.gameManager.getLevelManager();
+
+    // Unlock level 2
+    levelManager.unlockLevel('level2');
+    console.log('🔓 Unlocked Level 2: Forest Path');
+
+    // Load and start level 2
+    const success = levelManager.loadLevel('level2');
+    if (success) {
+      this.gameManager.startGameWithLevel('level2');
+      console.log('🎮 Started Level 2: Forest Path');
+    } else {
+      console.error('Failed to load level 2');
+    }
+  }
+
+  /**
    * Open individual panels programmatically
    */
   public openShaderTestPanel(): void {

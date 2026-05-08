@@ -1,5 +1,4 @@
-import { Application, extensions } from 'pixi.js';
-import { CullerPlugin } from 'pixi.js';
+import { Application, CullerPlugin, extensions } from 'pixi.js';
 import { DebugConstants } from './config/debugConstants';
 import { DevConfig } from './config/devConfig';
 import { GameConfig } from './config/gameConfig';
@@ -172,6 +171,9 @@ import { VisualEffects } from './utils/VisualEffects';
   });
   debugInfoPanel.setAIControlCallback(() => {
     debugTestUIManager.openAIControlPanel();
+  });
+  debugInfoPanel.setProgressToLevel2Callback(() => {
+    debugTestUIManager.progressToLevel2();
   });
 
   // Set up AI toggle callback
