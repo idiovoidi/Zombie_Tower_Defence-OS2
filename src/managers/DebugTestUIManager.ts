@@ -318,28 +318,37 @@ export class DebugTestUIManager {
     return this.aiControlPanel;
   }
 
+  private currentLevelIndex = 1; // Start at level 1
+  private readonly maxLevel = 6;
+
   /**
-   * Progress to Level 2 - unlocks and loads level 2
+   * Progress to the next level (cycles through 2-6, then wraps to 1)
    */
-  public progressToLevel2(): void {
+  public progressToNextLevel(): void {
     if (!this.gameManager) {
-      console.warn('Cannot progress to level 2: GameManager not initialized');
+      console.warn('Cannot progress: GameManager not initialized');
       return;
     }
 
+    // Increment level index (wrap around after level 6)
+    this.currentLevelIndex++;
+    if (this.currentLevelIndex > this.maxLevel) {
+      this.currentLevelIndex = 1;
+    }
+
+    const levelId = `level${this.currentLevelIndex}`;
     const levelManager = this.gameManager.getLevelManager();
 
-    // Unlock level 2
-    levelManager.unlockLevel('level2');
-    console.log('🔓 Unlocked Level 2: Forest Path');
+    // Unlock and start the level
+    levelManager.unlockLevel(levelId);
+    console.log(`🔓 Unlocked ${levelId}`);
 
-    // Load and start level 2
-    const success = levelManager.loadLevel('level2');
+    const success = levelManager.loadLevel(levelId);
     if (success) {
-      this.gameManager.startGameWithLevel('level2');
-      console.log('🎮 Started Level 2: Forest Path');
+      this.gameManager.startGameWithLevel(levelId);
+      console.log(`🎮 Started ${levelId}`);
     } else {
-      console.error('Failed to load level 2');
+      console.error(`Failed to load ${levelId}`);
     }
   }
 

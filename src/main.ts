@@ -172,8 +172,8 @@ import { VisualEffects } from './utils/VisualEffects';
   debugInfoPanel.setAIControlCallback(() => {
     debugTestUIManager.openAIControlPanel();
   });
-  debugInfoPanel.setProgressToLevel2Callback(() => {
-    debugTestUIManager.progressToLevel2();
+  debugInfoPanel.setProgressToNextLevelCallback(() => {
+    debugTestUIManager.progressToNextLevel();
   });
 
   // Set up AI toggle callback

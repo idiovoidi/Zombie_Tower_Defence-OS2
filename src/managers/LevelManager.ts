@@ -70,6 +70,42 @@ export class LevelManager {
       unlockConditions: { previousLevel: 'level2' },
     });
 
+    this.levels.set('level4', {
+      id: 'level4',
+      name: 'Factory Complex',
+      description: 'Navigate the industrial maze with limited resources',
+      map: 'industrial',
+      difficulty: 'Nightmare',
+      startingMoney: 250,
+      startingLives: 8,
+      resourceModifiers: { wood: 0.6, metal: 1.8, energy: 1.5 },
+      unlockConditions: { previousLevel: 'level3' },
+    });
+
+    this.levels.set('level5', {
+      id: 'level5',
+      name: 'Toxic Swamp',
+      description: 'Survive the treacherous wetlands with scarce metal',
+      map: 'swamp',
+      difficulty: 'Nightmare',
+      startingMoney: 200,
+      startingLives: 5,
+      resourceModifiers: { wood: 2.0, metal: 0.5, energy: 1.0 },
+      unlockConditions: { previousLevel: 'level4' },
+    });
+
+    this.levels.set('level6', {
+      id: 'level6',
+      name: 'Secret Laboratory',
+      description: 'The final challenge - survive the endless waves',
+      map: 'laboratory',
+      difficulty: 'Nightmare',
+      startingMoney: 150,
+      startingLives: 3,
+      resourceModifiers: { wood: 0.5, metal: 0.5, energy: 2.0 },
+      unlockConditions: { previousLevel: 'level5' },
+    });
+
     // Unlock the first level by default
     this.unlockedLevels.add('level1');
   }

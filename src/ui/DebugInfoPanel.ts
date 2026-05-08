@@ -7,7 +7,7 @@ export class DebugInfoPanel extends UIPanel {
   private onOpenBestiary?: () => void;
   private onOpenStats?: () => void;
   private onOpenAIControl?: () => void;
-  private onProgressToLevel2?: () => void;
+  private onProgressToNextLevel?: () => void;
 
   constructor() {
     super();
@@ -31,8 +31,8 @@ export class DebugInfoPanel extends UIPanel {
   public setAIControlCallback(callback: () => void): void {
     this.onOpenAIControl = callback;
   }
-  public setProgressToLevel2Callback(callback: () => void): void {
-    this.onProgressToLevel2 = callback;
+  public setProgressToNextLevelCallback(callback: () => void): void {
+    this.onProgressToNextLevel = callback;
   }
 
   private buildPanelContent(): void {
@@ -89,10 +89,10 @@ export class DebugInfoPanel extends UIPanel {
         },
       ],
       [
-        '📈 Progress to Level 2',
+        '📈 Progress Level',
         0xff6600,
         () => {
-          this.onProgressToLevel2?.();
+          this.onProgressToNextLevel?.();
           this.close();
         },
       ],
