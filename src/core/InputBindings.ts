@@ -5,6 +5,7 @@ import type { TimeControlManager } from '../managers/TimeControlManager';
 import type { BottomBar } from '../ui/BottomBar';
 import type { TowerShop } from '../ui/TowerShop';
 import { DebugUtils } from '../utils/DebugUtils';
+import { canAffordSelectedTower } from './UISetup';
 
 export function bindInput(
   inputManager: InputManager,
@@ -13,20 +14,6 @@ export function bindInput(
   towerShop: TowerShop,
   bottomBar: BottomBar
 ): void {
-  // Helper to check if player can afford selected tower
-  const canAffordSelectedTower = (): {
-    affordable: boolean;
-    cost: number;
-    selectedType: string | null;
-  } => {
-    const selectedType = towerShop.getSelectedTowerType();
-    if (!selectedType) {
-      return { affordable: false, cost: 0, selectedType: null };
-    }
-    const cost = gameManager.getTowerManager().getTowerCost(selectedType);
-    return { affordable: gameManager.getMoney() >= cost, cost, selectedType };
-  };
-
   inputManager.onPointerDown((coords, event) => {
     if (event.defaultPrevented) {
       return;
@@ -41,17 +28,12 @@ export function bindInput(
 
       if (placementManager.isInPlacementMode()) {
         const pos = coords.game;
-        const { affordable, selectedType } = canAffordSelectedTower();
+        const { affordable, cost, selectedType } = canAffordSelectedTower(towerShop, gameManager);
         if (selectedType) {
           if (affordable) {
             const tower = placementManager.placeTower(pos.x, pos.y);
             if (tower) {
-              gameManager
-                .getStatTracker()
-                .trackTowerBuilt(
-                  selectedType,
-                  gameManager.getTowerManager().getTowerCost(selectedType)
-                );
+              gameManager.getStatTracker().trackTowerBuilt(selectedType, cost);
               towerShop.clearSelection();
               timeControlManager.endPlacement();
             }

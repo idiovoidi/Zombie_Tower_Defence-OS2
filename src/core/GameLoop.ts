@@ -4,7 +4,7 @@ import { DevConfig } from '../config/devConfig';
 import { GameConfig } from '../config/gameConfig';
 import type { GameManager } from '../managers/GameManager';
 import type { TimeControlManager } from '../managers/TimeControlManager';
-import type { UIContext } from './UISetup';
+import { canAffordSelectedTower, type UIContext } from './UISetup';
 
 type PixelArtRenderer = InstanceType<typeof import('../utils/PixelArtRenderer').PixelArtRenderer>;
 
@@ -57,12 +57,8 @@ export function startGameLoop(
 
     const placementManager = gameManager.getTowerPlacementManager();
     if (placementManager.isInPlacementMode()) {
-      const selectedType = ui.towerShop.getSelectedTowerType();
-      if (selectedType) {
-        const cost = gameManager.getTowerManager().getTowerCost(selectedType);
-        const affordable = gameManager.getMoney() >= cost;
-        placementManager.setCanAfford(affordable);
-      }
+      const { affordable } = canAffordSelectedTower(ui.towerShop, gameManager);
+      placementManager.setCanAfford(affordable);
     }
 
     ui.campUpgradePanel.setMoneyAvailable(gameManager.getMoney());

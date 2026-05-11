@@ -86,7 +86,7 @@ export function createUI(
   debugTestUIManager.initialize(gameManager, gameManager.getWaveManager(), pixelArtRenderer);
 
   debugTestUIManager.setZombieSpawnCallback((type: string) => {
-    console.log(`🧟 Spawning test zombie: ${type}`);
+    DebugUtils.debug(`🧟 Spawning test zombie: ${type}`);
     gameManager.getZombieManager().spawnZombieType(type);
   });
 
@@ -290,4 +290,16 @@ export function setupCampClickCallback(
   } else {
     DebugUtils.debug('⚠️ Map renderer not available');
   }
+}
+
+export function canAffordSelectedTower(
+  towerShop: TowerShop,
+  gameManager: GameManager
+): { affordable: boolean; cost: number; selectedType: string | null } {
+  const selectedType = towerShop.getSelectedTowerType();
+  if (!selectedType) {
+    return { affordable: false, cost: 0, selectedType: null };
+  }
+  const cost = gameManager.getTowerManager().getTowerCost(selectedType);
+  return { affordable: gameManager.getMoney() >= cost, cost, selectedType };
 }
