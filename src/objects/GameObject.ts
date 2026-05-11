@@ -58,7 +58,7 @@ export class GameObject extends Container {
 
   // Destroy this game object and all its components
   // CRITICAL: Must destroy children to prevent GPU memory leak
-  public destroy(): void {
+  public override destroy(): void {
     for (const component of this.components.values()) {
       component.destroy();
     }

@@ -76,14 +76,14 @@ export class VHSFilter extends Filter {
   }
 
   set intensity(value: number) {
-    this.resources.vhsUniforms.uniforms.uIntensity = value;
+    this.resources['vhsUniforms'].uniforms.uIntensity = value;
   }
 
   get intensity(): number {
-    return this.resources.vhsUniforms.uniforms.uIntensity;
+    return this.resources['vhsUniforms'].uniforms.uIntensity;
   }
 
   updateTime(deltaTime: number): void {
-    this.resources.vhsUniforms.uniforms.uTime += deltaTime * 0.001;
+    this.resources['vhsUniforms'].uniforms.uTime += deltaTime * 0.001;
   }
 }

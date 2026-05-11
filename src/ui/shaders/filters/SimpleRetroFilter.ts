@@ -107,28 +107,28 @@ export class SimpleRetroFilter extends Filter {
    * Set pixel size for pixelation effect
    */
   set pixelSize(value: number) {
-    this.resources.retroUniforms.uniforms.uPixelSize = Math.max(1, value);
+    this.resources['retroUniforms'].uniforms.uPixelSize = Math.max(1, value);
   }
 
   get pixelSize(): number {
-    return this.resources.retroUniforms.uniforms.uPixelSize;
+    return this.resources['retroUniforms'].uniforms.uPixelSize;
   }
 
   /**
    * Set scanline intensity (0.0 to 1.0)
    */
   set scanlineIntensity(value: number) {
-    this.resources.retroUniforms.uniforms.uScanlineIntensity = Math.max(0, Math.min(1, value));
+    this.resources['retroUniforms'].uniforms.uScanlineIntensity = Math.max(0, Math.min(1, value));
   }
 
   get scanlineIntensity(): number {
-    return this.resources.retroUniforms.uniforms.uScanlineIntensity;
+    return this.resources['retroUniforms'].uniforms.uScanlineIntensity;
   }
 
   /**
    * Update time for animated effects
    */
   updateTime(deltaTime: number): void {
-    this.resources.retroUniforms.uniforms.uTime += deltaTime * 0.001;
+    this.resources['retroUniforms'].uniforms.uTime += deltaTime * 0.001;
   }
 }

@@ -284,11 +284,11 @@ export class SimpleEdgeDetectionFilter extends Filter {
   }
 
   set thickness(value: number) {
-    this.resources.edgeUniforms.uniforms.uThickness = value;
+    this.resources['edgeUniforms'].uniforms.uThickness = value;
   }
 
   get thickness(): number {
-    return this.resources.edgeUniforms.uniforms.uThickness;
+    return this.resources['edgeUniforms'].uniforms.uThickness;
   }
 }
 

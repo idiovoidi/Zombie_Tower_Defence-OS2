@@ -411,7 +411,7 @@ export class LogExporter {
 
     // Extract balance issues and other analysis data
     const issues =
-      (balanceData.balanceIssues as Array<{
+      (balanceData['balanceIssues'] as Array<{
         type: string;
         severity: string;
         message: string;
@@ -421,7 +421,7 @@ export class LogExporter {
       }>) || [];
 
     const waveDefenseAnalysis =
-      (balanceData.waveDefenseAnalysis as Array<{
+      (balanceData['waveDefenseAnalysis'] as Array<{
         wave: number;
         canDefend: boolean;
         totalZombieHP: number;
@@ -433,8 +433,8 @@ export class LogExporter {
         recommendation: string;
       }>) || [];
 
-    const towerEfficiencies = (balanceData.towerEfficiencies as Record<string, unknown>) || {};
-    const damageByType = (balanceData.damageByType as Record<string, number>) || {};
+    const towerEfficiencies = (balanceData['towerEfficiencies'] as Record<string, unknown>) || {};
+    const damageByType = (balanceData['damageByType'] as Record<string, number>) || {};
 
     // Calculate overall balance rating
     const overallBalanceRating = LogExporter.calculateBalanceRating(issues);
@@ -467,7 +467,7 @@ export class LogExporter {
     }
 
     // Format statistical analysis section
-    const statisticalAnalysis = balanceData.statisticalAnalysis as
+    const statisticalAnalysis = balanceData['statisticalAnalysis'] as
       | StatisticalAnalysisData
       | undefined;
 
@@ -480,7 +480,7 @@ export class LogExporter {
     }
 
     // Format dashboard data for Chart.js visualization
-    const summary = balanceData.summary as {
+    const summary = balanceData['summary'] as {
       totalDamage: number;
       totalMoneySpent: number;
       totalMoneyEarned: number;

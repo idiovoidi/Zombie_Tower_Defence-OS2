@@ -41,7 +41,7 @@ export class BulletTrail extends LifetimeEffect {
   /**
    * Override onUpdate for custom fade behavior
    */
-  protected onUpdate(lifetime: number, maxLifetime: number): void {
+  protected override onUpdate(lifetime: number, maxLifetime: number): void {
     // Rapid fade out
     const fadeProgress = lifetime / maxLifetime;
     this.alpha = 1 - fadeProgress;
@@ -50,7 +50,7 @@ export class BulletTrail extends LifetimeEffect {
   /**
    * Reset the bullet trail for reuse in object pool
    */
-  public reset(startX: number, startY: number, endX: number, endY: number): void {
+  public override reset(startX: number, startY: number, endX: number, endY: number): void {
     super.reset();
     this.startX = startX;
     this.startY = startY;

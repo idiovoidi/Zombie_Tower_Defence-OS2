@@ -32,7 +32,7 @@ export class MuzzleFlashLight extends LifetimeEffect {
   /**
    * Override onUpdate for custom fade and scale behavior
    */
-  protected onUpdate(lifetime: number, maxLifetime: number): void {
+  protected override onUpdate(lifetime: number, maxLifetime: number): void {
     // Rapid fade out
     const fadeProgress = lifetime / maxLifetime;
     this.alpha = 1 - fadeProgress;
@@ -44,7 +44,7 @@ export class MuzzleFlashLight extends LifetimeEffect {
   /**
    * Reset the muzzle flash for reuse in object pool
    */
-  public reset(x: number, y: number, radius = 30): void {
+  public override reset(x: number, y: number, radius = 30): void {
     super.reset();
     this.position.set(x, y);
     this.radius = radius;

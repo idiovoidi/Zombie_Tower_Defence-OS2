@@ -71,19 +71,19 @@ export class BloomFilter extends Filter {
   }
 
   set intensity(value: number) {
-    this.resources.bloomUniforms.uniforms.uIntensity = value;
+    this.resources['bloomUniforms'].uniforms.uIntensity = value;
   }
 
   get intensity(): number {
-    return this.resources.bloomUniforms.uniforms.uIntensity;
+    return this.resources['bloomUniforms'].uniforms.uIntensity;
   }
 
   set threshold(value: number) {
-    this.resources.bloomUniforms.uniforms.uThreshold = value;
+    this.resources['bloomUniforms'].uniforms.uThreshold = value;
   }
 
   get threshold(): number {
-    return this.resources.bloomUniforms.uniforms.uThreshold;
+    return this.resources['bloomUniforms'].uniforms.uThreshold;
   }
 }
 
@@ -159,19 +159,19 @@ export class VignetteFilter extends Filter {
   }
 
   set intensity(value: number) {
-    this.resources.vignetteUniforms.uniforms.uIntensity = value;
+    this.resources['vignetteUniforms'].uniforms.uIntensity = value;
   }
 
   get intensity(): number {
-    return this.resources.vignetteUniforms.uniforms.uIntensity;
+    return this.resources['vignetteUniforms'].uniforms.uIntensity;
   }
 
   set radius(value: number) {
-    this.resources.vignetteUniforms.uniforms.uRadius = value;
+    this.resources['vignetteUniforms'].uniforms.uRadius = value;
   }
 
   get radius(): number {
-    return this.resources.vignetteUniforms.uniforms.uRadius;
+    return this.resources['vignetteUniforms'].uniforms.uRadius;
   }
 }
 
@@ -240,11 +240,11 @@ export class ChromaticAberrationFilter extends Filter {
   }
 
   set offset(value: number) {
-    this.resources.chromaticUniforms.uniforms.uOffset = value;
+    this.resources['chromaticUniforms'].uniforms.uOffset = value;
   }
 
   get offset(): number {
-    return this.resources.chromaticUniforms.uniforms.uOffset;
+    return this.resources['chromaticUniforms'].uniforms.uOffset;
   }
 }
 
@@ -320,15 +320,15 @@ export class FilmGrainFilter extends Filter {
   }
 
   set intensity(value: number) {
-    this.resources.grainUniforms.uniforms.uIntensity = value;
+    this.resources['grainUniforms'].uniforms.uIntensity = value;
   }
 
   get intensity(): number {
-    return this.resources.grainUniforms.uniforms.uIntensity;
+    return this.resources['grainUniforms'].uniforms.uIntensity;
   }
 
   updateTime(deltaTime: number): void {
-    this.resources.grainUniforms.uniforms.uTime += deltaTime * 0.001;
+    this.resources['grainUniforms'].uniforms.uTime += deltaTime * 0.001;
   }
 }
 
@@ -446,11 +446,11 @@ export class OilPaintingFilter extends Filter {
   }
 
   set radius(value: number) {
-    this.resources.oilUniforms.uniforms.uRadius = value;
+    this.resources['oilUniforms'].uniforms.uRadius = value;
   }
 
   get radius(): number {
-    return this.resources.oilUniforms.uniforms.uRadius;
+    return this.resources['oilUniforms'].uniforms.uRadius;
   }
 }
 
@@ -525,15 +525,15 @@ export class KaleidoscopeFilter extends Filter {
   }
 
   set segments(value: number) {
-    this.resources.kaleidoscopeUniforms.uniforms.uSegments = value;
+    this.resources['kaleidoscopeUniforms'].uniforms.uSegments = value;
   }
 
   get segments(): number {
-    return this.resources.kaleidoscopeUniforms.uniforms.uSegments;
+    return this.resources['kaleidoscopeUniforms'].uniforms.uSegments;
   }
 
   updateAngle(deltaTime: number): void {
-    this.resources.kaleidoscopeUniforms.uniforms.uAngle += deltaTime * 0.001;
+    this.resources['kaleidoscopeUniforms'].uniforms.uAngle += deltaTime * 0.001;
   }
 }
 
@@ -606,15 +606,15 @@ export class WaveDistortionFilter extends Filter {
   }
 
   set amplitude(value: number) {
-    this.resources.waveUniforms.uniforms.uAmplitude = value;
+    this.resources['waveUniforms'].uniforms.uAmplitude = value;
   }
 
   get amplitude(): number {
-    return this.resources.waveUniforms.uniforms.uAmplitude;
+    return this.resources['waveUniforms'].uniforms.uAmplitude;
   }
 
   updateTime(deltaTime: number): void {
-    this.resources.waveUniforms.uniforms.uTime += deltaTime * 0.001;
+    this.resources['waveUniforms'].uniforms.uTime += deltaTime * 0.001;
   }
 }
 
@@ -690,14 +690,14 @@ export class ColorShiftFilter extends Filter {
   }
 
   set intensity(value: number) {
-    this.resources.colorShiftUniforms.uniforms.uIntensity = value;
+    this.resources['colorShiftUniforms'].uniforms.uIntensity = value;
   }
 
   get intensity(): number {
-    return this.resources.colorShiftUniforms.uniforms.uIntensity;
+    return this.resources['colorShiftUniforms'].uniforms.uIntensity;
   }
 
   updateTime(deltaTime: number): void {
-    this.resources.colorShiftUniforms.uniforms.uTime += deltaTime * 0.001;
+    this.resources['colorShiftUniforms'].uniforms.uTime += deltaTime * 0.001;
   }
 }

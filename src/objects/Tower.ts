@@ -1,10 +1,10 @@
+import { Container, Graphics } from 'pixi.js';
 import type { ITowerRenderer } from '@/renderers/towers/ITowerRenderer';
 import { TowerRendererFactory } from '@/renderers/towers/TowerRendererFactory';
-import { Container, Graphics } from 'pixi.js';
 import { HealthComponent } from '../components/HealthComponent';
 import { TransformComponent } from '../components/TransformComponent';
 import { GameConfig } from '../config/gameConfig';
-import { type IdleAnimationType, getTowerStats } from '../config/towerConstants';
+import { getTowerStats, type IdleAnimationType } from '../config/towerConstants';
 import { TowerManager } from '../managers/TowerManager';
 import { BarrelHeatGlow } from '../renderers/effects/BarrelHeatGlow';
 import type { EffectManager } from '../renderers/effects/EffectManager';
@@ -58,7 +58,9 @@ export class Tower extends GameObject implements ITower, TowerEffects {
     IdleAnimationType,
     (tower: Tower, deltaTime: number) => void
   > = {
-    none: () => { /* no idle animation */ },
+    none: () => {
+      /* no idle animation */
+    },
     machineGun: (tower, dt) => tower.idleAnimationMachineGun(dt),
     sniper: (tower, dt) => tower.idleAnimationSniper(dt),
     shotgun: (tower, dt) => tower.idleAnimationShotgun(dt),
@@ -126,7 +128,7 @@ export class Tower extends GameObject implements ITower, TowerEffects {
     this.addComponent(healthComponent);
   }
 
-  public update(deltaTime: number): void {
+  public override update(deltaTime: number): void {
     super.update(deltaTime);
 
     // Update idle animation

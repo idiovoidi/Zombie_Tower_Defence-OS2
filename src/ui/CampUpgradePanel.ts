@@ -289,16 +289,16 @@ export class CampUpgradePanel extends UIComponent {
     }
   }
 
-  public show(): void {
+  public override show(): void {
     this.visible = true;
     this.updateUpgradeDisplay();
   }
 
-  public hide(): void {
+  public override hide(): void {
     this.visible = false;
   }
 
-  public update(_deltaTime: number): void {
+  public override update(_deltaTime: number): void {
     // Update logic if needed
   }
 }

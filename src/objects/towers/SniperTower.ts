@@ -7,7 +7,7 @@ export class SniperTower extends Tower {
   }
 
   // Override shoot method for sniper specific behavior
-  public shoot(): void {
+  public override shoot(): void {
     super.shoot();
   }
 }

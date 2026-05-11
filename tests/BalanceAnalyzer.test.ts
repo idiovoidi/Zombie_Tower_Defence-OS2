@@ -207,7 +207,7 @@ describe('BalanceAnalyzer', () => {
 
       const mix = BalanceAnalyzer.getOptimalTowerMix(100, towerStats);
 
-      expect(mix.Expensive).toBe(0);
+      expect(mix['Expensive']).toBe(0);
     });
   });
 

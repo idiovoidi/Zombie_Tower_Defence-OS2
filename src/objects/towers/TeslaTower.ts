@@ -7,7 +7,7 @@ export class TeslaTower extends Tower {
   }
 
   // Override shoot method for tesla specific behavior
-  public shoot(): void {
+  public override shoot(): void {
     super.shoot();
   }
 }

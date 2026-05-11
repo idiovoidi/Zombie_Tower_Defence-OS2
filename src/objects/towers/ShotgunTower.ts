@@ -14,7 +14,7 @@ export class ShotgunTower extends Tower {
   }
 
   // Override canShoot to implement burst fire mechanic
-  public canShoot(currentTime: number): boolean {
+  public override canShoot(currentTime: number): boolean {
     // If reloading, check if reload is complete
     if (this.isReloading) {
       const timeSinceLastShot = currentTime - this.lastBurstShotTime;
@@ -43,7 +43,7 @@ export class ShotgunTower extends Tower {
   }
 
   // Override shoot method for shotgun burst behavior
-  public shoot(): void {
+  public override shoot(): void {
     super.shoot();
     this.lastBurstShotTime = performance.now();
     this.burstCount++;
@@ -55,7 +55,7 @@ export class ShotgunTower extends Tower {
   }
 
   // Reset burst when tower is sold or destroyed
-  public destroy(): void {
+  public override destroy(): void {
     this.burstCount = 0;
     this.isReloading = false;
     super.destroy();

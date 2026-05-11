@@ -7,7 +7,7 @@ export class MachineGunTower extends Tower {
   }
 
   // Override shoot method for machine gun specific behavior
-  public shoot(): void {
+  public override shoot(): void {
     super.shoot();
   }
 }

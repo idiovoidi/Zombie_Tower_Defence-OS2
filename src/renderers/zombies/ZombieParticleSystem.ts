@@ -77,20 +77,16 @@ export class ZombieParticleSystem {
     config: ParticleConfig,
     direction?: DirectionalConfig
   ): void {
-    const count = Math.min(
-      config.count,
-      this.maxParticles - this.particles.length
-    );
+    const count = Math.min(config.count, this.maxParticles - this.particles.length);
 
     for (let i = 0; i < count; i++) {
       let angle: number;
       let speed: number;
+      const dir = direction;
 
-      if (direction) {
+      if (dir) {
         // Directional emission: particles fly in a cone
-        angle =
-          direction.angle +
-          (Math.random() - 0.5) * direction.spread;
+        angle = dir.angle + (Math.random() - 0.5) * dir.spread;
         speed = config.velocity * (0.5 + Math.random() * 0.8);
       } else if (type === ParticleType.BLOOD_DRIP) {
         angle = Math.PI / 2 + (Math.random() - 0.5) * 0.5;
@@ -103,19 +99,15 @@ export class ZombieParticleSystem {
         angle = Math.random() * Math.PI * 2;
         speed = config.velocity * (0.2 + Math.random() * 0.4);
       } else if (type === ParticleType.GORE_CHUNK) {
-        // Gore chunks: heavier, more directed
-        angle = direction
-          ? direction.angle + (Math.random() - 0.5) * (direction.spread * 0.7)
-          : Math.random() * Math.PI * 2;
+        // Gore chunks: heavier, more directed (fallback when no direction provided)
+        angle = Math.random() * Math.PI * 2;
         speed = config.velocity * (0.6 + Math.random() * 0.6);
       } else {
         angle = Math.random() * Math.PI * 2;
         speed = config.velocity * (0.5 + Math.random() * 0.5);
       }
 
-      const isTrail =
-        type === ParticleType.BLOOD_TRAIL ||
-        type === ParticleType.BLOOD_DRIP;
+      const isTrail = type === ParticleType.BLOOD_TRAIL || type === ParticleType.BLOOD_DRIP;
 
       this.particles.push({
         x,
@@ -131,10 +123,7 @@ export class ZombieParticleSystem {
         color: this.getParticleColor(type),
         alpha: type === ParticleType.BLOOD_MIST ? 0.5 : 1,
         rotation: Math.random() * Math.PI * 2,
-        angularVelocity:
-          type === ParticleType.GORE_CHUNK
-            ? (Math.random() - 0.5) * 10
-            : 0,
+        angularVelocity: type === ParticleType.GORE_CHUNK ? (Math.random() - 0.5) * 10 : 0,
         trail: isTrail,
       });
     }
@@ -201,10 +190,7 @@ export class ZombieParticleSystem {
         // Smoke rises slowly with spread
         p.vy -= 30 * dt;
         p.vx *= 0.97;
-      } else if (
-        p.color === 0x440000 ||
-        p.color === 0x550000
-      ) {
+      } else if (p.color === 0x440000 || p.color === 0x550000) {
         // Blood mist: slow expansion, rises slightly
         p.vy -= 10 * dt;
         p.vx *= 0.96;
@@ -263,10 +249,7 @@ export class ZombieParticleSystem {
         graphics.save();
         // Draw rotated irregular shape
         graphics
-          .moveTo(
-            p.x + Math.cos(p.rotation) * s,
-            p.y + Math.sin(p.rotation) * s
-          )
+          .moveTo(p.x + Math.cos(p.rotation) * s, p.y + Math.sin(p.rotation) * s)
           .lineTo(
             p.x + Math.cos(p.rotation + 1.8) * s * 0.7,
             p.y + Math.sin(p.rotation + 1.8) * s * 0.7
@@ -283,9 +266,7 @@ export class ZombieParticleSystem {
           .fill({ color: p.color, alpha: p.alpha });
         graphics.restore();
       } else {
-        graphics
-          .circle(p.x, p.y, p.size)
-          .fill({ color: p.color, alpha: p.alpha });
+        graphics.circle(p.x, p.y, p.size).fill({ color: p.color, alpha: p.alpha });
       }
     }
   }
@@ -293,23 +274,15 @@ export class ZombieParticleSystem {
   private getParticleColor(type: ParticleType): number {
     switch (type) {
       case ParticleType.BLOOD_SPLATTER:
-        return [0x8b0000, 0xa00000, 0x7a0000][
-          Math.floor(Math.random() * 3)
-        ];
+        return [0x8b0000, 0xa00000, 0x7a0000][Math.floor(Math.random() * 3)];
       case ParticleType.BLOOD_DRIP:
         return 0x8b0000;
       case ParticleType.BLOOD_MIST:
-        return [0x440000, 0x550000][
-          Math.floor(Math.random() * 2)
-        ];
+        return [0x440000, 0x550000][Math.floor(Math.random() * 2)];
       case ParticleType.BLOOD_TRAIL:
-        return [0x8b0000, 0x660000][
-          Math.floor(Math.random() * 2)
-        ];
+        return [0x8b0000, 0x660000][Math.floor(Math.random() * 2)];
       case ParticleType.GORE_CHUNK:
-        return [0x551111, 0x661111, 0x441111][
-          Math.floor(Math.random() * 3)
-        ];
+        return [0x551111, 0x661111, 0x441111][Math.floor(Math.random() * 3)];
       case ParticleType.DECAY_CLOUD:
         return 0x006600;
       case ParticleType.SPARKS:

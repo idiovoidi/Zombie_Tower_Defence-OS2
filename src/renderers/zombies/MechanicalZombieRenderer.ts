@@ -1,8 +1,8 @@
 import type { Container } from 'pixi.js';
 import { BaseZombieRenderer } from './BaseZombieRenderer';
+import { GlowEffect, ShadowEffect } from './components/ZombieEffects';
 import { ParticleType } from './ZombieParticleSystem';
 import type { ZombieRenderState } from './ZombieRenderer';
-import { GlowEffect, ShadowEffect } from './components/ZombieEffects';
 
 export class MechanicalZombieRenderer extends BaseZombieRenderer {
   protected readonly ANIMATOR_TYPE = 'MECHANICAL';
@@ -28,6 +28,7 @@ export class MechanicalZombieRenderer extends BaseZombieRenderer {
   private readonly PRIMARY_COLOR = 0x3a4a5a;
   private readonly DARK_METAL = 0x2a3a4a;
   private readonly LIGHT_METAL = 0x5a6a7a;
+  private sparkTimer = 0;
   private readonly RUST_COLOR = 0x8b4513;
   private readonly OIL_BLACK = 0x1a1a1a;
   private readonly EYE_GLOW = 0x00ffff;

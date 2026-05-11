@@ -367,7 +367,7 @@ export class StatsPanel extends UIComponent {
     }
   }
 
-  public destroy(): void {
+  public override destroy(): void {
     this.statsTexts.clear();
     super.destroy({ children: true });
   }

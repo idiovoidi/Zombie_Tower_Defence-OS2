@@ -24,7 +24,7 @@ export class TransformComponent extends Component {
     this.scale = 1;
   }
 
-  public update(deltaTime: number): void {
+  public override update(deltaTime: number): void {
     // Update position based on velocity
     this.position.x += this.velocity.x * deltaTime;
     this.position.y += this.velocity.y * deltaTime;

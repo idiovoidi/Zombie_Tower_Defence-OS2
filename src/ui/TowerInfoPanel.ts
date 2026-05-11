@@ -143,7 +143,7 @@ export class TowerInfoPanel extends UIComponent {
     this.updateInfo();
   }
 
-  public hide(): void {
+  public override hide(): void {
     this.visible = false;
     this.selectedTower = null;
   }

@@ -12,6 +12,9 @@ export class AIPlayerManager {
   private updateTimer = 0;
   private updateInterval = 1.0; // Check every 1 second
   private placementZones: PlacementZone[] = [];
+  private lastLogTime = 0;
+  private lastState = '';
+  private currentWaveDecisions = 0;
 
   constructor(gameManager: IGameStateProvider & IStatTrackerProvider) {
     this.gameManager = gameManager;

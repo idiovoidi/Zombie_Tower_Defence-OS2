@@ -71,11 +71,11 @@ export class InscryptionVignetteFilter extends Filter {
   }
 
   set intensity(value: number) {
-    this.resources.vignetteUniforms.uniforms.uIntensity = value;
+    this.resources['vignetteUniforms'].uniforms.uIntensity = value;
   }
 
   get intensity(): number {
-    return this.resources.vignetteUniforms.uniforms.uIntensity;
+    return this.resources['vignetteUniforms'].uniforms.uIntensity;
   }
 }
 
@@ -220,15 +220,15 @@ export class InscryptionGrainFilter extends Filter {
   }
 
   set intensity(value: number) {
-    this.resources.grainUniforms.uniforms.uIntensity = value;
+    this.resources['grainUniforms'].uniforms.uIntensity = value;
   }
 
   get intensity(): number {
-    return this.resources.grainUniforms.uniforms.uIntensity;
+    return this.resources['grainUniforms'].uniforms.uIntensity;
   }
 
   updateTime(deltaTime: number): void {
-    this.resources.grainUniforms.uniforms.uTime += deltaTime * 0.001;
+    this.resources['grainUniforms'].uniforms.uTime += deltaTime * 0.001;
   }
 }
 
@@ -297,11 +297,11 @@ export class InscryptionChromaticFilter extends Filter {
   }
 
   set offset(value: number) {
-    this.resources.chromaticUniforms.uniforms.uOffset = value;
+    this.resources['chromaticUniforms'].uniforms.uOffset = value;
   }
 
   get offset(): number {
-    return this.resources.chromaticUniforms.uniforms.uOffset;
+    return this.resources['chromaticUniforms'].uniforms.uOffset;
   }
 }
 
@@ -372,10 +372,10 @@ export class InscryptionScanlinesFilter extends Filter {
   }
 
   set intensity(value: number) {
-    this.resources.scanlineUniforms.uniforms.uIntensity = value;
+    this.resources['scanlineUniforms'].uniforms.uIntensity = value;
   }
 
   get intensity(): number {
-    return this.resources.scanlineUniforms.uniforms.uIntensity;
+    return this.resources['scanlineUniforms'].uniforms.uIntensity;
   }
 }
