@@ -20,7 +20,7 @@ export class TowerShop extends UIComponent {
 
   constructor() {
     super();
-    this.towerManager = new TowerManager();
+    this.towerManager = TowerManager.getInstance();
     this.createShopUI();
   }
 

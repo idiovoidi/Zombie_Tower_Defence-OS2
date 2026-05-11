@@ -365,7 +365,8 @@ export class Tower extends GameObject implements ITower, TowerEffects {
    */
   private applyUpgradeEffects(): void {
     // Recalculate stats based on upgrade level
-    const towerManager = new TowerManager();
+    // Use a shared TowerManager instance instead of creating new one
+    const towerManager = TowerManager.getInstance();
     this.damage = towerManager.calculateTowerDamage(this.type, this.upgradeLevel);
     this.range = towerManager.calculateTowerRange(this.type, this.upgradeLevel);
     this.fireRate = towerManager.calculateTowerFireRate(this.type, this.upgradeLevel);

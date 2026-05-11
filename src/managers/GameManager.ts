@@ -100,7 +100,7 @@ export class GameManager {
     this.levelManager = new LevelManager(this.mapManager);
 
     // Initialize combat managers (shared between GameManager and LevelState)
-    this.towerManager = new TowerManager();
+    this.towerManager = TowerManager.getInstance();
     this.waveManager = new WaveManager();
     this.zombieManager = new ZombieManager(this.gameContainer, this.waveManager, this.mapManager);
     this.projectileManager = new ProjectileManager(this.gameContainer);

@@ -2,11 +2,19 @@ import { GameConfig } from '../config/gameConfig';
 import { TowerConstants, type TowerStats } from '../config/towerConstants';
 
 export class TowerManager {
+  private static instance: TowerManager | null = null;
   private towerData: Map<string, TowerStats>;
 
-  constructor() {
+  private constructor() {
     this.towerData = new Map<string, TowerStats>();
     this.initializeTowerData();
+  }
+
+  public static getInstance(): TowerManager {
+    if (!TowerManager.instance) {
+      TowerManager.instance = new TowerManager();
+    }
+    return TowerManager.instance;
   }
 
   // Initialize tower data from constants

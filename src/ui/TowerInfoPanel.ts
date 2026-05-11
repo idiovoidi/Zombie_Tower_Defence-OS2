@@ -16,7 +16,7 @@ export class TowerInfoPanel extends UIComponent {
   constructor() {
     super();
     this.cullableChildren = false;
-    this.towerManager = new TowerManager();
+    this.towerManager = TowerManager.getInstance();
     this.createPanelUI();
     this.visible = false; // Hidden by default
   }
