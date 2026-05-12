@@ -7,7 +7,9 @@ export interface AppContext {
   scaleManager: ScaleManager;
 }
 
-type PixelArtRendererClass = InstanceType<typeof import('../utils/PixelArtRenderer').PixelArtRenderer>;
+type PixelArtRendererClass = InstanceType<
+  typeof import('../utils/PixelArtRenderer').PixelArtRenderer
+>;
 
 async function createPixelArtRenderer(app: Application): Promise<PixelArtRendererClass> {
   const { PixelArtRenderer } = await import('../utils/PixelArtRenderer');

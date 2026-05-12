@@ -22,7 +22,6 @@ class BalanceAnalysisPerformanceTest {
    * Run all performance tests
    */
   public runAllTests(): void {
-
     // Test 1: BalanceAnalyzer operations
     this.testBalanceAnalyzerPerformance();
 
@@ -242,7 +241,6 @@ class BalanceAnalysisPerformanceTest {
    * Test with frame rate monitoring
    */
   public async testWithFrameRateMonitoring(): Promise<void> {
-
     this.profiler.startTest('Frame Rate Impact Test');
     this.profiler.startFrameRateMonitoring();
 

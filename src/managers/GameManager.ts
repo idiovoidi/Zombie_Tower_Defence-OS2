@@ -465,17 +465,6 @@ export class GameManager {
     this.lives += amount;
   }
 
-  public removeLives(amount: number): void {
-    this.lives -= amount;
-    if (this.onDamageFlashCallback) {
-      this.onDamageFlashCallback();
-    }
-    if (this.lives <= 0) {
-      this.lives = 0;
-      this.gameOver();
-    }
-  }
-
   public loseLife(amount = 1): void {
     this.lives -= amount;
     if (this.onDamageFlashCallback) {
@@ -516,10 +505,6 @@ export class GameManager {
 
   public getCurrentWave(): number {
     return this.waveManager.getCurrentWave();
-  }
-
-  public getState(): string {
-    return this.currentState;
   }
 
   // Manager getters - delegate to contextual state objects

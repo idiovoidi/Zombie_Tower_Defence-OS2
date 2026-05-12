@@ -109,12 +109,9 @@ export class BloodParticleSystem {
       this.evictIfFull();
 
       // Cone emission centered on directionAngle
-      const angle =
-        directionAngle + (Math.random() - 0.5) * spread;
-      const speed =
-        (80 + Math.random() * 150) * intensity;
-      const baseScale =
-        (2 + Math.random() * 5 * intensity) / 16;
+      const angle = directionAngle + (Math.random() - 0.5) * spread;
+      const speed = (80 + Math.random() * 150) * intensity;
+      const baseScale = (2 + Math.random() * 5 * intensity) / 16;
 
       const p = this.acquireParticle();
       p.x = x + (Math.random() - 0.5) * 4;
@@ -143,10 +140,7 @@ export class BloodParticleSystem {
     for (let i = 0; i < backSprayCount; i++) {
       this.evictIfFull();
 
-      const angle =
-        directionAngle +
-        Math.PI +
-        (Math.random() - 0.5) * 1.2;
+      const angle = directionAngle + Math.PI + (Math.random() - 0.5) * 1.2;
       const speed = 30 + Math.random() * 50;
       const baseScale = (1 + Math.random() * 2) / 16;
 
@@ -177,12 +171,7 @@ export class BloodParticleSystem {
    * Create a blood mist cloud (for explosive deaths).
    * Slow-expanding semi-transparent cloud.
    */
-  public createBloodMist(
-    x: number,
-    y: number,
-    radius: number,
-    intensity = 1
-  ): void {
+  public createBloodMist(x: number, y: number, radius: number, intensity = 1): void {
     const particleCount = Math.floor(12 * intensity);
 
     for (let i = 0; i < particleCount; i++) {
@@ -201,9 +190,7 @@ export class BloodParticleSystem {
       p.scaleX = baseScale;
       p.scaleY = baseScale;
       p.rotation = Math.random() * Math.PI * 2;
-      p.tint = [0x440000, 0x550000, 0x330000][
-        Math.floor(Math.random() * 3)
-      ];
+      p.tint = [0x440000, 0x550000, 0x330000][Math.floor(Math.random() * 3)];
       p.alpha = 0.35;
 
       this.particleContainer.addParticle(p);
@@ -221,20 +208,14 @@ export class BloodParticleSystem {
   /**
    * Create a thin, high-velocity blood drip/spray (for sniper headshots).
    */
-  public createBloodDrip(
-    x: number,
-    y: number,
-    directionAngle: number,
-    intensity = 1.5
-  ): void {
+  public createBloodDrip(x: number, y: number, directionAngle: number, intensity = 1.5): void {
     const particleCount = Math.floor(10 * intensity);
 
     for (let i = 0; i < particleCount; i++) {
       this.evictIfFull();
 
       // Very narrow cone for precision kills
-      const angle =
-        directionAngle + (Math.random() - 0.5) * 0.3;
+      const angle = directionAngle + (Math.random() - 0.5) * 0.3;
       const speed = 150 + Math.random() * 200;
       const baseScale = (1 + Math.random() * 2) / 16;
 
@@ -246,9 +227,7 @@ export class BloodParticleSystem {
       p.scaleX = baseScale;
       p.scaleY = baseScale * 2; // Elongated
       p.rotation = angle;
-      p.tint = [0x8b0000, 0xaa0000][
-        Math.floor(Math.random() * 2)
-      ];
+      p.tint = [0x8b0000, 0xaa0000][Math.floor(Math.random() * 2)];
       p.alpha = 0.9;
 
       this.particleContainer.addParticle(p);
@@ -311,9 +290,7 @@ export class BloodParticleSystem {
       const dx = p.x - centerX;
       const dy = p.y - centerY;
       const distanceSquared = dx * dx + dy * dy;
-      const isDistant =
-        distanceSquared >
-        this.DISTANT_THRESHOLD * this.DISTANT_THRESHOLD;
+      const isDistant = distanceSquared > this.DISTANT_THRESHOLD * this.DISTANT_THRESHOLD;
 
       sim.vy += 200 * dt;
       p.x += sim.vx * dt;

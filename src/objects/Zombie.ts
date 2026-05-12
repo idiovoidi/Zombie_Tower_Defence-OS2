@@ -3,10 +3,10 @@ import { HealthComponent } from '../components/HealthComponent';
 import { TransformComponent } from '../components/TransformComponent';
 import { GameConfig } from '../config/gameConfig';
 import {
-  type TowerType,
-  type ZombieType,
   convertToTowerType,
   getDamageModifier,
+  type TowerType,
+  type ZombieType,
 } from '../config/zombieResistances';
 import {
   ArmoredZombieRenderer,
@@ -477,7 +477,12 @@ export class Zombie extends GameObject {
     return this.healthComponent.getHealth();
   }
 
-  public takeDamage(damage: number, towerType?: string, sourceX?: number, sourceY?: number): number {
+  public takeDamage(
+    damage: number,
+    towerType?: string,
+    sourceX?: number,
+    sourceY?: number
+  ): number {
     // Track damage source for death animation selection
     if (towerType && damage > 0) {
       this.lastDamageSource = towerType;

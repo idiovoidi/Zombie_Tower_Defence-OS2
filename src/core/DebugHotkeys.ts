@@ -2,13 +2,13 @@ import { DebugConstants } from '../config/debugConstants';
 import { GameConfig } from '../config/gameConfig';
 import type { GameManager } from '../managers/GameManager';
 import type { InputManager } from '../managers/InputManager';
-import type { ScaleManager } from '../utils/ScaleManager';
 import type { Tower } from '../objects/Tower';
+import type { ScaleManager } from '../utils/ScaleManager';
 
 export function bindDebugHotkeys(
   inputManager: InputManager,
   gameManager: GameManager,
-  scaleManager: ScaleManager,
+  scaleManager: ScaleManager
 ): void {
   // Toggle debug mode (Ctrl+D)
   window.addEventListener('keydown', event => {
@@ -44,7 +44,7 @@ export function bindDebugHotkeys(
 
     // N - Skip to next wave
     if (key === 'n') {
-      if (gameManager.getState() === GameConfig.GAME_STATES.WAVE_COMPLETE) {
+      if (gameManager.getCurrentState() === GameConfig.GAME_STATES.WAVE_COMPLETE) {
         gameManager.startNextWave();
         console.log('🌊 Started next wave');
       } else {

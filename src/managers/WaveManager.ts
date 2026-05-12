@@ -344,48 +344,6 @@ export class WaveManager {
       ]);
     }
 
-    // Waves 36-40 (20% Basic, 10% Fast, 15% Tank, 20% Armored, 15% Swarm, 10% Stealth, 10% Mechanical)
-    for (let i = 36; i <= 40; i++) {
-      const totalZombies = Math.floor(45 + i * 5);
-      this.waveData.set(i, [
-        {
-          type: GameConfig.ZOMBIE_TYPES.BASIC,
-          count: Math.floor(totalZombies * 0.2),
-          spawnInterval: 0.8,
-        },
-        {
-          type: GameConfig.ZOMBIE_TYPES.FAST,
-          count: Math.floor(totalZombies * 0.1),
-          spawnInterval: 1.1,
-        },
-        {
-          type: GameConfig.ZOMBIE_TYPES.TANK,
-          count: Math.floor(totalZombies * 0.15),
-          spawnInterval: 1.6,
-        },
-        {
-          type: GameConfig.ZOMBIE_TYPES.ARMORED,
-          count: Math.floor(totalZombies * 0.2),
-          spawnInterval: 2.0,
-        },
-        {
-          type: GameConfig.ZOMBIE_TYPES.SWARM,
-          count: Math.floor(totalZombies * 0.15),
-          spawnInterval: 0.5,
-        },
-        {
-          type: GameConfig.ZOMBIE_TYPES.STEALTH,
-          count: Math.floor(totalZombies * 0.1),
-          spawnInterval: 1.3,
-        },
-        {
-          type: GameConfig.ZOMBIE_TYPES.MECHANICAL,
-          count: Math.floor(totalZombies * 0.1),
-          spawnInterval: 1.8,
-        },
-      ]);
-    }
-
     // Waves 41-60 (Expert - 15% Basic, 15% Fast, 15% Tank, 20% Armored, 15% Swarm, 12% Stealth, 8% Mechanical)
     for (let i = 41; i <= 60; i++) {
       const totalZombies = Math.floor(100 + i * 6);

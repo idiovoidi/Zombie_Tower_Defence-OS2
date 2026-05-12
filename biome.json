@@ -71,7 +71,14 @@
     }
   },
   "files": {
-    "includes": ["src/**", "tests/**", "!**/node_modules", "!**/coverage", "!**/*.d.ts", "!dependency-report.html"]
+    "includes": [
+      "src/**",
+      "tests/**",
+      "!**/node_modules",
+      "!**/coverage",
+      "!**/*.d.ts",
+      "!dependency-report.html"
+    ]
   },
   "overrides": [
     {

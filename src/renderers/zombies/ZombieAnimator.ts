@@ -29,7 +29,10 @@ export class ZombieAnimator {
     this.swayOffset = Math.random() * Math.PI * 2;
   }
 
-  update(deltaTime: number, state: { isMoving: boolean; health?: number; maxHealth?: number }): void {
+  update(
+    deltaTime: number,
+    state: { isMoving: boolean; health?: number; maxHealth?: number }
+  ): void {
     this.animationTime += deltaTime / 1000;
     this.currentState = state.isMoving ? AnimationState.WALK : AnimationState.IDLE;
 
@@ -72,10 +75,7 @@ export class ZombieAnimator {
     const limpOffset = Math.sin(time * 2 * speed) * limpFactor * 3;
 
     return {
-      bodyBob:
-        primaryWalk * (2 + gait.bobIntensity) +
-        secondaryWalk * 0.5 +
-        limpOffset,
+      bodyBob: primaryWalk * (2 + gait.bobIntensity) + secondaryWalk * 0.5 + limpOffset,
       headTilt:
         Math.sin(time * 2 * speed) * (0.2 + gait.headBobIntensity) +
         tertiaryWalk * gait.headJerkiness +
@@ -89,12 +89,9 @@ export class ZombieAnimator {
         gait.armForwardReach +
         this.damageLevel * 0.2, // Wounded arm drops
       rightArmAngle:
-        Math.sin(time * 4 * speed + Math.PI) * (0.5 + gait.armSwing) +
-        gait.armForwardReach,
-      leftLegOffset:
-        Math.sin(time * 4 * speed) * (2.5 + gait.legStride) + limpOffset,
-      rightLegOffset:
-        Math.sin(time * 4 * speed + Math.PI) * (2.5 + gait.legStride) - limpOffset,
+        Math.sin(time * 4 * speed + Math.PI) * (0.5 + gait.armSwing) + gait.armForwardReach,
+      leftLegOffset: Math.sin(time * 4 * speed) * (2.5 + gait.legStride) + limpOffset,
+      rightLegOffset: Math.sin(time * 4 * speed + Math.PI) * (2.5 + gait.legStride) - limpOffset,
       limbSwing: primaryWalk,
       twitch: this.twitchValue,
       damageLevel: this.damageLevel,
@@ -219,20 +216,10 @@ export class ZombieAnimator {
 
     return {
       bodyBob: breathe * 0.8 + twitch + damagetwitch,
-      headTilt:
-        Math.sin(time * 1.2) * 0.08 +
-        twitch * 0.5 +
-        this.twitchValue * 0.4,
-      headSway:
-        Math.sin(time * 1.3) * 0.5 +
-        Math.sin(time * 3.7) * 0.2 +
-        this.twitchValue * 0.6,
-      leftArmAngle:
-        Math.sin(time * 1.8) * 0.15 +
-        0.2 +
-        this.damageLevel * 0.3,
-      rightArmAngle:
-        Math.sin(time * 1.8 + 0.7) * 0.12 + 0.15,
+      headTilt: Math.sin(time * 1.2) * 0.08 + twitch * 0.5 + this.twitchValue * 0.4,
+      headSway: Math.sin(time * 1.3) * 0.5 + Math.sin(time * 3.7) * 0.2 + this.twitchValue * 0.6,
+      leftArmAngle: Math.sin(time * 1.8) * 0.15 + 0.2 + this.damageLevel * 0.3,
+      rightArmAngle: Math.sin(time * 1.8 + 0.7) * 0.12 + 0.15,
       leftLegOffset: 0,
       rightLegOffset: 0,
       limbSwing: breathe * 0.1,

@@ -1,5 +1,5 @@
-import { EffectCleanupManager } from '@/utils/EffectCleanupManager';
 import { type Container, Graphics } from 'pixi.js';
+import { EffectCleanupManager } from '@/utils/EffectCleanupManager';
 import type { ITowerRenderer } from './ITowerRenderer';
 
 export type BarrelRenderCallback = (graphics: Graphics, upgradeLevel: number) => void;

@@ -192,7 +192,6 @@ export class PerformanceProfiler {
    * Log performance report to console
    */
   private logReport(report: PerformanceReport): void {
-
     if (report.frameRateImpact) {
       const _impactIcon = report.frameRateImpact.acceptable ? '✅' : '❌';
       const _impactStatus = report.frameRateImpact.acceptable ? 'ACCEPTABLE' : 'UNACCEPTABLE';

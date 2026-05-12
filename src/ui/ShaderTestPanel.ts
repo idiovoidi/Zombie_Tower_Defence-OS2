@@ -1,7 +1,7 @@
 import { type ColorMatrixFilter, Container, Graphics, Text } from 'pixi.js';
 import { VisualPresets } from '../utils/VisualPresets';
-import { UIPanel } from './UIPanel';
 import type { SimpleRetroFilter } from './shaders/filters/SimpleRetroFilter';
+import { UIPanel } from './UIPanel';
 
 interface PixelArtRenderer {
   enable(scale: number): void;
@@ -170,10 +170,8 @@ export class ShaderTestPanel extends UIPanel {
   }
 
   private selectShader(shaderName: string): void {
-
     // Remove current filter
     if (this.currentFilter && this.gameStage) {
-
       // Clear filters first
       this.gameStage.filters = null;
 

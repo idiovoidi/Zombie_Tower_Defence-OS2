@@ -8,8 +8,8 @@
 
 import { describe, expect, it } from 'vitest';
 import { TowerConstants } from '../src/config/towerConstants';
-import { BalanceAnalyzer } from '../src/utils/BalanceAnalyzer';
 import type { TowerEfficiency } from '../src/utils/BalanceAnalyzer';
+import { BalanceAnalyzer } from '../src/utils/BalanceAnalyzer';
 import { EventBus, GameEvents } from '../src/utils/EventBus';
 
 // Tower stat configuration using ACTUAL game values

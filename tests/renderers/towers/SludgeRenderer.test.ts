@@ -1,6 +1,6 @@
+import { Graphics } from 'pixi.js';
 import { GameConfig } from '@/config/gameConfig';
 import { SludgeRenderer } from '@/renderers/towers/SludgeRenderer';
-import { Graphics } from 'pixi.js';
 
 describe('SludgeRenderer', () => {
   let renderer: SludgeRenderer;

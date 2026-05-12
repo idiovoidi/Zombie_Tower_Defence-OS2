@@ -174,13 +174,7 @@ export class ZombieManager {
       // Listen for zombie death to trigger effects
       zombie.on(
         'zombieDeath',
-        (data: {
-          x: number;
-          y: number;
-          type: string;
-          size: number;
-          killerType: string;
-        }) => {
+        (data: { x: number; y: number; type: string; size: number; killerType: string }) => {
           this.onZombieDeath(data);
         }
       );
@@ -220,37 +214,19 @@ export class ZombieManager {
 
       case 'Sniper':
         // Precise blood drip/spray
-        this.bloodParticleSystem.createBloodDrip(
-          data.x,
-          data.y,
-          angle,
-          intensity * 1.5
-        );
+        this.bloodParticleSystem.createBloodDrip(data.x, data.y, angle, intensity * 1.5);
         break;
 
       case 'Grenade':
       case 'Tesla':
         // Explosive blood mist + omnidirectional splatter
-        this.bloodParticleSystem.createBloodMist(
-          data.x,
-          data.y,
-          20 * intensity,
-          intensity * 1.5
-        );
-        this.bloodParticleSystem.createBloodSplatter(
-          data.x,
-          data.y,
-          intensity * 1.2
-        );
+        this.bloodParticleSystem.createBloodMist(data.x, data.y, 20 * intensity, intensity * 1.5);
+        this.bloodParticleSystem.createBloodSplatter(data.x, data.y, intensity * 1.2);
         break;
 
       case 'Flame':
         // Minimal blood (cauterized) - just a small splatter
-        this.bloodParticleSystem.createBloodSplatter(
-          data.x,
-          data.y,
-          intensity * 0.3
-        );
+        this.bloodParticleSystem.createBloodSplatter(data.x, data.y, intensity * 0.3);
         break;
 
       default:

@@ -65,7 +65,12 @@ export class CorpseManager {
     this.container.addChild(corpseContainer);
   }
 
-  private renderDeadZombie(container: Container, zombieType: string, deathPose: number, killerType?: string): void {
+  private renderDeadZombie(
+    container: Container,
+    zombieType: string,
+    deathPose: number,
+    killerType?: string
+  ): void {
     // Create the appropriate zombie renderer
     let renderer: IZombieRenderer;
 
@@ -247,11 +252,9 @@ export class CorpseManager {
       for (let i = 0; i < 3; i++) {
         const angle = Math.random() * Math.PI * 2;
         const dist = 8 + Math.random() * 6;
-        graphics.circle(
-          Math.cos(angle) * dist,
-          12 + Math.sin(angle) * dist,
-          1.5
-        ).fill({ color: 0x3a0000, alpha: 0.4 });
+        graphics
+          .circle(Math.cos(angle) * dist, 12 + Math.sin(angle) * dist, 1.5)
+          .fill({ color: 0x3a0000, alpha: 0.4 });
       }
       return;
     }

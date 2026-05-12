@@ -1,4 +1,4 @@
-import { Graphics } from 'pixi.js';
+import type { Graphics } from 'pixi.js';
 
 /**
  * A single bone in the ragdoll skeleton.
@@ -127,9 +127,7 @@ export class RagdollSkeleton {
   private bloodEmitPoints: BloodEmitPoint[] = [];
 
   // Callback for blood emission during ragdoll
-  public onBloodEmit:
-    | ((x: number, y: number, vx: number, vy: number) => void)
-    | null = null;
+  public onBloodEmit: ((x: number, y: number, vx: number, vy: number) => void) | null = null;
 
   constructor(config: RagdollSkeletonConfig) {
     this.gravity = config.gravity;
@@ -165,11 +163,7 @@ export class RagdollSkeleton {
    * Initialize bone positions from the zombie's current rendered pose.
    * Call this before applying death impulses.
    */
-  public initializeFromPose(
-    centerX: number,
-    centerY: number,
-    rotation: number
-  ): void {
+  public initializeFromPose(centerX: number, centerY: number, rotation: number): void {
     // Position root bone at zombie center
     const root = this.bones.get(this.boneOrder[0]);
     if (root) {
@@ -187,10 +181,8 @@ export class RagdollSkeleton {
       if (!parent) continue;
 
       // Place bone at parent's tip
-      const parentTipX =
-        parent.x + Math.cos(parent.angle) * parent.length;
-      const parentTipY =
-        parent.y + Math.sin(parent.angle) * parent.length;
+      const parentTipX = parent.x + Math.cos(parent.angle) * parent.length;
+      const parentTipY = parent.y + Math.sin(parent.angle) * parent.length;
 
       bone.x = parentTipX + bone.x;
       bone.y = parentTipY + bone.y;
@@ -214,12 +206,7 @@ export class RagdollSkeleton {
   /**
    * Add a blood emission point on a bone.
    */
-  public addBloodEmitPoint(
-    boneName: string,
-    boneT: number,
-    rate: number,
-    duration: number
-  ): void {
+  public addBloodEmitPoint(boneName: string, boneT: number, rate: number, duration: number): void {
     this.bloodEmitPoints.push({
       boneName,
       boneT,
@@ -343,8 +330,7 @@ export class RagdollSkeleton {
       }
 
       if (clamped !== relAngle) {
-        const correction =
-          (clamped - relAngle) * constraint.stiffness;
+        const correction = (clamped - relAngle) * constraint.stiffness;
         boneA.angle -= correction * 0.3;
         boneB.angle += correction * 0.7;
 
@@ -395,10 +381,7 @@ export class RagdollSkeleton {
 
     let totalEnergy = 0;
     for (const bone of this.bones.values()) {
-      totalEnergy +=
-        Math.abs(bone.vx) +
-        Math.abs(bone.vy) +
-        Math.abs(bone.angularVelocity) * 10;
+      totalEnergy += Math.abs(bone.vx) + Math.abs(bone.vy) + Math.abs(bone.angularVelocity) * 10;
     }
 
     if (totalEnergy < this.settlementThreshold) {
@@ -520,17 +503,13 @@ export class RagdollSkeleton {
       totalMass += bone.mass;
     }
 
-    return totalMass > 0
-      ? { x: cx / totalMass, y: cy / totalMass }
-      : { x: 0, y: 0 };
+    return totalMass > 0 ? { x: cx / totalMass, y: cy / totalMass } : { x: 0, y: 0 };
   }
 
   /**
    * Get bone tip position (for blood/particle effects).
    */
-  public getBoneTipPosition(
-    boneName: string
-  ): { x: number; y: number } | null {
+  public getBoneTipPosition(boneName: string): { x: number; y: number } | null {
     const bone = this.bones.get(boneName);
     if (!bone) return null;
     return {
@@ -542,9 +521,7 @@ export class RagdollSkeleton {
   /**
    * Get a bone's current velocity (for directional blood).
    */
-  public getBoneVelocity(
-    boneName: string
-  ): { vx: number; vy: number } | null {
+  public getBoneVelocity(boneName: string): { vx: number; vy: number } | null {
     const bone = this.bones.get(boneName);
     if (!bone) return null;
     return { vx: bone.vx, vy: bone.vy };

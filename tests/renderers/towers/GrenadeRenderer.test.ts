@@ -1,6 +1,6 @@
+import { Graphics } from 'pixi.js';
 import { GameConfig } from '@/config/gameConfig';
 import { GrenadeRenderer } from '@/renderers/towers/GrenadeRenderer';
-import { Graphics } from 'pixi.js';
 
 describe('GrenadeRenderer', () => {
   let renderer: GrenadeRenderer;

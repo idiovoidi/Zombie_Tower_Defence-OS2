@@ -1,6 +1,6 @@
+import { Graphics } from 'pixi.js';
 import { GameConfig } from '@/config/gameConfig';
 import { TeslaRenderer } from '@/renderers/towers/TeslaRenderer';
-import { Graphics } from 'pixi.js';
 
 describe('TeslaRenderer', () => {
   let renderer: TeslaRenderer;

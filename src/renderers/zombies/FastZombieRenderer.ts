@@ -1,8 +1,8 @@
 import type { Container } from 'pixi.js';
 import { BaseZombieRenderer } from './BaseZombieRenderer';
+import { GlowEffect, ShadowEffect } from './components/ZombieEffects';
 import { ParticleType } from './ZombieParticleSystem';
 import type { ZombieRenderState } from './ZombieRenderer';
-import { GlowEffect, ShadowEffect } from './components/ZombieEffects';
 
 export class FastZombieRenderer extends BaseZombieRenderer {
   protected readonly ANIMATOR_TYPE = 'FAST';

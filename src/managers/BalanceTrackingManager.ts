@@ -523,7 +523,6 @@ export class BalanceTrackingManager {
    */
   public performEndGameAnalysis(): void {
     this.runAnalysis('end-game analysis', () => {
-
       // Calculate tower efficiencies
       // TODO: Get tower stats from TowerManager to calculate full efficiency metrics
       // const damageByType = this.getDamageByTowerType();

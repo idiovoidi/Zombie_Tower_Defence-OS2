@@ -175,10 +175,7 @@ export abstract class BaseZombieRenderer implements IZombieRenderer {
    * @param killerType - The tower type that killed this zombie
    * @param impactAngle - Direction from damage source to zombie (radians)
    */
-  async playDeathAnimation(
-    killerType?: string,
-    impactAngle?: number
-  ): Promise<void> {
+  async playDeathAnimation(killerType?: string, impactAngle?: number): Promise<void> {
     const angle = impactAngle ?? Math.random() * Math.PI * 2;
     const killer = killerType ?? 'unknown';
 
@@ -190,11 +187,7 @@ export abstract class BaseZombieRenderer implements IZombieRenderer {
     this.ragdoll.initializeFromPose(0, 0, 0);
 
     // Calculate and apply death impulses
-    const impulses = calculateDeathImpulses(
-      killer,
-      angle,
-      this.zombieTypeName
-    );
+    const impulses = calculateDeathImpulses(killer, angle, this.zombieTypeName);
     this.ragdoll.applyImpulses(impulses);
 
     // Detach bones for extreme deaths
@@ -206,24 +199,15 @@ export abstract class BaseZombieRenderer implements IZombieRenderer {
     // Add blood emission points
     const bloodConfig = getDeathBloodConfig(killer);
     for (const bp of bloodConfig) {
-      this.ragdoll.addBloodEmitPoint(
-        bp.boneName,
-        bp.boneT,
-        bp.rate,
-        bp.duration
-      );
+      this.ragdoll.addBloodEmitPoint(bp.boneName, bp.boneT, bp.rate, bp.duration);
     }
 
     // Wire ragdoll blood emission to particle system
     this.ragdoll.onBloodEmit = (x, y, vx, vy) => {
-      this.particles.emitWithVelocity(
-        ParticleType.BLOOD_TRAIL,
-        x,
-        y,
-        vx,
-        vy,
-        { lifetime: 600, size: 2 }
-      );
+      this.particles.emitWithVelocity(ParticleType.BLOOD_TRAIL, x, y, vx, vy, {
+        lifetime: 600,
+        size: 2,
+      });
     };
 
     // Create ragdoll graphics
@@ -252,20 +236,16 @@ export abstract class BaseZombieRenderer implements IZombieRenderer {
 
     // Blood mist for explosive deaths
     if (killer === 'Grenade' || killer === 'Tesla') {
-      this.particles.emit(
-        ParticleType.BLOOD_MIST,
-        0,
-        0,
-        { count: 8, velocity: 40, lifetime: 1200, size: 6 }
-      );
+      this.particles.emit(ParticleType.BLOOD_MIST, 0, 0, {
+        count: 8,
+        velocity: 40,
+        lifetime: 1200,
+        size: 6,
+      });
     }
 
     // Gore chunks for heavy kills
-    if (
-      killer === 'Grenade' ||
-      killer === 'Shotgun' ||
-      killer === 'Tesla'
-    ) {
+    if (killer === 'Grenade' || killer === 'Shotgun' || killer === 'Tesla') {
       this.particles.emit(
         ParticleType.GORE_CHUNK,
         0,

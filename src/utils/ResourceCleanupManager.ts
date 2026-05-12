@@ -222,7 +222,6 @@ export class ResourceCleanupManager {
    * This removes temporary effects but keeps game state
    */
   public static cleanupWaveResources(managers: GameManagers): void {
-
     // Get state before cleanup for verification
     const stateBefore = ResourceCleanupManager.getState();
 
@@ -261,7 +260,6 @@ export class ResourceCleanupManager {
    * This is a full reset of all game state
    */
   public static cleanupGameResources(managers: GameManagers): void {
-
     // Get state before cleanup for verification
     const stateBefore = ResourceCleanupManager.getState();
 
@@ -454,7 +452,6 @@ export class ResourceCleanupManager {
    * when normal cleanup fails
    */
   public static forceCleanup(): void {
-
     // Force clear all timers
     EffectCleanupManager.clearAll();
 

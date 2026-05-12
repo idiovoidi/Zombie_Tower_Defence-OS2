@@ -286,7 +286,6 @@ export class PerformanceMonitor {
     if (PerformanceMonitor.waveMemorySnapshots.length > 1) {
       const growthRate = PerformanceMonitor.calculateMemoryGrowthRate();
       if (growthRate !== null) {
-
         // Check if growth rate exceeds threshold after wave 5
         if (wave > 5 && growthRate > PerformanceMonitor.MAX_MEMORY_GROWTH_PER_WAVE) {
           PerformanceMonitor.logWarning(
@@ -432,7 +431,6 @@ export class PerformanceMonitor {
 
     // Memory usage
     if (metrics.memoryUsage.heapUsed > 0) {
-
       // Show memory growth rate if available
       const growthRate = PerformanceMonitor.getMemoryGrowthRate();
       if (growthRate !== null) {

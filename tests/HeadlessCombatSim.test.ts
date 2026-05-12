@@ -54,9 +54,14 @@ describe('Headless Combat Simulation', () => {
   it('should initialize without EffectManager (headless mode)', () => {
     // Create combat manager without any rendering dependencies
     const combatManager = new TowerCombatManager(1024, 768);
-    const mockContainer = { addChild: () => { /* mock */ }, removeChild: () => { /* mock */ } } as unknown as import(
-      'pixi.js'
-    ).Container;
+    const mockContainer = {
+      addChild: () => {
+        /* mock */
+      },
+      removeChild: () => {
+        /* mock */
+      },
+    } as unknown as import('pixi.js').Container;
     const projectileManager = new ProjectileManager(mockContainer);
 
     combatManager.setProjectileManager(projectileManager);
@@ -111,9 +116,14 @@ describe('Headless Combat Simulation', () => {
 
   it('should run 1000 combat ticks without rendering overhead', () => {
     const combatManager = new TowerCombatManager(1024, 768);
-    const mockContainer = { addChild: () => { /* mock */ }, removeChild: () => { /* mock */ } } as unknown as import(
-      'pixi.js'
-    ).Container;
+    const mockContainer = {
+      addChild: () => {
+        /* mock */
+      },
+      removeChild: () => {
+        /* mock */
+      },
+    } as unknown as import('pixi.js').Container;
     const projectileManager = new ProjectileManager(mockContainer);
 
     const startTime = performance.now();
@@ -136,9 +146,14 @@ describe('Headless Combat Simulation', () => {
   it('should demonstrate high-speed simulation capability', () => {
     // This test demonstrates the key capability: running at 1000x speed
     const combatManager = new TowerCombatManager(1024, 768);
-    const mockContainer = { addChild: () => { /* mock */ }, removeChild: () => { /* mock */ } } as unknown as import(
-      'pixi.js'
-    ).Container;
+    const mockContainer = {
+      addChild: () => {
+        /* mock */
+      },
+      removeChild: () => {
+        /* mock */
+      },
+    } as unknown as import('pixi.js').Container;
     const projectileManager = new ProjectileManager(mockContainer);
     combatManager.setProjectileManager(projectileManager);
 

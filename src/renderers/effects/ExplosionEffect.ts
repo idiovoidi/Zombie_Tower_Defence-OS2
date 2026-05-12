@@ -13,12 +13,7 @@ export class ExplosionEffect extends Container {
   private upgradeLevel: number;
   private explosionRadius: number;
 
-  constructor(
-    x: number,
-    y: number,
-    upgradeLevel: number,
-    duration = 400
-  ) {
+  constructor(x: number, y: number, upgradeLevel: number, duration = 400) {
     super();
 
     this.position.set(x, y);

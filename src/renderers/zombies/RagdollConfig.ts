@@ -17,10 +17,7 @@ const ZOMBIE_COLORS = {
  * Create a ragdoll skeleton configuration for a specific zombie type.
  * Each zombie has different proportions, mass, and visual style.
  */
-export function createRagdollConfig(
-  zombieType: string,
-  groundY = 20
-): RagdollSkeletonConfig {
+export function createRagdollConfig(zombieType: string, groundY = 20): RagdollSkeletonConfig {
   const colors = getColorsForType(zombieType);
   const scale = getScaleForType(zombieType);
   const massScale = getMassScaleForType(zombieType);
@@ -438,8 +435,7 @@ export function calculateDeathImpulses(
  */
 export function getDetachableBones(killerType: string): string[] {
   switch (killerType) {
-    case 'Grenade':
-      // Random chance to detach limbs on grenade kills
+    case 'Grenade': // Random chance to detach limbs on grenade kills
       {
         const detachable: string[] = [];
         if (Math.random() > 0.4) detachable.push('arm_l');
@@ -449,16 +445,14 @@ export function getDetachableBones(killerType: string): string[] {
         if (Math.random() > 0.6) detachable.push('leg_r');
         return detachable;
       }
-    case 'Tesla':
-      // Rare chance of limb detachment on tesla
+    case 'Tesla': // Rare chance of limb detachment on tesla
       {
         const detachable: string[] = [];
         if (Math.random() > 0.8) detachable.push('arm_l');
         if (Math.random() > 0.8) detachable.push('arm_r');
         return detachable;
       }
-    case 'Shotgun':
-      // Rare but violent dismemberment
+    case 'Shotgun': // Rare but violent dismemberment
       {
         const detachable: string[] = [];
         if (Math.random() > 0.7) detachable.push('arm_l');
@@ -474,9 +468,7 @@ export function getDetachableBones(killerType: string): string[] {
  * Get blood emission configuration for a death type.
  * More violent deaths = more blood emission points.
  */
-export function getDeathBloodConfig(
-  killerType: string
-): Array<{
+export function getDeathBloodConfig(killerType: string): Array<{
   boneName: string;
   boneT: number;
   rate: number;
@@ -504,14 +496,10 @@ export function getDeathBloodConfig(
       ];
     case 'Tesla':
       // Less blood, more charred
-      return [
-        { boneName: 'torso', boneT: 0.3, rate: 8, duration: 600 },
-      ];
+      return [{ boneName: 'torso', boneT: 0.3, rate: 8, duration: 600 }];
     case 'Flame':
       // Minimal blood - cauterized
-      return [
-        { boneName: 'torso', boneT: 0.5, rate: 5, duration: 400 },
-      ];
+      return [{ boneName: 'torso', boneT: 0.5, rate: 5, duration: 400 }];
     default:
       return [
         { boneName: 'torso', boneT: 0.5, rate: 20, duration: 1000 },
