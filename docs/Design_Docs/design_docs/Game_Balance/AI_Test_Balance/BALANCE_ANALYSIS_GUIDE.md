@@ -342,7 +342,7 @@ gameManager.getBalanceTrackingManager().update(0);
 
 ```typescript
 // Get detected balance issues
-const issues = gameManager.getBalanceTrackingManager().getBalanceIssues();
+const issues = gameManager.getBalanceIssues();
 
 // Get wave defense analysis
 const waveAnalysis = gameManager.getBalanceTrackingManager().getWaveDefenseAnalysis();

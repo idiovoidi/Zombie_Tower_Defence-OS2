@@ -1,5 +1,4 @@
 import { type Application, Container } from 'pixi.js';
-import { VisualEffects } from '../utils/VisualEffects';
 import { DebugConstants } from '../config/debugConstants';
 import { DevConfig } from '../config/devConfig';
 import { GameConfig } from '../config/gameConfig';
@@ -14,6 +13,7 @@ import { type GameLogEntry, LogExporter } from '../utils/LogExporter';
 import { OptimizationValidator } from '../utils/OptimizationValidator';
 import { PerformanceMonitor } from '../utils/PerformanceMonitor';
 import { ResourceCleanupManager } from '../utils/ResourceCleanupManager';
+import { VisualEffects } from '../utils/VisualEffects';
 import { AnalyticsState } from './AnalyticsState';
 import { EconomyState } from './EconomyState';
 import type { InputManager } from './InputManager';
@@ -528,6 +528,14 @@ export class GameManager {
     return this.levelManager;
   }
 
+  public getAvailableLevels() {
+    return this.levelManager.getAvailableLevels();
+  }
+
+  public getCurrentLevel() {
+    return this.levelManager.getCurrentLevel();
+  }
+
   public getResourceManager() {
     return this.economyState.getResourceManager();
   }
@@ -538,6 +546,10 @@ export class GameManager {
 
   public getZombieManager(): ZombieManager {
     return this.zombieManager;
+  }
+
+  public getBloodParticleStats() {
+    return this.zombieManager.getBloodParticleSystem().getStats();
   }
 
   public getTowerPlacementManager(): TowerPlacementManager {
@@ -564,6 +576,10 @@ export class GameManager {
 
   public getBalanceTrackingManager() {
     return this.analyticsState.getBalanceTrackingManager();
+  }
+
+  public getBalanceIssues() {
+    return this.analyticsState.getBalanceTrackingManager().getBalanceIssues();
   }
 
   public getTowerCombatManager(): TowerCombatManager {

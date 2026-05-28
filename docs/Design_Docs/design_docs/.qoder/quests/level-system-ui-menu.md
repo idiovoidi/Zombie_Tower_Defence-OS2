@@ -376,7 +376,7 @@ mainMenu.setStartCallback(() => {
   // Show level select menu instead of starting game directly
   uiManager.setState('LevelSelect');
   // Update level select menu with available levels
-  const levels = gameManager.getLevelManager().getAvailableLevels();
+  const levels = gameManager.getAvailableLevels();
   levelSelectMenu.updateLevels(levels);
 });
 

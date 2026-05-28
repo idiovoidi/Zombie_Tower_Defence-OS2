@@ -639,7 +639,7 @@ gameManager.getBalanceTrackingManager().enable();
 ### Check Balance Issues
 
 ```typescript
-const issues = gameManager.getBalanceTrackingManager().getBalanceIssues();
+const issues = gameManager.getBalanceIssues();
 issues.forEach(issue => {
   console.log(`${issue.severity}: ${issue.message}`);
   console.log(`Recommendation: ${issue.recommendation}`);

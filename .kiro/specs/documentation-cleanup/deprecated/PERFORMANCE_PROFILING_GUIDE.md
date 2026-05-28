@@ -99,7 +99,7 @@ debugOptimizations();
 **Check:**
 
 ```javascript
-gameManager.getZombieManager().getBloodParticleSystem().getStats();
+gameManager.getBloodParticleStats();
 ```
 
 **Current Limits:**

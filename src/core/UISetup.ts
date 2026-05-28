@@ -149,7 +149,7 @@ export function createUI(
   mainMenu.setStartCallback(() => {
     DebugUtils.debug('Starting game from main menu');
     uiManager.setState(GameConfig.GAME_STATES.LEVEL_SELECT);
-    const levels = gameManager.getLevelManager().getAvailableLevels();
+    const levels = gameManager.getAvailableLevels();
     levelSelectMenu.updateLevels(levels);
   });
 
@@ -167,7 +167,7 @@ export function createUI(
 
   gameOverScreen.setRestartCallback(() => {
     DebugUtils.debug('Restarting game');
-    const currentLevel = gameManager.getLevelManager().getCurrentLevel();
+    const currentLevel = gameManager.getCurrentLevel();
     if (currentLevel) {
       gameManager.startGameWithLevel(currentLevel.id);
       uiManager.setState(gameManager.getCurrentState());
