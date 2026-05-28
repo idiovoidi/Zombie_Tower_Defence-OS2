@@ -143,8 +143,8 @@ export class Projectile extends Container {
       return;
     }
 
-    // Update target position if tracking a zombie
-    if (this.target?.parent) {
+    // Update target position if tracking a zombie (only if not dying)
+    if (this.target?.parent && !this.target.getIsDying()) {
       this.targetX = this.target.position.x;
       this.targetY = this.target.position.y;
     }
@@ -229,8 +229,8 @@ export class Projectile extends Container {
   private onHitTarget(): void {
     this.isActive = false;
 
-    // Apply damage to target if it still exists in the scene
-    if (this.target?.parent) {
+    // Apply damage to target if it still exists in the scene and isn't dying
+    if (this.target?.parent && !this.target.getIsDying()) {
       this.applyDamageToZombie(this.target, this.damage);
     }
 
