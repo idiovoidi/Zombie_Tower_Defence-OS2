@@ -10,42 +10,18 @@
  * - mathjs: Mathematical operations (currently minimal usage)
  */
 
+import * as ss from 'simple-statistics';
+import regressionModule from 'regression';
+import 'mathjs';
 import { DebugUtils } from './DebugUtils';
 
-// Library imports with graceful degradation
-let statisticsAvailable = false;
-let regressionAvailable = false;
-let mathAvailable = false;
+// Library imports with graceful degradation (statically imported now)
+const statisticsAvailable = true;
+const regressionAvailable = true;
+const mathAvailable = true;
 
-// biome-ignore lint/suspicious/noExplicitAny: Dynamically imported statistical libraries with varying APIs
-let ss: any = null;
-// biome-ignore lint/suspicious/noExplicitAny: Dynamically imported regression library
-let regression: any = null;
-
-// Initialize libraries
-(async () => {
-  try {
-    ss = await import('simple-statistics');
-    statisticsAvailable = true;
-  } catch {
-    DebugUtils.warn('simple-statistics not available. Statistical analysis disabled.');
-  }
-
-  try {
-    const regressionModule = await import('regression');
-    regression = regressionModule.default;
-    regressionAvailable = true;
-  } catch {
-    DebugUtils.warn('regression library not available. Predictive modeling disabled.');
-  }
-
-  try {
-    await import('mathjs');
-    mathAvailable = true;
-  } catch {
-    DebugUtils.warn('mathjs not available. Advanced math operations disabled.');
-  }
-})();
+// biome-ignore lint/suspicious/noExplicitAny: Import regression default or module exports
+const regression: any = (regressionModule as any)?.default || regressionModule;
 
 /**
  * Outlier analysis result

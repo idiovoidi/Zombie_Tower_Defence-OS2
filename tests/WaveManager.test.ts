@@ -50,8 +50,8 @@ describe('WaveManager', () => {
   });
 
   describe('Zombie Composition', () => {
-    test('should have correct zombie composition for waves 1-5', () => {
-      for (let wave = 1; wave <= 5; wave++) {
+    test('should have correct zombie composition for waves 1-3', () => {
+      for (let wave = 1; wave <= 3; wave++) {
         // biome-ignore lint/suspicious/noExplicitAny: Test needs access to private property
         (waveManager as any).currentWave = wave;
         const zombies = waveManager.getCurrentWaveZombies();
@@ -65,8 +65,8 @@ describe('WaveManager', () => {
       }
     });
 
-    test('should have correct zombie composition for waves 6-10', () => {
-      for (let wave = 6; wave <= 10; wave++) {
+    test('should have correct zombie composition for waves 4-5', () => {
+      for (let wave = 4; wave <= 5; wave++) {
         // biome-ignore lint/suspicious/noExplicitAny: Test needs access to private property
         (waveManager as any).currentWave = wave;
         const zombies = waveManager.getCurrentWaveZombies();
@@ -78,6 +78,41 @@ describe('WaveManager', () => {
         expect(zombies[0].type).toBe(GameConfig.ZOMBIE_TYPES.BASIC);
         expect(zombies[1].type).toBe(GameConfig.ZOMBIE_TYPES.FAST);
         expect(zombies[2].type).toBe(GameConfig.ZOMBIE_TYPES.TANK);
+      }
+    });
+
+    test('should have correct zombie composition for waves 6-8', () => {
+      for (let wave = 6; wave <= 8; wave++) {
+        // biome-ignore lint/suspicious/noExplicitAny: Test needs access to private property
+        (waveManager as any).currentWave = wave;
+        const zombies = waveManager.getCurrentWaveZombies();
+
+        // Should have 4 zombie types (Basic, Fast, Tank, Armored)
+        expect(zombies.length).toBe(4);
+
+        // Check zombie types
+        expect(zombies[0].type).toBe(GameConfig.ZOMBIE_TYPES.BASIC);
+        expect(zombies[1].type).toBe(GameConfig.ZOMBIE_TYPES.FAST);
+        expect(zombies[2].type).toBe(GameConfig.ZOMBIE_TYPES.TANK);
+        expect(zombies[3].type).toBe(GameConfig.ZOMBIE_TYPES.ARMORED);
+      }
+    });
+
+    test('should have correct zombie composition for waves 9-10', () => {
+      for (let wave = 9; wave <= 10; wave++) {
+        // biome-ignore lint/suspicious/noExplicitAny: Test needs access to private property
+        (waveManager as any).currentWave = wave;
+        const zombies = waveManager.getCurrentWaveZombies();
+
+        // Should have 5 zombie types (Basic, Fast, Tank, Armored, Swarm)
+        expect(zombies.length).toBe(5);
+
+        // Check zombie types
+        expect(zombies[0].type).toBe(GameConfig.ZOMBIE_TYPES.BASIC);
+        expect(zombies[1].type).toBe(GameConfig.ZOMBIE_TYPES.FAST);
+        expect(zombies[2].type).toBe(GameConfig.ZOMBIE_TYPES.TANK);
+        expect(zombies[3].type).toBe(GameConfig.ZOMBIE_TYPES.ARMORED);
+        expect(zombies[4].type).toBe(GameConfig.ZOMBIE_TYPES.SWARM);
       }
     });
 
