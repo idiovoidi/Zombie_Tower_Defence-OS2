@@ -1,5 +1,4 @@
 import { Filter, GlProgram } from 'pixi.js';
-import { RANDOM_FUNCTION, STANDARD_VERTEX_SHADER } from './ShaderUtils';
 
 /**
  * Bloom/Glow effect - makes bright areas glow
@@ -9,7 +8,30 @@ export class BloomFilter extends Filter {
     const intensity = options.intensity ?? 1.5;
     const threshold = options.threshold ?? 0.5;
 
-    const vertex = STANDARD_VERTEX_SHADER;
+    const vertex = `
+      in vec2 aPosition;
+      out vec2 vTextureCoord;
+
+      uniform vec4 uInputSize;
+      uniform vec4 uOutputFrame;
+      uniform vec4 uOutputTexture;
+
+      vec4 filterVertexPosition(void) {
+        vec2 position = aPosition * uOutputFrame.zw + uOutputFrame.xy;
+        position.x = position.x * (2.0 / uOutputTexture.x) - 1.0;
+        position.y = position.y * (2.0 * uOutputTexture.z / uOutputTexture.y) - uOutputTexture.z;
+        return vec4(position, 0.0, 1.0);
+      }
+
+      vec2 filterTextureCoord(void) {
+        return aPosition * (uOutputFrame.zw * uInputSize.zw);
+      }
+
+      void main(void) {
+        gl_Position = filterVertexPosition();
+        vTextureCoord = filterTextureCoord();
+      }
+    `;
 
     const fragment = `
       in vec2 vTextureCoord;
@@ -73,7 +95,30 @@ export class VignetteFilter extends Filter {
     const intensity = options.intensity ?? 0.5;
     const radius = options.radius ?? 0.8;
 
-    const vertex = STANDARD_VERTEX_SHADER;
+    const vertex = `
+      in vec2 aPosition;
+      out vec2 vTextureCoord;
+
+      uniform vec4 uInputSize;
+      uniform vec4 uOutputFrame;
+      uniform vec4 uOutputTexture;
+
+      vec4 filterVertexPosition(void) {
+        vec2 position = aPosition * uOutputFrame.zw + uOutputFrame.xy;
+        position.x = position.x * (2.0 / uOutputTexture.x) - 1.0;
+        position.y = position.y * (2.0 * uOutputTexture.z / uOutputTexture.y) - uOutputTexture.z;
+        return vec4(position, 0.0, 1.0);
+      }
+
+      vec2 filterTextureCoord(void) {
+        return aPosition * (uOutputFrame.zw * uInputSize.zw);
+      }
+
+      void main(void) {
+        gl_Position = filterVertexPosition();
+        vTextureCoord = filterTextureCoord();
+      }
+    `;
 
     const fragment = `
       in vec2 vTextureCoord;
@@ -137,7 +182,30 @@ export class ChromaticAberrationFilter extends Filter {
   constructor(options: { offset?: number } = {}) {
     const offset = options.offset ?? 0.003;
 
-    const vertex = STANDARD_VERTEX_SHADER;
+    const vertex = `
+      in vec2 aPosition;
+      out vec2 vTextureCoord;
+
+      uniform vec4 uInputSize;
+      uniform vec4 uOutputFrame;
+      uniform vec4 uOutputTexture;
+
+      vec4 filterVertexPosition(void) {
+        vec2 position = aPosition * uOutputFrame.zw + uOutputFrame.xy;
+        position.x = position.x * (2.0 / uOutputTexture.x) - 1.0;
+        position.y = position.y * (2.0 * uOutputTexture.z / uOutputTexture.y) - uOutputTexture.z;
+        return vec4(position, 0.0, 1.0);
+      }
+
+      vec2 filterTextureCoord(void) {
+        return aPosition * (uOutputFrame.zw * uInputSize.zw);
+      }
+
+      void main(void) {
+        gl_Position = filterVertexPosition();
+        vTextureCoord = filterTextureCoord();
+      }
+    `;
 
     const fragment = `
       in vec2 vTextureCoord;
@@ -187,7 +255,30 @@ export class FilmGrainFilter extends Filter {
   constructor(options: { intensity?: number } = {}) {
     const intensity = options.intensity ?? 0.1;
 
-    const vertex = STANDARD_VERTEX_SHADER;
+    const vertex = `
+      in vec2 aPosition;
+      out vec2 vTextureCoord;
+
+      uniform vec4 uInputSize;
+      uniform vec4 uOutputFrame;
+      uniform vec4 uOutputTexture;
+
+      vec4 filterVertexPosition(void) {
+        vec2 position = aPosition * uOutputFrame.zw + uOutputFrame.xy;
+        position.x = position.x * (2.0 / uOutputTexture.x) - 1.0;
+        position.y = position.y * (2.0 * uOutputTexture.z / uOutputTexture.y) - uOutputTexture.z;
+        return vec4(position, 0.0, 1.0);
+      }
+
+      vec2 filterTextureCoord(void) {
+        return aPosition * (uOutputFrame.zw * uInputSize.zw);
+      }
+
+      void main(void) {
+        gl_Position = filterVertexPosition();
+        vTextureCoord = filterTextureCoord();
+      }
+    `;
 
     const fragment = `
       in vec2 vTextureCoord;
@@ -197,7 +288,10 @@ export class FilmGrainFilter extends Filter {
 
       out vec4 finalColor;
 
-      ${RANDOM_FUNCTION}
+      // Random function
+      float random(vec2 co) {
+        return fract(sin(dot(co.xy, vec2(12.9898, 78.233))) * 43758.5453);
+      }
 
       void main(void) {
         vec4 color = texture(uTexture, vTextureCoord);
@@ -246,7 +340,30 @@ export class OilPaintingFilter extends Filter {
     const radius = options.radius ?? 4.0;
     const intensity = options.intensity ?? 10.0;
 
-    const vertex = STANDARD_VERTEX_SHADER;
+    const vertex = `
+      in vec2 aPosition;
+      out vec2 vTextureCoord;
+
+      uniform vec4 uInputSize;
+      uniform vec4 uOutputFrame;
+      uniform vec4 uOutputTexture;
+
+      vec4 filterVertexPosition(void) {
+        vec2 position = aPosition * uOutputFrame.zw + uOutputFrame.xy;
+        position.x = position.x * (2.0 / uOutputTexture.x) - 1.0;
+        position.y = position.y * (2.0 * uOutputTexture.z / uOutputTexture.y) - uOutputTexture.z;
+        return vec4(position, 0.0, 1.0);
+      }
+
+      vec2 filterTextureCoord(void) {
+        return aPosition * (uOutputFrame.zw * uInputSize.zw);
+      }
+
+      void main(void) {
+        gl_Position = filterVertexPosition();
+        vTextureCoord = filterTextureCoord();
+      }
+    `;
 
     const fragment = `
       in vec2 vTextureCoord;
@@ -345,7 +462,30 @@ export class KaleidoscopeFilter extends Filter {
     const segments = options.segments ?? 6.0;
     const angle = options.angle ?? 0.0;
 
-    const vertex = STANDARD_VERTEX_SHADER;
+    const vertex = `
+      in vec2 aPosition;
+      out vec2 vTextureCoord;
+
+      uniform vec4 uInputSize;
+      uniform vec4 uOutputFrame;
+      uniform vec4 uOutputTexture;
+
+      vec4 filterVertexPosition(void) {
+        vec2 position = aPosition * uOutputFrame.zw + uOutputFrame.xy;
+        position.x = position.x * (2.0 / uOutputTexture.x) - 1.0;
+        position.y = position.y * (2.0 * uOutputTexture.z / uOutputTexture.y) - uOutputTexture.z;
+        return vec4(position, 0.0, 1.0);
+      }
+
+      vec2 filterTextureCoord(void) {
+        return aPosition * (uOutputFrame.zw * uInputSize.zw);
+      }
+
+      void main(void) {
+        gl_Position = filterVertexPosition();
+        vTextureCoord = filterTextureCoord();
+      }
+    `;
 
     const fragment = `
       in vec2 vTextureCoord;
@@ -406,7 +546,30 @@ export class WaveDistortionFilter extends Filter {
     const frequency = options.frequency ?? 10.0;
     const _speed = options.speed ?? 2.0;
 
-    const vertex = STANDARD_VERTEX_SHADER;
+    const vertex = `
+      in vec2 aPosition;
+      out vec2 vTextureCoord;
+
+      uniform vec4 uInputSize;
+      uniform vec4 uOutputFrame;
+      uniform vec4 uOutputTexture;
+
+      vec4 filterVertexPosition(void) {
+        vec2 position = aPosition * uOutputFrame.zw + uOutputFrame.xy;
+        position.x = position.x * (2.0 / uOutputTexture.x) - 1.0;
+        position.y = position.y * (2.0 * uOutputTexture.z / uOutputTexture.y) - uOutputTexture.z;
+        return vec4(position, 0.0, 1.0);
+      }
+
+      vec2 filterTextureCoord(void) {
+        return aPosition * (uOutputFrame.zw * uInputSize.zw);
+      }
+
+      void main(void) {
+        gl_Position = filterVertexPosition();
+        vTextureCoord = filterTextureCoord();
+      }
+    `;
 
     const fragment = `
       in vec2 vTextureCoord;
@@ -463,7 +626,30 @@ export class ColorShiftFilter extends Filter {
     const _speed = options.speed ?? 1.0;
     const intensity = options.intensity ?? 1.0;
 
-    const vertex = STANDARD_VERTEX_SHADER;
+    const vertex = `
+      in vec2 aPosition;
+      out vec2 vTextureCoord;
+
+      uniform vec4 uInputSize;
+      uniform vec4 uOutputFrame;
+      uniform vec4 uOutputTexture;
+
+      vec4 filterVertexPosition(void) {
+        vec2 position = aPosition * uOutputFrame.zw + uOutputFrame.xy;
+        position.x = position.x * (2.0 / uOutputTexture.x) - 1.0;
+        position.y = position.y * (2.0 * uOutputTexture.z / uOutputTexture.y) - uOutputTexture.z;
+        return vec4(position, 0.0, 1.0);
+      }
+
+      vec2 filterTextureCoord(void) {
+        return aPosition * (uOutputFrame.zw * uInputSize.zw);
+      }
+
+      void main(void) {
+        gl_Position = filterVertexPosition();
+        vTextureCoord = filterTextureCoord();
+      }
+    `;
 
     const fragment = `
       in vec2 vTextureCoord;

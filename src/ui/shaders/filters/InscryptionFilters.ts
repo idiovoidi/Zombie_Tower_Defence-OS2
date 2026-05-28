@@ -1,10 +1,4 @@
 import { Filter, GlProgram } from 'pixi.js';
-import {
-  LUMINANCE_FUNCTION,
-  RANDOM_FUNCTION,
-  STANDARD_VERTEX_SHADER,
-  VERTEX_SHADER_WITH_SCREEN_COORD,
-} from './ShaderUtils';
 
 /**
  * Inscryption-style dark vignette with heavy shadows
@@ -13,7 +7,30 @@ export class InscryptionVignetteFilter extends Filter {
   constructor(options: { intensity?: number } = {}) {
     const intensity = options.intensity ?? 0.85;
 
-    const vertex = STANDARD_VERTEX_SHADER;
+    const vertex = `
+      in vec2 aPosition;
+      out vec2 vTextureCoord;
+
+      uniform vec4 uInputSize;
+      uniform vec4 uOutputFrame;
+      uniform vec4 uOutputTexture;
+
+      vec4 filterVertexPosition(void) {
+        vec2 position = aPosition * uOutputFrame.zw + uOutputFrame.xy;
+        position.x = position.x * (2.0 / uOutputTexture.x) - 1.0;
+        position.y = position.y * (2.0 * uOutputTexture.z / uOutputTexture.y) - uOutputTexture.z;
+        return vec4(position, 0.0, 1.0);
+      }
+
+      vec2 filterTextureCoord(void) {
+        return aPosition * (uOutputFrame.zw * uInputSize.zw);
+      }
+
+      void main(void) {
+        gl_Position = filterVertexPosition();
+        vTextureCoord = filterTextureCoord();
+      }
+    `;
 
     const fragment = `
       in vec2 vTextureCoord;
@@ -67,7 +84,30 @@ export class InscryptionVignetteFilter extends Filter {
  */
 export class InscryptionColorGradingFilter extends Filter {
   constructor() {
-    const vertex = STANDARD_VERTEX_SHADER;
+    const vertex = `
+      in vec2 aPosition;
+      out vec2 vTextureCoord;
+
+      uniform vec4 uInputSize;
+      uniform vec4 uOutputFrame;
+      uniform vec4 uOutputTexture;
+
+      vec4 filterVertexPosition(void) {
+        vec2 position = aPosition * uOutputFrame.zw + uOutputFrame.xy;
+        position.x = position.x * (2.0 / uOutputTexture.x) - 1.0;
+        position.y = position.y * (2.0 * uOutputTexture.z / uOutputTexture.y) - uOutputTexture.z;
+        return vec4(position, 0.0, 1.0);
+      }
+
+      vec2 filterTextureCoord(void) {
+        return aPosition * (uOutputFrame.zw * uInputSize.zw);
+      }
+
+      void main(void) {
+        gl_Position = filterVertexPosition();
+        vTextureCoord = filterTextureCoord();
+      }
+    `;
 
     const fragment = `
       in vec2 vTextureCoord;
@@ -75,13 +115,11 @@ export class InscryptionColorGradingFilter extends Filter {
 
       out vec4 finalColor;
 
-      ${LUMINANCE_FUNCTION}
-
       void main(void) {
         vec4 color = texture(uTexture, vTextureCoord);
         
         // Desaturate heavily
-        float gray = luminance(color.rgb);
+        float gray = color.r * 0.299 + color.g * 0.587 + color.b * 0.114;
         color.rgb = mix(color.rgb, vec3(gray), 0.6);
         
         // Cold blue-green tint (Inscryption's signature look)
@@ -115,7 +153,30 @@ export class InscryptionGrainFilter extends Filter {
   constructor(options: { intensity?: number } = {}) {
     const intensity = options.intensity ?? 0.15;
 
-    const vertex = STANDARD_VERTEX_SHADER;
+    const vertex = `
+      in vec2 aPosition;
+      out vec2 vTextureCoord;
+
+      uniform vec4 uInputSize;
+      uniform vec4 uOutputFrame;
+      uniform vec4 uOutputTexture;
+
+      vec4 filterVertexPosition(void) {
+        vec2 position = aPosition * uOutputFrame.zw + uOutputFrame.xy;
+        position.x = position.x * (2.0 / uOutputTexture.x) - 1.0;
+        position.y = position.y * (2.0 * uOutputTexture.z / uOutputTexture.y) - uOutputTexture.z;
+        return vec4(position, 0.0, 1.0);
+      }
+
+      vec2 filterTextureCoord(void) {
+        return aPosition * (uOutputFrame.zw * uInputSize.zw);
+      }
+
+      void main(void) {
+        gl_Position = filterVertexPosition();
+        vTextureCoord = filterTextureCoord();
+      }
+    `;
 
     const fragment = `
       in vec2 vTextureCoord;
@@ -125,7 +186,9 @@ export class InscryptionGrainFilter extends Filter {
 
       out vec4 finalColor;
 
-      ${RANDOM_FUNCTION}
+      float random(vec2 co) {
+        return fract(sin(dot(co.xy, vec2(12.9898, 78.233))) * 43758.5453);
+      }
 
       void main(void) {
         vec4 color = texture(uTexture, vTextureCoord);
@@ -176,7 +239,30 @@ export class InscryptionChromaticFilter extends Filter {
   constructor(options: { offset?: number } = {}) {
     const offset = options.offset ?? 0.003;
 
-    const vertex = STANDARD_VERTEX_SHADER;
+    const vertex = `
+      in vec2 aPosition;
+      out vec2 vTextureCoord;
+
+      uniform vec4 uInputSize;
+      uniform vec4 uOutputFrame;
+      uniform vec4 uOutputTexture;
+
+      vec4 filterVertexPosition(void) {
+        vec2 position = aPosition * uOutputFrame.zw + uOutputFrame.xy;
+        position.x = position.x * (2.0 / uOutputTexture.x) - 1.0;
+        position.y = position.y * (2.0 * uOutputTexture.z / uOutputTexture.y) - uOutputTexture.z;
+        return vec4(position, 0.0, 1.0);
+      }
+
+      vec2 filterTextureCoord(void) {
+        return aPosition * (uOutputFrame.zw * uInputSize.zw);
+      }
+
+      void main(void) {
+        gl_Position = filterVertexPosition();
+        vTextureCoord = filterTextureCoord();
+      }
+    `;
 
     const fragment = `
       in vec2 vTextureCoord;
@@ -226,7 +312,32 @@ export class InscryptionScanlinesFilter extends Filter {
   constructor(options: { intensity?: number } = {}) {
     const intensity = options.intensity ?? 0.15;
 
-    const vertex = VERTEX_SHADER_WITH_SCREEN_COORD;
+    const vertex = `
+      in vec2 aPosition;
+      out vec2 vTextureCoord;
+      out vec2 vScreenCoord;
+
+      uniform vec4 uInputSize;
+      uniform vec4 uOutputFrame;
+      uniform vec4 uOutputTexture;
+
+      vec4 filterVertexPosition(void) {
+        vec2 position = aPosition * uOutputFrame.zw + uOutputFrame.xy;
+        position.x = position.x * (2.0 / uOutputTexture.x) - 1.0;
+        position.y = position.y * (2.0 * uOutputTexture.z / uOutputTexture.y) - uOutputTexture.z;
+        return vec4(position, 0.0, 1.0);
+      }
+
+      vec2 filterTextureCoord(void) {
+        return aPosition * (uOutputFrame.zw * uInputSize.zw);
+      }
+
+      void main(void) {
+        gl_Position = filterVertexPosition();
+        vTextureCoord = filterTextureCoord();
+        vScreenCoord = vTextureCoord * uInputSize.xy;
+      }
+    `;
 
     const fragment = `
       in vec2 vTextureCoord;
