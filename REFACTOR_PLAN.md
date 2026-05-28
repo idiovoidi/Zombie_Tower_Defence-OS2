@@ -209,6 +209,46 @@ These are not worth refactoring as the duplication is trivial and isolated.
 8. P2 Zombie Renderers — large, new base class ✅
 9. P6 UI Panels — large, new base class ✅
 10. P1 AIPlayerManager/StatTracker — largest, highest risk ✅
-11. P11 Shader Filter Boilerplate — medium, multi-file
-12. P12 Zombie Renderer updateWounds — small, multi-file
-13. P13 BloodParticleSystem — small, single file
+11. P11 Shader Filter Boilerplate — medium, multi-file ✅
+12. P12 Zombie Renderer updateWounds — skipped (pattern is explicit)
+13. P13 BloodParticleSystem — small, single file ✅
+
+---
+
+## Summary
+
+**Initial State:** 116 clones, 4.58% duplication
+**Final State:** 33 clones (all minor, under 20 lines each)
+
+### Remaining Duplications (Acceptable)
+
+The remaining 33 clones fall into these categories:
+
+1. **Filter class patterns** (VignetteFilter, ChromaticAberrationFilter, FilmGrainFilter) — The `super()` call and getter/setter patterns are inherent to PixiJS Filter subclassing. Shared vertex shader extracted successfully.
+
+2. **Zombie renderer `updateWounds` signatures** — The method signature is defined as an abstract method in BaseZombieRenderer, making the pattern explicit. Each zombie type has different wound drawing parameters.
+
+3. **Internal duplications in single files** — These are minor patterns (5-10 lines) that would add more complexity to extract than they save:
+   - `Tower.ts` laser sight calculation
+   - `Projectile.ts` constructor property assignment
+   - `PathRenderer.ts` waypoint iteration
+   - `GraveyardRenderer.ts` polygon drawing
+   - `SpatialGrid.ts` cell iteration
+   - `LogExporter.ts` blob creation
+
+4. **Visual detail duplications** — Tower renderers and UI components have similar visual patterns (rivets, barrel rendering) that are intentionally duplicated for clarity and independence.
+
+### Refactor Achievements
+
+- **~75% reduction in code clones** (116 → 33)
+- Created reusable base classes:
+  - `BaseZombieRenderer` — shared skeletal animation, damage effects, death animation
+  - `BaseTowerRenderer` with `applyShootingEffect()` — shared shooting effect
+  - `UIPanel` — shared panel creation helpers
+  - `BaseShaderFilter` with `STANDARD_VERTEX_SHADER` — shared shader boilerplate
+- Extracted helper methods in:
+  - `ZombieCorpseRenderer.drawCorpseBody()`
+  - `TerrainRenderer.renderBlobPatches()`
+  - `BloodParticleSystem.createParticle()` and `updateParticleLife()`
+  - `TowerCombatManager.applyDamageToZombie()`
+- Consolidated `AIPlayerManager` to delegate to centralized `StatTracker`
