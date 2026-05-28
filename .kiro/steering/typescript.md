@@ -2,216 +2,46 @@
 inclusion: always
 ---
 
-# TypeScript Development Patterns
+# TypeScript Patterns
 
-## Import Rules
-
-### Path Aliases (REQUIRED)
-
-Always use `@/` path aliases for imports within `src/`:
-
+## Imports
 ```typescript
-// ✅ CORRECT
-import { Entity } from '@/core/Entity';
-import type { Component } from '@/types/ComponentTypes';
-
-// ❌ WRONG
-import { Entity } from '../core/Entity';
-import type { Component } from '../../types/ComponentTypes';
+// Path aliases — always use, never relative
+import { Tower } from '@objects/Tower';
+import type { ITower } from '@objects/Tower.interface'; // type-only when only used as type
 ```
 
-### Type-Only Imports
-
-Use `type` keyword when importing only for type annotations:
-
+## Required: Explicit return types on public functions
 ```typescript
-// ✅ Type-only import (when used only in type positions)
-import type { Entity } from '@/core/Entity';
-function process(entity: Entity): void {}
-
-// ✅ Value import (when using instanceof, static methods, or as value)
-import { Entity } from '@/core/Entity';
-if (obj instanceof Entity) {
-}
+export function createTower(x: number, y: number): Tower { ... }  // ✅
+export function createTower(x: number, y: number) { ... }         // ❌
 ```
 
-## Type vs Value Pattern
-
-### Const Objects with Types
-
-When exporting const objects alongside types, use clear naming:
-
+## Unused parameters — prefix with `_`
 ```typescript
-// ✅ CORRECT - Clear distinction
-export const LeaderboardCategory = {
-  ENDLESS_SURVIVAL: 'endless_survival',
-  SPEED_RUN: 'speed_run',
-} as const;
-
-export type LeaderboardCategoryType =
-  (typeof LeaderboardCategory)[keyof typeof LeaderboardCategory];
-
-// Usage in other files:
-import type { LeaderboardCategoryType } from '@/systems/social/LeaderboardSystem';
-import { LeaderboardCategory } from '@/systems/social/LeaderboardSystem';
-
-const category: LeaderboardCategoryType = LeaderboardCategory.ENDLESS_SURVIVAL;
+public update(_deltaTime: number): void { ... }
 ```
 
-### Component Types
-
-Use string literals with const assertions:
-
+## Const objects — use `as const`
 ```typescript
-// ✅ GOOD
-export interface PositionComponent {
-  type: 'position';
-  x: number;
-  y: number;
-}
-
-// ✅ BETTER (for reusability)
-export const POSITION_TYPE = 'position' as const;
-
-export interface PositionComponent {
-  type: typeof POSITION_TYPE;
-  x: number;
-  y: number;
-}
+export const TOWER_TYPES = { SNIPER: 'sniper', FLAME: 'flame' } as const;
+export type TowerType = (typeof TOWER_TYPES)[keyof typeof TOWER_TYPES];
 ```
 
-## Function Signatures
-
-### Explicit Return Types (REQUIRED)
-
-Always specify return types for public functions and factories:
-
+## Events — discriminated unions
 ```typescript
-// ✅ CORRECT
-export function createGuppy(x: number, y: number): Entity {
-  return new Entity().addComponent({ type: 'position', x, y });
-}
-
-// ❌ WRONG
-export function createGuppy(x: number, y: number) {
-  return new Entity().addComponent({ type: 'position', x, y });
-}
-```
-
-### Unused Parameters
-
-Prefix intentionally unused parameters with underscore:
-
-```typescript
-// ✅ CORRECT
-public update(_deltaTime: number): void {
-  // Not using deltaTime in this implementation
-}
-
-// ❌ WRONG (triggers warning)
-public update(deltaTime: number): void {
-  // Not using deltaTime
-}
-```
-
-## Config Objects
-
-### Immutable Config
-
-Use `as const` for configuration objects:
-
-```typescript
-// ✅ CORRECT
-export const FISH_CONFIG = {
-  guppy: {
-    baseHealth: 100,
-    growthRate: 1.0,
-  },
-  carnivore: {
-    baseHealth: 150,
-    growthRate: 0.8,
-  },
-} as const;
-
-// Type inference works automatically
-type FishType = keyof typeof FISH_CONFIG; // 'guppy' | 'carnivore'
-```
-
-## Event System
-
-### Discriminated Unions
-
-Use discriminated unions for type-safe events:
-
-```typescript
-// ✅ EXCELLENT - Type-safe event system
 type GameEvent =
-  | { type: 'fishSpawned'; fishId: number; species: string }
-  | { type: 'alienKilled'; alienId: number; reward: number }
-  | { type: 'riftOpened'; riftId: number; modifier: string };
-
-function handleEvent(event: GameEvent): void {
-  switch (event.type) {
-    case 'fishSpawned':
-      // TypeScript knows event.fishId and event.species exist
-      console.log(`Fish ${event.fishId} spawned`);
-      break;
-    case 'alienKilled':
-      // TypeScript knows event.alienId and event.reward exist
-      console.log(`Alien ${event.alienId} killed`);
-      break;
-    case 'riftOpened':
-      // TypeScript knows event.riftId and event.modifier exist
-      console.log(`Rift ${event.riftId} opened`);
-      break;
-  }
-}
+  | { type: 'zombieKilled'; id: number; reward: number }
+  | { type: 'waveComplete'; wave: number };
 ```
 
-## Null Safety
-
-### Strict Null Checks
-
-Leverage TypeScript's strict null checking:
-
+## Null safety — always check indexed access
 ```typescript
-// With noUncheckedIndexedAccess: true
-const items: string[] = ['a', 'b', 'c'];
-
-// ✅ CORRECT - Check for undefined
-const item = items[10];
-if (item !== undefined) {
-  item.toUpperCase(); // Safe
-}
-
-// ✅ ALSO CORRECT - Optional chaining
-items[10]?.toUpperCase();
-
-// ❌ WRONG - Potential runtime error
-const item = items[10];
-item.toUpperCase(); // Error if undefined
+const item = items[i];
+if (item !== undefined) { item.doThing(); }  // ✅
+// or: items[i]?.doThing();
 ```
 
 ## Interface vs Type
-
-### When to Use Each
-
-- **Interfaces**: For object shapes, can be extended
-- **Types**: For unions, intersections, primitives
-
-```typescript
-// ✅ Interface for object shapes
-export interface FishConfig {
-  baseHealth: number;
-  growthRate: number;
-}
-
-// ✅ Type for unions
-export type FishSpecies = 'guppy' | 'carnivore' | 'breeder';
-
-// ✅ Type for complex unions
-export type EntityType =
-  | { kind: 'fish'; species: FishSpecies }
-  | { kind: 'alien'; variant: AlienVariant }
-  | { kind: 'pet'; name: string };
-
+- `interface` — object shapes (extendable)
+- `type` — unions, intersections, primitives
