@@ -1,4 +1,4 @@
-import { type Container, Graphics } from 'pixi.js';
+import { Container, Graphics } from 'pixi.js';
 import { EffectCleanupManager } from '../../utils/EffectCleanupManager';
 import {
   calculateDeathImpulses,
@@ -43,17 +43,17 @@ export interface DeathParticleConfig {
 
 /**
  * Abstract base for all zombie renderers.
- * Provides shared constructor, destroy, update, showDamageEffect, playDeathAnimation, getGraphics.
+ * Provides shared constructor, destroy, update, showDamageEffect, playDeathAnimation, getContainer.
  * Subclasses implement render() and supply config via protected readonly properties.
  *
- * Death animations now use a procedural ragdoll skeleton system with directional
- * impulses based on the killing tower type and impact direction.
+ * Now uses a retained-mode skeletal system compliant with PixiJS v8.
  */
 export abstract class BaseZombieRenderer implements IZombieRenderer {
-  protected graphics: Graphics;
+  protected container: Container;
   protected animator: ZombieAnimator;
   protected particles: ZombieParticleSystem;
   protected deathAnimationFrame: number | null = null;
+  protected isInitialized = false;
 
   // Burning effect properties
   protected isBurning = false;
@@ -84,7 +84,7 @@ export abstract class BaseZombieRenderer implements IZombieRenderer {
   protected abstract readonly DEATH_ANIM: DeathAnimConfig;
 
   constructor() {
-    this.graphics = new Graphics();
+    this.container = new Container();
     // ZombieAnimator is constructed after subclass sets ANIMATOR_TYPE
     // We defer via a post-construction init pattern using a getter
     this.animator = new ZombieAnimator(this.getAnimatorType());
@@ -105,6 +105,11 @@ export abstract class BaseZombieRenderer implements IZombieRenderer {
   }
 
   abstract render(container: Container, state: ZombieRenderState): void;
+
+  /**
+   * Subclasses implement this to create their static graphics parts.
+   */
+  protected abstract initParts(): void;
 
   update(deltaTime: number, state: ZombieRenderState): void {
     // Pass health info to animator for damage-reactive animations
@@ -130,19 +135,19 @@ export abstract class BaseZombieRenderer implements IZombieRenderer {
         }
 
         this.ragdoll.render(this.ragdollGraphics, this.ragdollAlpha);
-        this.particles.render(this.ragdollGraphics);
+        this.particles.render(); // Note: ZombieParticleSystem now clears its own graphics
       }
     }
   }
 
   showDamageEffect(damageType: string, _amount: number): void {
-    const originalTint = this.graphics.tint;
-    this.graphics.tint = this.DAMAGE_FLASH_TINT;
+    const originalTint = this.container.tint;
+    this.container.tint = this.DAMAGE_FLASH_TINT;
     const timeout = EffectCleanupManager.registerTimeout(
       setTimeout(() => {
         EffectCleanupManager.clearTimeout(timeout);
-        if (!this.graphics.destroyed) {
-          this.graphics.tint = originalTint;
+        if (!this.container.destroyed) {
+          this.container.tint = originalTint;
         }
       }, 100)
     );
@@ -183,7 +188,7 @@ export abstract class BaseZombieRenderer implements IZombieRenderer {
     const config = createRagdollConfig(this.zombieTypeName, 18);
     this.ragdoll = new RagdollSkeleton(config);
 
-    // Initialize from current position (center of graphics)
+    // Initialize from current position (center of container)
     this.ragdoll.initializeFromPose(0, 0, 0);
 
     // Calculate and apply death impulses
@@ -215,8 +220,8 @@ export abstract class BaseZombieRenderer implements IZombieRenderer {
     this.isInRagdollDeath = true;
     this.ragdollAlpha = 1;
 
-    // Hide original zombie graphics
-    this.graphics.alpha = 0;
+    // Hide original zombie container
+    this.container.alpha = 0;
 
     // Emit initial death particles in impact direction
     for (const p of this.DEATH_PARTICLES) {
@@ -302,12 +307,12 @@ export abstract class BaseZombieRenderer implements IZombieRenderer {
       cancelAnimationFrame(this.deathAnimationFrame);
       this.deathAnimationFrame = null;
     }
-    // Reset graphics transform and visibility
-    this.graphics.alpha = 1;
-    this.graphics.tint = 0xffffff;
-    this.graphics.position.set(0, 0);
-    this.graphics.rotation = 0;
-    this.graphics.scale.set(1, 1);
+    // Reset container transform and visibility
+    this.container.alpha = 1;
+    this.container.tint = 0xffffff;
+    this.container.position.set(0, 0);
+    this.container.rotation = 0;
+    this.container.scale.set(1, 1);
     // Clear any particles
     this.particles.clear?.();
     // Stop burning effect
@@ -328,7 +333,7 @@ export abstract class BaseZombieRenderer implements IZombieRenderer {
       cancelAnimationFrame(this.deathAnimationFrame);
       this.deathAnimationFrame = null;
     }
-    this.graphics.destroy({ children: true });
+    this.container.destroy({ children: true });
     this.particles.destroy();
 
     if (this.ragdollGraphics && !this.ragdollGraphics.destroyed) {
@@ -336,8 +341,8 @@ export abstract class BaseZombieRenderer implements IZombieRenderer {
     }
   }
 
-  getGraphics(): Graphics {
-    return this.graphics;
+  getGraphics(): Container {
+    return this.container;
   }
 
   /**
@@ -351,7 +356,7 @@ export abstract class BaseZombieRenderer implements IZombieRenderer {
     this.burnParticleTimer = 0;
 
     // Apply orange tint to indicate burning
-    this.graphics.tint = 0xff6600;
+    this.container.tint = 0xff6600;
 
     // Emit initial burst of fire particles
     this.particles.emit(ParticleType.FIRE, 0, -5, {
@@ -381,8 +386,8 @@ export abstract class BaseZombieRenderer implements IZombieRenderer {
     this.burnParticleTimer = 0;
 
     // Reset tint if not already dead
-    if (!this.graphics.destroyed && this.graphics.alpha > 0.5) {
-      this.graphics.tint = 0xffffff;
+    if (!this.container.destroyed && this.container.alpha > 0.5) {
+      this.container.tint = 0xffffff;
     }
   }
 
@@ -415,17 +420,10 @@ export abstract class BaseZombieRenderer implements IZombieRenderer {
 
   /**
    * Draw wound circles on the zombie body based on health percentage.
-   * @param healthPercent - Current health / max health
-   * @param torsoY - Y position of torso center for wound placement
-   * @param woundColor - Color for wounds (usually blood red)
-   * @param maxWounds - Maximum number of wounds at 0 health (default 4)
-   * @param spreadX - Horizontal spread of wounds (default 7)
-   * @param spreadY - Vertical spread of wounds (default 9)
-   * @param baseSize - Base wound size (default 1)
-   * @param sizeVar - Size variance (default 1.2)
-   * @param alpha - Alpha for wounds (default 0.7)
+   * Now takes a target Graphics object.
    */
   protected drawWounds(
+    graphics: Graphics,
     healthPercent: number,
     torsoY: number,
     woundColor: number,
@@ -436,11 +434,12 @@ export abstract class BaseZombieRenderer implements IZombieRenderer {
     sizeVar = 1.2,
     alpha = 0.7
   ): void {
+    graphics.clear();
     const woundCount = Math.floor((1 - healthPercent) * maxWounds);
     for (let i = 0; i < woundCount; i++) {
       const x = (Math.random() - 0.5) * spreadX;
       const y = torsoY + (Math.random() - 0.5) * spreadY;
-      this.graphics
+      graphics
         .circle(x, y, baseSize + Math.random() * sizeVar)
         .fill({ color: woundColor, alpha });
     }
@@ -448,123 +447,16 @@ export abstract class BaseZombieRenderer implements IZombieRenderer {
 
   /**
    * Apply standard grey tint based on health percentage.
-   * Tints get darker as health decreases (75%, 50%, 25% thresholds).
-   * @param healthPercent - Current health / max health
    */
   protected applyHealthTint(healthPercent: number): void {
     if (healthPercent < 0.25) {
-      this.graphics.tint = 0x888888;
+      this.container.tint = 0x888888;
     } else if (healthPercent < 0.5) {
-      this.graphics.tint = 0xaaaaaa;
+      this.container.tint = 0xaaaaaa;
     } else if (healthPercent < 0.75) {
-      this.graphics.tint = 0xcccccc;
+      this.container.tint = 0xcccccc;
     } else {
-      this.graphics.tint = 0xffffff;
+      this.container.tint = 0xffffff;
     }
-  }
-
-  /**
-   * Draw a zombie arm with configurable parameters.
-   * @param x - Arm start X
-   * @param y - Arm start Y
-   * @param angle - Arm angle
-   * @param alpha - Opacity
-   * @param armColor - Arm color
-   * @param armLength - Arm length (default 7)
-   * @param options - Additional styling options
-   */
-  protected drawArm(
-    x: number,
-    y: number,
-    angle: number,
-    alpha: number,
-    armColor: number,
-    armLength = 7,
-    options: {
-      outlineColor?: number;
-      lineWidth?: number;
-      outlineWidth?: number;
-      handRadius?: number;
-      jointColor?: number;
-      jointRadius?: number;
-      innerJointColor?: number;
-      innerJointRadius?: number;
-      secondaryColor?: number;
-      midJointColor?: number;
-      midJointRadius?: number;
-      midInnerJointColor?: number;
-      midInnerJointRadius?: number;
-      outlineAlpha?: number;
-    } = {}
-  ): void {
-    const {
-      outlineColor = 0x000000,
-      lineWidth = 2,
-      outlineWidth = 2.5,
-      handRadius = 1.5,
-      jointColor,
-      jointRadius,
-      innerJointColor,
-      innerJointRadius,
-      secondaryColor,
-      midJointColor,
-      midJointRadius,
-      midInnerJointColor,
-      midInnerJointRadius,
-      outlineAlpha = alpha * 0.5,
-    } = options;
-
-    const handX = x + Math.cos(angle) * armLength;
-    const handY = y + Math.sin(angle) * armLength;
-
-    // Optional secondary arm line (for thicker arms like Tank)
-    if (secondaryColor !== undefined) {
-      this.graphics
-        .moveTo(x, y)
-        .lineTo(handX, handY)
-        .stroke({ color: secondaryColor, width: outlineWidth, alpha });
-    }
-
-    // Draw main arm outline
-    this.graphics
-      .moveTo(x, y)
-      .lineTo(handX, handY)
-      .stroke({ color: outlineColor, width: outlineWidth, alpha: outlineAlpha });
-
-    // Draw main arm line
-    this.graphics
-      .moveTo(x, y)
-      .lineTo(handX, handY)
-      .stroke({ color: armColor, width: lineWidth, alpha });
-
-    // Joint at midpoint (for mechanical/armored zombies)
-    if (midJointColor !== undefined && midJointRadius !== undefined) {
-      const midX = x + Math.cos(angle) * (armLength * 0.5);
-      const midY = y + Math.sin(angle) * (armLength * 0.5);
-      this.graphics.circle(midX, midY, midJointRadius).fill({ color: midJointColor, alpha });
-      if (midInnerJointColor !== undefined && midInnerJointRadius !== undefined) {
-        this.graphics
-          .circle(midX, midY, midInnerJointRadius)
-          .fill({ color: midInnerJointColor, alpha });
-      }
-    }
-
-    // Outer joint circle (for segmented arms)
-    if (jointColor !== undefined && jointRadius !== undefined) {
-      this.graphics.circle(handX, handY, jointRadius).fill({ color: jointColor, alpha });
-    }
-
-    // Main hand
-    this.graphics.circle(handX, handY, handRadius).fill({ color: armColor, alpha });
-
-    // Inner joint circle
-    if (innerJointColor !== undefined && innerJointRadius !== undefined) {
-      this.graphics.circle(handX, handY, innerJointRadius).fill({ color: innerJointColor, alpha });
-    }
-
-    // Hand outline
-    this.graphics
-      .circle(handX, handY, handRadius)
-      .stroke({ color: outlineColor, width: 0.5, alpha: outlineAlpha });
   }
 }

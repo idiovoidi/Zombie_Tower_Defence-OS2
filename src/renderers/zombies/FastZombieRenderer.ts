@@ -1,4 +1,4 @@
-import type { Container } from 'pixi.js';
+import { Graphics, type Container } from 'pixi.js';
 import { BaseZombieRenderer } from './BaseZombieRenderer';
 import { GlowEffect, ShadowEffect } from './components/ZombieEffects';
 import { ParticleType } from './ZombieParticleSystem';
@@ -27,52 +27,120 @@ export class FastZombieRenderer extends BaseZombieRenderer {
   private readonly BLOOD_RED = 0x8b0000;
   private readonly EYE_GLOW = 0xff6600;
 
-  render(container: Container, state: ZombieRenderState): void {
-    this.graphics.clear();
-    const anim = this.animator.getCurrentFrame();
-    const healthPercent = state.health / state.maxHealth;
+  // Skeletal parts
+  private shadowPart!: Graphics;
+  private leftLegPart!: Graphics;
+  private rightLegPart!: Graphics;
+  private torsoPart!: Graphics;
+  private headPart!: Graphics;
+  private leftArmPart!: Graphics;
+  private rightArmPart!: Graphics;
+  private woundsPart!: Graphics;
 
-    ShadowEffect.apply(this.graphics, 0, 15, 7);
+  private lastHealthPercent = 1.0;
 
-    const leftLegX = -2.5 + anim.leftLegOffset;
-    const rightLegX = 0.5 + anim.rightLegOffset;
-    this.graphics.rect(leftLegX, 10, 2.5, 6).fill(this.PRIMARY_COLOR);
-    this.graphics.rect(leftLegX, 10, 2.5, 6).stroke({ color: 0x000000, width: 0.5, alpha: 0.6 });
-    this.graphics.rect(rightLegX, 10, 2.5, 6).fill(this.PRIMARY_COLOR);
-    this.graphics.rect(rightLegX, 10, 2.5, 6).stroke({ color: 0x000000, width: 0.5, alpha: 0.6 });
+  protected initParts(): void {
+    // 1. Create parts
+    this.shadowPart = new Graphics();
+    ShadowEffect.apply(this.shadowPart, 0, 15, 7);
 
-    const torsoY = anim.bodyBob;
-    this.graphics
-      .roundRect(-4, torsoY, 8, 11, 1)
+    this.leftLegPart = new Graphics();
+    this.leftLegPart.rect(-1.25, 0, 2.5, 6).fill(this.PRIMARY_COLOR);
+    this.leftLegPart.rect(-1.25, 0, 2.5, 6).stroke({ color: 0x000000, width: 0.5, alpha: 0.6 });
+
+    this.rightLegPart = new Graphics();
+    this.rightLegPart.rect(-1.25, 0, 2.5, 6).fill(this.PRIMARY_COLOR);
+    this.rightLegPart.rect(-1.25, 0, 2.5, 6).stroke({ color: 0x000000, width: 0.5, alpha: 0.6 });
+
+    this.torsoPart = new Graphics();
+    this.torsoPart
+      .roundRect(-4, -5.5, 8, 11, 1)
       .fill(this.PRIMARY_COLOR)
       .stroke({ color: 0x000000, width: 1, alpha: 0.6 });
 
     for (let i = 0; i < 3; i++) {
-      this.graphics
-        .rect(-2.5, torsoY + 2 + i * 3, 5, 0.5)
+      this.torsoPart
+        .rect(-2.5, -3.5 + i * 3, 5, 0.5)
         .fill({ color: this.DARK_ORANGE, alpha: 0.7 });
     }
 
-    this.drawArm(-4, torsoY + 2, anim.leftArmAngle, 0.7, this.PRIMARY_COLOR, 8, { lineWidth: 1.8 });
-    this.drawArm(4, torsoY + 2, anim.rightArmAngle, 1.0, this.PRIMARY_COLOR, 8, { lineWidth: 1.8 });
+    this.headPart = new Graphics();
+    this.headPart.circle(0, 0, 4).fill(this.PRIMARY_COLOR);
+    this.headPart.circle(0, 0, 4).stroke({ color: 0x000000, width: 1, alpha: 0.6 });
 
-    const headY = torsoY - 6;
-    const headX = anim.headSway;
-    this.graphics.circle(headX, headY, 4).fill(this.PRIMARY_COLOR);
-    this.graphics.circle(headX, headY, 4).stroke({ color: 0x000000, width: 1, alpha: 0.6 });
+    GlowEffect.apply(this.headPart, -1.8, -0.5, 1.8, this.EYE_GLOW);
+    GlowEffect.apply(this.headPart, 1.8, -0.5, 1.8, this.EYE_GLOW);
+    this.headPart.circle(-1.8, -0.5, 1).fill({ color: 0x000000, alpha: 0.9 });
+    this.headPart.circle(1.8, -0.5, 1).fill({ color: 0x000000, alpha: 0.9 });
+    this.headPart.circle(-1.8, -0.5, 0.7).fill(this.EYE_GLOW);
+    this.headPart.circle(1.8, -0.5, 0.7).fill(this.EYE_GLOW);
+    this.headPart.rect(-1.8, 1.5, 3.6, 1).fill({ color: 0x000000, alpha: 0.9 });
 
-    GlowEffect.apply(this.graphics, headX - 1.8, headY - 0.5, 1.8, this.EYE_GLOW);
-    GlowEffect.apply(this.graphics, headX + 1.8, headY - 0.5, 1.8, this.EYE_GLOW);
-    this.graphics.circle(headX - 1.8, headY - 0.5, 1).fill({ color: 0x000000, alpha: 0.9 });
-    this.graphics.circle(headX + 1.8, headY - 0.5, 1).fill({ color: 0x000000, alpha: 0.9 });
-    this.graphics.circle(headX - 1.8, headY - 0.5, 0.7).fill(this.EYE_GLOW);
-    this.graphics.circle(headX + 1.8, headY - 0.5, 0.7).fill(this.EYE_GLOW);
-    this.graphics.rect(headX - 1.8, headY + 1.5, 3.6, 1).fill({ color: 0x000000, alpha: 0.9 });
+    this.leftArmPart = new Graphics();
+    this.leftArmPart.moveTo(0, 0).lineTo(0, 8).stroke({ color: 0x000000, width: 2.3, alpha: 0.3 });
+    this.leftArmPart.moveTo(0, 0).lineTo(0, 8).stroke({ color: this.PRIMARY_COLOR, width: 1.8 });
+    this.leftArmPart.circle(0, 8, 1.5).fill(this.PRIMARY_COLOR);
+    this.leftArmPart.circle(0, 8, 1.5).stroke({ color: 0x000000, width: 0.5, alpha: 0.15 });
 
-    this.drawWounds(healthPercent, torsoY, this.BLOOD_RED, 5, 6, 8, 1, 1.5, 0.8);
+    this.rightArmPart = new Graphics();
+    this.rightArmPart.moveTo(0, 0).lineTo(0, 8).stroke({ color: 0x000000, width: 2.3, alpha: 0.5 });
+    this.rightArmPart.moveTo(0, 0).lineTo(0, 8).stroke({ color: this.PRIMARY_COLOR, width: 1.8 });
+    this.rightArmPart.circle(0, 8, 1.5).fill(this.PRIMARY_COLOR);
+    this.rightArmPart.circle(0, 8, 1.5).stroke({ color: 0x000000, width: 0.5, alpha: 0.5 });
+
+    this.woundsPart = new Graphics();
+
+    // 2. Add to container in correct z-order
+    this.container.addChild(this.shadowPart);
+    this.container.addChild(this.leftLegPart);
+    this.container.addChild(this.rightLegPart);
+    this.container.addChild(this.leftArmPart);
+    this.container.addChild(this.torsoPart);
+    this.container.addChild(this.woundsPart);
+    this.container.addChild(this.rightArmPart);
+    this.container.addChild(this.headPart);
+    this.container.addChild(this.particles.getGraphics());
+
+    this.isInitialized = true;
+  }
+
+  render(container: Container, state: ZombieRenderState): void {
+    if (!this.isInitialized) {
+      this.initParts();
+    }
+
+    const anim = this.animator.getCurrentFrame();
+    const healthPercent = state.health / state.maxHealth;
+
+    // Apply animations
+    this.leftLegPart.position.set(-2.5 + anim.leftLegOffset, 10);
+    this.rightLegPart.position.set(0.5 + anim.rightLegOffset, 10);
+
+    const torsoY = anim.bodyBob + 5.5; // origin is center
+    this.torsoPart.position.set(0, torsoY);
+    this.woundsPart.position.set(0, torsoY);
+
+    this.leftArmPart.position.set(-4, torsoY - 3.5);
+    this.leftArmPart.rotation = anim.leftArmAngle - Math.PI / 2;
+    this.leftArmPart.alpha = 0.7;
+
+    this.rightArmPart.position.set(4, torsoY - 3.5);
+    this.rightArmPart.rotation = anim.rightArmAngle - Math.PI / 2;
+    this.rightArmPart.alpha = 1.0;
+
+    this.headPart.position.set(anim.headSway, torsoY - 11.5);
+
+    // Update wounds if health changed significantly
+    if (Math.abs(this.lastHealthPercent - healthPercent) > 0.05) {
+      this.drawWounds(this.woundsPart, healthPercent, 0, this.BLOOD_RED, 5, 6, 8, 1, 1.5, 0.8);
+      this.lastHealthPercent = healthPercent;
+    }
+
     this.applyHealthTint(healthPercent);
+    this.particles.render();
 
-    this.particles.render(this.graphics);
-    container.addChild(this.graphics);
+    if (this.container.parent !== container) {
+      container.addChild(this.container);
+    }
   }
 }

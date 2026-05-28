@@ -1,4 +1,6 @@
 import type { Container, Graphics } from 'pixi.js';
+import type { Tower } from '../objects/Tower';
+import type { Zombie } from '../objects/Zombie';
 import { EffectCleanupManager } from './EffectCleanupManager';
 
 /**
@@ -79,10 +81,8 @@ export interface GameManagers {
     clear: () => void;
   };
   towerCombatManager?: {
-    // biome-ignore lint/suspicious/noExplicitAny: Generic tower/zombie arrays for cleanup
-    setTowers: (towers: any[]) => void;
-    // biome-ignore lint/suspicious/noExplicitAny: Generic tower/zombie arrays for cleanup
-    setZombies: (zombies: any[]) => void;
+    setTowers: (towers: Tower[]) => void;
+    setZombies: (zombies: Zombie[]) => void;
   };
   waveManager?: {
     reset: () => void;

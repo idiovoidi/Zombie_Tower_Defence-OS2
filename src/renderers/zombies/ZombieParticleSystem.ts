@@ -233,10 +233,12 @@ export class ZombieParticleSystem {
     }
   }
 
-  render(graphics: Graphics): void {
+  render(): void {
+    this.graphics.clear();
+
     // Render trail positions (persistent blood marks)
     for (const trail of this.trailPositions) {
-      graphics
+      this.graphics
         .circle(trail.x, trail.y, trail.size)
         .fill({ color: trail.color, alpha: trail.alpha });
     }
@@ -246,9 +248,9 @@ export class ZombieParticleSystem {
       if (p.angularVelocity !== 0) {
         // Gore chunks: irregular shapes
         const s = p.size;
-        graphics.save();
+        this.graphics.save();
         // Draw rotated irregular shape
-        graphics
+        this.graphics
           .moveTo(p.x + Math.cos(p.rotation) * s, p.y + Math.sin(p.rotation) * s)
           .lineTo(
             p.x + Math.cos(p.rotation + 1.8) * s * 0.7,
@@ -264,9 +266,9 @@ export class ZombieParticleSystem {
           )
           .closePath()
           .fill({ color: p.color, alpha: p.alpha });
-        graphics.restore();
+        this.graphics.restore();
       } else {
-        graphics.circle(p.x, p.y, p.size).fill({ color: p.color, alpha: p.alpha });
+        this.graphics.circle(p.x, p.y, p.size).fill({ color: p.color, alpha: p.alpha });
       }
     }
   }
