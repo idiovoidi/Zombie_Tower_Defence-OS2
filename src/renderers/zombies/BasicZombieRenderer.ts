@@ -1,8 +1,7 @@
-import { type Container, Graphics } from 'pixi.js';
+import { Graphics } from 'pixi.js';
 import { BaseZombieRenderer } from './BaseZombieRenderer';
 import { GlowEffect, ShadowEffect } from './components/ZombieEffects';
 import { ParticleType } from './ZombieParticleSystem';
-import type { ZombieRenderState } from './ZombieRenderer';
 
 export class BasicZombieRenderer extends BaseZombieRenderer {
   protected readonly ANIMATOR_TYPE = 'BASIC';
@@ -82,16 +81,8 @@ export class BasicZombieRenderer extends BaseZombieRenderer {
     this.isInitialized = true;
   }
 
-  render(container: Container, state: ZombieRenderState): void {
-    if (!this.isInitialized) {
-      this.initParts();
-    }
-
-    const anim = this.animator.getCurrentFrame();
-    const healthPercent = state.health / state.maxHealth;
-
-    // Apply animations using shared helper
-    this.applySkeletalAnimation(anim, {
+  protected getAnimationOffsets() {
+    return {
       leftLegX: -3,
       leftLegY: 10,
       rightLegX: 1,
@@ -102,19 +93,20 @@ export class BasicZombieRenderer extends BaseZombieRenderer {
       rightArmX: 5,
       rightArmY: -4,
       headY: -12,
-    });
+    };
+  }
 
-    // Update wounds if health changed significantly
-    if (Math.abs(this.lastHealthPercent - healthPercent) > 0.05) {
-      this.drawWounds(this.woundsPart, healthPercent, 0, this.BLOOD_RED, 5, 7, 9, 1, 1.5, 0.8);
-      this.lastHealthPercent = healthPercent;
+  protected updateWounds(
+    healthPercent: number,
+    _anim: {
+      leftLegOffset: number;
+      rightLegOffset: number;
+      bodyBob: number;
+      leftArmAngle: number;
+      rightArmAngle: number;
+      headSway: number;
     }
-
-    this.applyHealthTint(healthPercent);
-    this.particles.render();
-
-    if (this.container.parent !== container) {
-      container.addChild(this.container);
-    }
+  ): void {
+    this.drawWounds(this.woundsPart, healthPercent, 0, this.BLOOD_RED, 5, 7, 9, 1, 1.5, 0.8);
   }
 }

@@ -1,4 +1,4 @@
-import { type Container, Graphics } from 'pixi.js';
+import { Graphics } from 'pixi.js';
 import { BaseZombieRenderer } from './BaseZombieRenderer';
 import { GlowEffect, ShadowEffect } from './components/ZombieEffects';
 import { ParticleType } from './ZombieParticleSystem';
@@ -90,19 +90,8 @@ export class StealthZombieRenderer extends BaseZombieRenderer {
     this.isInitialized = true;
   }
 
-  render(container: Container, state: ZombieRenderState): void {
-    if (!this.isInitialized) {
-      this.initParts();
-    }
-
-    const anim = this.animator.getCurrentFrame();
-    const healthPercent = state.health / state.maxHealth;
-    const baseAlpha = 0.5 + Math.sin(this.fadePhase) * 0.1;
-
-    this.shadowPart.alpha = baseAlpha * 0.3;
-
-    // Apply animations using shared helper
-    this.applySkeletalAnimation(anim, {
+  protected getAnimationOffsets() {
+    return {
       leftLegX: -3,
       leftLegY: 10,
       rightLegX: 1,
@@ -113,25 +102,39 @@ export class StealthZombieRenderer extends BaseZombieRenderer {
       rightArmX: 5,
       rightArmY: -4,
       headY: -12,
-    });
+    };
+  }
 
-    // Apply custom alpha effects for stealth
+  protected updateWounds(
+    healthPercent: number,
+    _anim: {
+      leftLegOffset: number;
+      rightLegOffset: number;
+      bodyBob: number;
+      leftArmAngle: number;
+      rightArmAngle: number;
+      headSway: number;
+    }
+  ): void {
+    this.drawWounds(this.woundsPart, healthPercent, 0, this.BLOOD_RED, 4, 7, 9, 1, 1.5, 0.5);
+  }
+
+  protected override applyCustomEffects(
+    _healthPercent: number,
+    _anim: {
+      leftLegOffset: number;
+      rightLegOffset: number;
+      bodyBob: number;
+      leftArmAngle: number;
+      rightArmAngle: number;
+      headSway: number;
+    }
+  ): void {
+    const baseAlpha = 0.5 + Math.sin(this.fadePhase) * 0.1;
+    this.shadowPart.alpha = baseAlpha * 0.3;
     this.leftArmPart.alpha = 0.7 * baseAlpha;
     this.rightArmPart.alpha = 1.0 * baseAlpha;
-
-    // Update wounds if health changed significantly
-    if (Math.abs(this.lastHealthPercent - healthPercent) > 0.05) {
-      this.drawWounds(this.woundsPart, healthPercent, 0, this.BLOOD_RED, 4, 7, 9, 1, 1.5, 0.5);
-      this.lastHealthPercent = healthPercent;
-    }
-
     this.container.alpha = baseAlpha;
-    this.applyHealthTint(healthPercent);
-    this.particles.render();
-
-    if (this.container.parent !== container) {
-      container.addChild(this.container);
-    }
   }
 
   override update(deltaTime: number, state: ZombieRenderState): void {

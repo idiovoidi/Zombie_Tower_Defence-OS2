@@ -1,4 +1,4 @@
-import { type Container, Graphics } from 'pixi.js';
+import { Graphics } from 'pixi.js';
 import { BaseZombieRenderer } from './BaseZombieRenderer';
 import { GlowEffect, ShadowEffect } from './components/ZombieEffects';
 import { ParticleType } from './ZombieParticleSystem';
@@ -110,16 +110,8 @@ export class MechanicalZombieRenderer extends BaseZombieRenderer {
     this.isInitialized = true;
   }
 
-  render(container: Container, state: ZombieRenderState): void {
-    if (!this.isInitialized) {
-      this.initParts();
-    }
-
-    const anim = this.animator.getCurrentFrame();
-    const healthPercent = state.health / state.maxHealth;
-
-    // Apply animations using shared helper
-    this.applySkeletalAnimation(anim, {
+  protected getAnimationOffsets() {
+    return {
       leftLegX: -3.5,
       leftLegY: 10,
       rightLegX: 1.5,
@@ -130,28 +122,28 @@ export class MechanicalZombieRenderer extends BaseZombieRenderer {
       rightArmX: 6,
       rightArmY: -3.5,
       headY: -13.5,
-    });
+    };
+  }
 
-    // Update damage if health changed significantly
-    if (Math.abs(this.lastHealthPercent - healthPercent) > 0.05) {
-      this.woundsPart.clear();
-      if (healthPercent < 0.7) {
-        this.drawDamage(this.woundsPart, healthPercent, 0);
-      }
-      this.lastHealthPercent = healthPercent;
+  protected updateWounds(
+    healthPercent: number,
+    _anim: {
+      leftLegOffset: number;
+      rightLegOffset: number;
+      bodyBob: number;
+      leftArmAngle: number;
+      rightArmAngle: number;
+      headSway: number;
     }
-
-    this.applyHealthTint(healthPercent);
-    this.particles.render();
-
-    if (this.container.parent !== container) {
-      container.addChild(this.container);
+  ): void {
+    this.woundsPart.clear();
+    if (healthPercent < 0.7) {
+      this.drawDamage(this.woundsPart, healthPercent, 0);
     }
   }
 
   override update(deltaTime: number, state: ZombieRenderState): void {
     super.update(deltaTime, state);
-    this.sparkTimer += deltaTime;
   }
 
   // Mechanical has a flicker phase — fully override

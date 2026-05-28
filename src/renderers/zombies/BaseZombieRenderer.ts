@@ -115,7 +115,86 @@ export abstract class BaseZombieRenderer implements IZombieRenderer {
     this.zombieTypeName = typeName;
   }
 
-  abstract render(container: Container, state: ZombieRenderState): void;
+  /**
+   * Template method for rendering. Handles common logic and delegates to subclass hooks.
+   */
+  render(container: Container, state: ZombieRenderState): void {
+    if (!this.isInitialized) {
+      this.initParts();
+    }
+
+    const anim = this.animator.getCurrentFrame();
+    const healthPercent = state.health / state.maxHealth;
+
+    // Apply skeletal animation with subclass-provided offsets
+    this.applySkeletalAnimation(anim, this.getAnimationOffsets());
+
+    // Update wounds if health changed significantly
+    if (Math.abs(this.lastHealthPercent - healthPercent) > 0.05) {
+      this.updateWounds(healthPercent, anim);
+      this.lastHealthPercent = healthPercent;
+    }
+
+    // Apply health tint and render particles
+    this.applyHealthTint(healthPercent);
+    this.particles.render();
+
+    // Allow subclasses to apply custom effects
+    this.applyCustomEffects(healthPercent, anim);
+
+    // Add container to parent if needed
+    if (this.container.parent !== container) {
+      container.addChild(this.container);
+    }
+  }
+
+  /**
+   * Subclasses provide their animation offsets.
+   */
+  protected abstract getAnimationOffsets(): {
+    leftLegX: number;
+    leftLegY: number;
+    rightLegX: number;
+    rightLegY: number;
+    torsoY: number;
+    leftArmX: number;
+    leftArmY: number;
+    rightArmX: number;
+    rightArmY: number;
+    headY: number;
+  };
+
+  /**
+   * Subclasses implement wound update logic.
+   */
+  protected abstract updateWounds(
+    healthPercent: number,
+    anim: {
+      leftLegOffset: number;
+      rightLegOffset: number;
+      bodyBob: number;
+      leftArmAngle: number;
+      rightArmAngle: number;
+      headSway: number;
+    }
+  ): void;
+
+  /**
+   * Override to apply custom effects (e.g., stealth fade, mechanical damage).
+   */
+  protected applyCustomEffects(
+    _healthPercent: number,
+    _anim: {
+      leftLegOffset: number;
+      rightLegOffset: number;
+      bodyBob: number;
+      leftArmAngle: number;
+      rightArmAngle: number;
+      headSway: number;
+    }
+  ): void {
+    // Default: no custom effects
+  }
 
   /**
    * Subclasses implement this to create their static graphics parts.
