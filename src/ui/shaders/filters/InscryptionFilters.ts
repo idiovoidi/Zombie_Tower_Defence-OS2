@@ -1,4 +1,5 @@
 import { Filter, GlProgram } from 'pixi.js';
+import { STANDARD_VERTEX_SHADER } from './BaseShaderFilter';
 
 /**
  * Inscryption-style dark vignette with heavy shadows
@@ -6,31 +7,6 @@ import { Filter, GlProgram } from 'pixi.js';
 export class InscryptionVignetteFilter extends Filter {
   constructor(options: { intensity?: number } = {}) {
     const intensity = options.intensity ?? 0.85;
-
-    const vertex = `
-      in vec2 aPosition;
-      out vec2 vTextureCoord;
-
-      uniform vec4 uInputSize;
-      uniform vec4 uOutputFrame;
-      uniform vec4 uOutputTexture;
-
-      vec4 filterVertexPosition(void) {
-        vec2 position = aPosition * uOutputFrame.zw + uOutputFrame.xy;
-        position.x = position.x * (2.0 / uOutputTexture.x) - 1.0;
-        position.y = position.y * (2.0 * uOutputTexture.z / uOutputTexture.y) - uOutputTexture.z;
-        return vec4(position, 0.0, 1.0);
-      }
-
-      vec2 filterTextureCoord(void) {
-        return aPosition * (uOutputFrame.zw * uInputSize.zw);
-      }
-
-      void main(void) {
-        gl_Position = filterVertexPosition();
-        vTextureCoord = filterTextureCoord();
-      }
-    `;
 
     const fragment = `
       in vec2 vTextureCoord;
@@ -58,7 +34,7 @@ export class InscryptionVignetteFilter extends Filter {
       }
     `;
 
-    const gpuProgram = GlProgram.from({ vertex, fragment, name: 'inscryption-vignette' });
+    const gpuProgram = GlProgram.from({ vertex: STANDARD_VERTEX_SHADER, fragment, name: 'inscryption-vignette' });
 
     super({
       glProgram: gpuProgram,
@@ -84,31 +60,6 @@ export class InscryptionVignetteFilter extends Filter {
  */
 export class InscryptionColorGradingFilter extends Filter {
   constructor() {
-    const vertex = `
-      in vec2 aPosition;
-      out vec2 vTextureCoord;
-
-      uniform vec4 uInputSize;
-      uniform vec4 uOutputFrame;
-      uniform vec4 uOutputTexture;
-
-      vec4 filterVertexPosition(void) {
-        vec2 position = aPosition * uOutputFrame.zw + uOutputFrame.xy;
-        position.x = position.x * (2.0 / uOutputTexture.x) - 1.0;
-        position.y = position.y * (2.0 * uOutputTexture.z / uOutputTexture.y) - uOutputTexture.z;
-        return vec4(position, 0.0, 1.0);
-      }
-
-      vec2 filterTextureCoord(void) {
-        return aPosition * (uOutputFrame.zw * uInputSize.zw);
-      }
-
-      void main(void) {
-        gl_Position = filterVertexPosition();
-        vTextureCoord = filterTextureCoord();
-      }
-    `;
-
     const fragment = `
       in vec2 vTextureCoord;
       uniform sampler2D uTexture;
@@ -137,7 +88,7 @@ export class InscryptionColorGradingFilter extends Filter {
       }
     `;
 
-    const gpuProgram = GlProgram.from({ vertex, fragment, name: 'inscryption-color-grading' });
+    const gpuProgram = GlProgram.from({ vertex: STANDARD_VERTEX_SHADER, fragment, name: 'inscryption-color-grading' });
 
     super({
       glProgram: gpuProgram,
@@ -152,31 +103,6 @@ export class InscryptionColorGradingFilter extends Filter {
 export class InscryptionGrainFilter extends Filter {
   constructor(options: { intensity?: number } = {}) {
     const intensity = options.intensity ?? 0.15;
-
-    const vertex = `
-      in vec2 aPosition;
-      out vec2 vTextureCoord;
-
-      uniform vec4 uInputSize;
-      uniform vec4 uOutputFrame;
-      uniform vec4 uOutputTexture;
-
-      vec4 filterVertexPosition(void) {
-        vec2 position = aPosition * uOutputFrame.zw + uOutputFrame.xy;
-        position.x = position.x * (2.0 / uOutputTexture.x) - 1.0;
-        position.y = position.y * (2.0 * uOutputTexture.z / uOutputTexture.y) - uOutputTexture.z;
-        return vec4(position, 0.0, 1.0);
-      }
-
-      vec2 filterTextureCoord(void) {
-        return aPosition * (uOutputFrame.zw * uInputSize.zw);
-      }
-
-      void main(void) {
-        gl_Position = filterVertexPosition();
-        vTextureCoord = filterTextureCoord();
-      }
-    `;
 
     const fragment = `
       in vec2 vTextureCoord;
@@ -206,7 +132,7 @@ export class InscryptionGrainFilter extends Filter {
       }
     `;
 
-    const gpuProgram = GlProgram.from({ vertex, fragment, name: 'inscryption-grain' });
+    const gpuProgram = GlProgram.from({ vertex: STANDARD_VERTEX_SHADER, fragment, name: 'inscryption-grain' });
 
     super({
       glProgram: gpuProgram,
@@ -239,31 +165,6 @@ export class InscryptionChromaticFilter extends Filter {
   constructor(options: { offset?: number } = {}) {
     const offset = options.offset ?? 0.003;
 
-    const vertex = `
-      in vec2 aPosition;
-      out vec2 vTextureCoord;
-
-      uniform vec4 uInputSize;
-      uniform vec4 uOutputFrame;
-      uniform vec4 uOutputTexture;
-
-      vec4 filterVertexPosition(void) {
-        vec2 position = aPosition * uOutputFrame.zw + uOutputFrame.xy;
-        position.x = position.x * (2.0 / uOutputTexture.x) - 1.0;
-        position.y = position.y * (2.0 * uOutputTexture.z / uOutputTexture.y) - uOutputTexture.z;
-        return vec4(position, 0.0, 1.0);
-      }
-
-      vec2 filterTextureCoord(void) {
-        return aPosition * (uOutputFrame.zw * uInputSize.zw);
-      }
-
-      void main(void) {
-        gl_Position = filterVertexPosition();
-        vTextureCoord = filterTextureCoord();
-      }
-    `;
-
     const fragment = `
       in vec2 vTextureCoord;
       uniform sampler2D uTexture;
@@ -284,7 +185,7 @@ export class InscryptionChromaticFilter extends Filter {
       }
     `;
 
-    const gpuProgram = GlProgram.from({ vertex, fragment, name: 'inscryption-chromatic' });
+    const gpuProgram = GlProgram.from({ vertex: STANDARD_VERTEX_SHADER, fragment, name: 'inscryption-chromatic' });
 
     super({
       glProgram: gpuProgram,

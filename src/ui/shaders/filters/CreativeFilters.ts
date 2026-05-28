@@ -1,4 +1,5 @@
 import { Filter, GlProgram } from 'pixi.js';
+import { BaseShaderFilter, STANDARD_VERTEX_SHADER, type UniformsConfig } from './BaseShaderFilter';
 
 /**
  * Bloom/Glow effect - makes bright areas glow
@@ -7,31 +8,6 @@ export class BloomFilter extends Filter {
   constructor(options: { intensity?: number; threshold?: number } = {}) {
     const intensity = options.intensity ?? 1.5;
     const threshold = options.threshold ?? 0.5;
-
-    const vertex = `
-      in vec2 aPosition;
-      out vec2 vTextureCoord;
-
-      uniform vec4 uInputSize;
-      uniform vec4 uOutputFrame;
-      uniform vec4 uOutputTexture;
-
-      vec4 filterVertexPosition(void) {
-        vec2 position = aPosition * uOutputFrame.zw + uOutputFrame.xy;
-        position.x = position.x * (2.0 / uOutputTexture.x) - 1.0;
-        position.y = position.y * (2.0 * uOutputTexture.z / uOutputTexture.y) - uOutputTexture.z;
-        return vec4(position, 0.0, 1.0);
-      }
-
-      vec2 filterTextureCoord(void) {
-        return aPosition * (uOutputFrame.zw * uInputSize.zw);
-      }
-
-      void main(void) {
-        gl_Position = filterVertexPosition();
-        vTextureCoord = filterTextureCoord();
-      }
-    `;
 
     const fragment = `
       in vec2 vTextureCoord;
@@ -57,7 +33,7 @@ export class BloomFilter extends Filter {
       }
     `;
 
-    const gpuProgram = GlProgram.from({ vertex, fragment, name: 'bloom-filter' });
+    const gpuProgram = GlProgram.from({ vertex: STANDARD_VERTEX_SHADER, fragment, name: 'bloom-filter' });
 
     super({
       glProgram: gpuProgram,
@@ -95,31 +71,6 @@ export class VignetteFilter extends Filter {
     const intensity = options.intensity ?? 0.5;
     const radius = options.radius ?? 0.8;
 
-    const vertex = `
-      in vec2 aPosition;
-      out vec2 vTextureCoord;
-
-      uniform vec4 uInputSize;
-      uniform vec4 uOutputFrame;
-      uniform vec4 uOutputTexture;
-
-      vec4 filterVertexPosition(void) {
-        vec2 position = aPosition * uOutputFrame.zw + uOutputFrame.xy;
-        position.x = position.x * (2.0 / uOutputTexture.x) - 1.0;
-        position.y = position.y * (2.0 * uOutputTexture.z / uOutputTexture.y) - uOutputTexture.z;
-        return vec4(position, 0.0, 1.0);
-      }
-
-      vec2 filterTextureCoord(void) {
-        return aPosition * (uOutputFrame.zw * uInputSize.zw);
-      }
-
-      void main(void) {
-        gl_Position = filterVertexPosition();
-        vTextureCoord = filterTextureCoord();
-      }
-    `;
-
     const fragment = `
       in vec2 vTextureCoord;
       uniform sampler2D uTexture;
@@ -145,7 +96,7 @@ export class VignetteFilter extends Filter {
       }
     `;
 
-    const gpuProgram = GlProgram.from({ vertex, fragment, name: 'vignette-filter' });
+    const gpuProgram = GlProgram.from({ vertex: STANDARD_VERTEX_SHADER, fragment, name: 'vignette-filter' });
 
     super({
       glProgram: gpuProgram,
@@ -182,31 +133,6 @@ export class ChromaticAberrationFilter extends Filter {
   constructor(options: { offset?: number } = {}) {
     const offset = options.offset ?? 0.003;
 
-    const vertex = `
-      in vec2 aPosition;
-      out vec2 vTextureCoord;
-
-      uniform vec4 uInputSize;
-      uniform vec4 uOutputFrame;
-      uniform vec4 uOutputTexture;
-
-      vec4 filterVertexPosition(void) {
-        vec2 position = aPosition * uOutputFrame.zw + uOutputFrame.xy;
-        position.x = position.x * (2.0 / uOutputTexture.x) - 1.0;
-        position.y = position.y * (2.0 * uOutputTexture.z / uOutputTexture.y) - uOutputTexture.z;
-        return vec4(position, 0.0, 1.0);
-      }
-
-      vec2 filterTextureCoord(void) {
-        return aPosition * (uOutputFrame.zw * uInputSize.zw);
-      }
-
-      void main(void) {
-        gl_Position = filterVertexPosition();
-        vTextureCoord = filterTextureCoord();
-      }
-    `;
-
     const fragment = `
       in vec2 vTextureCoord;
       uniform sampler2D uTexture;
@@ -227,7 +153,7 @@ export class ChromaticAberrationFilter extends Filter {
       }
     `;
 
-    const gpuProgram = GlProgram.from({ vertex, fragment, name: 'chromatic-aberration-filter' });
+    const gpuProgram = GlProgram.from({ vertex: STANDARD_VERTEX_SHADER, fragment, name: 'chromatic-aberration-filter' });
 
     super({
       glProgram: gpuProgram,
@@ -255,31 +181,6 @@ export class FilmGrainFilter extends Filter {
   constructor(options: { intensity?: number } = {}) {
     const intensity = options.intensity ?? 0.1;
 
-    const vertex = `
-      in vec2 aPosition;
-      out vec2 vTextureCoord;
-
-      uniform vec4 uInputSize;
-      uniform vec4 uOutputFrame;
-      uniform vec4 uOutputTexture;
-
-      vec4 filterVertexPosition(void) {
-        vec2 position = aPosition * uOutputFrame.zw + uOutputFrame.xy;
-        position.x = position.x * (2.0 / uOutputTexture.x) - 1.0;
-        position.y = position.y * (2.0 * uOutputTexture.z / uOutputTexture.y) - uOutputTexture.z;
-        return vec4(position, 0.0, 1.0);
-      }
-
-      vec2 filterTextureCoord(void) {
-        return aPosition * (uOutputFrame.zw * uInputSize.zw);
-      }
-
-      void main(void) {
-        gl_Position = filterVertexPosition();
-        vTextureCoord = filterTextureCoord();
-      }
-    `;
-
     const fragment = `
       in vec2 vTextureCoord;
       uniform sampler2D uTexture;
@@ -306,7 +207,7 @@ export class FilmGrainFilter extends Filter {
       }
     `;
 
-    const gpuProgram = GlProgram.from({ vertex, fragment, name: 'film-grain-filter' });
+    const gpuProgram = GlProgram.from({ vertex: STANDARD_VERTEX_SHADER, fragment, name: 'film-grain-filter' });
 
     super({
       glProgram: gpuProgram,
@@ -339,31 +240,6 @@ export class OilPaintingFilter extends Filter {
   constructor(options: { radius?: number; intensity?: number } = {}) {
     const radius = options.radius ?? 4.0;
     const intensity = options.intensity ?? 10.0;
-
-    const vertex = `
-      in vec2 aPosition;
-      out vec2 vTextureCoord;
-
-      uniform vec4 uInputSize;
-      uniform vec4 uOutputFrame;
-      uniform vec4 uOutputTexture;
-
-      vec4 filterVertexPosition(void) {
-        vec2 position = aPosition * uOutputFrame.zw + uOutputFrame.xy;
-        position.x = position.x * (2.0 / uOutputTexture.x) - 1.0;
-        position.y = position.y * (2.0 * uOutputTexture.z / uOutputTexture.y) - uOutputTexture.z;
-        return vec4(position, 0.0, 1.0);
-      }
-
-      vec2 filterTextureCoord(void) {
-        return aPosition * (uOutputFrame.zw * uInputSize.zw);
-      }
-
-      void main(void) {
-        gl_Position = filterVertexPosition();
-        vTextureCoord = filterTextureCoord();
-      }
-    `;
 
     const fragment = `
       in vec2 vTextureCoord;
@@ -432,7 +308,7 @@ export class OilPaintingFilter extends Filter {
       }
     `;
 
-    const gpuProgram = GlProgram.from({ vertex, fragment, name: 'oil-painting-filter' });
+    const gpuProgram = GlProgram.from({ vertex: STANDARD_VERTEX_SHADER, fragment, name: 'oil-painting-filter' });
 
     super({
       glProgram: gpuProgram,
@@ -462,31 +338,6 @@ export class KaleidoscopeFilter extends Filter {
     const segments = options.segments ?? 6.0;
     const angle = options.angle ?? 0.0;
 
-    const vertex = `
-      in vec2 aPosition;
-      out vec2 vTextureCoord;
-
-      uniform vec4 uInputSize;
-      uniform vec4 uOutputFrame;
-      uniform vec4 uOutputTexture;
-
-      vec4 filterVertexPosition(void) {
-        vec2 position = aPosition * uOutputFrame.zw + uOutputFrame.xy;
-        position.x = position.x * (2.0 / uOutputTexture.x) - 1.0;
-        position.y = position.y * (2.0 * uOutputTexture.z / uOutputTexture.y) - uOutputTexture.z;
-        return vec4(position, 0.0, 1.0);
-      }
-
-      vec2 filterTextureCoord(void) {
-        return aPosition * (uOutputFrame.zw * uInputSize.zw);
-      }
-
-      void main(void) {
-        gl_Position = filterVertexPosition();
-        vTextureCoord = filterTextureCoord();
-      }
-    `;
-
     const fragment = `
       in vec2 vTextureCoord;
       uniform sampler2D uTexture;
@@ -511,7 +362,7 @@ export class KaleidoscopeFilter extends Filter {
       }
     `;
 
-    const gpuProgram = GlProgram.from({ vertex, fragment, name: 'kaleidoscope-filter' });
+    const gpuProgram = GlProgram.from({ vertex: STANDARD_VERTEX_SHADER, fragment, name: 'kaleidoscope-filter' });
 
     super({
       glProgram: gpuProgram,
@@ -546,31 +397,6 @@ export class WaveDistortionFilter extends Filter {
     const frequency = options.frequency ?? 10.0;
     const _speed = options.speed ?? 2.0;
 
-    const vertex = `
-      in vec2 aPosition;
-      out vec2 vTextureCoord;
-
-      uniform vec4 uInputSize;
-      uniform vec4 uOutputFrame;
-      uniform vec4 uOutputTexture;
-
-      vec4 filterVertexPosition(void) {
-        vec2 position = aPosition * uOutputFrame.zw + uOutputFrame.xy;
-        position.x = position.x * (2.0 / uOutputTexture.x) - 1.0;
-        position.y = position.y * (2.0 * uOutputTexture.z / uOutputTexture.y) - uOutputTexture.z;
-        return vec4(position, 0.0, 1.0);
-      }
-
-      vec2 filterTextureCoord(void) {
-        return aPosition * (uOutputFrame.zw * uInputSize.zw);
-      }
-
-      void main(void) {
-        gl_Position = filterVertexPosition();
-        vTextureCoord = filterTextureCoord();
-      }
-    `;
-
     const fragment = `
       in vec2 vTextureCoord;
       uniform sampler2D uTexture;
@@ -591,7 +417,7 @@ export class WaveDistortionFilter extends Filter {
       }
     `;
 
-    const gpuProgram = GlProgram.from({ vertex, fragment, name: 'wave-distortion-filter' });
+    const gpuProgram = GlProgram.from({ vertex: STANDARD_VERTEX_SHADER, fragment, name: 'wave-distortion-filter' });
 
     super({
       glProgram: gpuProgram,
@@ -626,31 +452,6 @@ export class ColorShiftFilter extends Filter {
     const _speed = options.speed ?? 1.0;
     const intensity = options.intensity ?? 1.0;
 
-    const vertex = `
-      in vec2 aPosition;
-      out vec2 vTextureCoord;
-
-      uniform vec4 uInputSize;
-      uniform vec4 uOutputFrame;
-      uniform vec4 uOutputTexture;
-
-      vec4 filterVertexPosition(void) {
-        vec2 position = aPosition * uOutputFrame.zw + uOutputFrame.xy;
-        position.x = position.x * (2.0 / uOutputTexture.x) - 1.0;
-        position.y = position.y * (2.0 * uOutputTexture.z / uOutputTexture.y) - uOutputTexture.z;
-        return vec4(position, 0.0, 1.0);
-      }
-
-      vec2 filterTextureCoord(void) {
-        return aPosition * (uOutputFrame.zw * uInputSize.zw);
-      }
-
-      void main(void) {
-        gl_Position = filterVertexPosition();
-        vTextureCoord = filterTextureCoord();
-      }
-    `;
-
     const fragment = `
       in vec2 vTextureCoord;
       uniform sampler2D uTexture;
@@ -676,7 +477,7 @@ export class ColorShiftFilter extends Filter {
       }
     `;
 
-    const gpuProgram = GlProgram.from({ vertex, fragment, name: 'color-shift-filter' });
+    const gpuProgram = GlProgram.from({ vertex: STANDARD_VERTEX_SHADER, fragment, name: 'color-shift-filter' });
 
     super({
       glProgram: gpuProgram,

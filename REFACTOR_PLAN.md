@@ -149,7 +149,7 @@ Files touched:
 - `src/ui/shaders/filters/CreativeFilters.ts`
 - `src/ui/shaders/filters/InscryptionFilters.ts`
 
-Status: [ ] Not started
+Status: [x] Done — `STANDARD_VERTEX_SHADER` constant extracted and used by both files. `BaseShaderFilter` base class created for future filter classes.
 
 ---
 
@@ -163,7 +163,7 @@ Files touched:
 - `src/renderers/zombies/BaseZombieRenderer.ts`
 - All zombie renderer files
 
-Status: [ ] Not started
+Status: [ ] Skipped — The `updateWounds` methods have different implementations per zombie type. The base class already provides `drawWounds()` helper which is the core shared functionality. The remaining duplication is in the method signature which is now defined as an abstract method in the base class, making the pattern explicit.
 
 ---
 
@@ -176,7 +176,7 @@ Status: [ ] Not started
 Files touched:
 - `src/utils/BloodParticleSystem.ts`
 
-Status: [ ] Not started
+Status: [x] Done — Extracted `createParticle()` helper and `updateParticleLife()` helper. Also added `ParticleConfig` interface for cleaner parameter passing.
 
 ---
 

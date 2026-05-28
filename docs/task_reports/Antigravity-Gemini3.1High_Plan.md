@@ -1,8 +1,4 @@
 Zombie Tower Defense (Z_TD) - Modernization & Enhancement Plan
-This document evaluates the current state of the Z_TD project and proposes a comprehensive modernization roadmap focusing on performance, visual effects, gameplay features, and developer experience.
-
-User Review Required
-IMPORTANT
 
 The transition to a true Entity-Component System (ECS) represents a significant architectural shift. Please review the Architecture & Ease of Development section carefully, as it will fundamentally change how game objects and logic are structured.
 
