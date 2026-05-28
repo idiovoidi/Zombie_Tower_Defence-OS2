@@ -414,8 +414,8 @@ export class TowerCombatManager {
     let nearestDistance = Number.POSITIVE_INFINITY;
 
     for (const zombie of this.zombies) {
-      // Skip if zombie is destroyed, already hit, or out of range
-      if (!zombie.parent || excludeZombies.has(zombie)) {
+      // Skip if zombie is destroyed, already hit, dying, or out of range
+      if (!zombie.parent || excludeZombies.has(zombie) || zombie.getIsDying()) {
         continue;
       }
 

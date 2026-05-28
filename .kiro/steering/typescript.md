@@ -214,17 +214,4 @@ export type EntityType =
   | { kind: 'fish'; species: FishSpecies }
   | { kind: 'alien'; variant: AlienVariant }
   | { kind: 'pet'; name: string };
-```
 
-## Quick Checklist
-
-When writing new TypeScript code:
-
-- [ ] Use `@/` path aliases for all imports
-- [ ] Add `type` keyword to type-only imports
-- [ ] Specify explicit return types on functions
-- [ ] Use `as const` for config objects
-- [ ] Prefix unused parameters with underscore
-- [ ] Use discriminated unions for complex types
-- [ ] Leverage strict null checks
-- [ ] Choose interface vs type appropriately
