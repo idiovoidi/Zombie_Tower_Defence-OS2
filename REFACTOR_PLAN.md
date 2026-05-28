@@ -138,15 +138,77 @@ Status: [x] Done — extracted `applyDamageToZombie()` helper used by lightning 
 
 ---
 
+## Priority 11 — Shader Filter Boilerplate (CreativeFilters ↔ InscryptionFilters)
+
+**Problem:** Both filter files duplicate the same vertex shader boilerplate (~30 lines) in every filter class, plus similar constructor patterns with `super({ glProgram, resources })` and getter/setter patterns for uniforms.
+
+**Fix:** Create `BaseShaderFilter` abstract class with shared vertex shader and helper methods for uniform access. Each filter only provides fragment shader and uniform config.
+
+Files touched:
+- `src/ui/shaders/filters/BaseShaderFilter.ts` (new)
+- `src/ui/shaders/filters/CreativeFilters.ts`
+- `src/ui/shaders/filters/InscryptionFilters.ts`
+
+Status: [ ] Not started
+
+---
+
+## Priority 12 — Zombie Renderer updateWounds Duplication
+
+**Problem:** `updateWounds` method has nearly identical signature and structure across BasicZombieRenderer, FastZombieRenderer, SwarmZombieRenderer, TankZombieRenderer, StealthZombieRenderer, and ArmoredZombieRenderer.
+
+**Fix:** Move `updateWounds` to `BaseZombieRenderer` with a protected `WOUND_CONFIG` property that subclasses override. The base implementation calls `drawWounds()` with the config.
+
+Files touched:
+- `src/renderers/zombies/BaseZombieRenderer.ts`
+- All zombie renderer files
+
+Status: [ ] Not started
+
+---
+
+## Priority 13 — BloodParticleSystem Internal Duplication
+
+**Problem:** Multiple internal duplications for particle creation patterns (acquireParticle, set properties, add to container, push to active array).
+
+**Fix:** Extract private `createParticle()` helper that handles the common pattern.
+
+Files touched:
+- `src/utils/BloodParticleSystem.ts`
+
+Status: [ ] Not started
+
+---
+
+## Remaining Minor Duplications (Low Priority)
+
+These are small (<10 lines) or in non-critical paths:
+
+- `Tower.ts` laser sight calculation (6 lines) — acceptable duplication
+- `Projectile.ts` constructor property assignment (9 lines) — standard boilerplate
+- `PathRenderer.ts` waypoint iteration (7 lines) — data iteration pattern
+- `GraveyardRenderer.ts` polygon drawing (7 lines) — simple loop
+- `SpatialGrid.ts` cell iteration (7 lines) — standard grid pattern
+- `LogExporter.ts` blob creation (5 lines) — simple utility
+- `TowerShop.ts` icon drawing (5 lines) — visual detail
+- `BottomBar.ts` rivet creation (5 lines) — visual detail
+
+These are not worth refactoring as the duplication is trivial and isolated.
+
+---
+
 ## Execution Order
 
-1. P7 PerformanceProfiler — smallest, safe warmup
-2. P8 GraphicsPool — small, isolated
-3. P9 WaveManager — small, isolated
-4. P10 TowerCombatManager — small, isolated
-5. P4 ZombieCorpseRenderer — medium, single file
-6. P5 TerrainRenderer — medium, single file
-7. P3 Tower Renderers — medium, multi-file but base class exists
-8. P2 Zombie Renderers — large, new base class
-9. P6 UI Panels — large, new base class
-10. P1 AIPlayerManager/StatTracker — largest, highest risk, do last
+1. P7 PerformanceProfiler — smallest, safe warmup ✅
+2. P8 GraphicsPool — small, isolated ✅
+3. P9 WaveManager — skipped (data duplication)
+4. P10 TowerCombatManager — small, isolated ✅
+5. P4 ZombieCorpseRenderer — medium, single file ✅
+6. P5 TerrainRenderer — medium, single file ✅
+7. P3 Tower Renderers — medium, multi-file but base class exists ✅
+8. P2 Zombie Renderers — large, new base class ✅
+9. P6 UI Panels — large, new base class ✅
+10. P1 AIPlayerManager/StatTracker — largest, highest risk ✅
+11. P11 Shader Filter Boilerplate — medium, multi-file
+12. P12 Zombie Renderer updateWounds — small, multi-file
+13. P13 BloodParticleSystem — small, single file
