@@ -68,6 +68,17 @@ export abstract class BaseZombieRenderer implements IZombieRenderer {
   // Track last known zombie type for ragdoll config
   private zombieTypeName = 'Basic';
 
+  // Common skeletal parts (shared across all zombie renderers)
+  protected shadowPart!: Graphics;
+  protected leftLegPart!: Graphics;
+  protected rightLegPart!: Graphics;
+  protected torsoPart!: Graphics;
+  protected headPart!: Graphics;
+  protected leftArmPart!: Graphics;
+  protected rightArmPart!: Graphics;
+  protected woundsPart!: Graphics;
+  protected lastHealthPercent = 1.0;
+
   /** Animator type string passed to ZombieAnimator */
   protected abstract readonly ANIMATOR_TYPE: string;
 
@@ -110,6 +121,66 @@ export abstract class BaseZombieRenderer implements IZombieRenderer {
    * Subclasses implement this to create their static graphics parts.
    */
   protected abstract initParts(): void;
+
+  /**
+   * Add skeletal parts to container in correct z-order.
+   * This is shared across all zombie renderers.
+   */
+  protected addPartsToContainer(): void {
+    this.container.addChild(this.shadowPart);
+    this.container.addChild(this.leftLegPart);
+    this.container.addChild(this.rightLegPart);
+    this.container.addChild(this.leftArmPart);
+    this.container.addChild(this.torsoPart);
+    this.container.addChild(this.woundsPart);
+    this.container.addChild(this.rightArmPart);
+    this.container.addChild(this.headPart);
+    this.container.addChild(this.particles.getGraphics());
+  }
+
+  /**
+   * Apply common render logic for skeletal parts.
+   * This is shared across all zombie renderers with customizable offsets.
+   */
+  protected applySkeletalAnimation(
+    anim: {
+      leftLegOffset: number;
+      rightLegOffset: number;
+      bodyBob: number;
+      leftArmAngle: number;
+      rightArmAngle: number;
+      headSway: number;
+    },
+    offsets: {
+      leftLegX: number;
+      leftLegY: number;
+      rightLegX: number;
+      rightLegY: number;
+      torsoY: number;
+      leftArmX: number;
+      leftArmY: number;
+      rightArmX: number;
+      rightArmY: number;
+      headY: number;
+    }
+  ): void {
+    this.leftLegPart.position.set(offsets.leftLegX + anim.leftLegOffset, offsets.leftLegY);
+    this.rightLegPart.position.set(offsets.rightLegX + anim.rightLegOffset, offsets.rightLegY);
+
+    const torsoY = anim.bodyBob + offsets.torsoY;
+    this.torsoPart.position.set(0, torsoY);
+    this.woundsPart.position.set(0, torsoY);
+
+    this.leftArmPart.position.set(offsets.leftArmX, torsoY + offsets.leftArmY);
+    this.leftArmPart.rotation = anim.leftArmAngle - Math.PI / 2;
+    this.leftArmPart.alpha = 0.7;
+
+    this.rightArmPart.position.set(offsets.rightArmX, torsoY + offsets.rightArmY);
+    this.rightArmPart.rotation = anim.rightArmAngle - Math.PI / 2;
+    this.rightArmPart.alpha = 1.0;
+
+    this.headPart.position.set(anim.headSway, torsoY + offsets.headY);
+  }
 
   update(deltaTime: number, state: ZombieRenderState): void {
     // Pass health info to animator for damage-reactive animations
@@ -439,9 +510,7 @@ export abstract class BaseZombieRenderer implements IZombieRenderer {
     for (let i = 0; i < woundCount; i++) {
       const x = (Math.random() - 0.5) * spreadX;
       const y = torsoY + (Math.random() - 0.5) * spreadY;
-      graphics
-        .circle(x, y, baseSize + Math.random() * sizeVar)
-        .fill({ color: woundColor, alpha });
+      graphics.circle(x, y, baseSize + Math.random() * sizeVar).fill({ color: woundColor, alpha });
     }
   }
 

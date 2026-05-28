@@ -1,4 +1,4 @@
-import { Graphics, type Container } from 'pixi.js';
+import { type Container, Graphics } from 'pixi.js';
 import { BaseZombieRenderer } from './BaseZombieRenderer';
 import { GlowEffect, ShadowEffect } from './components/ZombieEffects';
 import { ParticleType } from './ZombieParticleSystem';
@@ -30,18 +30,6 @@ export class ArmoredZombieRenderer extends BaseZombieRenderer {
   private readonly RUST_COLOR = 0x8b4513;
   private readonly BLOOD_RED = 0x8b0000;
   private readonly EYE_GLOW = 0xff6600;
-
-  // Skeletal parts
-  private shadowPart!: Graphics;
-  private leftLegPart!: Graphics;
-  private rightLegPart!: Graphics;
-  private torsoPart!: Graphics;
-  private headPart!: Graphics;
-  private leftArmPart!: Graphics;
-  private rightArmPart!: Graphics;
-  private woundsPart!: Graphics;
-
-  private lastHealthPercent = 1.0;
 
   protected initParts(): void {
     // 1. Create parts
@@ -104,15 +92,7 @@ export class ArmoredZombieRenderer extends BaseZombieRenderer {
     this.woundsPart = new Graphics();
 
     // 2. Add to container in correct z-order
-    this.container.addChild(this.shadowPart);
-    this.container.addChild(this.leftLegPart);
-    this.container.addChild(this.rightLegPart);
-    this.container.addChild(this.leftArmPart);
-    this.container.addChild(this.torsoPart);
-    this.container.addChild(this.woundsPart);
-    this.container.addChild(this.rightArmPart);
-    this.container.addChild(this.headPart);
-    this.container.addChild(this.particles.getGraphics());
+    this.addPartsToContainer();
 
     this.isInitialized = true;
   }
@@ -125,23 +105,19 @@ export class ArmoredZombieRenderer extends BaseZombieRenderer {
     const anim = this.animator.getCurrentFrame();
     const healthPercent = state.health / state.maxHealth;
 
-    // Apply animations
-    this.leftLegPart.position.set(-3 + anim.leftLegOffset, 10);
-    this.rightLegPart.position.set(1 + anim.rightLegOffset, 10);
-
-    const torsoY = anim.bodyBob + 6;
-    this.torsoPart.position.set(0, torsoY);
-    this.woundsPart.position.set(0, torsoY);
-
-    this.leftArmPart.position.set(-5, torsoY - 4);
-    this.leftArmPart.rotation = anim.leftArmAngle - Math.PI / 2;
-    this.leftArmPart.alpha = 0.7;
-
-    this.rightArmPart.position.set(5, torsoY - 4);
-    this.rightArmPart.rotation = anim.rightArmAngle - Math.PI / 2;
-    this.rightArmPart.alpha = 1.0;
-
-    this.headPart.position.set(anim.headSway, torsoY - 12);
+    // Apply animations using shared helper
+    this.applySkeletalAnimation(anim, {
+      leftLegX: -3,
+      leftLegY: 10,
+      rightLegX: 1,
+      rightLegY: 10,
+      torsoY: 6,
+      leftArmX: -5,
+      leftArmY: -4,
+      rightArmX: 5,
+      rightArmY: -4,
+      headY: -12,
+    });
 
     // Update wounds and rust if health changed significantly
     if (Math.abs(this.lastHealthPercent - healthPercent) > 0.05) {
@@ -151,8 +127,12 @@ export class ArmoredZombieRenderer extends BaseZombieRenderer {
         this.drawRust(this.woundsPart, healthPercent, 0);
       }
       if (healthPercent < 0.5) {
-        this.woundsPart.circle(anim.headSway - 2, -13, 1).fill({ color: this.DARK_GRAY, alpha: 0.8 });
-        this.woundsPart.circle(anim.headSway + 1.5, -16, 0.8).fill({ color: this.DARK_GRAY, alpha: 0.8 });
+        this.woundsPart
+          .circle(anim.headSway - 2, -13, 1)
+          .fill({ color: this.DARK_GRAY, alpha: 0.8 });
+        this.woundsPart
+          .circle(anim.headSway + 1.5, -16, 0.8)
+          .fill({ color: this.DARK_GRAY, alpha: 0.8 });
       }
       this.lastHealthPercent = healthPercent;
     }
@@ -188,9 +168,7 @@ export class ArmoredZombieRenderer extends BaseZombieRenderer {
     for (let i = 0; i < rustCount; i++) {
       const x = (Math.random() - 0.5) * 8;
       const y = torsoY + (Math.random() - 0.5) * 10;
-      graphics
-        .circle(x, y, 0.8 + Math.random() * 1.2)
-        .fill({ color: this.RUST_COLOR, alpha: 0.7 });
+      graphics.circle(x, y, 0.8 + Math.random() * 1.2).fill({ color: this.RUST_COLOR, alpha: 0.7 });
     }
   }
 }

@@ -1,4 +1,4 @@
-import { Graphics, type Container } from 'pixi.js';
+import { type Container, Graphics } from 'pixi.js';
 import { BaseZombieRenderer } from './BaseZombieRenderer';
 import { GlowEffect, ShadowEffect } from './components/ZombieEffects';
 import { ParticleType } from './ZombieParticleSystem';
@@ -28,18 +28,6 @@ export class TankZombieRenderer extends BaseZombieRenderer {
   private readonly BLOOD_RED = 0x8b0000;
   private readonly EYE_GLOW = 0xff0000;
 
-  // Skeletal parts
-  private shadowPart!: Graphics;
-  private leftLegPart!: Graphics;
-  private rightLegPart!: Graphics;
-  private torsoPart!: Graphics;
-  private headPart!: Graphics;
-  private leftArmPart!: Graphics;
-  private rightArmPart!: Graphics;
-  private woundsPart!: Graphics;
-
-  private lastHealthPercent = 1.0;
-
   protected initParts(): void {
     // 1. Create parts
     this.shadowPart = new Graphics();
@@ -62,9 +50,7 @@ export class TankZombieRenderer extends BaseZombieRenderer {
     this.torsoPart.circle(-4, 4 - 8, 3).fill({ color: this.PALE_RED, alpha: 0.4 });
     this.torsoPart.circle(4, 4 - 8, 3).fill({ color: this.PALE_RED, alpha: 0.4 });
     for (let i = 0; i < 4; i++) {
-      this.torsoPart
-        .rect(-5, -5 + i * 3, 10, 0.8)
-        .fill({ color: this.DARK_RED, alpha: 0.7 });
+      this.torsoPart.rect(-5, -5 + i * 3, 10, 0.8).fill({ color: this.DARK_RED, alpha: 0.7 });
     }
 
     this.headPart = new Graphics();
@@ -94,15 +80,7 @@ export class TankZombieRenderer extends BaseZombieRenderer {
     this.woundsPart = new Graphics();
 
     // 2. Add to container in correct z-order
-    this.container.addChild(this.shadowPart);
-    this.container.addChild(this.leftLegPart);
-    this.container.addChild(this.rightLegPart);
-    this.container.addChild(this.leftArmPart);
-    this.container.addChild(this.torsoPart);
-    this.container.addChild(this.woundsPart);
-    this.container.addChild(this.rightArmPart);
-    this.container.addChild(this.headPart);
-    this.container.addChild(this.particles.getGraphics());
+    this.addPartsToContainer();
 
     this.isInitialized = true;
   }
@@ -115,23 +93,19 @@ export class TankZombieRenderer extends BaseZombieRenderer {
     const anim = this.animator.getCurrentFrame();
     const healthPercent = state.health / state.maxHealth;
 
-    // Apply animations
-    this.leftLegPart.position.set(-4 + anim.leftLegOffset, 12);
-    this.rightLegPart.position.set(2 + anim.rightLegOffset, 12);
-
-    const torsoY = anim.bodyBob + 8;
-    this.torsoPart.position.set(0, torsoY);
-    this.woundsPart.position.set(0, torsoY);
-
-    this.leftArmPart.position.set(-7, torsoY - 5);
-    this.leftArmPart.rotation = anim.leftArmAngle - Math.PI / 2;
-    this.leftArmPart.alpha = 0.7;
-
-    this.rightArmPart.position.set(7, torsoY - 5);
-    this.rightArmPart.rotation = anim.rightArmAngle - Math.PI / 2;
-    this.rightArmPart.alpha = 1.0;
-
-    this.headPart.position.set(anim.headSway, torsoY - 16);
+    // Apply animations using shared helper
+    this.applySkeletalAnimation(anim, {
+      leftLegX: -4,
+      leftLegY: 12,
+      rightLegX: 2,
+      rightLegY: 12,
+      torsoY: 8,
+      leftArmX: -7,
+      leftArmY: -5,
+      rightArmX: 7,
+      rightArmY: -5,
+      headY: -16,
+    });
 
     // Update wounds if health changed significantly
     if (Math.abs(this.lastHealthPercent - healthPercent) > 0.05) {

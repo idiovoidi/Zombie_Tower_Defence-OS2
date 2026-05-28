@@ -1,4 +1,4 @@
-import { Graphics, type Container } from 'pixi.js';
+import { type Container, Graphics } from 'pixi.js';
 import { BaseZombieRenderer } from './BaseZombieRenderer';
 import { GlowEffect, ShadowEffect } from './components/ZombieEffects';
 import { ParticleType } from './ZombieParticleSystem';
@@ -34,18 +34,6 @@ export class StealthZombieRenderer extends BaseZombieRenderer {
   private readonly BONE_WHITE = 0xcccccc;
   private readonly EYE_GLOW = 0x9966ff;
 
-  // Skeletal parts
-  private shadowPart!: Graphics;
-  private leftLegPart!: Graphics;
-  private rightLegPart!: Graphics;
-  private torsoPart!: Graphics;
-  private headPart!: Graphics;
-  private leftArmPart!: Graphics;
-  private rightArmPart!: Graphics;
-  private woundsPart!: Graphics;
-
-  private lastHealthPercent = 1.0;
-
   protected initParts(): void {
     // 1. Create parts
     this.shadowPart = new Graphics();
@@ -69,9 +57,7 @@ export class StealthZombieRenderer extends BaseZombieRenderer {
     this.torsoPart.circle(3, 6 - 6, 2.5).fill({ color: this.DARK_PURPLE, alpha: 0.5 });
 
     for (let i = 0; i < 3; i++) {
-      this.torsoPart
-        .rect(-3, -3 + i * 3, 6, 0.5)
-        .fill({ color: this.BONE_WHITE, alpha: 0.2 });
+      this.torsoPart.rect(-3, -3 + i * 3, 6, 0.5).fill({ color: this.BONE_WHITE, alpha: 0.2 });
     }
 
     this.headPart = new Graphics();
@@ -99,15 +85,7 @@ export class StealthZombieRenderer extends BaseZombieRenderer {
     this.woundsPart = new Graphics();
 
     // 2. Add to container in correct z-order
-    this.container.addChild(this.shadowPart);
-    this.container.addChild(this.leftLegPart);
-    this.container.addChild(this.rightLegPart);
-    this.container.addChild(this.leftArmPart);
-    this.container.addChild(this.torsoPart);
-    this.container.addChild(this.woundsPart);
-    this.container.addChild(this.rightArmPart);
-    this.container.addChild(this.headPart);
-    this.container.addChild(this.particles.getGraphics());
+    this.addPartsToContainer();
 
     this.isInitialized = true;
   }
@@ -123,25 +101,23 @@ export class StealthZombieRenderer extends BaseZombieRenderer {
 
     this.shadowPart.alpha = baseAlpha * 0.3;
 
-    // Apply animations
-    this.leftLegPart.position.set(-3 + anim.leftLegOffset, 10);
-    this.rightLegPart.position.set(1 + anim.rightLegOffset, 10);
+    // Apply animations using shared helper
+    this.applySkeletalAnimation(anim, {
+      leftLegX: -3,
+      leftLegY: 10,
+      rightLegX: 1,
+      rightLegY: 10,
+      torsoY: 6,
+      leftArmX: -5,
+      leftArmY: -4,
+      rightArmX: 5,
+      rightArmY: -4,
+      headY: -12,
+    });
 
-    const torsoY = anim.bodyBob + 6;
-    this.torsoPart.position.set(0, torsoY);
-    this.woundsPart.position.set(0, torsoY);
-
-    this.leftArmPart.position.set(-5, torsoY - 4);
-    this.leftArmPart.rotation = anim.leftArmAngle - Math.PI / 2;
+    // Apply custom alpha effects for stealth
     this.leftArmPart.alpha = 0.7 * baseAlpha;
-    // Outline alpha adjustment via tint or direct draw in v8
-    // For simplicity, we just use alpha here
-
-    this.rightArmPart.position.set(5, torsoY - 4);
-    this.rightArmPart.rotation = anim.rightArmAngle - Math.PI / 2;
     this.rightArmPart.alpha = 1.0 * baseAlpha;
-
-    this.headPart.position.set(anim.headSway, torsoY - 12);
 
     // Update wounds if health changed significantly
     if (Math.abs(this.lastHealthPercent - healthPercent) > 0.05) {

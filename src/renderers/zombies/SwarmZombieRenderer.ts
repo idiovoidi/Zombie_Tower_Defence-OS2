@@ -1,4 +1,4 @@
-import { Graphics, type Container } from 'pixi.js';
+import { type Container, Graphics } from 'pixi.js';
 import { BaseZombieRenderer } from './BaseZombieRenderer';
 import { GlowEffect, ShadowEffect } from './components/ZombieEffects';
 import { ParticleType } from './ZombieParticleSystem';
@@ -27,18 +27,6 @@ export class SwarmZombieRenderer extends BaseZombieRenderer {
   private readonly BLOOD_RED = 0x8b0000;
   private readonly EYE_GLOW = 0xffff00;
 
-  // Skeletal parts
-  private shadowPart!: Graphics;
-  private leftLegPart!: Graphics;
-  private rightLegPart!: Graphics;
-  private torsoPart!: Graphics;
-  private headPart!: Graphics;
-  private leftArmPart!: Graphics;
-  private rightArmPart!: Graphics;
-  private woundsPart!: Graphics;
-
-  private lastHealthPercent = 1.0;
-
   protected initParts(): void {
     // 1. Create parts
     this.shadowPart = new Graphics();
@@ -59,9 +47,7 @@ export class SwarmZombieRenderer extends BaseZombieRenderer {
       .stroke({ color: 0x000000, width: 0.8, alpha: 0.6 });
 
     for (let i = 0; i < 2; i++) {
-      this.torsoPart
-        .rect(-2, -2.5 + i * 3, 4, 0.5)
-        .fill({ color: this.DARK_GREEN, alpha: 0.7 });
+      this.torsoPart.rect(-2, -2.5 + i * 3, 4, 0.5).fill({ color: this.DARK_GREEN, alpha: 0.7 });
     }
 
     this.headPart = new Graphics();
@@ -90,15 +76,7 @@ export class SwarmZombieRenderer extends BaseZombieRenderer {
     this.woundsPart = new Graphics();
 
     // 2. Add to container in correct z-order
-    this.container.addChild(this.shadowPart);
-    this.container.addChild(this.leftLegPart);
-    this.container.addChild(this.rightLegPart);
-    this.container.addChild(this.leftArmPart);
-    this.container.addChild(this.torsoPart);
-    this.container.addChild(this.woundsPart);
-    this.container.addChild(this.rightArmPart);
-    this.container.addChild(this.headPart);
-    this.container.addChild(this.particles.getGraphics());
+    this.addPartsToContainer();
 
     this.isInitialized = true;
   }
@@ -111,23 +89,19 @@ export class SwarmZombieRenderer extends BaseZombieRenderer {
     const anim = this.animator.getCurrentFrame();
     const healthPercent = state.health / state.maxHealth;
 
-    // Apply animations
-    this.leftLegPart.position.set(-2 + anim.leftLegOffset, 7);
-    this.rightLegPart.position.set(0.5 + anim.rightLegOffset, 7);
-
-    const torsoY = anim.bodyBob + 4.5;
-    this.torsoPart.position.set(0, torsoY);
-    this.woundsPart.position.set(0, torsoY);
-
-    this.leftArmPart.position.set(-3, torsoY - 2.5);
-    this.leftArmPart.rotation = anim.leftArmAngle - Math.PI / 2;
-    this.leftArmPart.alpha = 0.7;
-
-    this.rightArmPart.position.set(3, torsoY - 2.5);
-    this.rightArmPart.rotation = anim.rightArmAngle - Math.PI / 2;
-    this.rightArmPart.alpha = 1.0;
-
-    this.headPart.position.set(anim.headSway, torsoY - 8.5);
+    // Apply animations using shared helper
+    this.applySkeletalAnimation(anim, {
+      leftLegX: -2,
+      leftLegY: 7,
+      rightLegX: 0.5,
+      rightLegY: 7,
+      torsoY: 4.5,
+      leftArmX: -3,
+      leftArmY: -2.5,
+      rightArmX: 3,
+      rightArmY: -2.5,
+      headY: -8.5,
+    });
 
     // Update wounds if health changed significantly
     if (Math.abs(this.lastHealthPercent - healthPercent) > 0.05) {

@@ -1,4 +1,4 @@
-import { Graphics, type Container } from 'pixi.js';
+import { type Container, Graphics } from 'pixi.js';
 import { BaseZombieRenderer } from './BaseZombieRenderer';
 import { GlowEffect, ShadowEffect } from './components/ZombieEffects';
 import { ParticleType } from './ZombieParticleSystem';
@@ -32,18 +32,6 @@ export class MechanicalZombieRenderer extends BaseZombieRenderer {
   private readonly RUST_COLOR = 0x8b4513;
   private readonly OIL_BLACK = 0x1a1a1a;
   private readonly EYE_GLOW = 0x00ffff;
-
-  // Skeletal parts
-  private shadowPart!: Graphics;
-  private leftLegPart!: Graphics;
-  private rightLegPart!: Graphics;
-  private torsoPart!: Graphics;
-  private headPart!: Graphics;
-  private leftArmPart!: Graphics;
-  private rightArmPart!: Graphics;
-  private woundsPart!: Graphics;
-
-  private lastHealthPercent = 1.0;
 
   protected initParts(): void {
     // 1. Create parts
@@ -95,9 +83,7 @@ export class MechanicalZombieRenderer extends BaseZombieRenderer {
     this.headPart.rect(1.5, -0.5, 1.5, 1).fill(this.EYE_GLOW);
     this.headPart.rect(-2, 2, 4, 1.5).fill({ color: this.DARK_METAL, alpha: 0.8 });
     for (let i = 0; i < 4; i++) {
-      this.headPart
-        .rect(-1.5 + i, 2.2, 0.5, 1)
-        .fill({ color: 0x000000, alpha: 0.6 });
+      this.headPart.rect(-1.5 + i, 2.2, 0.5, 1).fill({ color: 0x000000, alpha: 0.6 });
     }
 
     this.leftArmPart = new Graphics();
@@ -119,15 +105,7 @@ export class MechanicalZombieRenderer extends BaseZombieRenderer {
     this.woundsPart = new Graphics();
 
     // 2. Add to container in correct z-order
-    this.container.addChild(this.shadowPart);
-    this.container.addChild(this.leftLegPart);
-    this.container.addChild(this.rightLegPart);
-    this.container.addChild(this.leftArmPart);
-    this.container.addChild(this.torsoPart);
-    this.container.addChild(this.woundsPart);
-    this.container.addChild(this.rightArmPart);
-    this.container.addChild(this.headPart);
-    this.container.addChild(this.particles.getGraphics());
+    this.addPartsToContainer();
 
     this.isInitialized = true;
   }
@@ -140,23 +118,19 @@ export class MechanicalZombieRenderer extends BaseZombieRenderer {
     const anim = this.animator.getCurrentFrame();
     const healthPercent = state.health / state.maxHealth;
 
-    // Apply animations
-    this.leftLegPart.position.set(-3.5 + anim.leftLegOffset, 10);
-    this.rightLegPart.position.set(1.5 + anim.rightLegOffset, 10);
-
-    const torsoY = anim.bodyBob + 6.5;
-    this.torsoPart.position.set(0, torsoY);
-    this.woundsPart.position.set(0, torsoY);
-
-    this.leftArmPart.position.set(-6, torsoY - 3.5);
-    this.leftArmPart.rotation = anim.leftArmAngle - Math.PI / 2;
-    this.leftArmPart.alpha = 0.7;
-
-    this.rightArmPart.position.set(6, torsoY - 3.5);
-    this.rightArmPart.rotation = anim.rightArmAngle - Math.PI / 2;
-    this.rightArmPart.alpha = 1.0;
-
-    this.headPart.position.set(anim.headSway, torsoY - 13.5);
+    // Apply animations using shared helper
+    this.applySkeletalAnimation(anim, {
+      leftLegX: -3.5,
+      leftLegY: 10,
+      rightLegX: 1.5,
+      rightLegY: 10,
+      torsoY: 6.5,
+      leftArmX: -6,
+      leftArmY: -3.5,
+      rightArmX: 6,
+      rightArmY: -3.5,
+      headY: -13.5,
+    });
 
     // Update damage if health changed significantly
     if (Math.abs(this.lastHealthPercent - healthPercent) > 0.05) {
@@ -234,17 +208,13 @@ export class MechanicalZombieRenderer extends BaseZombieRenderer {
     for (let i = 0; i < rustCount; i++) {
       const x = (Math.random() - 0.5) * 10;
       const y = torsoY + (Math.random() - 0.5) * 11;
-      graphics
-        .circle(x, y, 0.8 + Math.random() * 1.5)
-        .fill({ color: this.RUST_COLOR, alpha: 0.7 });
+      graphics.circle(x, y, 0.8 + Math.random() * 1.5).fill({ color: this.RUST_COLOR, alpha: 0.7 });
     }
     const oilCount = Math.floor((1 - healthPercent) * 3);
     for (let i = 0; i < oilCount; i++) {
       const x = (Math.random() - 0.5) * 9;
       const y = torsoY + (Math.random() - 0.5) * 10;
-      graphics
-        .circle(x, y, 1 + Math.random() * 1.8)
-        .fill({ color: this.OIL_BLACK, alpha: 0.6 });
+      graphics.circle(x, y, 1 + Math.random() * 1.8).fill({ color: this.OIL_BLACK, alpha: 0.6 });
     }
     if (healthPercent < 0.3) {
       graphics

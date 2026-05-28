@@ -1,0 +1,1 @@
+Tesla towered is powered by a makeshift car battery and a metal pole.
