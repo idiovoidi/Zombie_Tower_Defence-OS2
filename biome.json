@@ -92,6 +92,26 @@
       }
     },
     {
+      "includes": ["src/utils/Logger.ts"],
+      "linter": {
+        "rules": {
+          "suspicious": {
+            "noConsole": "off"
+          }
+        }
+      }
+    },
+    {
+      "includes": ["src/core/DebugConsole.ts", "src/core/DebugHotkeys.ts"],
+      "linter": {
+        "rules": {
+          "suspicious": {
+            "noConsole": "off"
+          }
+        }
+      }
+    },
+    {
       "includes": ["tests/**"],
       "javascript": {
         "globals": [
