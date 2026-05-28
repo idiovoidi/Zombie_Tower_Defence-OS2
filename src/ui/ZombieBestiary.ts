@@ -111,66 +111,19 @@ export class ZombieBestiary extends UIPanel {
   constructor() {
     super();
     this.createToggleButton('📖 Bestiary', 140, 0xff0000);
-    // Content container is positioned differently (top-left, not centered)
-    this.background = new Graphics();
-    this.contentContainer = new Container();
-    this.contentContainer.visible = false;
+    this.createPanelFrame(
+      900,
+      580,
+      '🧟 ZOMBIE BESTIARY 🧟',
+      'Know Your Enemy - All Zombie Types',
+      0xff0000
+    );
     this.createContent();
-    this.addChild(this.contentContainer);
   }
 
   private createContent(): void {
-    // Position at absolute screen coordinates (top-left)
-    this.contentContainer.position.set(20, 20);
-
-    // Background panel - simple positioning from (0,0)
-    const panelWidth = 900;
-    const panelHeight = 580;
     const panelLeft = 0;
     const panelTop = 0;
-
-    // Static background container for caching
-    const staticBg = new Container();
-    staticBg.cullableChildren = false;
-    this.contentContainer.addChild(staticBg);
-
-    this.background = new Graphics();
-    this.background
-      .roundRect(panelLeft, panelTop, panelWidth, panelHeight, 10)
-      .fill({ color: 0x1a1a1a, alpha: 0.98 });
-    this.background.stroke({ width: 3, color: 0xff0000 });
-    staticBg.addChild(this.background);
-
-    // Cache the static background
-    staticBg.cacheAsTexture(true);
-
-    // Title
-    const title = new Text({
-      text: '🧟 ZOMBIE BESTIARY 🧟',
-      style: {
-        fontFamily: 'Arial',
-        fontSize: 26,
-        fill: 0xff0000,
-        fontWeight: 'bold',
-      },
-    });
-    title.anchor.set(0.5, 0);
-    title.position.set(panelLeft + panelWidth / 2, panelTop + 15);
-    this.contentContainer.addChild(title);
-
-    // Subtitle
-    const subtitle = new Text({
-      text: 'Know Your Enemy - All Zombie Types',
-      style: {
-        fontFamily: 'Arial',
-        fontSize: 13,
-        fill: 0xcccccc,
-        fontStyle: 'italic',
-      },
-    });
-    subtitle.anchor.set(0.5, 0);
-    subtitle.position.set(panelLeft + panelWidth / 2, panelTop + 47);
-    this.contentContainer.addChild(subtitle);
 
     // Create zombie cards - adjusted for 7 cards (3 rows)
     let xPos = panelLeft + 15;
@@ -192,34 +145,6 @@ export class ZombieBestiary extends UIPanel {
         yPos += cardHeight + spacing;
       }
     });
-
-    // Close button
-    const closeButton = new Container();
-    closeButton.eventMode = 'static';
-    closeButton.cursor = 'pointer';
-
-    const closeBg = new Graphics();
-    closeBg.circle(0, 0, 20).fill({ color: 0xff0000, alpha: 0.9 });
-    closeBg.stroke({ width: 2, color: 0xffffff });
-    closeButton.addChild(closeBg);
-
-    const closeText = new Text({
-      text: '✕',
-      style: {
-        fontFamily: 'Arial',
-        fontSize: 20,
-        fill: 0xffffff,
-        fontWeight: 'bold',
-      },
-    });
-    closeText.anchor.set(0.5);
-    closeButton.addChild(closeText);
-
-    closeButton.position.set(panelLeft + panelWidth - 30, panelTop + 20);
-    closeButton.on('pointerdown', () => {
-      this.close();
-    });
-    this.contentContainer.addChild(closeButton);
   }
 
   private createZombieCard(zombie: ZombieInfo, width: number, height: number): Container {

@@ -1,9 +1,12 @@
-import { Container, Graphics } from 'pixi.js';
+import { Container, Graphics, Text } from 'pixi.js';
 import { EffectCleanupManager } from './EffectCleanupManager';
 import { ResourceCleanupManager } from './ResourceCleanupManager';
 
 // biome-ignore lint/complexity/noStaticOnlyClass: Stateless utility effects
 export class VisualEffects {
+  // Create a damage indicator that floats upward
+  private static activeShakes = new Map<Container, { x: number; y: number }>();
+
   // Create a damage indicator that floats upward
   public static createDamageIndicator(
     container: Container,
@@ -11,30 +14,104 @@ export class VisualEffects {
     y: number,
     _damage: number
   ): void {
-    const damageText = new Graphics();
-    // In a real implementation, this would create a text object showing the damage value
-    // and animate it moving upward before fading out
+    const roundedDamage = Math.round(_damage);
+    if (roundedDamage <= 0) return;
 
-    damageText.circle(0, 0, 10).fill({ color: 0xff0000, alpha: 0.7 });
-
-    damageText.position.set(x, y);
-    container.addChild(damageText);
-
-    // Register as persistent effect for immediate cleanup
-    ResourceCleanupManager.registerPersistentEffect(damageText, {
-      type: 'damage_indicator',
-      duration: 1000,
+    const damageText = new Text({
+      text: roundedDamage.toString(),
+      style: {
+        fontFamily: 'Arial Black, Impact, sans-serif',
+        fontSize: 16,
+        fill: 0xff3333,
+        stroke: { color: 0x000000, width: 3 },
+        fontWeight: 'bold',
+      },
     });
 
-    // This would be animated in a real implementation
-    const timeout = EffectCleanupManager.registerTimeout(
-      setTimeout(() => {
-        EffectCleanupManager.clearTimeout(timeout);
-        ResourceCleanupManager.unregisterPersistentEffect(damageText);
-        container.removeChild(damageText);
-        damageText.destroy();
-      }, 1000)
-    );
+    damageText.anchor.set(0.5);
+    damageText.position.set(x, y - 10);
+    container.addChild(damageText);
+
+    const duration = 800;
+    // Register as persistent effect for immediate cleanup on wave/game end
+    ResourceCleanupManager.registerPersistentEffect(damageText, {
+      type: 'damage_indicator',
+      duration: duration,
+    });
+
+    const startTime = performance.now();
+    const startY = damageText.position.y;
+
+    const animate = () => {
+      if (damageText.destroyed) {
+        return;
+      }
+
+      const elapsed = performance.now() - startTime;
+      const progress = Math.min(elapsed / duration, 1);
+
+      // Drift upward
+      damageText.position.y = startY - progress * 40;
+      damageText.alpha = 1 - progress;
+
+      if (progress < 1) {
+        requestAnimationFrame(animate);
+      } else {
+        if (!damageText.destroyed) {
+          ResourceCleanupManager.unregisterPersistentEffect(damageText);
+          container.removeChild(damageText);
+          damageText.destroy();
+        }
+      }
+    };
+
+    requestAnimationFrame(animate);
+  }
+
+  // Trigger screen shake on a target container
+  public static triggerScreenShake(
+    container: Container,
+    intensity = 6,
+    duration = 300
+  ): void {
+    if (container.destroyed) return;
+
+    // Retrieve or store original position
+    let originalPos = VisualEffects.activeShakes.get(container);
+    if (!originalPos) {
+      originalPos = { x: container.position.x, y: container.position.y };
+      VisualEffects.activeShakes.set(container, originalPos);
+    }
+
+    const startTime = performance.now();
+    const startX = originalPos.x;
+    const startY = originalPos.y;
+
+    const shake = () => {
+      if (container.destroyed) {
+        VisualEffects.activeShakes.delete(container);
+        return;
+      }
+
+      const elapsed = performance.now() - startTime;
+      const progress = elapsed / duration;
+
+      if (progress >= 1) {
+        container.position.set(startX, startY);
+        VisualEffects.activeShakes.delete(container);
+        return;
+      }
+
+      const currentIntensity = intensity * (1 - progress);
+      const offsetX = (Math.random() - 0.5) * 2 * currentIntensity;
+      const offsetY = (Math.random() - 0.5) * 2 * currentIntensity;
+
+      container.position.set(startX + offsetX, startY + offsetY);
+
+      requestAnimationFrame(shake);
+    };
+
+    shake();
   }
 
   // Create a screen damage flash effect (red corners)

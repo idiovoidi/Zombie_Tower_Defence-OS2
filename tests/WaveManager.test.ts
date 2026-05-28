@@ -87,7 +87,7 @@ describe('WaveManager', () => {
         (waveManager as any).currentWave = wave;
         const zombies = waveManager.getCurrentWaveZombies();
 
-        // Should have 4 zombie types (Basic, Fast, Tank, Armored)
+        // Should have 4 zombie types (Basic, Fast, Tank, and Armored)
         expect(zombies.length).toBe(4);
 
         // Check zombie types

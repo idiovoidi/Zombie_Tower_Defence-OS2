@@ -12,9 +12,6 @@ export class AIPlayerManager {
   private updateTimer = 0;
   private updateInterval = 1.0; // Check every 1 second
   private placementZones: PlacementZone[] = [];
-  private lastLogTime = 0;
-  private lastState = '';
-  private currentWaveDecisions = 0;
 
   constructor(gameManager: IGameStateProvider & IStatTrackerProvider) {
     this.gameManager = gameManager;
@@ -61,9 +58,6 @@ export class AIPlayerManager {
     const statTracker = this.gameManager.getStatTracker();
     if (enabled) {
       statTracker.startTracking(true);
-      this.lastLogTime = Date.now();
-      this.lastState = this.gameManager.getCurrentState();
-      this.currentWaveDecisions = 0;
     } else {
       this.logFinalStats();
       statTracker.exportCurrentStats();
@@ -82,7 +76,6 @@ export class AIPlayerManager {
     this.updateTimer += deltaTime;
     if (this.updateTimer >= this.updateInterval) {
       this.updateTimer = 0;
-      this.currentWaveDecisions++;
     }
   }
 

@@ -1,4 +1,5 @@
 import { type Application, Container } from 'pixi.js';
+import { VisualEffects } from '../utils/VisualEffects';
 import { DebugConstants } from '../config/debugConstants';
 import { DevConfig } from '../config/devConfig';
 import { GameConfig } from '../config/gameConfig';
@@ -154,10 +155,10 @@ export class GameManager {
       killed: boolean;
       overkill: number;
     }>(GameEvents.DAMAGE_DEALT, data => {
-      if (data?.killed) {
-        // Award money for kills through event system
-        // (actual money reward handled in update loop for now)
-        // Intentionally empty - placeholder for future implementation
+      if (data?.killed && data.overkill > 100) {
+        // Trigger small screen shake for spectacular gib explosions
+        const intensity = Math.min(8, data.overkill / 50);
+        VisualEffects.triggerScreenShake(this.gameContainer, intensity, 150);
       }
     });
 
@@ -470,6 +471,9 @@ export class GameManager {
     if (this.onDamageFlashCallback) {
       this.onDamageFlashCallback();
     }
+    // Trigger screen shake scaling with damage
+    VisualEffects.triggerScreenShake(this.gameContainer, Math.min(15, amount * 4), 250);
+
     // Emit life lost event
     EventBus.getInstance().emit(GameEvents.LIFE_LOST, { amount, lives: this.lives });
     if (this.lives <= 0) {

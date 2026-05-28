@@ -14,7 +14,7 @@ Files touched:
 - `src/managers/AIPlayerManager.ts`
 - `src/utils/StatTracker.ts`
 
-Status: [ ] Todo
+Status: [x] Done — AIPlayerManager delegates tracking to the centralized StatTracker instance.
 
 ---
 
@@ -82,7 +82,7 @@ Files touched:
 - `src/ui/UIPanel.ts` (new)
 - `src/ui/ShaderTestPanel.ts`, `WaveInfoPanel.ts`, `DebugInfoPanel.ts`, `ZombieBestiary.ts`
 
-Status: [ ] Todo
+Status: [x] Done — UIPanel base class handles common panel layout, button styles, title framing, and toggle functionality. ShaderTestPanel, WaveInfoPanel, DebugInfoPanel, and ZombieBestiary have all been refactored to extend it.
 
 ---
 

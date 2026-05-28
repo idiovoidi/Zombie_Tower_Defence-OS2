@@ -34,23 +34,25 @@ describe('OptimizationValidator', () => {
     it('should calculate improvement percentage', () => {
       OptimizationValidator.enable();
 
-      // Mock performance.now() to return deterministic timing differences
-      const nowSpy = vi.spyOn(performance, 'now');
-      nowSpy
-        .mockReturnValueOnce(0)   // linearStart
-        .mockReturnValueOnce(10)  // linearEnd -> linearTime = 10
-        .mockReturnValueOnce(10)  // spatialStart
-        .mockReturnValueOnce(12); // spatialEnd -> spatialTime = 2
-
       const entities = Array.from({ length: 100 }, (_, i) => ({
         position: { x: i * 5, y: i * 5 },
       }));
+
+      let callCount = 0;
+      const nowSpy = vi.spyOn(performance, 'now').mockImplementation(() => {
+        callCount++;
+        if (callCount === 1) return 0;
+        if (callCount === 2) return 10;
+        if (callCount === 3) return 10;
+        if (callCount === 4) return 12;
+        return 0;
+      });
 
       OptimizationValidator.measureTargetFinding(entities, 250, 250, 150, () => entities[50]);
 
       const metrics = OptimizationValidator.getTargetFindingMetrics();
 
-      expect(metrics.improvement).toBeCloseTo(80, 0); // (10 - 2) / 10 * 100 = 80%
+      expect(metrics.improvement).toBe(80); // ((10 - 2) / 10) * 100
       expect(metrics.linearSearchTimeMs).toBe(10);
       expect(metrics.spatialGridTimeMs).toBe(2);
 

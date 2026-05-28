@@ -57,7 +57,7 @@ import { EffectCleanupManager } from './EffectCleanupManager';
  */
 
 export interface PersistentEffect {
-  graphics: Graphics;
+  graphics: Container;
   onCleanup?: () => void;
   metadata?: {
     type: string;
@@ -102,7 +102,7 @@ export class ResourceCleanupManager {
    * This should be called when creating fire pools, sludge pools, explosions, etc.
    */
   public static registerPersistentEffect(
-    graphics: Graphics,
+    graphics: Container,
     options?: {
       onCleanup?: () => void;
       type?: string;
@@ -125,7 +125,7 @@ export class ResourceCleanupManager {
   /**
    * Unregister a persistent effect (called when effect naturally expires)
    */
-  public static unregisterPersistentEffect(graphics: Graphics): void {
+  public static unregisterPersistentEffect(graphics: Container): void {
     for (const effect of ResourceCleanupManager.persistentEffects) {
       if (effect.graphics === graphics) {
         ResourceCleanupManager.persistentEffects.delete(effect);
