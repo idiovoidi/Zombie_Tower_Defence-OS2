@@ -302,6 +302,32 @@ export class BalanceAnalyzer {
   }
 
   /**
+   * Determine severity level for low value metrics
+   */
+  private static getLowValueSeverity(
+    value: number,
+    criticalThreshold: number,
+    highThreshold: number
+  ): BalanceIssue['severity'] {
+    if (value < criticalThreshold) return 'CRITICAL';
+    if (value < highThreshold) return 'HIGH';
+    return 'MEDIUM';
+  }
+
+  /**
+   * Determine severity level for high value metrics
+   */
+  private static getHighValueSeverity(
+    value: number,
+    highThreshold: number,
+    mediumThreshold: number
+  ): BalanceIssue['severity'] {
+    if (value > highThreshold) return 'HIGH';
+    if (value > mediumThreshold) return 'MEDIUM';
+    return 'LOW';
+  }
+
+  /**
    * Detect balance issues from game statistics
    *
    * Analyzes key metrics and flags potential balance problems
@@ -319,8 +345,7 @@ export class BalanceAnalyzer {
 
     // Check damage per dollar (threshold: 15)
     if (stats.damagePerDollar < 15) {
-      const severity: BalanceIssue['severity'] =
-        stats.damagePerDollar < 10 ? 'CRITICAL' : stats.damagePerDollar < 12 ? 'HIGH' : 'MEDIUM';
+      const severity = BalanceAnalyzer.getLowValueSeverity(stats.damagePerDollar, 10, 12);
 
       issues.push({
         type: 'INEFFICIENT_TOWERS',
@@ -335,8 +360,7 @@ export class BalanceAnalyzer {
 
     // Check survival rate (threshold: 50%)
     if (stats.survivalRate < 50) {
-      const severity: BalanceIssue['severity'] =
-        stats.survivalRate < 25 ? 'CRITICAL' : stats.survivalRate < 35 ? 'HIGH' : 'MEDIUM';
+      const severity = BalanceAnalyzer.getLowValueSeverity(stats.survivalRate, 25, 35);
 
       issues.push({
         type: 'WEAK_DEFENSE',
@@ -351,8 +375,7 @@ export class BalanceAnalyzer {
 
     // Check overkill percentage (threshold: 15%)
     if (stats.overkillPercent > 15) {
-      const severity: BalanceIssue['severity'] =
-        stats.overkillPercent > 30 ? 'HIGH' : stats.overkillPercent > 20 ? 'MEDIUM' : 'LOW';
+      const severity = BalanceAnalyzer.getHighValueSeverity(stats.overkillPercent, 30, 20);
 
       issues.push({
         type: 'EXCESSIVE_OVERKILL',
@@ -367,12 +390,7 @@ export class BalanceAnalyzer {
 
     // Check economy efficiency (threshold: 100%)
     if (stats.economyEfficiency < 100) {
-      const severity: BalanceIssue['severity'] =
-        stats.economyEfficiency < 50
-          ? 'CRITICAL'
-          : stats.economyEfficiency < 75
-            ? 'HIGH'
-            : 'MEDIUM';
+      const severity = BalanceAnalyzer.getLowValueSeverity(stats.economyEfficiency, 50, 75);
 
       issues.push({
         type: 'NEGATIVE_ECONOMY',

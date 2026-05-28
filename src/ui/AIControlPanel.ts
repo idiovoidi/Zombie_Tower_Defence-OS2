@@ -31,29 +31,21 @@ export class AIControlPanel extends UIComponent {
     const width = 80;
     const height = 80;
 
-    // Static background container for caching
-    const staticBg = new Container();
-    staticBg.cullableChildren = false;
-    this.button.addChild(staticBg);
-
-    // Background - dark panel
+    // Background - dark panel (direct child of button, not cached)
     const bg = new Graphics();
     bg.roundRect(0, 0, width, height, 8).fill({ color: 0x1a1a1a, alpha: 0.95 });
     bg.roundRect(0, 0, width, height, 8).stroke({ width: 2, color: 0x333333 });
-    staticBg.addChild(bg);
+    this.button.addChild(bg);
 
     // Inner border
     const innerBorder = new Graphics();
     innerBorder.roundRect(3, 3, width - 6, height - 6, 6).stroke({ width: 1, color: 0x444444 });
-    staticBg.addChild(innerBorder);
+    this.button.addChild(innerBorder);
 
     // Robot icon (static part)
     const icon = this.createRobotIcon();
     icon.position.set(width / 2, 30);
-    staticBg.addChild(icon);
-
-    // Cache the static background
-    staticBg.cacheAsTexture(true);
+    this.button.addChild(icon);
 
     // Status text (dynamic)
     const statusText = new Text({

@@ -65,6 +65,18 @@ export interface IBalanceTrackingProvider {
 }
 
 /**
+ * IAIActionProvider - AI action interface
+ *
+ * Exposes the minimal set of actions the AI player needs to actually
+ * play the game: placing towers and starting waves.
+ * Money deduction is handled automatically by GameManager's tower-placed callback.
+ */
+export interface IAIActionProvider {
+  getTowerPlacementManager(): { startPlacement(type: string): void; placeTower(x: number, y: number): unknown; cancelPlacement(): void; isInPlacementMode(): boolean };
+  startNextWave(): void;
+}
+
+/**
  * IGameManager - Deprecated monolithic interface
  *
  * @deprecated Use granular interfaces (IGameStateProvider, IWaveStateProvider, etc.)

@@ -10,6 +10,7 @@ import { StatTracker } from '../utils/StatTracker';
 import { AIPlayerManager } from './AIPlayerManager';
 import { BalanceTrackingManager } from './BalanceTrackingManager';
 import type {
+  IAIActionProvider,
   IBalanceTrackingProvider,
   IGameStateProvider,
   IStatTrackerProvider,
@@ -24,7 +25,8 @@ interface AnalyticsConfig {
     ITowerStateProvider &
     IZombieStateProvider &
     IBalanceTrackingProvider &
-    IStatTrackerProvider;
+    IStatTrackerProvider &
+    IAIActionProvider;
   enabled?: boolean;
 }
 
