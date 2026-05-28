@@ -4,94 +4,118 @@ inclusion: always
 
 # Project Structure
 
-## Directory Organization
+Quick reference for navigating and extending the Z-TD tower defense codebase.
+
+## Directory Map
+
+| Directory | Purpose | Key Files |
+|-----------|---------|-----------|
+| `src/core/` | Application bootstrap, game loop, debug systems | Application.ts, GameLoop.ts, DebugHotkeys.ts |
+| `src/managers/` | Game system managers (domain logic) | GameManager.ts, TowerManager.ts, WaveManager.ts, ZombieManager.ts |
+| `src/objects/` | Game entities and factories | Tower.ts, Zombie.ts, TowerFactory.ts, ZombieFactory.ts |
+| `src/components/` | Reusable entity components | HealthComponent.ts, TransformComponent.ts, ResourceCost.ts |
+| `src/config/` | Game constants and configuration | gameConfig.ts, towerConstants.ts, zombieResistances.ts |
+| `src/renderers/` | Visual rendering systems | CombatRenderer.ts, VisualMapRenderer.ts |
+| `src/ui/` | UI components (HUD, menus, panels) | HUD.ts, TowerShop.ts, MainMenu.ts, UIManager.ts |
+| `src/utils/` | Utilities, effects, performance tools | EffectCleanupManager.ts, ResourceCleanupManager.ts, EventBus.ts |
+| `src/types/` | TypeScript type definitions | tower-internal.ts, zombie-waypoints.ts |
 
 ```
 src/
-├── assets/          # Game assets (currently empty)
-├── components/      # Reusable game components (health, transform, resource cost)
-├── config/          # Configuration files (game config, dev config)
-├── managers/        # Game system managers
-├── objects/         # Game entities (towers, zombies, game objects)
-│   ├── towers/      # Tower type implementations
-│   └── zombies/     # Zombie type implementations
-├── renderers/       # Visual rendering systems
-├── types/           # TypeScript type definitions
-├── ui/              # UI components (HUD, menus, panels)
-├── utils/           # Utility functions (debug, visual effects)
-├── index.ts         # Public API exports
-├── main.ts          # Application entry point
-└── vite-env.d.ts    # Vite type definitions
+├── core/           # App bootstrap, game loop, debug, input
+├── managers/       # Domain-specific game systems
+├── objects/        # Entities (Tower, Zombie, Projectile)
+│   ├── towers/     # Tower implementations
+│   └── zombies/    # Zombie implementations
+├── components/     # Composable entity behaviors
+├── config/         # Constants, balancing, configuration
+├── renderers/      # PixiJS rendering systems
+│   ├── effects/    # Visual effects (particles, etc.)
+│   ├── map/        # Map rendering
+│   ├── towers/     # Tower renderers
+│   └── zombies/    # Zombie renderers
+├── ui/             # UI components and shaders
+├── utils/          # Shared utilities and managers
+├── types/          # Type definitions
+├── main.ts         # Entry point
+└── index.ts        # Public API exports
 ```
 
 ## Architecture Patterns
 
-prefer "@/..." over deep relative paths ("../../...") to improve readability, refactor safety, and consistent navigation as the project grows.
+### Path Aliases (REQUIRED)
+
+Always use `@/` aliases instead of relative paths:
+
+```typescript
+// ✅ CORRECT
+import { GameManager } from '@/managers/GameManager';
+import type { TowerConfig } from '@/config/towerConstants';
+
+// ❌ WRONG
+import { GameManager } from '../managers/GameManager';
+```
+
+Available aliases: `@/`, `@components/`, `@managers/`, `@objects/`, `@ui/`, `@utils/`, `@config/`, `@renderers/`
 
 ### Manager Pattern
 
-Core game systems are organized as managers (GameManager, TowerManager, WaveManager, etc.). Each manager:
+Core systems are managers coordinated by GameManager:
 
-- Handles a specific domain of game logic
-- Is instantiated and coordinated by GameManager
-- Exposes public methods for interaction
-- Uses callbacks for cross-manager communication
+- Each manager handles one domain (towers, waves, zombies, projectiles, etc.)
+- Expose public methods for cross-manager interaction
+- Use callbacks/events for communication, not direct coupling
+- Follow the `IGameManager` interface contract
 
 ### Component-Based Entities
 
-Game objects (Tower, Zombie) use composition:
+Game objects use composition over inheritance:
 
-- Extend base GameObject class
-- Compose functionality with components (HealthComponent, TransformComponent)
-- Implement specific interfaces (Tower.interface.ts)
+- Extend `GameObject` base class
+- Compose with components (HealthComponent, TransformComponent)
+- Implement interfaces (`Tower.interface.ts`)
 
 ### Factory Pattern
 
-Object creation uses factories:
+Create entities through factories:
 
-- TowerFactory for creating tower instances
-- ZombieFactory for creating zombie instances
+- `TowerFactory.createTower(type, position)` - tower instantiation
+- `ZombieFactory.createZombie(type, path)` - zombie instantiation
 
 ### UI Components
 
-UI elements extend UIComponent base class:
+UI elements extend `UIComponent` base:
 
-- Self-contained PixiJS Container instances
-- Registered with UIManager for lifecycle management
-- Use callbacks to communicate with game systems
+- Self-contained PixiJS Container
+- Register with `UIManager` for lifecycle
+- Use callbacks for game system communication
 
-## Path Aliases
+## File Naming
 
-All major directories have path aliases configured:
+| Type | Convention | Example |
+|------|------------|---------|
+| Classes | PascalCase | `GameManager.ts` |
+| Interfaces | `.interface.ts` suffix | `Tower.interface.ts` |
+| Tests | `.test.ts` suffix | `GameManager.test.ts` |
+| Index | `index.ts` | Re-exports module contents |
 
-- `@/` → `src/`
-- `@components/` → `src/components/`
-- `@managers/` → `src/managers/`
-- `@objects/` → `src/objects/`
-- `@ui/` → `src/ui/`
-- `@utils/` → `src/utils/`
-- `@config/` → `src/config/`
-- `@renderers/` → `src/renderers/`
+## Entry Points
 
-Use these aliases in imports for cleaner, more maintainable code.
+- `src/main.ts` - Application bootstrap
+- `src/index.ts` - Public API exports
+- `index.html` - HTML container (`pixi-container` div)
 
-## File Naming Conventions
+## Cross-Cutting Concerns
 
-- Classes: PascalCase (e.g., `GameManager.ts`, `TowerShop.ts`)
-- Tests: `*.test.ts` suffix (e.g., `GameManager.test.ts`)
-- Interfaces: PascalCase with `.interface.ts` suffix (e.g., `Tower.interface.ts`)
-- Index files: `index.ts` for re-exporting module contents
-- Documentation: `.md` suffix for markdown docs alongside code
+| Concern | Location | When to Use |
+|---------|----------|-------------|
+| Memory cleanup | `src/utils/EffectCleanupManager.ts`, `ResourceCleanupManager.ts` | All timers, persistent effects |
+| Events | `src/utils/EventBus.ts` | Cross-manager communication |
+| Performance | `src/utils/PerformanceMonitor.ts`, `PerformanceProfiler.ts` | Profiling, optimization |
+| Debug | `src/core/DebugConsole.ts`, `DebugHotkeys.ts` | Development tools |
 
-## Key Entry Points
-
-- `src/main.ts` - Application bootstrap and initialization
-- `src/index.ts` - Public API exports for library usage
-- `index.html` - HTML entry point with `pixi-container` div
-
-## Testing Structure
+## Testing
 
 - Tests colocated with source files
 - PixiJS mocked in `__mocks__/pixi.js`
-- Coverage reports generated in `coverage/` directory
-- Test configuration in `jest.config.js` and `tsconfig.test.json`
+- Config: `jest.config.js`, `tsconfig.test.json`

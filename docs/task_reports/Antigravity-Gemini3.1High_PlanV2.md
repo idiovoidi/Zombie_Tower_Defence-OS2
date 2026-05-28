@@ -2,23 +2,9 @@ Zombie TD Modernization Strategy
 This document provides a comprehensive evaluation of the current Zombie Tower Defense (Z_TD) project and proposes a modernized, stable, high-performance architecture.
 
 Current-State Audit
-Engine & Tooling:
 
-Engine: PixiJS v8 (Modern WebGL/WebGPU capable).
-Language/Build: TypeScript, Vite, Vitest.
-Code Quality: Strong integration of Biome (linting/formatting), jscpd (duplicate detection), and dependency-cruiser.
-Recent Maintenance: A successful deduplication pass has recently established solid baseline patterns (e.g., BaseZombieRenderer, BaseTowerRenderer, UIPanel).
-Architecture & Logic:
 
-Pattern: Manager-heavy (24 distinct managers).
-Core Orchestration: GameManager.ts is massive (~25KB) and acts as a central hub, alongside bulky BalanceTrackingManager and WaveManager.
-Communication: Decoupled inter-system communication via an EventBus.
-Optimization: Spatial Grid for collision and Dirty Flag systems for array updates are currently implemented.
-Rendering & Visuals:
 
-Renderers: 52 renderer classes (currently decoupled from core logic).
-Visual Features: Post-apocalyptic palette, dynamic lighting (via basic shaders), and blood particle systems.
-Analytics: Complex AI Player mode and built-in balance analytics system tracking overkill, efficiency, and survivability.
 Risk List
 WARNING
 

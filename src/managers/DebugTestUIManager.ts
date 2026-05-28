@@ -6,6 +6,7 @@ import { ShaderTestPanel } from '../ui/ShaderTestPanel';
 import { StatsPanel } from '../ui/StatsPanel';
 import { WaveInfoPanel } from '../ui/WaveInfoPanel';
 import { ZombieBestiary } from '../ui/ZombieBestiary';
+import { error, info, warn } from '../utils/Logger';
 import type { PixelArtRenderer } from '../utils/PixelArtRenderer';
 import type { GameManager } from './GameManager';
 import type { WaveManager } from './WaveManager';
@@ -326,7 +327,7 @@ export class DebugTestUIManager {
    */
   public progressToNextLevel(): void {
     if (!this.gameManager) {
-      console.warn('Cannot progress: GameManager not initialized');
+      warn('Cannot progress: GameManager not initialized');
       return;
     }
 
@@ -341,14 +342,14 @@ export class DebugTestUIManager {
 
     // Unlock and start the level
     levelManager.unlockLevel(levelId);
-    console.log(`🔓 Unlocked ${levelId}`);
+    info(`🔓 Unlocked ${levelId}`);
 
     const success = levelManager.loadLevel(levelId);
     if (success) {
       this.gameManager.startGameWithLevel(levelId);
-      console.log(`🎮 Started ${levelId}`);
+      info(`🎮 Started ${levelId}`);
     } else {
-      console.error(`Failed to load ${levelId}`);
+      error(`Failed to load ${levelId}`);
     }
   }
 
