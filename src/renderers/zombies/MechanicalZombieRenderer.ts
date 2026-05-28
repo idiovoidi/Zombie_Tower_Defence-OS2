@@ -255,4 +255,3 @@ export class MechanicalZombieRenderer extends BaseZombieRenderer {
     }
   }
 }
-}
