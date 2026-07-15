@@ -8,15 +8,7 @@ import {
   type TowerType,
   type ZombieType,
 } from '../config/zombieResistances';
-import {
-  ArmoredZombieRenderer,
-  BasicZombieRenderer,
-  FastZombieRenderer,
-  MechanicalZombieRenderer,
-  StealthZombieRenderer,
-  SwarmZombieRenderer,
-  TankZombieRenderer,
-} from '../renderers/zombies';
+import { ZombieRendererFactory } from '../renderers/zombies';
 import type { BaseZombieRenderer } from '../renderers/zombies/BaseZombieRenderer';
 import type { IZombieRenderer, ZombieRenderState } from '../renderers/zombies/ZombieRenderer';
 import { ZombieStats } from '../utils/ZombieStats';
@@ -187,29 +179,7 @@ export class Zombie extends GameObject {
 
   // Initialize modular renderer based on zombie type
   private initializeVisual(): void {
-    switch (this.type) {
-      case GameConfig.ZOMBIE_TYPES.BASIC:
-        this.renderer = new BasicZombieRenderer();
-        break;
-      case GameConfig.ZOMBIE_TYPES.FAST:
-        this.renderer = new FastZombieRenderer();
-        break;
-      case GameConfig.ZOMBIE_TYPES.TANK:
-        this.renderer = new TankZombieRenderer();
-        break;
-      case GameConfig.ZOMBIE_TYPES.ARMORED:
-        this.renderer = new ArmoredZombieRenderer();
-        break;
-      case GameConfig.ZOMBIE_TYPES.SWARM:
-        this.renderer = new SwarmZombieRenderer();
-        break;
-      case GameConfig.ZOMBIE_TYPES.STEALTH:
-        this.renderer = new StealthZombieRenderer();
-        break;
-      case GameConfig.ZOMBIE_TYPES.MECHANICAL:
-        this.renderer = new MechanicalZombieRenderer();
-        break;
-    }
+    this.renderer = ZombieRendererFactory.create(this.type);
 
     // Set zombie type name for ragdoll configuration
     if (this.renderer) {

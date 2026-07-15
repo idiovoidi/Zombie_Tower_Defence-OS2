@@ -3,7 +3,6 @@ import type { TransformComponent } from '../components/TransformComponent';
 import { getTowerStats } from '../config/towerConstants';
 import type { Tower } from '../objects/Tower';
 import { TowerFactory } from '../objects/TowerFactory';
-import type { EffectManager } from '../renderers/effects/EffectManager';
 import type { MapManager } from './MapManager';
 import type { TowerManager } from './TowerManager';
 
@@ -20,18 +19,18 @@ export class TowerPlacementManager {
   private onTowerSelectedCallback: ((tower: Tower | null) => void) | null = null;
   private canAffordTower = true;
   private towersDirty = false; // Track when tower array changes
-  private effectManager: EffectManager | null = null; // EffectManager for visual effects
+  private effectContainer: Container | null = null;
 
   constructor(
     container: Container,
     towerManager: TowerManager,
     mapManager: MapManager,
-    effectManager?: EffectManager
+    effectContainer?: Container
   ) {
     this.container = container;
     this.towerManager = towerManager;
     this.mapManager = mapManager;
-    this.effectManager = effectManager || null;
+    this.effectContainer = effectContainer || null;
   }
 
   // Start placement mode with selected tower type
@@ -176,9 +175,8 @@ export class TowerPlacementManager {
 
     const tower = TowerFactory.createTower(this.selectedTowerType, x, y);
     if (tower) {
-      // Set effect manager for visual effects (shell casings, muzzle flashes, etc.)
-      if (this.effectManager) {
-        tower.setEffectManager(this.effectManager);
+      if (this.effectContainer) {
+        tower.setEffectContainer(this.effectContainer);
       }
       this.placedTowers.push(tower);
       this.towersDirty = true; // Mark towers as changed

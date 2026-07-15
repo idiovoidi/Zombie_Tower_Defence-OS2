@@ -1,15 +1,6 @@
 import { Container, Graphics, Text } from 'pixi.js';
 import { GameConfig } from '../config/gameConfig';
-import {
-  ArmoredZombieRenderer,
-  BasicZombieRenderer,
-  FastZombieRenderer,
-  MechanicalZombieRenderer,
-  StealthZombieRenderer,
-  SwarmZombieRenderer,
-  TankZombieRenderer,
-} from '../renderers/zombies';
-import type { IZombieRenderer } from '../renderers/zombies/ZombieRenderer';
+import { ZombieRendererFactory } from '../renderers/zombies';
 import { UIPanel } from './UIPanel';
 
 interface ZombieInfo {
@@ -272,49 +263,8 @@ export class ZombieBestiary extends UIPanel {
 
   private createZombieVisual(type: string, _color: number): Container {
     const container = new Container();
+    const renderer = ZombieRendererFactory.create(type);
 
-    // Use new renderer system for accurate visuals
-    let renderer: IZombieRenderer;
-    switch (type) {
-      case GameConfig.ZOMBIE_TYPES.BASIC: {
-        renderer = new BasicZombieRenderer();
-        break;
-      }
-      case GameConfig.ZOMBIE_TYPES.FAST: {
-        renderer = new FastZombieRenderer();
-        break;
-      }
-      case GameConfig.ZOMBIE_TYPES.TANK: {
-        renderer = new TankZombieRenderer();
-        break;
-      }
-      case GameConfig.ZOMBIE_TYPES.ARMORED: {
-        renderer = new ArmoredZombieRenderer();
-        break;
-      }
-      case GameConfig.ZOMBIE_TYPES.SWARM: {
-        renderer = new SwarmZombieRenderer();
-        break;
-      }
-      case GameConfig.ZOMBIE_TYPES.STEALTH: {
-        renderer = new StealthZombieRenderer();
-        break;
-      }
-      case GameConfig.ZOMBIE_TYPES.MECHANICAL: {
-        renderer = new MechanicalZombieRenderer();
-        break;
-      }
-      default: {
-        const fallback = new Graphics();
-        fallback.circle(0, 0, 15).fill(0x6b8e23);
-        fallback.stroke({ width: 2, color: 0x000000 });
-        container.addChild(fallback);
-        container.scale.set(1.5);
-        return container;
-      }
-    }
-
-    // Render the zombie using the new renderer
     const state = {
       position: { x: 0, y: 0 },
       health: 100,

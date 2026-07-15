@@ -6,3 +6,4 @@ export { MechanicalZombieRenderer } from './MechanicalZombieRenderer';
 export { StealthZombieRenderer } from './StealthZombieRenderer';
 export { SwarmZombieRenderer } from './SwarmZombieRenderer';
 export { TankZombieRenderer } from './TankZombieRenderer';
+export { ZombieRendererFactory } from './ZombieRendererFactory';

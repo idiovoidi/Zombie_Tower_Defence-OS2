@@ -109,7 +109,7 @@ export class GameManager {
       this.gameContainer,
       this.towerManager,
       this.mapManager,
-      this.effectManager
+      this.effectManager.getContainer()
     );
     this.towerCombatManager = new TowerCombatManager(1024, 768);
     this.sludgePoolManager = new SludgePoolManager();

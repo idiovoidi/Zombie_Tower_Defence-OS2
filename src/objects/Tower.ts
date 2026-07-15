@@ -7,7 +7,7 @@ import { GameConfig } from '../config/gameConfig';
 import { getTowerStats, type IdleAnimationType } from '../config/towerConstants';
 import { TowerManager } from '../managers/TowerManager';
 import { BarrelHeatGlow } from '../renderers/effects/BarrelHeatGlow';
-import type { ITowerLegacyEffects, TowerEffects } from '../types/tower-internal';
+import type { TowerEffects } from '../types/tower-internal';
 import { EffectCleanupManager } from '../utils/EffectCleanupManager';
 import { EventBus, GameEvents } from '../utils/EventBus';
 import { TowerRangeVisualizer } from '../utils/TowerRangeVisualizer';
@@ -37,7 +37,7 @@ export class Tower extends GameObject implements ITower, TowerEffects {
 
   // Machine gun effects
   private barrelHeatGlow: BarrelHeatGlow | null = null;
-  private effectManager: ITowerLegacyEffects | null = null; // Legacy direct reference (deprecated, use EventBus)
+  private effectContainer: Container | null = null;
 
   // Sniper effects
   // biome-ignore lint/suspicious/noExplicitAny: PixiJS Filter API uses complex types
@@ -396,11 +396,6 @@ export class Tower extends GameObject implements ITower, TowerEffects {
         damage: actualDamage,
       });
 
-      // Legacy: Also call EffectManager directly if available (backward compatibility)
-      if (this.effectManager) {
-        this.effectManager.spawnDamageFlash(this, 30);
-      }
-
       return actualDamage;
     }
     return 0;
@@ -553,11 +548,9 @@ export class Tower extends GameObject implements ITower, TowerEffects {
     }
   }
 
-  /**
-   * Set the effect manager for spawning effects
-   */
-  public setEffectManager(effectManager: ITowerLegacyEffects): void {
-    this.effectManager = effectManager;
+  /** Set the container for tower-local effects (e.g. sniper laser sight). */
+  public setEffectContainer(container: Container): void {
+    this.effectContainer = container;
   }
 
   /**
@@ -582,11 +575,6 @@ export class Tower extends GameObject implements ITower, TowerEffects {
       barrelRotation: this.barrel.rotation,
     });
 
-    // Legacy: Also call EffectManager directly if available (backward compatibility)
-    if (this.effectManager) {
-      this.effectManager.spawnBulletTrail(startX, startY, targetX, targetY);
-      this.effectManager.spawnImpactFlash(targetX, targetY, isHeadshot);
-    }
   }
 
   /**
@@ -600,7 +588,7 @@ export class Tower extends GameObject implements ITower, TowerEffects {
     if (enabled && !this.laserSight && this.currentTarget) {
       import('../renderers/effects/LaserSight')
         .then(({ LaserSight }) => {
-          if (!this.effectManager || !this.currentTarget) {
+          if (!this.effectContainer || !this.currentTarget) {
             return;
           }
 
@@ -615,14 +603,14 @@ export class Tower extends GameObject implements ITower, TowerEffects {
             this.currentTarget.x,
             this.currentTarget.y
           );
-          this.effectManager.getContainer().addChild(this.laserSight);
+          this.effectContainer.addChild(this.laserSight);
         })
         .catch(() => {
           // Silently fail
         });
     } else if (!enabled && this.laserSight) {
-      if (this.effectManager && this.laserSight.parent) {
-        this.effectManager.getContainer().removeChild(this.laserSight);
+      if (this.effectContainer && this.laserSight.parent) {
+        this.effectContainer.removeChild(this.laserSight);
       }
       this.laserSight.destroy();
       this.laserSight = null;

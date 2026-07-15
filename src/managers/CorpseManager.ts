@@ -1,14 +1,6 @@
 import { Container, Graphics } from 'pixi.js';
-import {
-  ArmoredZombieRenderer,
-  BasicZombieRenderer,
-  FastZombieRenderer,
-  MechanicalZombieRenderer,
-  StealthZombieRenderer,
-  SwarmZombieRenderer,
-  TankZombieRenderer,
-} from '../renderers/zombies';
-import type { IZombieRenderer, ZombieRenderState } from '../renderers/zombies/ZombieRenderer';
+import { ZombieRendererFactory } from '../renderers/zombies';
+import type { ZombieRenderState } from '../renderers/zombies/ZombieRenderer';
 
 interface Corpse {
   container: Container;
@@ -71,34 +63,7 @@ export class CorpseManager {
     deathPose: number,
     killerType?: string
   ): void {
-    // Create the appropriate zombie renderer
-    let renderer: IZombieRenderer;
-
-    switch (zombieType) {
-      case 'Basic':
-        renderer = new BasicZombieRenderer();
-        break;
-      case 'Fast':
-        renderer = new FastZombieRenderer();
-        break;
-      case 'Tank':
-        renderer = new TankZombieRenderer();
-        break;
-      case 'Armored':
-        renderer = new ArmoredZombieRenderer();
-        break;
-      case 'Swarm':
-        renderer = new SwarmZombieRenderer();
-        break;
-      case 'Stealth':
-        renderer = new StealthZombieRenderer();
-        break;
-      case 'Mechanical':
-        renderer = new MechanicalZombieRenderer();
-        break;
-      default:
-        renderer = new BasicZombieRenderer();
-    }
+    const renderer = ZombieRendererFactory.create(zombieType);
 
     // Create a fake render state for the dead zombie
     const deadState: ZombieRenderState = {
