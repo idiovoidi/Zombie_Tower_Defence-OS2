@@ -8,6 +8,7 @@
  * - Monitor performance of analysis operations
  */
 
+import type { IGameStateProvider } from '../types/gameProviders';
 import {
   BalanceAnalyzer,
   type BalanceIssue,
@@ -20,7 +21,6 @@ import {
   type TrendAnalysis,
   type WavePrediction,
 } from '../utils/StatisticalAnalyzer';
-import type { IGameStateProvider } from './IGameManager';
 
 // ============================================================================
 // Interfaces

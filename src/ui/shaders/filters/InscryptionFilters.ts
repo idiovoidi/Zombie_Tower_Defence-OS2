@@ -34,7 +34,11 @@ export class InscryptionVignetteFilter extends Filter {
       }
     `;
 
-    const gpuProgram = GlProgram.from({ vertex: STANDARD_VERTEX_SHADER, fragment, name: 'inscryption-vignette' });
+    const gpuProgram = GlProgram.from({
+      vertex: STANDARD_VERTEX_SHADER,
+      fragment,
+      name: 'inscryption-vignette',
+    });
 
     super({
       glProgram: gpuProgram,
@@ -88,7 +92,11 @@ export class InscryptionColorGradingFilter extends Filter {
       }
     `;
 
-    const gpuProgram = GlProgram.from({ vertex: STANDARD_VERTEX_SHADER, fragment, name: 'inscryption-color-grading' });
+    const gpuProgram = GlProgram.from({
+      vertex: STANDARD_VERTEX_SHADER,
+      fragment,
+      name: 'inscryption-color-grading',
+    });
 
     super({
       glProgram: gpuProgram,
@@ -132,7 +140,11 @@ export class InscryptionGrainFilter extends Filter {
       }
     `;
 
-    const gpuProgram = GlProgram.from({ vertex: STANDARD_VERTEX_SHADER, fragment, name: 'inscryption-grain' });
+    const gpuProgram = GlProgram.from({
+      vertex: STANDARD_VERTEX_SHADER,
+      fragment,
+      name: 'inscryption-grain',
+    });
 
     super({
       glProgram: gpuProgram,
@@ -185,7 +197,11 @@ export class InscryptionChromaticFilter extends Filter {
       }
     `;
 
-    const gpuProgram = GlProgram.from({ vertex: STANDARD_VERTEX_SHADER, fragment, name: 'inscryption-chromatic' });
+    const gpuProgram = GlProgram.from({
+      vertex: STANDARD_VERTEX_SHADER,
+      fragment,
+      name: 'inscryption-chromatic',
+    });
 
     super({
       glProgram: gpuProgram,

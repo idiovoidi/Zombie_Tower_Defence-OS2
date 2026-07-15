@@ -3,7 +3,17 @@
  * These interfaces define the structure of dynamically added properties
  */
 
-import type { Graphics } from 'pixi.js';
+import type { Container, Graphics } from 'pixi.js';
+
+/**
+ * Legacy effect-manager surface used by Tower without importing EffectManager.
+ */
+export interface ITowerLegacyEffects {
+  spawnDamageFlash(tower: unknown, duration: number): void;
+  spawnBulletTrail(startX: number, startY: number, targetX: number, targetY: number): void;
+  spawnImpactFlash(x: number, y: number, isHeadshot: boolean): void;
+  getContainer(): Container;
+}
 
 /**
  * Interface for shell casing effect objects

@@ -10,10 +10,9 @@
  * - mathjs: Mathematical operations (currently minimal usage)
  */
 
-import * as ss from 'simple-statistics';
 import regressionModule from 'regression';
+import * as ss from 'simple-statistics';
 import 'mathjs';
-import { DebugUtils } from './DebugUtils';
 
 // Library imports with graceful degradation (statically imported now)
 const statisticsAvailable = true;

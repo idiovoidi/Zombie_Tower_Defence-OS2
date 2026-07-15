@@ -1,50 +1,15 @@
-import type { Tower } from '../objects/Tower';
-import type { Zombie } from '../objects/Zombie';
 import type { StatTracker } from '../utils/StatTracker';
 import type { BalanceTrackingManager } from './BalanceTrackingManager';
 
-/**
- * IGameStateProvider - Core game state interface
- *
- * Provides access to basic game state: money, lives, wave, and game status.
- * Used by managers that only need to read game state without accessing sub-managers.
- */
-export interface IGameStateProvider {
-  getMoney(): number;
-  getLives(): number;
-  getWave(): number;
-  getCurrentState(): string;
-}
-
-/**
- * IWaveStateProvider - Wave management interface
- *
- * Provides access to wave-specific state. Used by analytics and tracking systems
- * that need to know the current wave number.
- */
-export interface IWaveStateProvider {
-  getCurrentWave(): number;
-}
-
-/**
- * ITowerStateProvider - Tower state interface
- *
- * Provides access to placed towers. Used by systems that need to track
- * tower count and composition.
- */
-export interface ITowerStateProvider {
-  getPlacedTowers(): Tower[];
-}
-
-/**
- * IZombieStateProvider - Zombie state interface
- *
- * Provides access to active zombies. Used by analytics systems that track
- * zombie counts and combat statistics.
- */
-export interface IZombieStateProvider {
-  getZombies(): Zombie[];
-}
+export type {
+  BalanceTrackingReporter,
+  IAIActionProvider,
+  IBalanceTrackingProvider,
+  IGameStateProvider,
+  ITowerStateProvider,
+  IWaveStateProvider,
+  IZombieStateProvider,
+} from '../types/gameProviders';
 
 /**
  * IStatTrackerProvider - Stat tracker access interface
@@ -56,33 +21,12 @@ export interface IStatTrackerProvider {
 }
 
 /**
- * IBalanceTrackingProvider - Balance tracking access interface
- *
- * Provides access to the BalanceTrackingManager for analytics systems.
- */
-export interface IBalanceTrackingProvider {
-  getBalanceTrackingManager(): BalanceTrackingManager;
-}
-
-/**
- * IAIActionProvider - AI action interface
- *
- * Exposes the minimal set of actions the AI player needs to actually
- * play the game: placing towers and starting waves.
- * Money deduction is handled automatically by GameManager's tower-placed callback.
- */
-export interface IAIActionProvider {
-  getTowerPlacementManager(): { startPlacement(type: string): void; placeTower(x: number, y: number): unknown; cancelPlacement(): void; isInPlacementMode(): boolean };
-  startNextWave(): void;
-}
-
-/**
  * IGameManager - Deprecated monolithic interface
  *
- * @deprecated Use granular interfaces (IGameStateProvider, IWaveStateProvider, etc.)
- * instead of this interface. This will be removed in a future refactor.
+ * @deprecated Use granular interfaces from `../types/gameProviders` instead.
+ * This will be removed in a future refactor.
  */
-export interface IGameManager extends IGameStateProvider {
+export interface IGameManager {
   /** @deprecated Use IWaveStateProvider and inject WaveManager directly */
   getWaveManager(): unknown;
   /** @deprecated Use ITowerStateProvider and inject TowerPlacementManager directly */
@@ -90,7 +34,11 @@ export interface IGameManager extends IGameStateProvider {
   /** @deprecated Use IZombieStateProvider and inject ZombieManager directly */
   getZombieManager(): unknown;
   /** @deprecated Use IBalanceTrackingProvider */
-  getBalanceTrackingManager(): unknown;
+  getBalanceTrackingManager(): BalanceTrackingManager;
   /** @deprecated Use IStatTrackerProvider */
-  getStatTracker(): unknown;
+  getStatTracker(): StatTracker;
+  getMoney(): number;
+  getLives(): number;
+  getWave(): number;
+  getCurrentState(): string;
 }

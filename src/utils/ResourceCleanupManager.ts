@@ -1,6 +1,4 @@
 import type { Container, Graphics } from 'pixi.js';
-import type { Tower } from '../objects/Tower';
-import type { Zombie } from '../objects/Zombie';
 import { EffectCleanupManager } from './EffectCleanupManager';
 
 /**
@@ -81,8 +79,8 @@ export interface GameManagers {
     clear: () => void;
   };
   towerCombatManager?: {
-    setTowers: (towers: Tower[]) => void;
-    setZombies: (zombies: Zombie[]) => void;
+    setTowers: (towers: []) => void;
+    setZombies: (zombies: []) => void;
   };
   waveManager?: {
     reset: () => void;

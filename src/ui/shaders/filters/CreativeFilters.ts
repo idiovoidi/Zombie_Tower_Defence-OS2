@@ -1,5 +1,5 @@
 import { Filter, GlProgram } from 'pixi.js';
-import { BaseShaderFilter, STANDARD_VERTEX_SHADER, type UniformsConfig } from './BaseShaderFilter';
+import { STANDARD_VERTEX_SHADER } from './BaseShaderFilter';
 
 /**
  * Bloom/Glow effect - makes bright areas glow
@@ -33,7 +33,11 @@ export class BloomFilter extends Filter {
       }
     `;
 
-    const gpuProgram = GlProgram.from({ vertex: STANDARD_VERTEX_SHADER, fragment, name: 'bloom-filter' });
+    const gpuProgram = GlProgram.from({
+      vertex: STANDARD_VERTEX_SHADER,
+      fragment,
+      name: 'bloom-filter',
+    });
 
     super({
       glProgram: gpuProgram,
@@ -96,7 +100,11 @@ export class VignetteFilter extends Filter {
       }
     `;
 
-    const gpuProgram = GlProgram.from({ vertex: STANDARD_VERTEX_SHADER, fragment, name: 'vignette-filter' });
+    const gpuProgram = GlProgram.from({
+      vertex: STANDARD_VERTEX_SHADER,
+      fragment,
+      name: 'vignette-filter',
+    });
 
     super({
       glProgram: gpuProgram,
@@ -153,7 +161,11 @@ export class ChromaticAberrationFilter extends Filter {
       }
     `;
 
-    const gpuProgram = GlProgram.from({ vertex: STANDARD_VERTEX_SHADER, fragment, name: 'chromatic-aberration-filter' });
+    const gpuProgram = GlProgram.from({
+      vertex: STANDARD_VERTEX_SHADER,
+      fragment,
+      name: 'chromatic-aberration-filter',
+    });
 
     super({
       glProgram: gpuProgram,
@@ -207,7 +219,11 @@ export class FilmGrainFilter extends Filter {
       }
     `;
 
-    const gpuProgram = GlProgram.from({ vertex: STANDARD_VERTEX_SHADER, fragment, name: 'film-grain-filter' });
+    const gpuProgram = GlProgram.from({
+      vertex: STANDARD_VERTEX_SHADER,
+      fragment,
+      name: 'film-grain-filter',
+    });
 
     super({
       glProgram: gpuProgram,
@@ -308,7 +324,11 @@ export class OilPaintingFilter extends Filter {
       }
     `;
 
-    const gpuProgram = GlProgram.from({ vertex: STANDARD_VERTEX_SHADER, fragment, name: 'oil-painting-filter' });
+    const gpuProgram = GlProgram.from({
+      vertex: STANDARD_VERTEX_SHADER,
+      fragment,
+      name: 'oil-painting-filter',
+    });
 
     super({
       glProgram: gpuProgram,
@@ -362,7 +382,11 @@ export class KaleidoscopeFilter extends Filter {
       }
     `;
 
-    const gpuProgram = GlProgram.from({ vertex: STANDARD_VERTEX_SHADER, fragment, name: 'kaleidoscope-filter' });
+    const gpuProgram = GlProgram.from({
+      vertex: STANDARD_VERTEX_SHADER,
+      fragment,
+      name: 'kaleidoscope-filter',
+    });
 
     super({
       glProgram: gpuProgram,
@@ -417,7 +441,11 @@ export class WaveDistortionFilter extends Filter {
       }
     `;
 
-    const gpuProgram = GlProgram.from({ vertex: STANDARD_VERTEX_SHADER, fragment, name: 'wave-distortion-filter' });
+    const gpuProgram = GlProgram.from({
+      vertex: STANDARD_VERTEX_SHADER,
+      fragment,
+      name: 'wave-distortion-filter',
+    });
 
     super({
       glProgram: gpuProgram,
@@ -477,7 +505,11 @@ export class ColorShiftFilter extends Filter {
       }
     `;
 
-    const gpuProgram = GlProgram.from({ vertex: STANDARD_VERTEX_SHADER, fragment, name: 'color-shift-filter' });
+    const gpuProgram = GlProgram.from({
+      vertex: STANDARD_VERTEX_SHADER,
+      fragment,
+      name: 'color-shift-filter',
+    });
 
     super({
       glProgram: gpuProgram,

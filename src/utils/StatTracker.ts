@@ -4,7 +4,7 @@ import type {
   ITowerStateProvider,
   IWaveStateProvider,
   IZombieStateProvider,
-} from '../managers/IGameManager';
+} from '../types/gameProviders';
 import { DebugUtils } from './DebugUtils';
 import { type GameLogEntry, LogExporter } from './LogExporter';
 import { PerformanceMonitor } from './PerformanceMonitor';

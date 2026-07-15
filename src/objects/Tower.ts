@@ -7,8 +7,7 @@ import { GameConfig } from '../config/gameConfig';
 import { getTowerStats, type IdleAnimationType } from '../config/towerConstants';
 import { TowerManager } from '../managers/TowerManager';
 import { BarrelHeatGlow } from '../renderers/effects/BarrelHeatGlow';
-import type { EffectManager } from '../renderers/effects/EffectManager';
-import type { TowerEffects } from '../types/tower-internal';
+import type { ITowerLegacyEffects, TowerEffects } from '../types/tower-internal';
 import { EffectCleanupManager } from '../utils/EffectCleanupManager';
 import { EventBus, GameEvents } from '../utils/EventBus';
 import { TowerRangeVisualizer } from '../utils/TowerRangeVisualizer';
@@ -38,7 +37,7 @@ export class Tower extends GameObject implements ITower, TowerEffects {
 
   // Machine gun effects
   private barrelHeatGlow: BarrelHeatGlow | null = null;
-  private effectManager: EffectManager | null = null; // Reference to effect manager (deprecated, use EventBus)
+  private effectManager: ITowerLegacyEffects | null = null; // Legacy direct reference (deprecated, use EventBus)
 
   // Sniper effects
   // biome-ignore lint/suspicious/noExplicitAny: PixiJS Filter API uses complex types
@@ -557,7 +556,7 @@ export class Tower extends GameObject implements ITower, TowerEffects {
   /**
    * Set the effect manager for spawning effects
    */
-  public setEffectManager(effectManager: EffectManager): void {
+  public setEffectManager(effectManager: ITowerLegacyEffects): void {
     this.effectManager = effectManager;
   }
 

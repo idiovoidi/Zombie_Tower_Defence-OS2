@@ -173,7 +173,9 @@ export class AIPlayerManager {
 
     if (tower !== null) {
       this.nextZoneIndex++;
-      debug(`🤖 AI placed ${chosen.type} at (${zone.x}, ${zone.y}) — zone ${this.nextZoneIndex}/${this.placementZones.length}`);
+      debug(
+        `🤖 AI placed ${chosen.type} at (${zone.x}, ${zone.y}) — zone ${this.nextZoneIndex}/${this.placementZones.length}`
+      );
     } else {
       // Placement failed (invalid position) — cancel and skip this zone
       debug(`🤖 AI placement failed at (${zone.x}, ${zone.y}), skipping zone`);

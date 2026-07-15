@@ -45,7 +45,7 @@ export type UniformsConfig = Record<string, UniformConfig>;
 /**
  * Abstract base class for custom shader filters.
  * Provides shared vertex shader and helper methods for uniform access.
- * 
+ *
  * Subclasses only need to:
  * 1. Provide a fragment shader
  * 2. Define uniform configuration

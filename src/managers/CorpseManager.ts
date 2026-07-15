@@ -32,7 +32,7 @@ export class CorpseManager {
     zombieType: string,
     _size = 10,
     killerType?: string,
-    impactAngle?: number
+    _impactAngle?: number
   ): void {
     // Remove oldest corpse BEFORE adding new one if at limit
     // This ensures we never exceed maxCorpses

@@ -1,5 +1,4 @@
 import { Container, Graphics, Text } from 'pixi.js';
-import { EffectCleanupManager } from './EffectCleanupManager';
 import { ResourceCleanupManager } from './ResourceCleanupManager';
 
 // biome-ignore lint/complexity/noStaticOnlyClass: Stateless utility effects
@@ -69,11 +68,7 @@ export class VisualEffects {
   }
 
   // Trigger screen shake on a target container
-  public static triggerScreenShake(
-    container: Container,
-    intensity = 6,
-    duration = 300
-  ): void {
+  public static triggerScreenShake(container: Container, intensity = 6, duration = 300): void {
     if (container.destroyed) return;
 
     // Retrieve or store original position

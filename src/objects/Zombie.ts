@@ -413,7 +413,6 @@ export class Zombie extends GameObject {
         return 0.2; // 20% resistant
       case GameConfig.ZOMBIE_TYPES.SWARM:
         return 0.1; // 10% resistant (very vulnerable)
-      case GameConfig.ZOMBIE_TYPES.BASIC:
       default:
         return 0.3; // 30% resistant (early game vulnerable to knockback)
     }
@@ -527,17 +526,12 @@ export class Zombie extends GameObject {
     if (this.isDying) return;
     this.isDying = true;
 
-    // Calculate impact direction (angle FROM source TO zombie = direction blood flies)
-    let impactAngle = 0;
-    if (this.lastDamageSourcePosition) {
-      impactAngle = Math.atan2(
-        this.position.y - this.lastDamageSourcePosition.y,
-        this.position.x - this.lastDamageSourcePosition.x
-      );
-    } else {
-      // Default: random direction if no source tracked
-      impactAngle = Math.random() * Math.PI * 2;
-    }
+    const impactAngle = this.lastDamageSourcePosition
+      ? Math.atan2(
+          this.position.y - this.lastDamageSourcePosition.y,
+          this.position.x - this.lastDamageSourcePosition.x
+        )
+      : Math.random() * Math.PI * 2;
 
     // Emit death event IMMEDIATELY for blood/corpse systems
     // This ensures corpse appears at death location before animation moves the zombie

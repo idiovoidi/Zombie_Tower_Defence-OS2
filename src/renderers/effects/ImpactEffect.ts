@@ -26,7 +26,6 @@ export class ImpactEffect extends Container {
         // Blue electric impact
         graphics.circle(0, 0, 10).fill({ color: 0x00bfff, alpha: 0.6 });
         break;
-      case 'bullet':
       default:
         // Yellow bullet impact
         graphics.circle(0, 0, 5).fill({ color: 0xffff00, alpha: 0.6 });

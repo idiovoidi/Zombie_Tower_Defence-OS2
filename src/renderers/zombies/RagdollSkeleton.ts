@@ -175,7 +175,7 @@ export class RagdollSkeleton {
     // Position child bones relative to parents
     for (let i = 1; i < this.boneOrder.length; i++) {
       const bone = this.bones.get(this.boneOrder[i]);
-      if (!bone || !bone.parent) continue;
+      if (!bone?.parent) continue;
 
       const parent = this.bones.get(bone.parent);
       if (!parent) continue;
@@ -276,7 +276,7 @@ export class RagdollSkeleton {
   private enforceHierarchy(): void {
     for (let i = 1; i < this.boneOrder.length; i++) {
       const bone = this.bones.get(this.boneOrder[i]);
-      if (!bone || !bone.parent || bone.detached) continue;
+      if (!bone?.parent || bone.detached) continue;
 
       const parent = this.bones.get(bone.parent);
       if (!parent) continue;
