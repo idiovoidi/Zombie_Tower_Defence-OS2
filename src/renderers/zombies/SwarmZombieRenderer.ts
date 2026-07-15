@@ -72,12 +72,7 @@ export class SwarmZombieRenderer extends BaseZombieRenderer {
     this.rightArmPart.moveTo(0, 0).lineTo(0, 5).stroke({ color: this.PRIMARY_COLOR, width: 1.5 });
     this.rightArmPart.circle(0, 5, 1).fill(this.PRIMARY_COLOR);
 
-    this.woundsPart = new Graphics();
-
-    // 2. Add to container in correct z-order
-    this.addPartsToContainer();
-
-    this.isInitialized = true;
+    this.finishInitParts();
   }
 
   protected getAnimationOffsets() {

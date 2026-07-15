@@ -1,6 +1,8 @@
 import { Graphics } from 'pixi.js';
 import { BaseZombieRenderer } from './BaseZombieRenderer';
-import { GlowEffect, ShadowEffect } from './components/ZombieEffects';
+import { GlowEffect } from './components/ZombieEffects';
+import { playParticleDeathAnimation } from './CustomDeathAnimation';
+import { createHumanoidShadow } from './HumanoidPartBuilder';
 import { ParticleType } from './ZombieParticleSystem';
 import type { ZombieRenderState } from './ZombieRenderer';
 
@@ -34,8 +36,7 @@ export class MechanicalZombieRenderer extends BaseZombieRenderer {
 
   protected initParts(): void {
     // 1. Create parts
-    this.shadowPart = new Graphics();
-    ShadowEffect.apply(this.shadowPart, 0, 16, 9);
+    this.shadowPart = createHumanoidShadow(16, 9);
 
     this.leftLegPart = new Graphics();
     this.leftLegPart.rect(-1.75, 0, 3.5, 6).fill(this.PRIMARY_COLOR);
@@ -101,12 +102,7 @@ export class MechanicalZombieRenderer extends BaseZombieRenderer {
     this.rightArmPart.circle(0, 8, 2).fill(this.PRIMARY_COLOR);
     this.rightArmPart.circle(0, 8, 1).fill(this.DARK_METAL);
 
-    this.woundsPart = new Graphics();
-
-    // 2. Add to container in correct z-order
-    this.addPartsToContainer();
-
-    this.isInitialized = true;
+    this.finishInitParts();
   }
 
   protected getAnimationOffsets() {
@@ -147,22 +143,15 @@ export class MechanicalZombieRenderer extends BaseZombieRenderer {
 
   // Mechanical has a flicker phase — fully override
   override async playDeathAnimation(_killerType?: string): Promise<void> {
-    return new Promise(resolve => {
-      const startTime = Date.now();
-      for (const p of this.DEATH_PARTICLES) {
-        this.particles.emit(p.type, 0, 0, {
-          count: p.count,
-          velocity: p.velocity,
-          lifetime: p.lifetime,
-          size: p.size,
-        });
-      }
-      const animate = () => {
-        if (this.container.destroyed) {
-          resolve();
-          return;
-        }
-        const elapsed = Date.now() - startTime;
+    return playParticleDeathAnimation({
+      container: this.container,
+      particles: this.particles,
+      deathParticles: this.DEATH_PARTICLES,
+      durationMs: 1500,
+      setFrameId: id => {
+        this.deathAnimationFrame = id;
+      },
+      onUpdate: elapsed => {
         if (elapsed < 300) {
           const t = elapsed / 300;
           this.container.rotation = t * 0.2;
@@ -172,18 +161,12 @@ export class MechanicalZombieRenderer extends BaseZombieRenderer {
           this.container.rotation = 0.2 + t * (Math.PI / 2 - 0.2);
           this.container.scale.y = 1 - t * 0.7;
           this.container.alpha = 1 - t * 0.4;
-        } else if (elapsed < 1500) {
+        } else {
           const t = (elapsed - 800) / 700;
           this.container.alpha = 0.6 - t * 0.6;
           this.container.y += t * 4;
-        } else {
-          this.deathAnimationFrame = null;
-          resolve();
-          return;
         }
-        this.deathAnimationFrame = requestAnimationFrame(animate);
-      };
-      animate();
+      },
     });
   }
 

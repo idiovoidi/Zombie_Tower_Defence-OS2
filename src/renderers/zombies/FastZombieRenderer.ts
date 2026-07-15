@@ -73,12 +73,7 @@ export class FastZombieRenderer extends BaseZombieRenderer {
     this.rightArmPart.circle(0, 8, 1.5).fill(this.PRIMARY_COLOR);
     this.rightArmPart.circle(0, 8, 1.5).stroke({ color: 0x000000, width: 0.5, alpha: 0.5 });
 
-    this.woundsPart = new Graphics();
-
-    // 2. Add to container in correct z-order
-    this.addPartsToContainer();
-
-    this.isInitialized = true;
+    this.finishInitParts();
   }
 
   protected getAnimationOffsets() {

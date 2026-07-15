@@ -1,9 +1,10 @@
 import { Graphics } from 'pixi.js';
-import { BaseZombieRenderer } from './BaseZombieRenderer';
-import { GlowEffect, ShadowEffect } from './components/ZombieEffects';
+import { GlowEffect } from './components/ZombieEffects';
+import { createHumanoidLegs, createHumanoidShadow } from './HumanoidPartBuilder';
+import { HumanoidZombieRenderer } from './HumanoidZombieRenderer';
 import { ParticleType } from './ZombieParticleSystem';
 
-export class BasicZombieRenderer extends BaseZombieRenderer {
+export class BasicZombieRenderer extends HumanoidZombieRenderer {
   protected readonly ANIMATOR_TYPE = 'BASIC';
   protected readonly DAMAGE_FLASH_TINT = 0xff0000;
   protected readonly DAMAGE_PARTICLES = [
@@ -27,17 +28,10 @@ export class BasicZombieRenderer extends BaseZombieRenderer {
   private readonly EYE_GLOW = 0xff0000;
 
   protected initParts(): void {
-    // 1. Create parts
-    this.shadowPart = new Graphics();
-    ShadowEffect.apply(this.shadowPart, 0, 15, 8);
-
-    this.leftLegPart = new Graphics();
-    this.leftLegPart.rect(-1.5, 0, 3, 6).fill(this.PRIMARY_COLOR);
-    this.leftLegPart.rect(-1.5, 0, 3, 6).stroke({ color: 0x000000, width: 0.5, alpha: 0.6 });
-
-    this.rightLegPart = new Graphics();
-    this.rightLegPart.rect(-1.5, 0, 3, 6).fill(this.PRIMARY_COLOR);
-    this.rightLegPart.rect(-1.5, 0, 3, 6).stroke({ color: 0x000000, width: 0.5, alpha: 0.6 });
+    this.shadowPart = createHumanoidShadow();
+    const legs = createHumanoidLegs(this.PRIMARY_COLOR, 0.6);
+    this.leftLegPart = legs.leftLeg;
+    this.rightLegPart = legs.rightLeg;
 
     this.torsoPart = new Graphics();
     this.torsoPart
@@ -73,27 +67,7 @@ export class BasicZombieRenderer extends BaseZombieRenderer {
     this.rightArmPart.circle(0, 7, 1.5).fill(this.PRIMARY_COLOR);
     this.rightArmPart.circle(0, 7, 1.5).stroke({ color: 0x000000, width: 0.5, alpha: 0.5 });
 
-    this.woundsPart = new Graphics();
-
-    // 2. Add to container in correct z-order
-    this.addPartsToContainer();
-
-    this.isInitialized = true;
-  }
-
-  protected getAnimationOffsets() {
-    return {
-      leftLegX: -3,
-      leftLegY: 10,
-      rightLegX: 1,
-      rightLegY: 10,
-      torsoY: 6,
-      leftArmX: -5,
-      leftArmY: -4,
-      rightArmX: 5,
-      rightArmY: -4,
-      headY: -12,
-    };
+    this.finishInitParts();
   }
 
   protected updateWounds(
@@ -107,6 +81,6 @@ export class BasicZombieRenderer extends BaseZombieRenderer {
       headSway: number;
     }
   ): void {
-    this.drawWounds(this.woundsPart, healthPercent, 0, this.BLOOD_RED, 5, 7, 9, 1, 1.5, 0.8);
+    this.updateBloodWounds(healthPercent, this.BLOOD_RED, { maxWounds: 5, alpha: 0.8 });
   }
 }

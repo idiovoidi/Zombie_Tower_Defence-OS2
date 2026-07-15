@@ -201,6 +201,33 @@ export abstract class BaseZombieRenderer implements IZombieRenderer {
    */
   protected abstract initParts(): void;
 
+  /** Shared tail for initParts — creates wounds layer and registers skeletal parts. */
+  protected finishInitParts(): void {
+    this.woundsPart = new Graphics();
+    this.addPartsToContainer();
+    this.isInitialized = true;
+  }
+
+  /** Draw blood wounds with common humanoid defaults. */
+  protected updateBloodWounds(
+    healthPercent: number,
+    bloodColor: number,
+    options: { maxWounds?: number; alpha?: number } = {}
+  ): void {
+    this.drawWounds(
+      this.woundsPart,
+      healthPercent,
+      0,
+      bloodColor,
+      options.maxWounds ?? 4,
+      7,
+      9,
+      1,
+      1.5,
+      options.alpha ?? 0.7
+    );
+  }
+
   /**
    * Add skeletal parts to container in correct z-order.
    * This is shared across all zombie renderers.

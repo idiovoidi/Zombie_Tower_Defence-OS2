@@ -1,10 +1,12 @@
 import { Graphics } from 'pixi.js';
-import { BaseZombieRenderer } from './BaseZombieRenderer';
-import { GlowEffect, ShadowEffect } from './components/ZombieEffects';
+import { GlowEffect } from './components/ZombieEffects';
+import { playParticleDeathAnimation } from './CustomDeathAnimation';
+import { createHumanoidLegs, createHumanoidShadow } from './HumanoidPartBuilder';
+import { HumanoidZombieRenderer } from './HumanoidZombieRenderer';
 import { ParticleType } from './ZombieParticleSystem';
 import type { ZombieRenderState } from './ZombieRenderer';
 
-export class StealthZombieRenderer extends BaseZombieRenderer {
+export class StealthZombieRenderer extends HumanoidZombieRenderer {
   protected readonly ANIMATOR_TYPE = 'STEALTH';
   protected readonly DAMAGE_FLASH_TINT = 0xaa88ff;
   protected readonly DAMAGE_PARTICLES = [
@@ -15,7 +17,6 @@ export class StealthZombieRenderer extends BaseZombieRenderer {
     { type: ParticleType.SMOKE, count: 8, velocity: 50, lifetime: 1000, size: 2.5 },
     { type: ParticleType.BLOOD_SPLATTER, count: 3, velocity: 40, lifetime: 800, size: 2 },
   ];
-  // Not used — playDeathAnimation is fully overridden below
   protected readonly DEATH_ANIM = {
     phase1Duration: 300,
     phase2Duration: 500,
@@ -35,17 +36,10 @@ export class StealthZombieRenderer extends BaseZombieRenderer {
   private readonly EYE_GLOW = 0x9966ff;
 
   protected initParts(): void {
-    // 1. Create parts
-    this.shadowPart = new Graphics();
-    ShadowEffect.apply(this.shadowPart, 0, 15, 8);
-
-    this.leftLegPart = new Graphics();
-    this.leftLegPart.rect(-1.5, 0, 3, 6).fill(this.PRIMARY_COLOR);
-    this.leftLegPart.rect(-1.5, 0, 3, 6).stroke({ color: 0x000000, width: 0.5, alpha: 0.4 });
-
-    this.rightLegPart = new Graphics();
-    this.rightLegPart.rect(-1.5, 0, 3, 6).fill(this.PRIMARY_COLOR);
-    this.rightLegPart.rect(-1.5, 0, 3, 6).stroke({ color: 0x000000, width: 0.5, alpha: 0.4 });
+    this.shadowPart = createHumanoidShadow();
+    const legs = createHumanoidLegs(this.PRIMARY_COLOR, 0.4);
+    this.leftLegPart = legs.leftLeg;
+    this.rightLegPart = legs.rightLeg;
 
     this.torsoPart = new Graphics();
     this.torsoPart
@@ -82,27 +76,7 @@ export class StealthZombieRenderer extends BaseZombieRenderer {
     this.rightArmPart.moveTo(0, 0).lineTo(0, 7).stroke({ color: this.PRIMARY_COLOR, width: 2 });
     this.rightArmPart.circle(0, 7, 1.5).fill(this.PRIMARY_COLOR);
 
-    this.woundsPart = new Graphics();
-
-    // 2. Add to container in correct z-order
-    this.addPartsToContainer();
-
-    this.isInitialized = true;
-  }
-
-  protected getAnimationOffsets() {
-    return {
-      leftLegX: -3,
-      leftLegY: 10,
-      rightLegX: 1,
-      rightLegY: 10,
-      torsoY: 6,
-      leftArmX: -5,
-      leftArmY: -4,
-      rightArmX: 5,
-      rightArmY: -4,
-      headY: -12,
-    };
+    this.finishInitParts();
   }
 
   protected updateWounds(
@@ -116,7 +90,7 @@ export class StealthZombieRenderer extends BaseZombieRenderer {
       headSway: number;
     }
   ): void {
-    this.drawWounds(this.woundsPart, healthPercent, 0, this.BLOOD_RED, 4, 7, 9, 1, 1.5, 0.5);
+    this.updateBloodWounds(healthPercent, this.BLOOD_RED, { maxWounds: 4, alpha: 0.5 });
   }
 
   protected override applyCustomEffects(
@@ -142,24 +116,16 @@ export class StealthZombieRenderer extends BaseZombieRenderer {
     this.fadePhase += deltaTime * 0.002;
   }
 
-  // Stealth has a unique dissipate death — fully override
   override async playDeathAnimation(_killerType?: string): Promise<void> {
-    return new Promise(resolve => {
-      const startTime = Date.now();
-      for (const p of this.DEATH_PARTICLES) {
-        this.particles.emit(p.type, 0, 0, {
-          count: p.count,
-          velocity: p.velocity,
-          lifetime: p.lifetime,
-          size: p.size,
-        });
-      }
-      const animate = () => {
-        if (this.container.destroyed) {
-          resolve();
-          return;
-        }
-        const elapsed = Date.now() - startTime;
+    return playParticleDeathAnimation({
+      container: this.container,
+      particles: this.particles,
+      deathParticles: this.DEATH_PARTICLES,
+      durationMs: 1200,
+      setFrameId: id => {
+        this.deathAnimationFrame = id;
+      },
+      onUpdate: elapsed => {
         if (elapsed < 300) {
           const t = elapsed / 300;
           this.container.alpha = 0.6 - t * 0.2;
@@ -168,17 +134,11 @@ export class StealthZombieRenderer extends BaseZombieRenderer {
           const t = (elapsed - 300) / 500;
           this.container.alpha = 0.4 - t * 0.4;
           this.container.scale.set(1 + t * 0.3);
-        } else if (elapsed < 1200) {
+        } else {
           const t = (elapsed - 800) / 400;
           this.container.alpha = (1 - t) * 0.05;
-        } else {
-          this.deathAnimationFrame = null;
-          resolve();
-          return;
         }
-        this.deathAnimationFrame = requestAnimationFrame(animate);
-      };
-      animate();
+      },
     });
   }
 }

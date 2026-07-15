@@ -1,9 +1,10 @@
 import { Graphics } from 'pixi.js';
-import { BaseZombieRenderer } from './BaseZombieRenderer';
-import { GlowEffect, ShadowEffect } from './components/ZombieEffects';
+import { GlowEffect } from './components/ZombieEffects';
+import { createHumanoidShadow } from './HumanoidPartBuilder';
+import { HumanoidZombieRenderer } from './HumanoidZombieRenderer';
 import { ParticleType } from './ZombieParticleSystem';
 
-export class ArmoredZombieRenderer extends BaseZombieRenderer {
+export class ArmoredZombieRenderer extends HumanoidZombieRenderer {
   protected readonly ANIMATOR_TYPE = 'ARMORED';
   protected readonly DAMAGE_FLASH_TINT = 0xffffff;
   protected readonly DAMAGE_PARTICLES = [
@@ -31,9 +32,7 @@ export class ArmoredZombieRenderer extends BaseZombieRenderer {
   private readonly EYE_GLOW = 0xff6600;
 
   protected initParts(): void {
-    // 1. Create parts
-    this.shadowPart = new Graphics();
-    ShadowEffect.apply(this.shadowPart, 0, 15, 9);
+    this.shadowPart = createHumanoidShadow(15, 9);
 
     this.leftLegPart = new Graphics();
     this.leftLegPart.rect(-1, 1, 2, 1.5).fill({ color: this.ZOMBIE_GREEN, alpha: 0.8 });
@@ -88,27 +87,7 @@ export class ArmoredZombieRenderer extends BaseZombieRenderer {
     this.rightArmPart.circle(0, 7, 1.8).fill(this.PRIMARY_COLOR);
     this.rightArmPart.circle(0, 7, 1).fill(this.DARK_GRAY);
 
-    this.woundsPart = new Graphics();
-
-    // 2. Add to container in correct z-order
-    this.addPartsToContainer();
-
-    this.isInitialized = true;
-  }
-
-  protected getAnimationOffsets() {
-    return {
-      leftLegX: -3,
-      leftLegY: 10,
-      rightLegX: 1,
-      rightLegY: 10,
-      torsoY: 6,
-      leftArmX: -5,
-      leftArmY: -4,
-      rightArmX: 5,
-      rightArmY: -4,
-      headY: -12,
-    };
+    this.finishInitParts();
   }
 
   protected updateWounds(

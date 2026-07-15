@@ -76,12 +76,7 @@ export class TankZombieRenderer extends BaseZombieRenderer {
     this.rightArmPart.moveTo(0, 0).lineTo(0, 9).stroke({ color: this.PRIMARY_COLOR, width: 3 });
     this.rightArmPart.circle(0, 9, 2.5).fill(this.PRIMARY_COLOR);
 
-    this.woundsPart = new Graphics();
-
-    // 2. Add to container in correct z-order
-    this.addPartsToContainer();
-
-    this.isInitialized = true;
+    this.finishInitParts();
   }
 
   protected getAnimationOffsets() {
