@@ -9,6 +9,8 @@
  */
 
 import type { IGameStateProvider } from '../types/gameProviders';
+import { GameConfig } from '../config/gameConfig';
+import { getTowerStats } from '../config/towerConstants';
 import {
   BalanceAnalyzer,
   type BalanceIssue,
@@ -377,7 +379,7 @@ export class BalanceTrackingManager {
    */
   private getSurvivalRate(): number {
     const currentLives = this.gameManager.getLives();
-    const startingLives = 20; // TODO: Get from GameConfig
+    const startingLives = GameConfig.STARTING_LIVES;
     return (currentLives / startingLives) * 100;
   }
 
@@ -418,6 +420,38 @@ export class BalanceTrackingManager {
     }
 
     return damageMap;
+  }
+
+  /**
+   * Calculate tower efficiency metrics from tracked damage events.
+   */
+  private calculateTowerEfficiencies(): void {
+    const damageByType = this.getDamageByTowerType();
+    const averageZombieHP = 50;
+    const averageZombieReward = 10;
+
+    this.data.towerEfficiencies.clear();
+
+    damageByType.forEach((_totalDamage, towerType) => {
+      const stats = getTowerStats(towerType);
+      if (!stats) {
+        return;
+      }
+
+      const dps = stats.damage * stats.fireRate;
+      const efficiency = BalanceAnalyzer.analyzeTowerEfficiency(
+        towerType,
+        stats.cost,
+        dps,
+        stats.range,
+        1,
+        stats.damage,
+        averageZombieHP,
+        averageZombieReward
+      );
+
+      this.data.towerEfficiencies.set(towerType, efficiency);
+    });
   }
 
   // ============================================================================
@@ -523,9 +557,7 @@ export class BalanceTrackingManager {
    */
   public performEndGameAnalysis(): void {
     this.runAnalysis('end-game analysis', () => {
-      // Calculate tower efficiencies
-      // TODO: Get tower stats from TowerManager to calculate full efficiency metrics
-      // const damageByType = this.getDamageByTowerType();
+      this.calculateTowerEfficiencies();
 
       // Detect outliers in damage
       const damageValues = this.data.damageEvents.map(e => e.damage);

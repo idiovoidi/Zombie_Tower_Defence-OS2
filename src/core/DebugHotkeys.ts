@@ -3,7 +3,7 @@ import { GameConfig } from '../config/gameConfig';
 import type { GameManager } from '../managers/GameManager';
 import type { InputManager } from '../managers/InputManager';
 import type { Tower } from '../objects/Tower';
-import { debug } from '../utils/Logger';
+import { DebugUtils } from '../utils/DebugUtils';
 import type { ScaleManager } from '../utils/ScaleManager';
 
 export function bindDebugHotkeys(
@@ -16,7 +16,7 @@ export function bindDebugHotkeys(
     if (event.key.toLowerCase() === 'd' && event.ctrlKey) {
       const currentDebug = !inputManager.isDebugMode();
       inputManager.setDebugMode(currentDebug);
-      debug(`🔧 Debug mode ${currentDebug ? 'enabled' : 'disabled'}:`, scaleManager.getDebugInfo());
+      DebugUtils.debug(`🔧 Debug mode ${currentDebug ? 'enabled' : 'disabled'}:`, scaleManager.getDebugInfo());
     }
   });
 
@@ -30,23 +30,23 @@ export function bindDebugHotkeys(
     if (key === 'm') {
       const amount = event.shiftKey ? 20000 : 5000;
       gameManager.addMoney(amount);
-      debug(`💰 Added $${amount} (Total: $${gameManager.getMoney()})`);
+      DebugUtils.debug(`💰 Added $${amount} (Total: $${gameManager.getMoney()})`);
     }
 
     // L - Add lives
     if (key === 'l') {
       const amount = event.shiftKey ? 100 : 10;
       gameManager.addLives(amount);
-      debug(`❤️ Added ${amount} lives (Total: ${gameManager.getLives()})`);
+      DebugUtils.debug(`❤️ Added ${amount} lives (Total: ${gameManager.getLives()})`);
     }
 
     // N - Skip to next wave
     if (key === 'n') {
       if (gameManager.getCurrentState() === GameConfig.GAME_STATES.WAVE_COMPLETE) {
         gameManager.startNextWave();
-        debug('🌊 Started next wave');
+        DebugUtils.debug('🌊 Started next wave');
       } else {
-        debug('⚠️ Can only skip to next wave during wave complete state');
+        DebugUtils.debug('⚠️ Can only skip to next wave during wave complete state');
       }
     }
 
@@ -61,7 +61,7 @@ export function bindDebugHotkeys(
           killed++;
         }
       });
-      debug(`💀 Killed ${killed} zombies`);
+      DebugUtils.debug(`💀 Killed ${killed} zombies`);
     }
 
     // U - Upgrade all towers to max
@@ -75,18 +75,18 @@ export function bindDebugHotkeys(
           upgraded++;
         }
       });
-      debug(`⬆️ Upgraded ${upgraded} tower levels`);
+      DebugUtils.debug(`⬆️ Upgraded ${upgraded} tower levels`);
     }
 
     // H - Show debug help
     if (key === 'h') {
-      debug('🔧 Debug Hotkeys:');
-      debug('  M - Add $1000 (Shift+M for $10000)');
-      debug('  L - Add 10 lives (Shift+L for 100)');
-      debug('  N - Skip to next wave');
-      debug('  K - Kill all zombies');
-      debug('  U - Upgrade all towers to max');
-      debug('  H - Show this help');
+      DebugUtils.debug('🔧 Debug Hotkeys:');
+      DebugUtils.debug('  M - Add $1000 (Shift+M for $10000)');
+      DebugUtils.debug('  L - Add 10 lives (Shift+L for 100)');
+      DebugUtils.debug('  N - Skip to next wave');
+      DebugUtils.debug('  K - Kill all zombies');
+      DebugUtils.debug('  U - Upgrade all towers to max');
+      DebugUtils.debug('  H - Show this help');
     }
   });
 }

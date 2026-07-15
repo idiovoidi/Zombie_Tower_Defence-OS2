@@ -1,5 +1,5 @@
 import { TowerConstants } from '@config/towerConstants';
-import { debug } from '../utils/Logger';
+import { DebugUtils } from '../utils/DebugUtils';
 import type {
   IAIActionProvider,
   IGameStateProvider,
@@ -88,7 +88,7 @@ export class AIPlayerManager {
       this.lastState = this.gameManager.getCurrentState();
       this.currentWaveDecisions = 0;
       this.waveCompleteEnteredAt = null;
-      debug('🤖 AI Player enabled — autoplay active');
+      DebugUtils.debug('🤖 AI Player enabled — autoplay active');
     } else {
       this.logFinalStats();
       statTracker.exportCurrentStats();
@@ -177,12 +177,12 @@ export class AIPlayerManager {
 
     if (tower !== null) {
       this.nextZoneIndex++;
-      debug(
+      DebugUtils.debug(
         `🤖 AI placed ${chosen.type} at (${zone.x}, ${zone.y}) — zone ${this.nextZoneIndex}/${this.placementZones.length}`
       );
     } else {
       // Placement failed (invalid position) — cancel and skip this zone
-      debug(`🤖 AI placement failed at (${zone.x}, ${zone.y}), skipping zone`);
+      DebugUtils.debug(`🤖 AI placement failed at (${zone.x}, ${zone.y}), skipping zone`);
       placementManager.cancelPlacement();
       this.nextZoneIndex++;
     }
@@ -202,14 +202,14 @@ export class AIPlayerManager {
     const now = Date.now();
     if (this.waveCompleteEnteredAt === null) {
       this.waveCompleteEnteredAt = now;
-      debug(`🤖 AI waiting ${WAVE_START_DELAY_MS / 1000}s before starting next wave…`);
+      DebugUtils.debug(`🤖 AI waiting ${WAVE_START_DELAY_MS / 1000}s before starting next wave…`);
       return;
     }
 
     if (now - this.waveCompleteEnteredAt >= WAVE_START_DELAY_MS) {
       this.waveCompleteEnteredAt = null;
       this.resetWaveDecisions();
-      debug(`🤖 AI starting next wave (wave ${this.gameManager.getWave() + 1})`);
+      DebugUtils.debug(`🤖 AI starting next wave (wave ${this.gameManager.getWave() + 1})`);
       this.gameManager.startNextWave();
     }
   }
@@ -217,13 +217,13 @@ export class AIPlayerManager {
   private logPeriodicStats(): void {
     const statTracker = this.gameManager.getStatTracker();
     const stats = statTracker.getCurrentStats();
-    debug(
+    DebugUtils.debug(
       `🤖 AI Periodic Stats — Wave: ${stats?.currentWave ?? 0}, Decisions this wave: ${this.currentWaveDecisions}, Zones filled: ${this.nextZoneIndex}/${this.placementZones.length}`
     );
   }
 
   private logFinalStats(): void {
-    debug(
+    DebugUtils.debug(
       `🤖 AI Final Stats — Total decisions: ${this.currentWaveDecisions}, Zones filled: ${this.nextZoneIndex}/${this.placementZones.length}`
     );
   }

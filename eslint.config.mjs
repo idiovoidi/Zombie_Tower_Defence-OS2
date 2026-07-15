@@ -47,10 +47,6 @@ export default [
           pattern: ['src/renderers/**/*.ts'],
         },
         {
-          type: 'systems',
-          pattern: ['src/systems/**/*.ts'],
-        },
-        {
           type: 'ui',
           pattern: ['src/ui/**/*.ts'],
         },
@@ -64,7 +60,7 @@ export default [
         },
         {
           type: 'main',
-          pattern: ['src/main.ts', 'src/index.ts'],
+          pattern: ['src/main.ts'],
         },
       ],
     },
@@ -107,9 +103,7 @@ export default [
             // ui - config, types, components, utils, objects, managers, renderers
             { from: 'ui', allow: ['config', 'types', 'components', 'utils', 'objects', 'managers', 'renderers'] },
             // main - everything
-            { from: 'main', allow: ['config', 'types', 'utils', 'components', 'objects', 'renderers', 'managers', 'ui', 'systems'] },
-            // systems - config, types, components, utils, objects, renderers, managers
-            { from: 'systems', allow: ['config', 'types', 'components', 'utils', 'objects', 'renderers', 'managers'] },
+            { from: 'main', allow: ['config', 'types', 'utils', 'components', 'objects', 'renderers', 'managers', 'ui'] },
           ],
         },
       ],

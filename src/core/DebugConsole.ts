@@ -2,7 +2,7 @@ import { DevConfig } from '../config/devConfig';
 import type { GameManager } from '../managers/GameManager';
 import type { TimeControlManager } from '../managers/TimeControlManager';
 import { LogExporter } from '../utils/LogExporter';
-import { debug, info, warn } from '../utils/Logger';
+import { DebugUtils } from '../utils/DebugUtils';
 
 export async function registerDebugConsoleAPIs(
   gameManager: GameManager,
@@ -11,18 +11,18 @@ export async function registerDebugConsoleAPIs(
   window.LogExporter = LogExporter;
 
   if (import.meta.env.PROD) {
-    warn('⚠️ Running in production mode - server features disabled');
-    info('📊 LogExporter available in console (localStorage only)');
+    DebugUtils.warn('⚠️ Running in production mode - server features disabled');
+    DebugUtils.info('📊 LogExporter available in console (localStorage only)');
   } else {
-    info('📊 LogExporter available in console');
+    DebugUtils.info('📊 LogExporter available in console');
   }
 
-  info('💡 Commands:');
-  info('  LogExporter.viewStoredLogs() - View all stored logs');
-  info('  LogExporter.exportAllLogs() - Export all logs as files');
-  info('  LogExporter.exportAllLogsAsBundle() - Export as single bundle');
-  info('  LogExporter.getStoredLogCount() - Get number of stored logs');
-  info('  LogExporter.clearAllLogs() - Clear all stored logs');
+  DebugUtils.info('💡 Commands:');
+  DebugUtils.info('  LogExporter.viewStoredLogs() - View all stored logs');
+  DebugUtils.info('  LogExporter.exportAllLogs() - Export all logs as files');
+  DebugUtils.info('  LogExporter.exportAllLogsAsBundle() - Export as single bundle');
+  DebugUtils.info('  LogExporter.getStoredLogCount() - Get number of stored logs');
+  DebugUtils.info('  LogExporter.clearAllLogs() - Clear all stored logs');
 
   window.balanceTracking = {
     enable: () => gameManager.enableBalanceTracking(),
@@ -31,26 +31,26 @@ export async function registerDebugConsoleAPIs(
     getReport: () => gameManager.getBalanceTrackingManager().generateReportData(),
     reset: () => gameManager.getBalanceTrackingManager().reset(),
   };
-  info('📊 Balance Tracking available in console');
-  info('💡 Balance Tracking Commands:');
-  info('  balanceTracking.enable() - Enable balance tracking');
-  info('  balanceTracking.disable() - Disable balance tracking');
-  info('  balanceTracking.isEnabled() - Check if tracking is enabled');
-  info('  balanceTracking.getReport() - Get current balance report');
-  info('  balanceTracking.reset() - Reset tracking data');
+  DebugUtils.info('📊 Balance Tracking available in console');
+  DebugUtils.info('💡 Balance Tracking Commands:');
+  DebugUtils.info('  balanceTracking.enable() - Enable balance tracking');
+  DebugUtils.info('  balanceTracking.disable() - Disable balance tracking');
+  DebugUtils.info('  balanceTracking.isEnabled() - Check if tracking is enabled');
+  DebugUtils.info('  balanceTracking.getReport() - Get current balance report');
+  DebugUtils.info('  balanceTracking.reset() - Reset tracking data');
 
   if (DevConfig.DEBUG.ENABLED) {
     window.waveBalance = async () => {
       const { WaveBalancing, printWaveBalance } = await import('../config/waveBalancing');
       window.WaveBalancing = WaveBalancing;
       window.printWaveBalance = printWaveBalance;
-      debug('Wave balancing tools loaded!');
-      debug('Usage:');
-      debug('  printWaveBalance(1, 10) - Print balance report for waves 1-10');
-      debug('  WaveBalancing.updateConfig({ difficultyMultiplier: 1.5 }) - Adjust difficulty');
-      debug('  WaveBalancing.calculateZombieHealth(5) - Get zombie health for wave 5');
+      DebugUtils.debug('Wave balancing tools loaded!');
+      DebugUtils.debug('Usage:');
+      DebugUtils.debug('  printWaveBalance(1, 10) - Print balance report for waves 1-10');
+      DebugUtils.debug('  WaveBalancing.updateConfig({ difficultyMultiplier: 1.5 }) - Adjust difficulty');
+      DebugUtils.debug('  WaveBalancing.calculateZombieHealth(5) - Get zombie health for wave 5');
     };
-    debug('💡 Type waveBalance() in console to load wave balancing tools');
+    DebugUtils.debug('💡 Type waveBalance() in console to load wave balancing tools');
   }
 
   window.performanceTest = async () => {
@@ -59,44 +59,44 @@ export async function registerDebugConsoleAPIs(
     );
     window.runBalancePerformanceTests = runBalancePerformanceTests;
     window.runFrameRateTest = runFrameRateTest;
-    debug('🔬 Performance testing tools loaded!');
-    debug('Usage:');
-    debug('  runBalancePerformanceTests() - Run all performance tests');
-    debug('  runFrameRateTest() - Test frame rate impact');
+    DebugUtils.debug('🔬 Performance testing tools loaded!');
+    DebugUtils.debug('Usage:');
+    DebugUtils.debug('  runBalancePerformanceTests() - Run all performance tests');
+    DebugUtils.debug('  runFrameRateTest() - Test frame rate impact');
   };
-  debug('💡 Type performanceTest() in console to load performance testing tools');
+  DebugUtils.debug('💡 Type performanceTest() in console to load performance testing tools');
 
   const { PerformanceMonitor } = await import('../utils/PerformanceMonitor');
   const { ResourceCleanupManager } = await import('../utils/ResourceCleanupManager');
 
   window.debugPerformance = () => {
-    debug('\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-    debug('🔍 Performance Debug Information');
-    debug('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+    DebugUtils.debug('\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+    DebugUtils.debug('🔍 Performance Debug Information');
+    DebugUtils.debug('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
     PerformanceMonitor.logMetrics();
-    debug('\n📦 Resource Cleanup State:');
+    DebugUtils.debug('\n📦 Resource Cleanup State:');
     ResourceCleanupManager.logState();
-    debug('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n');
+    DebugUtils.debug('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n');
   };
 
   window.debugCleanup = () => {
-    debug('🧹 Forcing cleanup of all wave resources...');
-    warn('⚠️ Limited cleanup - some resources may require game restart');
+    DebugUtils.debug('🧹 Forcing cleanup of all wave resources...');
+    DebugUtils.warn('⚠️ Limited cleanup - some resources may require game restart');
     ResourceCleanupManager.cleanupPersistentEffects();
-    debug('✅ Cleanup complete');
+    DebugUtils.debug('✅ Cleanup complete');
   };
 
   window.debugToggleMonitoring = () => {
     PerformanceMonitor.toggle();
     const status = PerformanceMonitor.isEnabled() ? 'enabled' : 'disabled';
-    debug(`🔧 Performance monitoring ${status}`);
+    DebugUtils.debug(`🔧 Performance monitoring ${status}`);
   };
 
-  info('📊 Performance Monitoring available in console');
-  info('💡 Performance Monitoring Commands:');
-  info('  debugPerformance() - Log current performance metrics');
-  info('  debugCleanup() - Force cleanup of wave resources');
-  info('  debugToggleMonitoring() - Enable/disable performance monitoring');
+  DebugUtils.info('📊 Performance Monitoring available in console');
+  DebugUtils.info('💡 Performance Monitoring Commands:');
+  DebugUtils.info('  debugPerformance() - Log current performance metrics');
+  DebugUtils.info('  debugCleanup() - Force cleanup of wave resources');
+  DebugUtils.info('  debugToggleMonitoring() - Enable/disable performance monitoring');
 
   const { TimeSpeed } = await import('../managers/TimeControlManager');
 
@@ -110,15 +110,15 @@ export async function registerDebugConsoleAPIs(
     setVeryFast: () => timeControlManager.setSpeed(TimeSpeed.VERY_FAST),
     getState: () => timeControlManager.getState(),
   };
-  info('⏱️ Time Control available in console');
-  info('💡 Time Control Commands:');
-  info('  timeControl.pause() - Pause the game');
-  info('  timeControl.resume() - Resume the game');
-  info('  timeControl.toggle() - Toggle pause state');
-  info('  timeControl.setNormal() - Set 1× speed');
-  info('  timeControl.setSlow() - Set 0.5× speed');
-  info('  timeControl.setFast() - Set 2× speed');
-  info('  timeControl.setVeryFast() - Set 4× speed');
-  info('  timeControl.getState() - Get current time control state');
-  info('⌨️ Hotkeys: Space = pause, 1 = 1×, 2 = 0.5×, 3 = 2×, 4 = 4×');
+  DebugUtils.info('⏱️ Time Control available in console');
+  DebugUtils.info('💡 Time Control Commands:');
+  DebugUtils.info('  timeControl.pause() - Pause the game');
+  DebugUtils.info('  timeControl.resume() - Resume the game');
+  DebugUtils.info('  timeControl.toggle() - Toggle pause state');
+  DebugUtils.info('  timeControl.setNormal() - Set 1× speed');
+  DebugUtils.info('  timeControl.setSlow() - Set 0.5× speed');
+  DebugUtils.info('  timeControl.setFast() - Set 2× speed');
+  DebugUtils.info('  timeControl.setVeryFast() - Set 4× speed');
+  DebugUtils.info('  timeControl.getState() - Get current time control state');
+  DebugUtils.info('⌨️ Hotkeys: Space = pause, 1 = 1×, 2 = 0.5×, 3 = 2×, 4 = 4×');
 }
