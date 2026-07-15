@@ -2,7 +2,6 @@ import { Text } from 'pixi.js';
 import { UIPanel } from './UIPanel';
 
 export class DebugInfoPanel extends UIPanel {
-  private onOpenShaderTest?: () => void;
   private onOpenWaveInfo?: () => void;
   private onOpenBestiary?: () => void;
   private onOpenStats?: () => void;
@@ -12,13 +11,10 @@ export class DebugInfoPanel extends UIPanel {
   constructor() {
     super();
     this.createToggleButton('🐛 Debug Info', 120, 0x00ff00);
-    this.createPanelFrame(280, 500, 'Debug Information', '', 0x00ff00);
+    this.createPanelFrame(280, 460, 'Debug Information', '', 0x00ff00);
     this.buildPanelContent();
   }
 
-  public setShaderTestCallback(callback: () => void): void {
-    this.onOpenShaderTest = callback;
-  }
   public setWaveInfoCallback(callback: () => void): void {
     this.onOpenWaveInfo = callback;
   }
@@ -53,14 +49,6 @@ export class DebugInfoPanel extends UIPanel {
         0x4caf50,
         () => {
           this.onOpenStats?.();
-          this.close();
-        },
-      ],
-      [
-        '🎨 Shader Test',
-        0x9966ff,
-        () => {
-          this.onOpenShaderTest?.();
           this.close();
         },
       ],

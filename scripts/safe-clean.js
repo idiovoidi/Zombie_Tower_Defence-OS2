@@ -18,7 +18,7 @@ const __dirname = path.dirname(__filename);
 const PROJECT_ROOT = path.resolve(__dirname, '..');
 
 /** Relative paths that `npm run clean` may remove. Add new entries here only. */
-const ALLOWED_TARGETS = ['dist', 'node_modules/.vite'];
+const ALLOWED_TARGETS = ['dist', 'node_modules/.vite', 'temp'];
 
 const DRY_RUN = process.argv.includes('--dry-run') || process.env.CLEAN_DRY_RUN === '1';
 

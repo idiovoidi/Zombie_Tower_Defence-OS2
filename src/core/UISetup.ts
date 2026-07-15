@@ -20,8 +20,6 @@ import { UIManager } from '../ui/UIManager';
 import { DebugUtils } from '../utils/DebugUtils';
 import { VisualEffects } from '../utils/VisualEffects';
 
-type PixelArtRenderer = InstanceType<typeof import('../utils/PixelArtRenderer').PixelArtRenderer>;
-
 export interface UIContext {
   uiManager: UIManager;
   hud: HUD;
@@ -41,8 +39,7 @@ export interface UIContext {
 export function createUI(
   app: Application,
   gameManager: GameManager,
-  timeControlManager: TimeControlManager,
-  pixelArtRenderer: PixelArtRenderer
+  timeControlManager: TimeControlManager
 ): UIContext {
   const uiManager = new UIManager(app);
 
@@ -83,7 +80,7 @@ export function createUI(
   uiManager.registerComponent('timeControlUI', timeControlUI);
 
   const debugTestUIManager = new DebugTestUIManager(app);
-  debugTestUIManager.initialize(gameManager, gameManager.getWaveManager(), pixelArtRenderer);
+  debugTestUIManager.initialize(gameManager, gameManager.getWaveManager());
 
   debugTestUIManager.setZombieSpawnCallback((type: string) => {
     DebugUtils.debug(`🧟 Spawning test zombie: ${type}`);
@@ -96,7 +93,6 @@ export function createUI(
   app.stage.addChild(debugInfoPanel.getContentContainer());
 
   debugInfoPanel.setStatsCallback(() => debugTestUIManager.openStatsPanel());
-  debugInfoPanel.setShaderTestCallback(() => debugTestUIManager.openShaderTestPanel());
   debugInfoPanel.setWaveInfoCallback(() => debugTestUIManager.openWaveInfoPanel());
   debugInfoPanel.setBestiaryCallback(() => debugTestUIManager.openBestiaryPanel());
   debugInfoPanel.setAIControlCallback(() => debugTestUIManager.openAIControlPanel());

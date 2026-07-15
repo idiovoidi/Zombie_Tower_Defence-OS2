@@ -2,22 +2,19 @@ import type { Application } from 'pixi.js';
 import { DebugConstants } from '../config/debugConstants';
 import { GameConfig } from '../config/gameConfig';
 import { AIControlPanel } from '../ui/AIControlPanel';
-import { ShaderTestPanel } from '../ui/ShaderTestPanel';
 import { StatsPanel } from '../ui/StatsPanel';
 import { WaveInfoPanel } from '../ui/WaveInfoPanel';
 import { ZombieBestiary } from '../ui/ZombieBestiary';
 import { DebugUtils } from '../utils/DebugUtils';
-import type { PixelArtRenderer } from '../utils/PixelArtRenderer';
 import type { GameManager } from './GameManager';
 import type { WaveManager } from './WaveManager';
 
 /**
  * Centralized manager for all debug/test UI panels
- * Handles shader test, wave info, bestiary, stats, and AI control panels
+ * Handles wave info, bestiary, stats, and AI control panels
  */
 export class DebugTestUIManager {
   private app: Application;
-  private shaderTestPanel: ShaderTestPanel | null = null;
   private waveInfoPanel: WaveInfoPanel | null = null;
   private bestiaryPanel: ZombieBestiary | null = null;
   private statsPanel: StatsPanel | null = null;
@@ -25,26 +22,17 @@ export class DebugTestUIManager {
   private gameManager: GameManager | null = null;
   private waveManager: WaveManager | null = null;
 
-  // Panel positioning (will be calculated based on screen size)
-  private readonly LEFT_SIDE_X = 20; // Left side panels
-  private readonly RIGHT_SIDE_OFFSET = 20; // Right side panels offset from right edge
+  private readonly LEFT_SIDE_X = 20;
+  private readonly RIGHT_SIDE_OFFSET = 20;
 
   constructor(app: Application) {
     this.app = app;
   }
 
-  /**
-   * Initialize all debug panels
-   */
-  public initialize(
-    gameManager: GameManager,
-    waveManager: WaveManager,
-    pixelArtRenderer: PixelArtRenderer
-  ): void {
+  public initialize(gameManager: GameManager, waveManager: WaveManager): void {
     this.gameManager = gameManager;
     this.waveManager = waveManager;
 
-    this.createShaderTestPanel(pixelArtRenderer);
     this.createWaveInfoPanel();
     this.createBestiaryPanel();
     this.createStatsPanel();
@@ -53,55 +41,20 @@ export class DebugTestUIManager {
     this.layoutPanels();
   }
 
-  /**
-   * Create and setup shader test panel
-   */
-  private createShaderTestPanel(pixelArtRenderer: PixelArtRenderer): void {
-    this.shaderTestPanel = new ShaderTestPanel();
-    this.shaderTestPanel.setGameStage(this.app.stage);
-    this.shaderTestPanel.setPixelArtRenderer(pixelArtRenderer);
-
-    // Add toggle button to stage
-    this.app.stage.addChild(this.shaderTestPanel);
-
-    // Add content container separately so it appears on top
-    this.app.stage.addChild(this.shaderTestPanel.getContentContainer());
-
-    // Show/hide based on debug settings
-    if (DebugConstants.ENABLED) {
-      this.shaderTestPanel.show();
-    } else {
-      this.shaderTestPanel.hide();
-    }
-  }
-
-  /**
-   * Create and setup wave info panel
-   */
   private createWaveInfoPanel(): void {
     if (!this.waveManager) {
       return;
     }
     this.waveInfoPanel = new WaveInfoPanel();
     this.waveInfoPanel.setWaveManager(this.waveManager);
-
-    // Content only — opened via Debug Info panel, no standalone toggle button
     this.app.stage.addChild(this.waveInfoPanel.getContentContainer());
   }
 
-  /**
-   * Create and setup bestiary panel
-   */
   private createBestiaryPanel(): void {
     this.bestiaryPanel = new ZombieBestiary();
-
-    // Add toggle button to stage
     this.app.stage.addChild(this.bestiaryPanel);
-
-    // Add content container separately so it appears on top
     this.app.stage.addChild(this.bestiaryPanel.getContentContainer());
 
-    // Show/hide based on debug settings
     if (DebugConstants.ENABLED) {
       this.bestiaryPanel.show();
     } else {
@@ -109,19 +62,13 @@ export class DebugTestUIManager {
     }
   }
 
-  /**
-   * Create and setup stats panel
-   */
   private createStatsPanel(): void {
     if (!this.gameManager) {
       return;
     }
     this.statsPanel = new StatsPanel(this.gameManager);
-
-    // Add to stage
     this.app.stage.addChild(this.statsPanel);
 
-    // Show/hide based on debug settings
     if (DebugConstants.ENABLED) {
       this.statsPanel.show();
     } else {
@@ -129,16 +76,10 @@ export class DebugTestUIManager {
     }
   }
 
-  /**
-   * Create and setup AI control panel
-   */
   private createAIControlPanel(): void {
     this.aiControlPanel = new AIControlPanel();
-
-    // Add to stage
     this.app.stage.addChild(this.aiControlPanel);
 
-    // Show/hide based on debug settings
     if (DebugConstants.ENABLED) {
       this.aiControlPanel.show();
     } else {
@@ -146,50 +87,27 @@ export class DebugTestUIManager {
     }
   }
 
-  /**
-   * Layout all panel toggle buttons to avoid overlap
-   */
   private layoutPanels(): void {
     const screenWidth = GameConfig.SCREEN_WIDTH;
     const screenHeight = GameConfig.SCREEN_HEIGHT;
-
-    // Left side panels (shader test, stats, AI control)
     const leftX = this.LEFT_SIDE_X;
-    const shaderTestY = screenHeight - 140; // Shader test at bottom
-
-    // Right side panels (bestiary)
     const rightX = screenWidth - this.RIGHT_SIDE_OFFSET;
 
-    // Position shader test panel (bottom-left)
-    if (this.shaderTestPanel) {
-      this.shaderTestPanel.position.set(leftX, shaderTestY);
-    }
-
-    // Position AI control panel (left side, top-left corner)
     if (this.aiControlPanel) {
       this.aiControlPanel.position.set(leftX, 10);
     }
 
-    // Position stats panel (top right corner)
     if (this.statsPanel) {
-      const panelWidth = 280; // StatsPanel.PANEL_WIDTH
+      const panelWidth = 280;
       this.statsPanel.position.set(rightX - panelWidth, 10);
     }
 
-    // Position bestiary panel (right side, near bottom)
     if (this.bestiaryPanel) {
       this.bestiaryPanel.position.set(rightX, screenHeight - 94);
     }
   }
 
-  /**
-   * Update all panels
-   */
   public update(deltaTime: number): void {
-    if (this.shaderTestPanel?.visible) {
-      this.shaderTestPanel.update(deltaTime);
-    }
-
     if (this.bestiaryPanel?.visible) {
       this.bestiaryPanel.update(deltaTime);
     }
@@ -203,77 +121,37 @@ export class DebugTestUIManager {
     }
   }
 
-  /**
-   * Update wave info when wave changes
-   */
   public updateWaveInfo(wave: number): void {
     if (this.waveInfoPanel) {
       this.waveInfoPanel.updateCurrentWave(wave);
     }
   }
 
-  /**
-   * Set callback for spawning zombies from bestiary
-   */
   public setZombieSpawnCallback(callback: (type: string) => void): void {
     if (this.bestiaryPanel) {
       this.bestiaryPanel.setSpawnCallback(callback);
     }
   }
 
-  /**
-   * Show all debug panels
-   */
   public showAll(): void {
-    if (this.shaderTestPanel) {
-      this.shaderTestPanel.show();
-    }
-    if (this.bestiaryPanel) {
-      this.bestiaryPanel.show();
-    }
-    if (this.statsPanel) {
-      this.statsPanel.show();
-    }
-    if (this.aiControlPanel) {
-      this.aiControlPanel.show();
-    }
+    this.bestiaryPanel?.show();
+    this.statsPanel?.show();
+    this.aiControlPanel?.show();
   }
 
-  /**
-   * Hide all debug panels
-   */
   public hideAll(): void {
-    if (this.shaderTestPanel) {
-      this.shaderTestPanel.hide();
-    }
-    if (this.bestiaryPanel) {
-      this.bestiaryPanel.hide();
-    }
-    if (this.statsPanel) {
-      this.statsPanel.hide();
-    }
-    if (this.aiControlPanel) {
-      this.aiControlPanel.hide();
-    }
+    this.bestiaryPanel?.hide();
+    this.statsPanel?.hide();
+    this.aiControlPanel?.hide();
   }
 
-  /**
-   * Toggle visibility of all debug panels
-   */
   public toggleAll(): void {
-    const isVisible = this.shaderTestPanel?.visible ?? false;
+    const isVisible = this.statsPanel?.visible ?? false;
     if (isVisible) {
       this.hideAll();
     } else {
       this.showAll();
     }
-  }
-
-  /**
-   * Get individual panels for direct access
-   */
-  public getShaderTestPanel(): ShaderTestPanel | null {
-    return this.shaderTestPanel;
   }
 
   public getWaveInfoPanel(): WaveInfoPanel | null {
@@ -292,19 +170,15 @@ export class DebugTestUIManager {
     return this.aiControlPanel;
   }
 
-  private currentLevelIndex = 1; // Start at level 1
+  private currentLevelIndex = 1;
   private readonly maxLevel = 6;
 
-  /**
-   * Progress to the next level (cycles through 2-6, then wraps to 1)
-   */
   public progressToNextLevel(): void {
     if (!this.gameManager) {
       DebugUtils.warn('Cannot progress: GameManager not initialized');
       return;
     }
 
-    // Increment level index (wrap around after level 6)
     this.currentLevelIndex++;
     if (this.currentLevelIndex > this.maxLevel) {
       this.currentLevelIndex = 1;
@@ -313,7 +187,6 @@ export class DebugTestUIManager {
     const levelId = `level${this.currentLevelIndex}`;
     const levelManager = this.gameManager.getLevelManager();
 
-    // Unlock and start the level
     levelManager.unlockLevel(levelId);
     DebugUtils.info(`🔓 Unlocked ${levelId}`);
 
@@ -326,90 +199,47 @@ export class DebugTestUIManager {
     }
   }
 
-  /**
-   * Open individual panels programmatically
-   */
-  public openShaderTestPanel(): void {
-    if (this.shaderTestPanel) {
-      // Toggle the panel to open it
-      const contentContainer = this.shaderTestPanel.getContentContainer();
-      if (!contentContainer.visible) {
-        contentContainer.visible = true;
-      }
-    }
-  }
-
   public openWaveInfoPanel(): void {
-    if (this.waveInfoPanel) {
-      this.waveInfoPanel.open();
-    }
+    this.waveInfoPanel?.open();
   }
 
   public openBestiaryPanel(): void {
-    if (this.bestiaryPanel) {
-      this.bestiaryPanel.open();
-    }
+    this.bestiaryPanel?.open();
   }
 
   public openStatsPanel(): void {
-    if (this.statsPanel) {
-      this.statsPanel.show();
-    }
+    this.statsPanel?.show();
   }
 
   public openAIControlPanel(): void {
-    if (this.aiControlPanel) {
-      // Toggle visibility instead of just showing
-      if (this.aiControlPanel.visible) {
-        this.aiControlPanel.hide();
-      } else {
-        this.aiControlPanel.show();
-      }
+    if (!this.aiControlPanel) {
+      return;
+    }
+    if (this.aiControlPanel.visible) {
+      this.aiControlPanel.hide();
+    } else {
+      this.aiControlPanel.show();
     }
   }
 
-  /**
-   * Set AI toggle callback
-   */
   public setAIToggleCallback(callback: (enabled: boolean) => void): void {
-    if (this.aiControlPanel) {
-      this.aiControlPanel.setToggleCallback(callback);
-    }
+    this.aiControlPanel?.setToggleCallback(callback);
   }
 
-  /**
-   * Cleanup all panels
-   */
   public dispose(): void {
-    if (this.shaderTestPanel) {
-      this.shaderTestPanel.dispose();
-      this.shaderTestPanel = null;
-    }
+    this.waveInfoPanel?.destroy();
+    this.waveInfoPanel = null;
 
-    if (this.waveInfoPanel) {
-      this.waveInfoPanel.destroy();
-      this.waveInfoPanel = null;
-    }
+    this.bestiaryPanel?.destroy();
+    this.bestiaryPanel = null;
 
-    if (this.bestiaryPanel) {
-      this.bestiaryPanel.destroy();
-      this.bestiaryPanel = null;
-    }
+    this.statsPanel?.destroy();
+    this.statsPanel = null;
 
-    if (this.statsPanel) {
-      this.statsPanel.destroy();
-      this.statsPanel = null;
-    }
-
-    if (this.aiControlPanel) {
-      this.aiControlPanel.destroy();
-      this.aiControlPanel = null;
-    }
+    this.aiControlPanel?.destroy();
+    this.aiControlPanel = null;
   }
 
-  /**
-   * Handle window resize to reposition panels
-   */
   public onResize(): void {
     this.layoutPanels();
   }

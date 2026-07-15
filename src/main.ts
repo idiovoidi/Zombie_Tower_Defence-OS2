@@ -23,7 +23,7 @@ import { DebugUtils } from './utils/DebugUtils';
   const inputManager = new InputManager(app, scaleManager);
   gameManager.setInputManager(inputManager);
 
-  const ui = createUI(app, gameManager, timeControlManager, pixelArtRenderer);
+  const ui = createUI(app, gameManager, timeControlManager);
   bindInput(inputManager, gameManager, timeControlManager, ui.towerShop, ui.bottomBar);
   bindDebugHotkeys(inputManager, gameManager, scaleManager);
 
