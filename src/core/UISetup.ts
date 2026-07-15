@@ -264,7 +264,7 @@ export function createUI(
   };
 }
 
-export function createNextWaveCallback(
+function createNextWaveCallback(
   uiComponent: { hideNextWaveButton: () => void },
   gameManager: GameManager
 ): () => void {

@@ -203,53 +203,60 @@ export class TowerCombatManager {
   private shootAtTarget(tower: Tower, target: Zombie): void {
     tower.shoot();
     tower.showShootingEffect();
-
-    // Enable laser sight for sniper towers (level 3+)
-    if (tower.getType() === 'Sniper' && tower.getUpgradeLevel() >= 3) {
-      tower.setTarget(target.position.x, target.position.y);
-      tower.setLaserSightEnabled(true);
-    }
-
-    // Spawn sniper hit effects (bullet trail and impact flash)
-    if (tower.getType() === 'Sniper') {
-      tower.spawnSniperHitEffects(target.position.x, target.position.y, false);
-    }
+    this.applyTowerShootingVisuals(tower, target);
 
     if (!this.projectileManager) {
       return;
     }
 
-    // Get projectile spawn position
     const spawnPos = tower.getProjectileSpawnPosition();
+    this.fireProjectileForType(
+      tower,
+      target,
+      spawnPos,
+      tower.getDamage(),
+      tower.getProjectileType()
+    );
+  }
 
-    // Create projectile
-    const damage = tower.getDamage();
-    const projectileType = tower.getProjectileType();
+  private applyTowerShootingVisuals(tower: Tower, target: Zombie): void {
+    if (tower.getType() === 'Sniper' && tower.getUpgradeLevel() >= 3) {
+      tower.setTarget(target.position.x, target.position.y);
+      tower.setLaserSightEnabled(true);
+    }
 
-    // Tesla tower uses instant lightning arc instead of projectile
+    if (tower.getType() === 'Sniper') {
+      tower.spawnSniperHitEffects(target.position.x, target.position.y, false);
+    }
+  }
+
+  private fireProjectileForType(
+    tower: Tower,
+    target: Zombie,
+    spawnPos: { x: number; y: number },
+    damage: number,
+    projectileType: string
+  ): void {
     if (projectileType === 'tesla') {
       this.createLightningArc(tower, spawnPos, target, damage);
       return;
     }
 
-    // Flame tower shoots fireball projectile
     if (projectileType === 'flame') {
-      const speed = 400;
       this.createTargetedProjectile(
         tower,
         spawnPos,
         target.position,
         damage,
-        speed,
+        400,
         projectileType,
         target
       );
       return;
     }
 
-    // Grenade tower shoots explosive projectile with arc trajectory
-    if (projectileType === 'grenade') {
-      const speed = 350; // Slower than bullets
+    if (projectileType === 'grenade' || projectileType === 'sludge') {
+      const speed = projectileType === 'grenade' ? 350 : 300;
       this.createTargetedProjectile(
         tower,
         spawnPos,
@@ -263,85 +270,57 @@ export class TowerCombatManager {
       return;
     }
 
-    // Sludge tower shoots toxic barrel with arc trajectory
-    if (projectileType === 'sludge') {
-      const speed = 300; // Similar to grenade but slightly slower
-      this.createTargetedProjectile(
-        tower,
-        spawnPos,
-        target.position,
-        damage, // 0 damage - pure crowd control
-        speed,
-        projectileType,
-        target,
-        true
-      );
-      return;
-    }
-
-    // Different projectile speeds based on tower type
-    let speed = 500; // Default speed
-    switch (projectileType) {
-      case 'sniper':
-        speed = 1000; // Fast
-        break;
-      case 'shotgun':
-        speed = 400; // Slower
-        break;
-    }
-
-    // For shotgun, create a cone of pellets towards the target
     if (projectileType === 'shotgun') {
-      // Calculate angle towards target
-      const baseAngle = Math.atan2(target.position.y - spawnPos.y, target.position.x - spawnPos.x);
+      this.fireShotgunPellets(tower, target, spawnPos, damage);
+      return;
+    }
 
-      // Shotgun parameters
-      const pelletCount = 7; // Number of pellets in the cone
-      const coneSpread = 0.6; // Total cone spread in radians (~34 degrees)
-      const shotgunRange = tower.getRange(); // Use tower's actual range
-      const damagePerPellet = damage / pelletCount;
+    const speed = projectileType === 'sniper' ? 1000 : 500;
+    this.createTargetedProjectile(
+      tower,
+      spawnPos,
+      target.position,
+      damage,
+      speed,
+      projectileType,
+      target
+    );
+  }
 
-      // Knockback force for shotgun pellets (pixels)
-      // Gentle nudge that scales subtly with upgrades
-      // Level 1: 10px, Level 2: 12px, Level 3: 14px, Level 4: 16px, Level 5: 18px
-      const upgradeLevel = tower.getUpgradeLevel();
-      const baseKnockbackForce = 10 + (upgradeLevel - 1) * 2;
+  private fireShotgunPellets(
+    tower: Tower,
+    target: Zombie,
+    spawnPos: { x: number; y: number },
+    damage: number
+  ): void {
+    const baseAngle = Math.atan2(target.position.y - spawnPos.y, target.position.x - spawnPos.x);
+    const pelletCount = 7;
+    const coneSpread = 0.6;
+    const shotgunRange = tower.getRange();
+    const damagePerPellet = damage / pelletCount;
+    const upgradeLevel = tower.getUpgradeLevel();
+    const baseKnockbackForce = 10 + (upgradeLevel - 1) * 2;
+    const speed = 400;
 
-      for (let i = 0; i < pelletCount; i++) {
-        // Spread pellets in a cone pattern
-        const offset = (i - (pelletCount - 1) / 2) * (coneSpread / (pelletCount - 1));
-        const adjustedAngle = baseAngle + offset;
+    for (let i = 0; i < pelletCount; i++) {
+      const offset = (i - (pelletCount - 1) / 2) * (coneSpread / (pelletCount - 1));
+      const adjustedAngle = baseAngle + offset;
+      const targetX = spawnPos.x + Math.cos(adjustedAngle) * shotgunRange;
+      const targetY = spawnPos.y + Math.sin(adjustedAngle) * shotgunRange;
 
-        // Calculate target point at shotgun range
-        const targetX = spawnPos.x + Math.cos(adjustedAngle) * shotgunRange;
-        const targetY = spawnPos.y + Math.sin(adjustedAngle) * shotgunRange;
-
-        const projectile = this.createTargetedProjectile(
-          tower,
-          spawnPos,
-          { x: targetX, y: targetY },
-          damagePerPellet,
-          speed,
-          projectileType,
-          null // No specific target - pellets hit whatever they encounter
-        );
-
-        // Apply knockback force to shotgun pellets
-        if (projectile) {
-          projectile.setKnockbackForce(baseKnockbackForce);
-        }
-      }
-    } else {
-      // Single projectile
-      this.createTargetedProjectile(
+      const projectile = this.createTargetedProjectile(
         tower,
         spawnPos,
-        target.position,
-        damage,
+        { x: targetX, y: targetY },
+        damagePerPellet,
         speed,
-        projectileType,
-        target
+        'shotgun',
+        null
       );
+
+      if (projectile) {
+        projectile.setKnockbackForce(baseKnockbackForce);
+      }
     }
   }
 

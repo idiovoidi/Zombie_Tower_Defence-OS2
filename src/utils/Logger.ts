@@ -16,13 +16,6 @@ let currentLevel: number =
   LOG_LEVELS[DevConfig.DEBUG.LOG_LEVEL as keyof typeof LOG_LEVELS] ?? LOG_LEVELS.info;
 
 /**
- * Set the current log level
- */
-export function setLogLevel(level: keyof typeof LOG_LEVELS): void {
-  currentLevel = LOG_LEVELS[level];
-}
-
-/**
  * Check if debug mode is enabled
  */
 function isDebugEnabled(): boolean {
@@ -62,25 +55,5 @@ export function warn(...args: unknown[]): void {
 export function error(...args: unknown[]): void {
   if (currentLevel <= LOG_LEVELS.error) {
     console.error(...args);
-  }
-}
-
-/**
- * Debug group - only shown when debug mode is enabled
- */
-export function debugGroup(label: string, callback: () => void): void {
-  if (isDebugEnabled() && currentLevel <= LOG_LEVELS.debug) {
-    console.group(label);
-    callback();
-    console.groupEnd();
-  }
-}
-
-/**
- * Table logging for structured data - only in debug mode
- */
-export function table(data: unknown): void {
-  if (isDebugEnabled() && currentLevel <= LOG_LEVELS.debug) {
-    console.table(data);
   }
 }

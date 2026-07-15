@@ -727,95 +727,87 @@ export class EffectManager {
   }
 
   /**
+   * Update a pooled effect collection, removing expired entries.
+   */
+  private tickEffectCollection<T extends Container & { update(deltaTime: number): boolean }>(
+    collection: T[],
+    pool: ObjectPool<T>,
+    destroyItem: (item: T) => void,
+    deltaTime: number
+  ): void {
+    for (let i = collection.length - 1; i >= 0; i--) {
+      const item = collection[i];
+      if (item.update(deltaTime)) {
+        continue;
+      }
+
+      this.container.removeChild(item);
+      if (this.poolingEnabled) {
+        pool.release(item);
+      } else {
+        destroyItem(item);
+      }
+      collection.splice(i, 1);
+    }
+  }
+
+  /**
+   * Remove and release or destroy all items in a pooled effect collection.
+   */
+  private clearEffectCollection<T extends Container>(
+    collection: T[],
+    pool: ObjectPool<T>,
+    destroyItem: (item: T) => void
+  ): void {
+    for (const item of collection) {
+      this.container.removeChild(item);
+      if (this.poolingEnabled) {
+        pool.release(item);
+      } else {
+        destroyItem(item);
+      }
+    }
+    collection.length = 0;
+  }
+
+  /**
    * Update all effects
    */
   public update(deltaTime: number): void {
-    // Update shell casings
-    for (let i = this.shellCasings.length - 1; i >= 0; i--) {
-      const casing = this.shellCasings[i];
-      const isAlive = casing.update(deltaTime);
+    this.tickEffectCollection(
+      this.shellCasings,
+      this.shellCasingPool,
+      item => item.destroy(),
+      deltaTime
+    );
+    this.tickEffectCollection(
+      this.muzzleFlashes,
+      this.muzzleFlashPool,
+      item => item.destroy(),
+      deltaTime
+    );
+    this.tickEffectCollection(
+      this.bulletTrails,
+      this.bulletTrailPool,
+      item => item.destroy({ children: true }),
+      deltaTime
+    );
+    this.tickEffectCollection(
+      this.impactFlashes,
+      this.impactFlashPool,
+      item => item.destroy({ children: true }),
+      deltaTime
+    );
+    this.tickEffectCollection(
+      this.scopeGlints,
+      this.scopeGlintPool,
+      item => item.destroy({ children: true }),
+      deltaTime
+    );
 
-      if (!isAlive) {
-        this.container.removeChild(casing);
-        if (this.poolingEnabled) {
-          this.shellCasingPool.release(casing);
-        } else {
-          casing.destroy();
-        }
-        this.shellCasings.splice(i, 1);
-      }
-    }
-
-    // Update muzzle flashes
-    for (let i = this.muzzleFlashes.length - 1; i >= 0; i--) {
-      const flash = this.muzzleFlashes[i];
-      const isAlive = flash.update(deltaTime);
-
-      if (!isAlive) {
-        this.container.removeChild(flash);
-        if (this.poolingEnabled) {
-          this.muzzleFlashPool.release(flash);
-        } else {
-          flash.destroy();
-        }
-        this.muzzleFlashes.splice(i, 1);
-      }
-    }
-
-    // Update bullet trails
-    for (let i = this.bulletTrails.length - 1; i >= 0; i--) {
-      const trail = this.bulletTrails[i];
-      const isAlive = trail.update(deltaTime);
-
-      if (!isAlive) {
-        this.container.removeChild(trail);
-        if (this.poolingEnabled) {
-          this.bulletTrailPool.release(trail);
-        } else {
-          trail.destroy({ children: true });
-        }
-        this.bulletTrails.splice(i, 1);
-      }
-    }
-
-    // Update impact flashes
-    for (let i = this.impactFlashes.length - 1; i >= 0; i--) {
-      const flash = this.impactFlashes[i];
-      const isAlive = flash.update(deltaTime);
-
-      if (!isAlive) {
-        this.container.removeChild(flash);
-        if (this.poolingEnabled) {
-          this.impactFlashPool.release(flash);
-        } else {
-          flash.destroy({ children: true });
-        }
-        this.impactFlashes.splice(i, 1);
-      }
-    }
-
-    // Update scope glints
-    for (let i = this.scopeGlints.length - 1; i >= 0; i--) {
-      const glint = this.scopeGlints[i];
-      const isAlive = glint.update(deltaTime);
-
-      if (!isAlive) {
-        this.container.removeChild(glint);
-        if (this.poolingEnabled) {
-          this.scopeGlintPool.release(glint);
-        } else {
-          glint.destroy({ children: true });
-        }
-        this.scopeGlints.splice(i, 1);
-      }
-    }
-
-    // Update burning ground effects and apply fire exposure to zombies
     for (let i = this.burningGroundEffects.length - 1; i >= 0; i--) {
       const effect = this.burningGroundEffects[i];
       const isAlive = effect.update(deltaTime);
-
-      // Check for zombies in fire and update their fire exposure
       this.checkZombiesInFire(effect, deltaTime);
 
       if (!isAlive) {
@@ -868,71 +860,14 @@ export class EffectManager {
    * Clear all effects
    */
   public clear(): void {
-    // Clear shell casings
-    for (const casing of this.shellCasings) {
-      this.container.removeChild(casing);
-      if (this.poolingEnabled) {
-        this.shellCasingPool.release(casing);
-      } else {
-        casing.destroy();
-      }
-    }
-    this.shellCasings = [];
-
-    // Clear muzzle flashes
-    for (const flash of this.muzzleFlashes) {
-      this.container.removeChild(flash);
-      if (this.poolingEnabled) {
-        this.muzzleFlashPool.release(flash);
-      } else {
-        flash.destroy();
-      }
-    }
-    this.muzzleFlashes = [];
-
-    // Clear bullet trails
-    for (const trail of this.bulletTrails) {
-      this.container.removeChild(trail);
-      if (this.poolingEnabled) {
-        this.bulletTrailPool.release(trail);
-      } else {
-        trail.destroy();
-      }
-    }
-    this.bulletTrails = [];
-
-    // Clear impact flashes
-    for (const flash of this.impactFlashes) {
-      this.container.removeChild(flash);
-      if (this.poolingEnabled) {
-        this.impactFlashPool.release(flash);
-      } else {
-        flash.destroy();
-      }
-    }
-    this.impactFlashes = [];
-
-    // Clear scope glints
-    for (const glint of this.scopeGlints) {
-      this.container.removeChild(glint);
-      if (this.poolingEnabled) {
-        this.scopeGlintPool.release(glint);
-      } else {
-        glint.destroy();
-      }
-    }
-    this.scopeGlints = [];
-
-    // Clear burning ground effects
-    for (const effect of this.burningGroundEffects) {
-      this.container.removeChild(effect);
-      if (this.poolingEnabled) {
-        this.burningGroundPool.release(effect);
-      } else {
-        effect.destroy();
-      }
-    }
-    this.burningGroundEffects = [];
+    this.clearEffectCollection(this.shellCasings, this.shellCasingPool, item => item.destroy());
+    this.clearEffectCollection(this.muzzleFlashes, this.muzzleFlashPool, item => item.destroy());
+    this.clearEffectCollection(this.bulletTrails, this.bulletTrailPool, item => item.destroy());
+    this.clearEffectCollection(this.impactFlashes, this.impactFlashPool, item => item.destroy());
+    this.clearEffectCollection(this.scopeGlints, this.scopeGlintPool, item => item.destroy());
+    this.clearEffectCollection(this.burningGroundEffects, this.burningGroundPool, item =>
+      item.destroy()
+    );
   }
 
   /**
