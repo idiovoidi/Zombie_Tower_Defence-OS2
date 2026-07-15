@@ -85,18 +85,8 @@ export class DebugTestUIManager {
     this.waveInfoPanel = new WaveInfoPanel();
     this.waveInfoPanel.setWaveManager(this.waveManager);
 
-    // Add toggle button to stage
-    this.app.stage.addChild(this.waveInfoPanel);
-
-    // Add content container separately so it appears on top
+    // Content only — opened via Debug Info panel, no standalone toggle button
     this.app.stage.addChild(this.waveInfoPanel.getContentContainer());
-
-    // Show/hide based on debug settings
-    if (DebugConstants.ENABLED) {
-      this.waveInfoPanel.show();
-    } else {
-      this.waveInfoPanel.hide();
-    }
   }
 
   /**
@@ -167,9 +157,8 @@ export class DebugTestUIManager {
     const leftX = this.LEFT_SIDE_X;
     const shaderTestY = screenHeight - 140; // Shader test at bottom
 
-    // Right side panels (wave info, bestiary)
+    // Right side panels (bestiary)
     const rightX = screenWidth - this.RIGHT_SIDE_OFFSET;
-    let rightYOffset = screenHeight - 94; // Start higher than left side
 
     // Position shader test panel (bottom-left)
     if (this.shaderTestPanel) {
@@ -187,15 +176,9 @@ export class DebugTestUIManager {
       this.statsPanel.position.set(rightX - panelWidth, 10);
     }
 
-    // Position wave info panel (right side, near bottom)
-    if (this.waveInfoPanel) {
-      this.waveInfoPanel.position.set(rightX, rightYOffset);
-      rightYOffset += 46; // Move down for next panel
-    }
-
-    // Position bestiary panel (right side, below wave info)
+    // Position bestiary panel (right side, near bottom)
     if (this.bestiaryPanel) {
-      this.bestiaryPanel.position.set(rightX, rightYOffset);
+      this.bestiaryPanel.position.set(rightX, screenHeight - 94);
     }
   }
 
@@ -205,10 +188,6 @@ export class DebugTestUIManager {
   public update(deltaTime: number): void {
     if (this.shaderTestPanel?.visible) {
       this.shaderTestPanel.update(deltaTime);
-    }
-
-    if (this.waveInfoPanel?.visible) {
-      this.waveInfoPanel.update(deltaTime);
     }
 
     if (this.bestiaryPanel?.visible) {
@@ -249,9 +228,6 @@ export class DebugTestUIManager {
     if (this.shaderTestPanel) {
       this.shaderTestPanel.show();
     }
-    if (this.waveInfoPanel) {
-      this.waveInfoPanel.show();
-    }
     if (this.bestiaryPanel) {
       this.bestiaryPanel.show();
     }
@@ -269,9 +245,6 @@ export class DebugTestUIManager {
   public hideAll(): void {
     if (this.shaderTestPanel) {
       this.shaderTestPanel.hide();
-    }
-    if (this.waveInfoPanel) {
-      this.waveInfoPanel.hide();
     }
     if (this.bestiaryPanel) {
       this.bestiaryPanel.hide();

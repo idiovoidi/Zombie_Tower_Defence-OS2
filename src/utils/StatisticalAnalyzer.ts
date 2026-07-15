@@ -7,17 +7,13 @@
  * Libraries used:
  * - simple-statistics: Mean, standard deviation, regression, statistical summaries
  * - regression: Polynomial regression for predictive modeling
- * - mathjs: Mathematical operations (currently minimal usage)
  */
 
 import regressionModule from 'regression';
 import * as ss from 'simple-statistics';
-import 'mathjs';
 
-// Library imports with graceful degradation (statically imported now)
 const statisticsAvailable = true;
 const regressionAvailable = true;
-const mathAvailable = true;
 
 // biome-ignore lint/suspicious/noExplicitAny: Import regression default or module exports
 const regression: any = (regressionModule as any)?.default || regressionModule;
@@ -406,12 +402,10 @@ export class StatisticalAnalyzer {
   static getLibraryStatus(): {
     statistics: boolean;
     regression: boolean;
-    math: boolean;
   } {
     return {
       statistics: statisticsAvailable,
       regression: regressionAvailable,
-      math: mathAvailable,
     };
   }
 }

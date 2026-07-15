@@ -17,7 +17,7 @@ import type {
   ITowerStateProvider,
   IWaveStateProvider,
   IZombieStateProvider,
-} from './IGameManager';
+} from '../types/gameProviders';
 
 interface AnalyticsConfig {
   gameManager: IGameStateProvider &

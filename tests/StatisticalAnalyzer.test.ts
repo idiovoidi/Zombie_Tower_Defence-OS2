@@ -183,10 +183,8 @@ describe('StatisticalAnalyzer', () => {
 
       expect(status).toHaveProperty('statistics');
       expect(status).toHaveProperty('regression');
-      expect(status).toHaveProperty('math');
       expect(typeof status.statistics).toBe('boolean');
       expect(typeof status.regression).toBe('boolean');
-      expect(typeof status.math).toBe('boolean');
     });
   });
 });

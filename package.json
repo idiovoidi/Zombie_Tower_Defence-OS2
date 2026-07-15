@@ -9,8 +9,6 @@
     "dev": "vite",
     "dev:full": "concurrently \"npm run dev\" \"npm run server\"",
     "server": "node server.js",
-    "test:server": "node test-server.js",
-    "test:write": "node test-write-direct.js",
     "build": "npm run quality && tsc && vite build",
     "preview": "vite preview",
     "lint": "biome lint .",
@@ -42,7 +40,6 @@
   "dependencies": {
     "cors": "^2.8.5",
     "express": "^4.18.2",
-    "mathjs": "^15.0.0",
     "pixi.js": "^8.8.1",
     "regression": "^2.0.1",
     "simple-statistics": "^7.8.8"

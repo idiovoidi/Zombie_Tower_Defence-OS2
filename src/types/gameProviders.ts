@@ -1,5 +1,6 @@
 import type { Tower } from '../objects/Tower';
 import type { Zombie } from '../objects/Zombie';
+import type { StatTracker } from '../utils/StatTracker';
 
 /**
  * Core game state interface — money, lives, wave, and game status.
@@ -45,6 +46,13 @@ export interface BalanceTrackingReporter {
  */
 export interface IBalanceTrackingProvider {
   getBalanceTrackingManager(): BalanceTrackingReporter;
+}
+
+/**
+ * Stat tracker access interface for analytics and AI systems.
+ */
+export interface IStatTrackerProvider {
+  getStatTracker(): StatTracker;
 }
 
 /**

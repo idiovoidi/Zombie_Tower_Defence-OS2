@@ -55,14 +55,6 @@ export class TowerCombatManager {
     this.projectileManager = projectileManager;
   }
 
-  /**
-   * @deprecated EffectManager is now accessed via CombatRenderer through EventBus
-   * This method is kept for backward compatibility but does nothing.
-   */
-  public setEffectManager(_effectManager: unknown): void {
-    // No-op: EffectManager is now handled by CombatRenderer via EventBus
-  }
-
   public setTowers(towers: Tower[]): void {
     this.towers = towers;
   }
