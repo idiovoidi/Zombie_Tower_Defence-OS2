@@ -1,117 +1,135 @@
-import { Graphics, Text } from 'pixi.js';
+import { Container, Text } from 'pixi.js';
+import { GameConfig } from '../config/gameConfig';
+import { UI_COLORS, UI_FONTS, UI_LAYOUT } from '../config/uiTheme';
 import type { LevelData } from '../managers/LevelManager';
+import { MetalUI } from './theme/MetalUI';
 import { UIComponent } from './UIComponent';
 
 export class LevelSelectMenu extends UIComponent {
-  private titleText: Text;
-  private levelButtons: { button: Graphics; text: Text; levelId: string }[];
-  private backButton: Graphics;
-  private backButtonText: Text;
+  private levelCards: Container[] = [];
+  private cardsLayer: Container;
+  private sectionLabel: Text;
   private onLevelSelectCallback: ((levelId: string) => void) | null = null;
   private onBackCallback: (() => void) | null = null;
 
   constructor() {
     super();
 
-    this.titleText = new Text({
-      text: 'SELECT LEVEL',
+    const { SCREEN_WIDTH: w, SCREEN_HEIGHT: h } = GameConfig;
+
+    this.addChild(MetalUI.createOverlay(w, h, 0.5));
+
+    const header = MetalUI.createTitleBar(
+      Math.min(720, w - 80),
+      52,
+      'SELECT DEPLOYMENT',
+      'CHOOSE YOUR BATTLEFIELD',
+      UI_COLORS.WARNING
+    );
+    header.position.set((w - Math.min(720, w - 80)) / 2, 28);
+    this.addChild(header);
+
+    this.sectionLabel = new Text({
+      text: 'CAMPAIGN SECTORS',
       style: {
-        fontFamily: 'Arial',
-        fontSize: 36,
+        fontFamily: UI_FONTS.MONO,
+        fontSize: 12,
+        fill: UI_COLORS.TEXT_MUTED,
+        letterSpacing: 2,
+      },
+    });
+    this.sectionLabel.anchor.set(0.5, 0);
+    this.sectionLabel.position.set(w / 2, 100);
+    this.addChild(this.sectionLabel);
+
+    this.cardsLayer = new Container();
+    this.addChild(this.cardsLayer);
+
+    const backButton = MetalUI.createMetalButton({
+      label: 'BACK',
+      variant: 'danger',
+      width: 160,
+      height: 44,
+      fontSize: 16,
+      onClick: () => this.onBackClicked(),
+    });
+    backButton.position.set(40, h - 70);
+    this.addChild(backButton);
+
+    const footer = new Text({
+      text: 'SURVIVAL DEPENDS ON YOUR CHOICE',
+      style: {
+        fontFamily: UI_FONTS.BODY,
+        fontSize: 10,
+        fill: UI_COLORS.WARNING,
         fontWeight: 'bold',
-        fill: 0xffffff,
-        align: 'center',
+        letterSpacing: 1,
       },
     });
-    this.titleText.anchor.set(0.5);
-    this.titleText.position.set(512, 60);
-    this.addChild(this.titleText);
-
-    this.levelButtons = [];
-
-    this.backButton = new Graphics();
-    this.backButton.roundRect(0, 0, 150, 50, 10).fill(0xff0000);
-    this.backButton.position.set(50, 700);
-    this.backButton.eventMode = 'static';
-    this.backButton.cursor = 'pointer';
-    this.backButton.on('pointerdown', event => {
-      event.stopPropagation();
-      this.onBackClicked();
-    });
-    this.addChild(this.backButton);
-
-    this.backButtonText = new Text({
-      text: 'BACK',
-      style: {
-        fontFamily: 'Arial',
-        fontSize: 24,
-        fill: 0xffffff,
-        align: 'center',
-      },
-    });
-    this.backButtonText.anchor.set(0.5);
-    this.backButtonText.position.set(125, 725);
-    this.addChild(this.backButtonText);
+    footer.anchor.set(1, 0.5);
+    footer.position.set(w - 40, h - 48);
+    this.addChild(footer);
   }
 
   public updateLevels(levels: LevelData[]): void {
-    this.levelButtons.forEach(item => {
-      item.button.destroy({ children: true });
-      item.text.destroy({ children: true });
-    });
-    this.levelButtons = [];
+    for (const card of this.levelCards) {
+      card.destroy({ children: true });
+    }
+    this.levelCards = [];
+    this.cardsLayer.removeChildren();
 
     const campaign = levels.filter(l => !l.id.startsWith('custom_'));
     const custom = levels.filter(l => l.id.startsWith('custom_'));
 
+    const hasCustom = custom.length > 0;
+    this.sectionLabel.text = hasCustom
+      ? 'CAMPAIGN SECTORS  ·  CUSTOM OPS'
+      : 'CAMPAIGN SECTORS';
+
     campaign.forEach((level, index) => {
-      this.createLevelButton(level, index, false);
+      this.createLevelCard(level, index, false);
     });
 
     custom.forEach((level, index) => {
-      const slot = campaign.length + index;
-      this.createLevelButton(level, slot, true);
+      this.createLevelCard(level, campaign.length + index, true);
     });
   }
 
-  private createLevelButton(level: LevelData, index: number, isCustom: boolean): void {
-    const x = 80 + (index % 4) * 220;
-    const y = 120 + Math.floor(index / 4) * 110;
+  private createLevelCard(level: LevelData, index: number, isCustom: boolean): void {
+    const cardW = UI_LAYOUT.LEVEL_CARD_WIDTH;
+    const cardH = UI_LAYOUT.LEVEL_CARD_HEIGHT;
+    const cols = 4;
+    const gapX = 24;
+    const gapY = 20;
+    const gridWidth = cols * cardW + (cols - 1) * gapX;
+    const startX = (GameConfig.SCREEN_WIDTH - gridWidth) / 2;
+    const startY = 130;
 
-    const button = new Graphics();
-    button.roundRect(0, 0, 200, 80, 10).fill(isCustom ? 0x2266aa : 0x00aa00);
-    button.position.set(x, y);
-    button.eventMode = 'static';
-    button.cursor = 'pointer';
-    button.on('pointerdown', event => {
-      event.stopPropagation();
-      this.onLevelSelected(level.id);
-    });
-    this.addChild(button);
+    const col = index % cols;
+    const row = Math.floor(index / cols);
+    const x = startX + col * (cardW + gapX);
+    const y = startY + row * (cardH + gapY);
 
-    const suffix = isCustom ? '\n(custom)' : '';
-    const levelText = new Text({
-      text: `${level.name}\n${level.difficulty}${suffix}`,
-      style: {
-        fontFamily: 'Arial',
-        fontSize: 15,
-        fill: 0xffffff,
-        align: 'center',
-      },
-    });
-    levelText.anchor.set(0.5);
-    levelText.position.set(x + 100, y + 40);
-    this.addChild(levelText);
+    const accent = isCustom ? UI_COLORS.RANGE : UI_COLORS.READY_DIM;
+    const subtitle = isCustom
+      ? `${level.difficulty} · CUSTOM`
+      : level.difficulty.toUpperCase();
 
-    this.levelButtons.push({
-      button,
-      text: levelText,
-      levelId: level.id,
-    });
+    const card = MetalUI.createSelectCard(
+      cardW,
+      cardH,
+      level.name,
+      subtitle,
+      accent,
+      () => this.onLevelSelected(level.id)
+    );
+    card.position.set(x, y);
+    this.cardsLayer.addChild(card);
+    this.levelCards.push(card);
   }
 
   public update(_deltaTime: number): void {
-    // Level select menu animation or updates
+    // Level select is static
   }
 
   private onLevelSelected(levelId: string): void {

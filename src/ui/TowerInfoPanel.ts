@@ -1,15 +1,17 @@
 import { Container, Graphics, Text } from 'pixi.js';
+import { UI_COLORS, UI_FONTS, UI_LAYOUT } from '../config/uiTheme';
 import type { EconomyState } from '../managers/EconomyState';
 import { TowerManager } from '../managers/TowerManager';
 import type { Tower } from '../objects/Tower';
+import { MetalUI } from './theme/MetalUI';
 import { UIComponent } from './UIComponent';
 
 export class TowerInfoPanel extends UIComponent {
   private selectedTower: Tower | null = null;
   private towerManager: TowerManager;
   private economyState: EconomyState | null = null;
-  private upgradeButton!: Container;
-  private sellButton!: Container;
+  private upgradeButton!: Container & { labelText: Text; frame: Graphics };
+  private sellButton!: Container & { labelText: Text; frame: Graphics };
   private infoText!: Text;
   private statsText!: Text;
   private onUpgradeCallback: (() => void) | null = null;
@@ -20,7 +22,7 @@ export class TowerInfoPanel extends UIComponent {
     this.cullableChildren = false;
     this.towerManager = towerManager;
     this.createPanelUI();
-    this.visible = false; // Hidden by default
+    this.visible = false;
   }
 
   public setTowerManager(towerManager: TowerManager): void {
@@ -32,119 +34,70 @@ export class TowerInfoPanel extends UIComponent {
   }
 
   private createPanelUI(): void {
-    const staticBg = new Container();
-    staticBg.cullableChildren = false;
-    this.addChild(staticBg);
+    const width = UI_LAYOUT.TOWER_INFO_WIDTH;
+    const height = UI_LAYOUT.TOWER_INFO_HEIGHT;
 
-    // Panel background
-    const bg = new Graphics();
-    bg.roundRect(0, 0, 200, 300, 10).fill({ color: 0x1a1a1a, alpha: 0.9 });
-    bg.stroke({ width: 2, color: 0x444444 });
-    staticBg.addChild(bg);
-
-    // Title
-    const title = new Text({
-      text: 'Tower Info',
-      style: {
-        fontFamily: 'Arial',
-        fontSize: 18,
-        fill: 0xffffff,
-        fontWeight: 'bold',
-      },
+    const metal = MetalUI.createMetalPanel({
+      width,
+      height,
+      inset: 8,
+      rivets: true,
+      cautionTop: true,
+      cautionBottom: false,
     });
-    title.anchor.set(0.5, 0);
-    title.position.set(100, 10);
-    staticBg.addChild(title);
+    this.addChild(metal);
 
-    staticBg.cacheAsTexture(true);
+    const titleBar = MetalUI.createTitleBar(
+      width - 16,
+      36,
+      'TOWER OPS',
+      'UNIT STATUS',
+      UI_COLORS.WARNING
+    );
+    titleBar.position.set(8, 10);
+    this.addChild(titleBar);
 
-    // Info text
     this.infoText = new Text({
       text: '',
       style: {
-        fontFamily: 'Arial',
-        fontSize: 14,
-        fill: 0xffffff,
+        fontFamily: UI_FONTS.HEADER,
+        fontSize: 13,
+        fill: UI_COLORS.WARNING,
+        letterSpacing: 1,
         wordWrap: true,
-        wordWrapWidth: 180,
+        wordWrapWidth: width - 28,
       },
     });
-    this.infoText.position.set(10, 40);
+    this.infoText.position.set(14, 56);
     this.addChild(this.infoText);
 
-    // Stats text
-    this.statsText = new Text({
-      text: '',
-      style: {
-        fontFamily: 'Arial',
-        fontSize: 12,
-        fill: 0xcccccc,
-        wordWrap: true,
-        wordWrapWidth: 180,
-      },
-    });
-    this.statsText.position.set(10, 120);
+    this.statsText = MetalUI.createMonoText('', 12, UI_COLORS.TEXT_DIM);
+    this.statsText.style.wordWrap = true;
+    this.statsText.style.wordWrapWidth = width - 28;
+    this.statsText.position.set(14, 100);
     this.addChild(this.statsText);
 
-    // Upgrade button
-    this.upgradeButton = this.createButton('Upgrade', 10, 200, 0x00aa00);
-    this.upgradeButton.on('pointerdown', event => {
-      event.stopPropagation();
-      if (this.onUpgradeCallback) {
-        this.onUpgradeCallback();
-      }
+    this.upgradeButton = MetalUI.createMetalButton({
+      label: 'UPGRADE',
+      variant: 'ready',
+      width: width - 28,
+      height: 40,
+      fontSize: 14,
+      onClick: () => this.onUpgradeCallback?.(),
     });
+    this.upgradeButton.position.set(14, 200);
     this.addChild(this.upgradeButton);
 
-    // Sell button
-    this.sellButton = this.createButton('Sell', 10, 250, 0xaa0000);
-    this.sellButton.on('pointerdown', event => {
-      event.stopPropagation();
-      if (this.onSellCallback) {
-        this.onSellCallback();
-      }
+    this.sellButton = MetalUI.createMetalButton({
+      label: 'SELL',
+      variant: 'danger',
+      width: width - 28,
+      height: 40,
+      fontSize: 14,
+      onClick: () => this.onSellCallback?.(),
     });
+    this.sellButton.position.set(14, 248);
     this.addChild(this.sellButton);
-  }
-
-  private createButton(label: string, x: number, y: number, color: number): Container {
-    const button = new Container();
-    button.position.set(x, y);
-    button.eventMode = 'static';
-    button.cursor = 'pointer';
-
-    const bg = new Graphics();
-    bg.roundRect(0, 0, 180, 40, 5).fill(color);
-    bg.stroke({ width: 2, color: 0xffffff });
-    button.addChild(bg);
-
-    const text = new Text({
-      text: label,
-      style: {
-        fontFamily: 'Arial',
-        fontSize: 16,
-        fill: 0xffffff,
-        fontWeight: 'bold',
-      },
-    });
-    text.anchor.set(0.5);
-    text.position.set(90, 20);
-    button.addChild(text);
-
-    // Hover effects
-    button.on('pointerover', () => {
-      bg.clear();
-      bg.roundRect(0, 0, 180, 40, 5).fill(color);
-      bg.stroke({ width: 3, color: 0xffff00 });
-    });
-
-    button.on('pointerout', () => {
-      bg.clear();
-      bg.roundRect(0, 0, 180, 40, 5).fill(color);
-      bg.stroke({ width: 2, color: 0xffffff });
-    });
-
-    return button;
   }
 
   public showTowerInfo(tower: Tower): void {
@@ -169,53 +122,45 @@ export class TowerInfoPanel extends UIComponent {
     const range = this.selectedTower.getRange();
     const fireRate = this.selectedTower.getFireRate();
 
-    // Update info text
-    const infoNext = `Type: ${this.getTowerDisplayName(type)}\nLevel: ${level}/${this.selectedTower.getMaxUpgradeLevel()}`;
+    const infoNext = `${this.getTowerDisplayName(type).toUpperCase()}\nLVL ${level}/${this.selectedTower.getMaxUpgradeLevel()}`;
     if (this.infoText.text !== infoNext) {
       this.infoText.text = infoNext;
     }
 
-    // Update stats text - special handling for Sludge tower
     if (type === 'Sludge') {
-      // Calculate slow percentage based on upgrade level
-      // Level 1: 10%, Level 2: 17.5%, Level 3: 25%, Level 4: 32.5%, Level 5: 40%
       const slowPercent = Math.round((0.1 + (level - 1) * 0.075) * 100);
-      // Calculate pool radius based on upgrade level
       const poolRadius = 35 + (level - 1) * 3;
-      const statsNext = `Slow: ${slowPercent}%\nPool Size: ${poolRadius}px\nRange: ${range}\nFire Rate: ${fireRate}/s\nHealth: ${this.selectedTower.getHealth()}/${this.selectedTower.getMaxHealth()}`;
+      const statsNext = `SLOW: ${slowPercent}%\nPOOL: ${poolRadius}px\nRNG: ${range}\nRATE: ${fireRate}/s\nHP: ${this.selectedTower.getHealth()}/${this.selectedTower.getMaxHealth()}`;
       if (this.statsText.text !== statsNext) {
         this.statsText.text = statsNext;
       }
     } else {
-      const statsNext = `Damage: ${damage}\nRange: ${range}\nFire Rate: ${fireRate}/s\nHealth: ${this.selectedTower.getHealth()}/${this.selectedTower.getMaxHealth()}`;
+      const statsNext = `DMG: ${damage}\nRNG: ${range}\nRATE: ${fireRate}/s\nHP: ${this.selectedTower.getHealth()}/${this.selectedTower.getMaxHealth()}`;
       if (this.statsText.text !== statsNext) {
         this.statsText.text = statsNext;
       }
     }
 
-    // Update upgrade button — costs come from EconomyState (same path as purchase)
     const upgradeCost = this.economyState
       ? this.economyState.getUpgradeCost(this.selectedTower)
       : this.towerManager.calculateUpgradeCost(type, level);
     const canUpgrade = this.selectedTower.canUpgrade();
-    const upgradeText = this.upgradeButton.getChildAt(1) as Text;
 
     if (canUpgrade) {
-      const upgradeNext = `Upgrade ($${upgradeCost})`;
-      if (upgradeText.text !== upgradeNext) {
-        upgradeText.text = upgradeNext;
+      const upgradeNext = `UPGRADE $${upgradeCost}`;
+      if (this.upgradeButton.labelText.text !== upgradeNext) {
+        this.upgradeButton.labelText.text = upgradeNext;
       }
       this.upgradeButton.alpha = 1;
       this.upgradeButton.eventMode = 'static';
     } else {
-      if (upgradeText.text !== 'Max Level') {
-        upgradeText.text = 'Max Level';
+      if (this.upgradeButton.labelText.text !== 'MAX LEVEL') {
+        this.upgradeButton.labelText.text = 'MAX LEVEL';
       }
       this.upgradeButton.alpha = 0.5;
       this.upgradeButton.eventMode = 'none';
     }
 
-    // Update sell button
     const sellValue = this.economyState
       ? this.economyState.getSellValue(this.selectedTower)
       : (() => {
@@ -226,10 +171,9 @@ export class TowerInfoPanel extends UIComponent {
           }
           return Math.floor(totalCost * 0.75);
         })();
-    const sellText = this.sellButton.getChildAt(1) as Text;
-    const sellNext = `Sell ($${sellValue})`;
-    if (sellText.text !== sellNext) {
-      sellText.text = sellNext;
+    const sellNext = `SELL $${sellValue}`;
+    if (this.sellButton.labelText.text !== sellNext) {
+      this.sellButton.labelText.text = sellNext;
     }
   }
 
@@ -261,7 +205,6 @@ export class TowerInfoPanel extends UIComponent {
   }
 
   public update(_deltaTime: number): void {
-    // Update info if tower is selected
     if (this.selectedTower && this.visible) {
       this.updateInfo();
     }

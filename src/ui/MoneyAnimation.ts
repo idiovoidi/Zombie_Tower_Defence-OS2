@@ -70,11 +70,12 @@ export class MoneyAnimation {
     const text = new Text({
       text: `+$${this.batchedAmount}`,
       style: {
-        fontFamily: 'Arial',
-        fontSize: 28,
+        fontFamily: 'Impact, Arial Black, sans-serif',
+        fontSize: 26,
         fontWeight: 'bold',
-        fill: 0xffdd00, // Gold color for batched gains
+        fill: 0xffdd00,
         stroke: { color: 0x000000, width: 4 },
+        letterSpacing: 1,
       },
     });
 

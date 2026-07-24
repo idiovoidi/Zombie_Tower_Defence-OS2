@@ -1,122 +1,105 @@
-import { Container, Graphics, Text } from 'pixi.js';
+import { Container, Text } from 'pixi.js';
+import { GameConfig } from '../config/gameConfig';
+import { UI_COLORS, UI_FONTS, UI_LAYOUT } from '../config/uiTheme';
+import { MetalUI } from './theme/MetalUI';
 import { UIComponent } from './UIComponent';
 
 export class GameOverScreen extends UIComponent {
-  private background: Graphics;
-  private titleText: Text;
   private scoreText: Text;
-  private mainMenuButton: Graphics;
-  private mainMenuButtonText: Text;
-  private restartButton: Graphics;
-  private restartButtonText: Text;
   private onMainMenuCallback: (() => void) | null = null;
   private onRestartCallback: (() => void) | null = null;
 
   constructor() {
     super();
 
-    // Static background container for caching
-    const staticBg = new Container();
-    staticBg.cullableChildren = false;
-    this.addChild(staticBg);
+    const { SCREEN_WIDTH: w, SCREEN_HEIGHT: h } = GameConfig;
+    const panelW = 480;
+    const panelH = 360;
 
-    // Create semi-transparent background overlay
-    this.background = new Graphics();
-    this.background.rect(0, 0, 1024, 768).fill({ color: 0x000000, alpha: 0.8 });
-    staticBg.addChild(this.background);
+    this.addChild(MetalUI.createOverlay(w, h, 0.82));
 
-    // Cache the static background
-    staticBg.cacheAsTexture(true);
+    const panel = new Container();
+    panel.position.set((w - panelW) / 2, (h - panelH) / 2 - 10);
+    this.addChild(panel);
 
-    // Create "GAME OVER" title
-    this.titleText = new Text({
-      text: 'GAME OVER',
-      style: {
-        fontFamily: 'Arial',
-        fontSize: 48,
-        fontWeight: 'bold',
-        fill: 0xff0000,
-        align: 'center',
-      },
+    const metal = MetalUI.createMetalPanel({
+      width: panelW,
+      height: panelH,
+      cautionTop: true,
+      cautionBottom: true,
+      rivets: true,
     });
-    this.titleText.anchor.set(0.5);
-    this.titleText.position.set(512, 250);
-    this.addChild(this.titleText);
+    panel.addChild(metal);
 
-    // Create score display
-    this.scoreText = new Text({
-      text: 'Score: 0',
-      style: {
-        fontFamily: 'Arial',
-        fontSize: 32,
-        fill: 0xffffff,
-        align: 'center',
-      },
+    const titleBar = MetalUI.createTitleBar(
+      panelW - 40,
+      48,
+      'SIGNAL LOST',
+      'CAMP OVERRUN',
+      UI_COLORS.ALERT
+    );
+    titleBar.position.set(20, 22);
+    panel.addChild(titleBar);
+
+    const title = MetalUI.createStencilText('GAME OVER', {
+      fontSize: 42,
+      fill: UI_COLORS.ALERT,
+      letterSpacing: 4,
+      strokeWidth: 4,
     });
+    title.anchor.set(0.5);
+    title.position.set(panelW / 2, 115);
+    panel.addChild(title);
+
+    this.scoreText = MetalUI.createMonoText('SCORE: 0', 22, UI_COLORS.WARNING);
     this.scoreText.anchor.set(0.5);
-    this.scoreText.position.set(512, 340);
-    this.addChild(this.scoreText);
+    this.scoreText.position.set(panelW / 2, 165);
+    panel.addChild(this.scoreText);
 
-    // Create restart button
-    this.restartButton = new Graphics();
-    this.restartButton.roundRect(0, 0, 200, 50, 10).fill(0x00ff00);
-    this.restartButton.position.set(412, 420);
-    this.restartButton.eventMode = 'static';
-    this.restartButton.cursor = 'pointer';
-    this.restartButton.on('pointerdown', event => {
-      event.stopPropagation();
-      this.onRestartClicked();
+    const restartButton = MetalUI.createMetalButton({
+      label: 'REDEPLOY',
+      variant: 'ready',
+      width: UI_LAYOUT.BUTTON_WIDTH,
+      height: UI_LAYOUT.BUTTON_HEIGHT,
+      fontSize: 18,
+      onClick: () => this.onRestartClicked(),
     });
-    this.addChild(this.restartButton);
+    restartButton.position.set((panelW - UI_LAYOUT.BUTTON_WIDTH) / 2, 210);
+    panel.addChild(restartButton);
 
-    this.restartButtonText = new Text({
-      text: 'RESTART',
+    const menuButton = MetalUI.createMetalButton({
+      label: 'MAIN MENU',
+      variant: 'neutral',
+      width: UI_LAYOUT.BUTTON_WIDTH,
+      height: UI_LAYOUT.BUTTON_HEIGHT,
+      fontSize: 18,
+      onClick: () => this.onMainMenuClicked(),
+    });
+    menuButton.position.set((panelW - UI_LAYOUT.BUTTON_WIDTH) / 2, 275);
+    panel.addChild(menuButton);
+
+    const footer = new Text({
+      text: 'THE DEAD DO NOT REST',
       style: {
-        fontFamily: 'Arial',
-        fontSize: 24,
-        fill: 0x000000,
-        align: 'center',
+        fontFamily: UI_FONTS.BODY,
+        fontSize: 9,
+        fill: UI_COLORS.TEXT_MUTED,
+        letterSpacing: 2,
       },
     });
-    this.restartButtonText.anchor.set(0.5);
-    this.restartButtonText.position.set(512, 445);
-    this.addChild(this.restartButtonText);
+    footer.anchor.set(0.5);
+    footer.position.set(panelW / 2, panelH - 22);
+    panel.addChild(footer);
 
-    // Create main menu button
-    this.mainMenuButton = new Graphics();
-    this.mainMenuButton.roundRect(0, 0, 200, 50, 10).fill(0x4444ff);
-    this.mainMenuButton.position.set(412, 490);
-    this.mainMenuButton.eventMode = 'static';
-    this.mainMenuButton.cursor = 'pointer';
-    this.mainMenuButton.on('pointerdown', event => {
-      event.stopPropagation();
-      this.onMainMenuClicked();
-    });
-    this.addChild(this.mainMenuButton);
-
-    this.mainMenuButtonText = new Text({
-      text: 'MAIN MENU',
-      style: {
-        fontFamily: 'Arial',
-        fontSize: 24,
-        fill: 0xffffff,
-        align: 'center',
-      },
-    });
-    this.mainMenuButtonText.anchor.set(0.5);
-    this.mainMenuButtonText.position.set(512, 515);
-    this.addChild(this.mainMenuButtonText);
-
-    // Hide by default
     this.visible = false;
   }
 
   public update(_deltaTime: number): void {
-    // No animations needed for now
+    // No animations needed
   }
 
   public showGameOver(score: number): void {
-    const next = `Score: ${score}`;
+    const next = `SCORE: ${score}`;
     if (this.scoreText.text !== next) {
       this.scoreText.text = next;
     }
@@ -124,15 +107,11 @@ export class GameOverScreen extends UIComponent {
   }
 
   private onRestartClicked(): void {
-    if (this.onRestartCallback) {
-      this.onRestartCallback();
-    }
+    this.onRestartCallback?.();
   }
 
   private onMainMenuClicked(): void {
-    if (this.onMainMenuCallback) {
-      this.onMainMenuCallback();
-    }
+    this.onMainMenuCallback?.();
   }
 
   public setRestartCallback(callback: () => void): void {

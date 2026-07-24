@@ -1,83 +1,111 @@
-import { Graphics, Text } from 'pixi.js';
+import { Container, Text } from 'pixi.js';
+import { GameConfig } from '../config/gameConfig';
+import { UI_COLORS, UI_FONTS, UI_LAYOUT } from '../config/uiTheme';
+import { MetalUI } from './theme/MetalUI';
 import { UIComponent } from './UIComponent';
 
 export class MainMenu extends UIComponent {
-  private titleText: Text;
-  private startButton: Graphics;
-  private startButtonText: Text;
-  private mapCreatorButton: Graphics;
-  private mapCreatorButtonText: Text;
   private onStartCallback: (() => void) | null = null;
   private onMapCreatorCallback: (() => void) | null = null;
 
   constructor() {
     super();
+    this.createMenu();
+  }
 
-    this.titleText = new Text({
-      text: 'ZOMBIE TOWER DEFENSE',
+  private createMenu(): void {
+    const { SCREEN_WIDTH: w, SCREEN_HEIGHT: h } = GameConfig;
+    const panelW = UI_LAYOUT.MENU_PANEL_WIDTH;
+    const panelH = UI_LAYOUT.MENU_PANEL_HEIGHT;
+
+    const overlay = MetalUI.createOverlay(w, h, 0.55);
+    this.addChild(overlay);
+
+    const panel = new Container();
+    panel.position.set((w - panelW) / 2, (h - panelH) / 2 - 20);
+    this.addChild(panel);
+
+    const metal = MetalUI.createMetalPanel({
+      width: panelW,
+      height: panelH,
+      cautionTop: true,
+      cautionBottom: true,
+      rivets: true,
+    });
+    panel.addChild(metal);
+
+    const titleBar = MetalUI.createTitleBar(
+      panelW - 40,
+      48,
+      'Z-TD',
+      'SURVIVOR COMMAND',
+      UI_COLORS.ALERT
+    );
+    titleBar.position.set(20, 24);
+    panel.addChild(titleBar);
+
+    const headline = MetalUI.createStencilText('ZOMBIE TOWER DEFENSE', {
+      fontSize: 28,
+      fill: UI_COLORS.WARNING,
+      letterSpacing: 2,
+      strokeWidth: 3,
+    });
+    headline.anchor.set(0.5);
+    headline.position.set(panelW / 2, 115);
+    panel.addChild(headline);
+
+    const tagline = new Text({
+      text: 'HOLD THE CAMP. HOLD THE LINE.',
       style: {
-        fontFamily: 'Arial',
-        fontSize: 36,
+        fontFamily: UI_FONTS.MONO,
+        fontSize: 13,
+        fill: UI_COLORS.TEXT_DIM,
+        letterSpacing: 1,
+      },
+    });
+    tagline.anchor.set(0.5);
+    tagline.position.set(panelW / 2, 150);
+    panel.addChild(tagline);
+
+    const startButton = MetalUI.createMetalButton({
+      label: 'DEPLOY',
+      variant: 'ready',
+      width: UI_LAYOUT.BUTTON_WIDTH,
+      height: UI_LAYOUT.BUTTON_HEIGHT,
+      fontSize: 20,
+      onClick: () => this.onStartClicked(),
+    });
+    startButton.position.set((panelW - UI_LAYOUT.BUTTON_WIDTH) / 2, 200);
+    panel.addChild(startButton);
+
+    const mapButton = MetalUI.createMetalButton({
+      label: 'MAP CREATOR',
+      variant: 'neutral',
+      width: UI_LAYOUT.BUTTON_WIDTH,
+      height: UI_LAYOUT.BUTTON_HEIGHT,
+      fontSize: 18,
+      onClick: () => this.onMapCreatorClicked(),
+    });
+    mapButton.position.set((panelW - UI_LAYOUT.BUTTON_WIDTH) / 2, 270);
+    panel.addChild(mapButton);
+
+    const footer = new Text({
+      text: 'AUTHORIZED PERSONNEL ONLY',
+      style: {
+        fontFamily: UI_FONTS.BODY,
+        fontSize: 10,
+        fill: UI_COLORS.WARNING,
         fontWeight: 'bold',
-        fill: 0xff0000,
-        align: 'center',
+        letterSpacing: 2,
       },
     });
-    this.titleText.anchor.set(0.5);
-    this.titleText.position.set(512, 200);
-    this.addChild(this.titleText);
-
-    this.startButton = new Graphics();
-    this.startButton.roundRect(0, 0, 200, 50, 10).fill(0x00ff00);
-    this.startButton.position.set(412, 300);
-    this.startButton.eventMode = 'static';
-    this.startButton.cursor = 'pointer';
-    this.startButton.on('pointerdown', event => {
-      event.stopPropagation();
-      this.onStartClicked();
-    });
-    this.addChild(this.startButton);
-
-    this.startButtonText = new Text({
-      text: 'START GAME',
-      style: {
-        fontFamily: 'Arial',
-        fontSize: 24,
-        fill: 0x000000,
-        align: 'center',
-      },
-    });
-    this.startButtonText.anchor.set(0.5);
-    this.startButtonText.position.set(512, 325);
-    this.addChild(this.startButtonText);
-
-    this.mapCreatorButton = new Graphics();
-    this.mapCreatorButton.roundRect(0, 0, 200, 50, 10).fill(0x4488cc);
-    this.mapCreatorButton.position.set(412, 370);
-    this.mapCreatorButton.eventMode = 'static';
-    this.mapCreatorButton.cursor = 'pointer';
-    this.mapCreatorButton.on('pointerdown', event => {
-      event.stopPropagation();
-      this.onMapCreatorClicked();
-    });
-    this.addChild(this.mapCreatorButton);
-
-    this.mapCreatorButtonText = new Text({
-      text: 'MAP CREATOR',
-      style: {
-        fontFamily: 'Arial',
-        fontSize: 22,
-        fill: 0xffffff,
-        align: 'center',
-      },
-    });
-    this.mapCreatorButtonText.anchor.set(0.5);
-    this.mapCreatorButtonText.position.set(512, 395);
-    this.addChild(this.mapCreatorButtonText);
+    footer.anchor.set(0.5);
+    footer.position.set(panelW / 2, panelH - 28);
+    panel.addChild(footer);
   }
 
   public update(_deltaTime: number): void {
-    // Main menu animation or updates
+    // Main menu is static
   }
 
   private onStartClicked(): void {

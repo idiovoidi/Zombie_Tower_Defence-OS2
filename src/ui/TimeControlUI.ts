@@ -1,148 +1,111 @@
 import { Container, Graphics, Text } from 'pixi.js';
+import { UI_COLORS, UI_FONTS } from '../config/uiTheme';
 import {
   type TimeControlManager,
   type TimeControlState,
   TimeSpeed,
 } from '../managers/TimeControlManager';
+import { TextureGenerator } from '../utils/textureGenerator';
+import { MetalUI } from './theme/MetalUI';
 import { UIComponent } from './UIComponent';
 
 /**
- * TimeControlUI - UI component for controlling game speed and pause state
- *
- * Displays five buttons:
- * - Pause/Resume button (also controlled by Space key)
- * - Slow speed (0.5x)
- * - Normal speed (1x)
- * - Fast speed (2x)
- * - Very Fast speed (4x)
- *
- * Also displays current state indicator
+ * TimeControlUI — apocalyptic command strip for pause / speed.
  */
 export class TimeControlUI extends UIComponent {
   private timeControlManager: TimeControlManager;
-  private pauseButton!: Container;
-  private slowSpeedButton!: Container;
-  private normalSpeedButton!: Container;
-  private fastSpeedButton!: Container;
-  private veryFastSpeedButton!: Container;
+  private pauseButton!: Container & { bg: Graphics; labelText: Text };
+  private slowSpeedButton!: Container & { bg: Graphics; labelText: Text };
+  private normalSpeedButton!: Container & { bg: Graphics; labelText: Text };
+  private fastSpeedButton!: Container & { bg: Graphics; labelText: Text };
+  private veryFastSpeedButton!: Container & { bg: Graphics; labelText: Text };
   private statusText!: Text;
-  private buttonBg = 0x3a3a3a;
-  private buttonHoverBg = 0x5a5a5a;
-  private buttonActiveBg = 0x00aa00;
-  private buttonPauseBg = 0xaa5500;
   private buttonSize = 36;
-  private buttonSpacing = 8;
+  private buttonSpacing = 6;
+  private railPadding = 6;
 
   constructor(timeControlManager: TimeControlManager) {
     super();
     this.timeControlManager = timeControlManager;
     this.createUI();
 
-    // Listen for state changes
     this.timeControlManager.setOnStateChangeCallback(state => {
       this.updateUI(state);
     });
   }
 
   private createUI(): void {
-    // Create pause button
-    this.pauseButton = this.createButton('⏸', () => {
+    const count = 5;
+    const railWidth =
+      this.railPadding * 2 + count * this.buttonSize + (count - 1) * this.buttonSpacing;
+    const railHeight = this.buttonSize + this.railPadding * 2 + 18;
+
+    const rail = new Container();
+    const metal = TextureGenerator.createCorrugatedMetal(railWidth, railHeight);
+    metal.alpha = 0.95;
+    rail.addChild(metal);
+
+    const frame = new Graphics();
+    frame.rect(0, 0, railWidth, railHeight).stroke({ width: 2, color: UI_COLORS.METAL_DARK });
+    rail.addChild(frame);
+
+    const caution = MetalUI.createCautionStripe(railWidth, 3);
+    rail.addChild(caution);
+
+    MetalUI.addCornerRivets(rail, railWidth, railHeight, 3, false);
+    this.addChild(rail);
+
+    const y = this.railPadding + 2;
+    let x = this.railPadding;
+
+    this.pauseButton = MetalUI.createControlButton('II', this.buttonSize, () => {
       this.timeControlManager.togglePause();
     });
-    this.pauseButton.position.set(0, 0);
+    this.pauseButton.position.set(x, y);
     this.addChild(this.pauseButton);
+    x += this.buttonSize + this.buttonSpacing;
 
-    // Create slow speed button (0.5x)
-    this.slowSpeedButton = this.createButton('½×', () => {
+    this.slowSpeedButton = MetalUI.createControlButton('.5', this.buttonSize, () => {
       this.timeControlManager.setSpeed(TimeSpeed.SLOW);
     });
-    this.slowSpeedButton.position.set(this.buttonSize + this.buttonSpacing, 0);
+    this.slowSpeedButton.position.set(x, y);
     this.addChild(this.slowSpeedButton);
+    x += this.buttonSize + this.buttonSpacing;
 
-    // Create normal speed button (1x)
-    this.normalSpeedButton = this.createButton('1×', () => {
+    this.normalSpeedButton = MetalUI.createControlButton('1x', this.buttonSize, () => {
       this.timeControlManager.setSpeed(TimeSpeed.NORMAL);
     });
-    this.normalSpeedButton.position.set((this.buttonSize + this.buttonSpacing) * 2, 0);
+    this.normalSpeedButton.position.set(x, y);
     this.addChild(this.normalSpeedButton);
+    x += this.buttonSize + this.buttonSpacing;
 
-    // Create fast speed button (2x)
-    this.fastSpeedButton = this.createButton('2×', () => {
+    this.fastSpeedButton = MetalUI.createControlButton('2x', this.buttonSize, () => {
       this.timeControlManager.setSpeed(TimeSpeed.FAST);
     });
-    this.fastSpeedButton.position.set((this.buttonSize + this.buttonSpacing) * 3, 0);
+    this.fastSpeedButton.position.set(x, y);
     this.addChild(this.fastSpeedButton);
+    x += this.buttonSize + this.buttonSpacing;
 
-    // Create very fast speed button (4x)
-    this.veryFastSpeedButton = this.createButton('4×', () => {
+    this.veryFastSpeedButton = MetalUI.createControlButton('4x', this.buttonSize, () => {
       this.timeControlManager.setSpeed(TimeSpeed.VERY_FAST);
     });
-    this.veryFastSpeedButton.position.set((this.buttonSize + this.buttonSpacing) * 4, 0);
+    this.veryFastSpeedButton.position.set(x, y);
     this.addChild(this.veryFastSpeedButton);
 
-    // Create status text
     this.statusText = new Text({
       text: '',
       style: {
-        fontSize: 12,
-        fill: 0xffffff,
-        fontFamily: 'Arial',
+        fontSize: 10,
+        fill: UI_COLORS.TEXT_DIM,
+        fontFamily: UI_FONTS.MONO,
+        fontWeight: 'bold',
+        letterSpacing: 1,
       },
     });
-    this.statusText.position.set(0, this.buttonSize + 4);
+    this.statusText.position.set(this.railPadding, this.buttonSize + this.railPadding + 4);
     this.addChild(this.statusText);
 
-    // Initial UI update
     this.updateUI(this.timeControlManager.getState());
-  }
-
-  private createButton(label: string, onClick: () => void): Container {
-    const button = new Container();
-    button.eventMode = 'static';
-    button.cursor = 'pointer';
-
-    // Button background
-    const bg = new Graphics();
-    bg.rect(0, 0, this.buttonSize, this.buttonSize).fill({ color: this.buttonBg });
-    bg.stroke({ width: 2, color: 0x666666 });
-    button.addChild(bg);
-
-    // Button label
-    const text = new Text({
-      text: label,
-      style: {
-        fontSize: 16,
-        fill: 0xffffff,
-        fontFamily: 'Arial',
-      },
-    });
-    text.anchor.set(0.5);
-    text.position.set(this.buttonSize / 2, this.buttonSize / 2);
-    button.addChild(text);
-
-    // Hover effect
-    button.on('pointerover', () => {
-      bg.clear();
-      bg.rect(0, 0, this.buttonSize, this.buttonSize).fill({ color: this.buttonHoverBg });
-      bg.stroke({ width: 2, color: 0x888888 });
-    });
-
-    button.on('pointerout', () => {
-      // Don't reset if active - handled by updateUI
-      const state = this.timeControlManager.getState();
-      this.updateButtonVisuals(state);
-    });
-
-    // Click handler
-    button.on('pointerdown', () => {
-      onClick();
-    });
-
-    // Store references for later updates
-    (button as unknown as { bg: Graphics; label: Text }).bg = bg;
-    (button as unknown as { bg: Graphics; label: Text }).label = text;
-
-    return button;
   }
 
   private updateUI(state: TimeControlState): void {
@@ -150,130 +113,116 @@ export class TimeControlUI extends UIComponent {
     this.updateStatusText(state);
   }
 
+  private paintButton(
+    button: Container & { bg: Graphics; labelText: Text },
+    active: boolean,
+    activeFill: number = UI_COLORS.BUTTON_ACTIVE,
+    activeBorder: number = UI_COLORS.READY
+  ): void {
+    if (active) {
+      MetalUI.paintControlButton(button.bg, this.buttonSize, activeFill, activeBorder);
+      button.labelText.style.fill = UI_COLORS.WARNING;
+    } else {
+      MetalUI.paintControlButton(
+        button.bg,
+        this.buttonSize,
+        UI_COLORS.BUTTON_IDLE,
+        UI_COLORS.METAL_LIGHT
+      );
+      button.labelText.style.fill = UI_COLORS.TEXT;
+    }
+  }
+
   private updateButtonVisuals(state: TimeControlState): void {
-    // Update pause button
-    const pauseBg = (this.pauseButton as unknown as { bg: Graphics }).bg;
-    const pauseLabel = (this.pauseButton as unknown as { label: Text }).label;
-    pauseBg.clear();
     if (state.isPaused) {
-      pauseBg.rect(0, 0, this.buttonSize, this.buttonSize).fill({ color: this.buttonPauseBg });
-      if (pauseLabel.text !== '▶') {
-        pauseLabel.text = '▶';
+      MetalUI.paintControlButton(
+        this.pauseButton.bg,
+        this.buttonSize,
+        UI_COLORS.PAUSED,
+        UI_COLORS.PAUSED_BORDER
+      );
+      if (this.pauseButton.labelText.text !== '>') {
+        this.pauseButton.labelText.text = '>';
       }
+      this.pauseButton.labelText.style.fill = UI_COLORS.WARNING;
     } else {
-      pauseBg.rect(0, 0, this.buttonSize, this.buttonSize).fill({ color: this.buttonBg });
-      if (pauseLabel.text !== '⏸') {
-        pauseLabel.text = '⏸';
+      MetalUI.paintControlButton(
+        this.pauseButton.bg,
+        this.buttonSize,
+        UI_COLORS.BUTTON_IDLE,
+        UI_COLORS.METAL_LIGHT
+      );
+      if (this.pauseButton.labelText.text !== 'II') {
+        this.pauseButton.labelText.text = 'II';
       }
-    }
-    pauseBg.stroke({ width: 2, color: state.isPaused ? 0xffaa00 : 0x666666 });
-
-    // Update normal speed button
-    const normalBg = (this.normalSpeedButton as unknown as { bg: Graphics }).bg;
-    normalBg.clear();
-    if (!state.isPaused && state.speed === TimeSpeed.NORMAL) {
-      normalBg.rect(0, 0, this.buttonSize, this.buttonSize).fill({ color: this.buttonActiveBg });
-      normalBg.stroke({ width: 2, color: 0x00ff00 });
-    } else {
-      normalBg.rect(0, 0, this.buttonSize, this.buttonSize).fill({ color: this.buttonBg });
-      normalBg.stroke({ width: 2, color: 0x666666 });
+      this.pauseButton.labelText.style.fill = UI_COLORS.TEXT;
     }
 
-    // Update slow speed button
-    const slowBg = (this.slowSpeedButton as unknown as { bg: Graphics }).bg;
-    slowBg.clear();
-    if (!state.isPaused && state.speed === TimeSpeed.SLOW) {
-      slowBg.rect(0, 0, this.buttonSize, this.buttonSize).fill({ color: this.buttonActiveBg });
-      slowBg.stroke({ width: 2, color: 0x00ff00 });
-    } else {
-      slowBg.rect(0, 0, this.buttonSize, this.buttonSize).fill({ color: this.buttonBg });
-      slowBg.stroke({ width: 2, color: 0x666666 });
-    }
-
-    // Update fast speed button (2x)
-    const fastBg = (this.fastSpeedButton as unknown as { bg: Graphics }).bg;
-    fastBg.clear();
-    if (!state.isPaused && state.speed === TimeSpeed.FAST) {
-      fastBg.rect(0, 0, this.buttonSize, this.buttonSize).fill({ color: this.buttonActiveBg });
-      fastBg.stroke({ width: 2, color: 0x00ff00 });
-    } else {
-      fastBg.rect(0, 0, this.buttonSize, this.buttonSize).fill({ color: this.buttonBg });
-      fastBg.stroke({ width: 2, color: 0x666666 });
-    }
-
-    // Update very fast speed button (4x)
-    const veryFastBg = (this.veryFastSpeedButton as unknown as { bg: Graphics }).bg;
-    veryFastBg.clear();
-    if (!state.isPaused && state.speed === TimeSpeed.VERY_FAST) {
-      veryFastBg.rect(0, 0, this.buttonSize, this.buttonSize).fill({ color: this.buttonActiveBg });
-      veryFastBg.stroke({ width: 2, color: 0x00ff00 });
-    } else {
-      veryFastBg.rect(0, 0, this.buttonSize, this.buttonSize).fill({ color: this.buttonBg });
-      veryFastBg.stroke({ width: 2, color: 0x666666 });
-    }
+    this.paintButton(
+      this.slowSpeedButton,
+      !state.isPaused && state.speed === TimeSpeed.SLOW
+    );
+    this.paintButton(
+      this.normalSpeedButton,
+      !state.isPaused && state.speed === TimeSpeed.NORMAL
+    );
+    this.paintButton(
+      this.fastSpeedButton,
+      !state.isPaused && state.speed === TimeSpeed.FAST
+    );
+    this.paintButton(
+      this.veryFastSpeedButton,
+      !state.isPaused && state.speed === TimeSpeed.VERY_FAST
+    );
   }
 
   private updateStatusText(state: TimeControlState): void {
     if (state.isPaused) {
-      if (state.isPlacementPause) {
-        if (this.statusText.text !== 'PAUSED (Placement)') {
-          this.statusText.text = 'PAUSED (Placement)';
+      const next = state.isPlacementPause ? 'PAUSED · PLACE' : 'PAUSED';
+      if (this.statusText.text !== next) {
+        this.statusText.text = next;
+      }
+      this.statusText.style.fill = UI_COLORS.PAUSED_BORDER;
+      return;
+    }
+
+    switch (state.speed) {
+      case TimeSpeed.SLOW:
+        if (this.statusText.text !== '0.5x') {
+          this.statusText.text = '0.5x';
         }
-        this.statusText.style.fill = 0xffaa00;
-      } else {
-        if (this.statusText.text !== 'PAUSED') {
-          this.statusText.text = 'PAUSED';
+        this.statusText.style.fill = UI_COLORS.RANGE;
+        break;
+      case TimeSpeed.FAST:
+        if (this.statusText.text !== '2x') {
+          this.statusText.text = '2x';
+        }
+        this.statusText.style.fill = UI_COLORS.WARNING;
+        break;
+      case TimeSpeed.VERY_FAST:
+        if (this.statusText.text !== '4x') {
+          this.statusText.text = '4x';
         }
         this.statusText.style.fill = 0xff6600;
-      }
-    } else {
-      switch (state.speed) {
-        case TimeSpeed.SLOW:
-          if (this.statusText.text !== '0.5× Speed') {
-            this.statusText.text = '0.5× Speed';
-          }
-          this.statusText.style.fill = 0x66aaff;
-          break;
-        case TimeSpeed.FAST:
-          if (this.statusText.text !== '2× Speed') {
-            this.statusText.text = '2× Speed';
-          }
-          this.statusText.style.fill = 0xffcc00;
-          break;
-        case TimeSpeed.VERY_FAST:
-          if (this.statusText.text !== '4× Speed') {
-            this.statusText.text = '4× Speed';
-          }
-          this.statusText.style.fill = 0xff6600;
-          break;
-        default:
-          if (this.statusText.text !== '') {
-            this.statusText.text = '';
-          }
-          break;
-      }
+        break;
+      default:
+        if (this.statusText.text !== '') {
+          this.statusText.text = '';
+        }
+        break;
     }
   }
 
-  /**
-   * Get the width of the control panel for positioning
-   */
   public getControlWidth(): number {
-    return (this.buttonSize + this.buttonSpacing) * 5 - this.buttonSpacing;
+    const count = 5;
+    return this.railPadding * 2 + count * this.buttonSize + (count - 1) * this.buttonSpacing;
   }
 
-  /**
-   * Get the height of the control panel for positioning
-   */
   public getControlHeight(): number {
-    return this.buttonSize + 20;
+    return this.buttonSize + this.railPadding * 2 + 18;
   }
 
-  /**
-   * Update method required by UIComponent base class
-   */
   public update(_deltaTime: number): void {
-    // TimeControlUI updates are event-driven through the callback
-    // No per-frame updates needed
+    // Event-driven updates only
   }
 }

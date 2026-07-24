@@ -75,6 +75,7 @@ export function createUI(
 
   const towerInfoPanel = new TowerInfoPanel(towerManager);
   const towerInfoPanelHeight = 300;
+  // Align with shop column (220px) so the metal panel reads as shop continuation
   towerInfoPanel.position.set(screenWidth - shopWidth, screenHeight - towerInfoPanelHeight);
   uiManager.registerComponent('towerInfoPanel', towerInfoPanel);
 
