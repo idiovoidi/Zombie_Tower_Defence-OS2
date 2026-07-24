@@ -190,6 +190,25 @@ export class MapManager {
     );
 
     this.maps.set('forked', createForkedMap());
+
+    // Wider map (1.5× play viewport) — requires camera pan to reach camp
+    this.maps.set(
+      'highway',
+      withLinearGraph('highway', 1536, 768, [
+        { x: 50, y: 384 },
+        { x: 220, y: 384 },
+        { x: 220, y: 180 },
+        { x: 480, y: 180 },
+        { x: 480, y: 580 },
+        { x: 760, y: 580 },
+        { x: 760, y: 220 },
+        { x: 1040, y: 220 },
+        { x: 1040, y: 520 },
+        { x: 1280, y: 520 },
+        { x: 1280, y: 384 },
+        { x: 1480, y: 384 },
+      ])
+    );
   }
 
   /** Register or replace a map (used by custom map creator). */

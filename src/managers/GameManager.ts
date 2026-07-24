@@ -637,6 +637,7 @@ export class GameManager {
     const height = mapData?.height ?? UI_DIMENSIONS.HEIGHT;
     this.camera.setWorldSize(width, height);
     this.camera.reset();
+    this.towerCombatManager.setWorldSize(width, height);
   }
 
   public getAIPlayerManager() {

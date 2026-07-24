@@ -1,3 +1,4 @@
+import { DebugConstants } from '../config/debugConstants';
 import type { MapManager } from './MapManager';
 
 export interface LevelData {
@@ -106,8 +107,26 @@ export class LevelManager {
       unlockConditions: { previousLevel: 'level5' },
     });
 
+    this.levels.set('level7', {
+      id: 'level7',
+      name: 'The Long Road',
+      description: 'A wider battlefield — pan the camera to defend the full stretch',
+      map: 'highway',
+      difficulty: 'Normal',
+      startingMoney: 450,
+      startingLives: 15,
+      resourceModifiers: { wood: 1.0, metal: 1.0, energy: 1.0 },
+      unlockConditions: { previousLevel: 'level1' },
+    });
+
     // Unlock the first level by default
     this.unlockedLevels.add('level1');
+
+    if (DebugConstants.ENABLED && DebugConstants.UNLOCK_ALL_LEVELS) {
+      for (const id of this.levels.keys()) {
+        this.unlockedLevels.add(id);
+      }
+    }
   }
 
   /** Register or replace a level (used by custom map creator). */

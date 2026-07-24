@@ -47,6 +47,16 @@ export class TowerCombatManager implements ZombieSpatialQuery {
     this.eventBus = eventBus;
   }
 
+  /** Resize spatial grid when loading a map with different dimensions. */
+  public setWorldSize(worldWidth: number, worldHeight: number): void {
+    this.zombieGrid = new SpatialGrid<Zombie & { [key: string]: unknown }>(
+      worldWidth,
+      worldHeight,
+      128
+    );
+    this.rebuildZombieGrid();
+  }
+
   public setProjectileManager(projectileManager: ProjectileManager): void {
     this.projectileManager = projectileManager;
   }

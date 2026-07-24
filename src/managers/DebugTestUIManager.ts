@@ -192,7 +192,7 @@ export class DebugTestUIManager {
   }
 
   private currentLevelIndex = 1;
-  private readonly maxLevel = 6;
+  private readonly maxLevel = 7;
 
   public progressToNextLevel(): void {
     if (!this.gameManager) {

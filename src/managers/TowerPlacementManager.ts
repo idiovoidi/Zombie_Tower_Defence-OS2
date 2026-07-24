@@ -126,8 +126,12 @@ export class TowerPlacementManager {
       }
     }
 
-    // Check if within map bounds
-    if (x < 50 || x > 974 || y < 50 || y > 718) {
+    // Check if within map bounds (inset so towers aren't on the edge)
+    const map = this.mapManager.getCurrentMap();
+    const mapWidth = map?.width ?? 1024;
+    const mapHeight = map?.height ?? 768;
+    const margin = 50;
+    if (x < margin || x > mapWidth - margin || y < margin || y > mapHeight - margin) {
       return false;
     }
 
