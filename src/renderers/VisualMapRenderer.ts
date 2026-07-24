@@ -4,6 +4,7 @@ import type { InputManager } from '../managers/InputManager';
 import type { MapData, MapManager } from '../managers/MapManager';
 import { FogRenderer } from './effects/FogRenderer';
 import { CampRenderer } from './map/CampRenderer';
+import { DecalRenderer } from './map/DecalRenderer';
 import { GraveyardRenderer } from './map/GraveyardRenderer';
 import { PathRenderer } from './map/PathRenderer';
 import { StructureRenderer } from './map/StructureRenderer';
@@ -20,6 +21,7 @@ export class VisualMapRenderer {
   private corpseContainer: Graphics;
   private corpseRenderer: ZombieCorpseRenderer;
   private campAnimationContainer: Graphics;
+  private decalContainer: Graphics;
 
   // Sub-renderers
   private terrainRenderer: TerrainRenderer;
@@ -27,6 +29,7 @@ export class VisualMapRenderer {
   private graveyardRenderer: GraveyardRenderer;
   private campRenderer: CampRenderer;
   private structureRenderer: StructureRenderer;
+  private decalRenderer: DecalRenderer;
   private fogRenderer: FogRenderer;
 
   constructor(app: Application, mapManager: MapManager, inputManager: InputManager) {
@@ -38,6 +41,7 @@ export class VisualMapRenderer {
     this.fogContainer = new Graphics();
     this.corpseContainer = new Graphics();
     this.campAnimationContainer = new Graphics();
+    this.decalContainer = new Graphics();
     this.corpseRenderer = new ZombieCorpseRenderer(this.corpseContainer);
 
     // Initialize sub-renderers
@@ -46,6 +50,7 @@ export class VisualMapRenderer {
     this.graveyardRenderer = new GraveyardRenderer(this.mapContainer);
     this.campRenderer = new CampRenderer(this.pathGraphics, this.campAnimationContainer);
     this.structureRenderer = new StructureRenderer(this.mapContainer);
+    this.decalRenderer = new DecalRenderer(this.decalContainer);
     this.fogRenderer = new FogRenderer(this.fogContainer);
 
     // Initialize fog for graveyard area
@@ -56,6 +61,8 @@ export class VisualMapRenderer {
     this.app.stage.addChildAt(this.pathGraphics, LAYER_INDICES.PATH);
     // Corpses render on ground level
     this.app.stage.addChildAt(this.corpseContainer, LAYER_INDICES.CORPSES);
+    // Decorative ambient animations (trees, ponds, birds)
+    this.app.stage.addChildAt(this.decalContainer, LAYER_INDICES.DECAL_ANIMATIONS);
     // Camp animations render above corpses
     this.app.stage.addChildAt(this.campAnimationContainer, LAYER_INDICES.CAMP_ANIMATIONS);
     // Fog renders on top of corpses but behind game objects
@@ -94,6 +101,9 @@ export class VisualMapRenderer {
     // Add structures (houses, trees, decorations)
     this.structureRenderer.render(mapData);
 
+    // Seed lightweight animated decals (swaying trees, ponds, birds)
+    this.decalRenderer.initialize(mapData);
+
     // Add survivor camp at the end of the path
     const graphEnd = mapData.pathGraph
       ? mapData.pathGraph.nodes.find(n => n.id === mapData.pathGraph?.endId)
@@ -113,6 +123,7 @@ export class VisualMapRenderer {
     this.pathGraphics.clear();
     this.corpseContainer.clear();
     this.corpseRenderer.clear();
+    this.decalRenderer.clear();
     this.fogRenderer.clear();
 
     // Clean up click area via InputManager
@@ -125,6 +136,9 @@ export class VisualMapRenderer {
 
     // Update corpses (fade over time)
     this.corpseRenderer.update(deltaTime);
+
+    // Update ambient map decals
+    this.decalRenderer.update(deltaTime);
 
     // Update camp animations
     this.campRenderer.updateAnimations(deltaTime);

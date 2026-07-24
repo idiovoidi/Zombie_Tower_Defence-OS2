@@ -23,7 +23,7 @@ export interface MapData {
   pathColor?: number;
   pathWidth?: number;
   decorations?: {
-    type: 'tree' | 'rock' | 'bush';
+    type: 'tree' | 'rock' | 'bush' | 'pond';
     x: number;
     y: number;
     size: number;

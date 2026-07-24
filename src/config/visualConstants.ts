@@ -12,8 +12,9 @@ export const LAYER_INDICES = {
   MAP_BACKGROUND: 0,
   PATH: 1,
   CORPSES: 2,
-  CAMP_ANIMATIONS: 3,
-  FOG: 4,
+  DECAL_ANIMATIONS: 3,
+  CAMP_ANIMATIONS: 4,
+  FOG: 5,
 } as const;
 
 // ============================================================================
@@ -81,16 +82,33 @@ export const COLORS = {
 
   // Ruined house colors
   HOUSE_WALL: 0xa0826d,
+  HOUSE_WALL_BACK: 0x6b5d4f,
+  HOUSE_WALL_SIDE: 0x8b7355,
+  HOUSE_WALL_TOWNHOUSE: 0x7a6a5a,
   HOUSE_WALL_OUTLINE: 0x654321,
+  HOUSE_FOUNDATION: 0x5a5a5a,
+  HOUSE_FOUNDATION_OUTLINE: 0x3a3a3a,
+  HOUSE_INTERIOR: 0x2a2218,
   HOUSE_ROOF: 0x8b4513,
+  HOUSE_ROOF_FARM: 0x7a4a3a,
+  HOUSE_ROOF_BEAM: 0x5a3a2a,
+  HOUSE_CHIMNEY: 0x6a5a4a,
+  HOUSE_CHIMNEY_SOOT: 0x2a2a2a,
   HOUSE_WINDOW: 0x1a1a1a,
-  HOUSE_WINDOW_GLASS: 0x4a4a4a,
+  HOUSE_WINDOW_FRAME: 0x654321,
+  HOUSE_WINDOW_GLASS: 0x6a8a9a,
   HOUSE_DOOR_FRAME: 0x4a3a2a,
   HOUSE_DOOR: 0x654321,
+  HOUSE_DOOR_PLANK: 0x5a4a3a,
   HOUSE_RUBBLE: 0x8b7355,
+  HOUSE_RUBBLE_DARK: 0x5a5a5a,
+  HOUSE_RUBBLE_MID: 0x7a6a5a,
   HOUSE_BURN_MARK: 0x1a1a1a,
   HOUSE_SMOKE: 0x808080,
   HOUSE_CRACK: 0x2a2a2a,
+  HOUSE_MOSS: 0x3a5a3a,
+  HOUSE_SHADOW: 0x000000,
+  HOUSE_BRICK_LINE: 0x8a7a6a,
 
   // Decoration colors
   DECOR_DEAD_BUSH: 0x4a3a2a,
@@ -186,6 +204,17 @@ export const COLORS = {
   // Fog colors
   FOG_UPPER: 0xb0c0b0,
   FOG_LOWER: 0xa0b0a0,
+
+  // Animated decal colors
+  DECAL_TREE_TRUNK: 0x4a3a2a,
+  DECAL_TREE_FOLIAGE: 0x3a5a2a,
+  DECAL_TREE_FOLIAGE_DARK: 0x2a4a1a,
+  DECAL_POND_WATER: 0x2a4a5a,
+  DECAL_POND_DEEP: 0x1a3a4a,
+  DECAL_POND_SHIMMER: 0x6a9aaa,
+  DECAL_POND_EDGE: 0x3a4a2a,
+  DECAL_REED: 0x4a5a2a,
+  DECAL_BIRD: 0x2a2a2a,
 } as const;
 
 // ============================================================================
@@ -388,8 +417,12 @@ export const GRAVEYARD_DETAILS = {
   // Ground
   GROUND_COLOR: 0x1a2a1a,
 
-  // Fence
-  FENCE_THICKNESS: 5,
+  // Fence (wrought iron with spiked bars)
+  FENCE_THICKNESS: 4,
+  FENCE_BAR_SPACING: 9,
+  FENCE_BAR_WIDTH: 2,
+  FENCE_SPIKE_HEIGHT: 5,
+  FENCE_RAIL_THICKNESS: 3,
   FENCE_RUST_SPOTS: 8,
   FENCE_RUST_SIZE: 2,
   FENCE_RUST_ALPHA: 0.7,
@@ -399,13 +432,16 @@ export const GRAVEYARD_DETAILS = {
   FENCE_RUST_STREAKS: 5,
   FENCE_RUST_STREAK_LENGTH: 20,
   FENCE_RUST_STREAK_ALPHA: 0.5,
-  FENCE_COLOR: 0x6a4513,
-  FENCE_BORDER_COLOR: 0x4a3013,
+  FENCE_COLOR: 0x4a3a2a,
+  FENCE_BORDER_COLOR: 0x2a1a12,
+  FENCE_BAR_COLOR: 0x5a4a3a,
   FENCE_POST_COLOR: 0x5a4321,
   FENCE_POST_BORDER_COLOR: 0x3a2a11,
   WOOD_GRAIN_COLOR: 0x4a3211,
   RUST_COLOR: 0x8b4513,
   RUST_ALPHA: 0.7,
+  PATH_COLOR: 0x2a2218,
+  PATH_EDGE_COLOR: 0x3a2a1a,
 
   // Gate
   GATE_X_OFFSET: 50,
@@ -455,12 +491,14 @@ export const GRAVEYARD_DETAILS = {
   DEAD_TREE_TRUNK_COLOR: 0x4a3a2a,
   DEAD_TREE_TRUNK_BORDER_COLOR: 0x2a1a1a,
 
-  // Eerie glow
-  GLOW_SPOT_COUNT: 5,
-  GLOW_MIN_SIZE: 8,
-  GLOW_MAX_SIZE: 16, // 8 + 8
-  GLOW_COLOR: 0x00ff00,
-  GLOW_ALPHA: 0.08,
+  // Eerie glow (sickly olive, not neon)
+  GLOW_SPOT_COUNT: 6,
+  GLOW_MIN_SIZE: 10,
+  GLOW_MAX_SIZE: 18,
+  GLOW_COLOR: 0x3a6a3a,
+  GLOW_ALPHA: 0.1,
+  OPEN_GRAVE_GLOW_COLOR: 0x2a4a2a,
+  OPEN_GRAVE_GLOW_ALPHA: 0.18,
 
   // Open graves
   OPEN_GRAVE_HOLE_COLOR: 0x1a1a1a,
@@ -503,4 +541,47 @@ export const FOG = {
   PULSE_MIN_FACTOR: 0.7,
   PULSE_MAX_FACTOR: 1.0, // 0.7 + 0.3
   SIZE_THRESHOLD: 30, // Determines if fog is "lower" type
+} as const;
+
+// ============================================================================
+// ANIMATED MAP DECALS
+// ============================================================================
+export const DECALS = {
+  PATH_CLEARANCE: 55,
+  MIN_Y: 160,
+
+  // Swaying leafy trees
+  TREE_COUNT: 7,
+  TREE_MIN_HEIGHT: 28,
+  TREE_MAX_HEIGHT: 44,
+  TREE_SWAY_AMPLITUDE: 3.5,
+  TREE_SWAY_SPEED: 1.1,
+
+  // Ponds
+  POND_COUNT: 2,
+  POND_MIN_RX: 28,
+  POND_MAX_RX: 42,
+  POND_MIN_RY: 14,
+  POND_MAX_RY: 22,
+  POND_SHIMMER_COUNT: 4,
+  POND_SHIMMER_SPEED: 1.4,
+
+  // Reeds near ponds
+  REED_PER_POND: 5,
+  REED_MIN_HEIGHT: 10,
+  REED_MAX_HEIGHT: 18,
+  REED_SWAY_AMPLITUDE: 2.5,
+  REED_SWAY_SPEED: 1.6,
+
+  // Birds
+  BIRD_COUNT: 6,
+  BIRD_MIN_SPEED: 18,
+  BIRD_MAX_SPEED: 36,
+  BIRD_MIN_SIZE: 3,
+  BIRD_MAX_SIZE: 5,
+  BIRD_BOB_AMPLITUDE: 8,
+  BIRD_BOB_SPEED: 1.2,
+  BIRD_WING_SPEED: 8,
+  BIRD_MIN_Y: 40,
+  BIRD_MAX_Y: 220,
 } as const;
