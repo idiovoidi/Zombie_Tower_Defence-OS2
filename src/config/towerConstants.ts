@@ -1,11 +1,17 @@
 import type { Graphics } from 'pixi.js';
-import { DebugConstants } from './debugConstants';
 import { debugMulFloor } from '../debug/debugScale';
+import { BalanceConstants, scaleStat, upgradeTier } from './balanceConstants';
+import { DebugConstants } from './debugConstants';
 
 /**
  * Tower Constants - Centralized tower stats for easy balancing
  *
- * Adjust these values to quickly balance tower performance
+ * Base stats are what a freshly placed (level 1) tower uses.
+ * Upgrade scaling is in balanceConstants.ts (tiers = level - 1).
+ *
+ * Rough base DPS/$ targets (single-target, ignoring AoE):
+ *   MG ~0.14 | Shotgun ~0.08 | Sniper ~0.09 | Flame ~0.07
+ *   Tesla ~0.04 ST (~0.09 with chains) | Grenade ~0.007 ST (~0.03 with blast)
  */
 
 export type IdleAnimationType =
@@ -58,41 +64,32 @@ const ghostDrawTesla = (g: Graphics) => {
 };
 
 const ghostDrawGrenade = (g: Graphics) => {
-  // Olive drab military platform
   g.rect(-20, -5, 40, 25).fill(0x6b8e23);
   g.rect(-20, -5, 40, 25).stroke({ width: 2, color: 0x556b2f });
-  // Ammo crates
   g.rect(-12, 2, 10, 8).fill(0x8b7355);
   g.rect(2, 2, 10, 8).fill(0x8b7355);
-  // Grenade symbols
   g.circle(-7, 6, 2).fill(0x2f4f2f);
   g.circle(7, 6, 2).fill(0x2f4f2f);
 };
 
 const ghostDrawSludge = (g: Graphics) => {
-  // Toxic barrel platform
   g.rect(-18, -5, 36, 25).fill(0x4a5a3a);
   g.rect(-18, -5, 36, 25).stroke({ width: 2, color: 0x3a4a2a });
-  // Toxic barrels
   g.rect(-10, 0, 8, 12).fill(0x228b22);
   g.rect(2, 0, 8, 12).fill(0x228b22);
-  // Toxic symbols with glow
   g.circle(-6, 6, 3).fill({ color: 0x00ff00, alpha: 0.7 });
   g.circle(6, 6, 3).fill({ color: 0x00ff00, alpha: 0.7 });
-  // Toxic glow effect
   g.circle(-6, 6, 5).fill({ color: 0x32cd32, alpha: 0.3 });
   g.circle(6, 6, 5).fill({ color: 0x32cd32, alpha: 0.3 });
 };
 
 export const TowerConstants = {
-  // Machine Gun Tower - High fire rate, good against swarms
-  // Upgrades focus on fire rate rather than damage
-  // BALANCED: Reduced damage from 12 to 6 (50% nerf) - advanced sim showed 8.3x more efficient than Grenade
+  // Machine Gun — cheap swarm shredder (mid range, high RoF)
   MACHINE_GUN: {
     cost: 250,
-    damage: 6,
-    range: 150,
-    fireRate: 8,
+    damage: 5,
+    range: 140,
+    fireRate: 7,
     health: 120,
     specialAbility: 'High fire rate, upgrades increase speed',
     upgradeCostMultiplier: 0.75,
@@ -103,14 +100,12 @@ export const TowerConstants = {
     ghostDraw: ghostDrawMachineGun,
   } as TowerStats,
 
-  // Sniper Tower - High single-target damage, armor-piercing
-  // BALANCED: Reduced damage from 225 to 140 (-38%) - advanced sim showed 79.8% overkill waste on normal zombies
-  // Snipers should excel vs tanks/elites, not overkill swarms. Lower damage = less waste, faster fire rate compensates
+  // Sniper — long-range single target; high overkill risk on swarms
   SNIPER: {
     cost: 900,
-    damage: 140,
-    range: 400,
-    fireRate: 1,
+    damage: 95,
+    range: 350,
+    fireRate: 0.85,
     health: 80,
     specialAbility: 'High single-target damage, armor-piercing',
     upgradeCostMultiplier: 0.75,
@@ -121,11 +116,11 @@ export const TowerConstants = {
     ghostDraw: ghostDrawSniper,
   } as TowerStats,
 
-  // Shotgun Tower - Short range area denial, double barrel burst fire
+  // Shotgun — short cone burst
   SHOTGUN: {
     cost: 400,
-    damage: 60,
-    range: 120,
+    damage: 40,
+    range: 110,
     fireRate: 0.8,
     health: 100,
     specialAbility: 'Double barrel: 2 quick shots then reload, cone spread',
@@ -137,13 +132,11 @@ export const TowerConstants = {
     ghostDraw: ghostDrawShotgun,
   } as TowerStats,
 
-  // Flame Tower - Area damage over time, burning effect
-  // BALANCED: Reduced damage from 300 to 180 (-40%) - advanced sim showed 83.3% overkill, DoT towers should tick slowly
-  // Fire rate 0.5 = 1 shot every 2 seconds, allowing burn damage to work between shots
+  // Flame — short DoT / area burn (damage is burst; burn carries DPS)
   FLAME: {
     cost: 750,
-    damage: 180,
-    range: 120,
+    damage: 100,
+    range: 110,
     fireRate: 0.5,
     health: 90,
     specialAbility: 'Area damage over time, burning effect',
@@ -155,13 +148,12 @@ export const TowerConstants = {
     ghostDraw: ghostDrawFlame,
   } as TowerStats,
 
-  // Tesla Tower - Chain lightning, affects multiple targets
-  // NERF: Reduced fire rate from 2 to 1.5 (220→165 DPS) - was dominating late-game horde tests
+  // Tesla — mid chain lightning (ST DPS intentionally low; chains add value)
   TESLA: {
     cost: 1500,
-    damage: 110,
-    range: 200,
-    fireRate: 1.5,
+    damage: 55,
+    range: 145,
+    fireRate: 1.2,
     health: 110,
     specialAbility: 'Chain lightning, affects multiple targets',
     upgradeCostMultiplier: 0.75,
@@ -172,13 +164,12 @@ export const TowerConstants = {
     ghostDraw: ghostDrawTesla,
   } as TowerStats,
 
-  // Grenade Tower - Explosive area damage with arc trajectory
-  // NERF: Reduced damage from 90 to 50 - was one-shotting spawn clusters; blast also uses RNG cone scatter
+  // Grenade — slow inaccurate blast (ST weak; clumps are the job)
   GRENADE: {
     cost: 1250,
-    damage: 50,
-    range: 180,
-    fireRate: 0.3,
+    damage: 32,
+    range: 135,
+    fireRate: 0.28,
     health: 95,
     specialAbility: 'Explosive area damage, inaccurate arc (RNG cone)',
     upgradeCostMultiplier: 0.75,
@@ -189,7 +180,7 @@ export const TowerConstants = {
     ghostDraw: ghostDrawGrenade,
   } as TowerStats,
 
-  // Sludge Tower - Crowd control, creates slowing pools
+  // Sludge — pure CC
   SLUDGE: {
     cost: 800,
     damage: 0,
@@ -230,10 +221,6 @@ export function getTowerStats(type: string): TowerStats | undefined {
   }
 }
 
-/**
- * Helper to get tower stats with guard clause
- * Returns null if stats not found, letting caller handle the default
- */
 function withTowerStats<T>(type: string, fn: (stats: TowerStats) => T, defaultValue: T): T {
   const stats = getTowerStats(type);
   if (!stats) {
@@ -243,40 +230,50 @@ function withTowerStats<T>(type: string, fn: (stats: TowerStats) => T, defaultVa
 }
 
 /**
- * Calculate tower damage with upgrades
+ * Calculate tower damage with upgrades.
+ * Level 1 uses base damage; further levels add tiers from BalanceConstants.
  */
 export function calculateTowerDamage(type: string, upgradeLevel: number): number {
   return withTowerStats(
     type,
     stats => {
-      // Machine gun has lower damage scaling (focuses on fire rate)
+      const { UPGRADE } = BalanceConstants;
+      let perTier: number = UPGRADE.DAMAGE_PER_TIER;
       if (type === 'MachineGun') {
-        // +25% damage per level instead of +50%
-        return Math.floor(stats.damage * (1 + upgradeLevel * 0.25));
+        perTier = UPGRADE.MG_DAMAGE_PER_TIER;
+      } else if (type === 'Grenade') {
+        perTier = UPGRADE.GRENADE_DAMAGE_PER_TIER;
       }
-
-      // Grenade has lower damage scaling (focuses on explosion radius)
-      if (type === 'Grenade') {
-        // +20% damage per level instead of +50%
-        return Math.floor(stats.damage * (1 + upgradeLevel * 0.2));
-      }
-
-      // Other towers: +50% per upgrade level
-      return Math.floor(stats.damage * (1 + upgradeLevel * 0.5));
+      return Math.floor(scaleStat(stats.damage, perTier, upgradeLevel));
     },
     0
   );
 }
 
 /**
- * Calculate tower range with upgrades
+ * Calculate tower range with upgrades (L1 = base range).
  */
 export function calculateTowerRange(type: string, upgradeLevel: number): number {
   return withTowerStats(
     type,
+    stats =>
+      Math.floor(scaleStat(stats.range, BalanceConstants.UPGRADE.RANGE_PER_TIER, upgradeLevel)),
+    0
+  );
+}
+
+/**
+ * Calculate tower fire rate with upgrades (L1 = base fire rate).
+ */
+export function calculateTowerFireRate(type: string, upgradeLevel: number): number {
+  return withTowerStats(
+    type,
     stats => {
-      // Simple range scaling: +20% per upgrade level
-      return Math.floor(stats.range * (1 + upgradeLevel * 0.2));
+      const perTier =
+        type === 'MachineGun'
+          ? BalanceConstants.UPGRADE.MG_FIRE_RATE_PER_TIER
+          : BalanceConstants.UPGRADE.FIRE_RATE_PER_TIER;
+      return scaleStat(stats.fireRate, perTier, upgradeLevel);
     },
     0
   );
@@ -296,4 +293,10 @@ export function calculateUpgradeCost(type: string, upgradeLevel: number): number
     },
     0
   );
+}
+
+/** Grenade blast radius at the given display level. */
+export function calculateGrenadeBlastRadius(upgradeLevel: number): number {
+  const { BASE_BLAST_RADIUS, BLAST_RADIUS_PER_TIER } = BalanceConstants.GRENADE;
+  return BASE_BLAST_RADIUS + upgradeTier(upgradeLevel) * BLAST_RADIUS_PER_TIER;
 }

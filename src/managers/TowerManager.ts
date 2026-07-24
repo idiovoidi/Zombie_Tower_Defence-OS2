@@ -1,6 +1,9 @@
 import { DebugConstants } from '../config/debugConstants';
 import { GameConfig } from '../config/gameConfig';
 import {
+  calculateTowerDamage as calcDamageFromConstants,
+  calculateTowerFireRate as calcFireRateFromConstants,
+  calculateTowerRange as calcRangeFromConstants,
   calculateUpgradeCost as calcUpgradeCostFromConstants,
   TowerConstants,
   type TowerStats,
@@ -33,9 +36,7 @@ export class TowerManager {
     TowerManager.instance = null;
   }
 
-  // Initialize tower data from constants
   private initializeTowerData(): void {
-    // Load tower stats from centralized constants
     this.towerData.set(GameConfig.TOWER_TYPES.MACHINE_GUN, TowerConstants.MACHINE_GUN);
     this.towerData.set(GameConfig.TOWER_TYPES.SNIPER, TowerConstants.SNIPER);
     this.towerData.set(GameConfig.TOWER_TYPES.SHOTGUN, TowerConstants.SHOTGUN);
@@ -45,66 +46,40 @@ export class TowerManager {
     this.towerData.set(GameConfig.TOWER_TYPES.SLUDGE, TowerConstants.SLUDGE);
   }
 
-  // Get tower stats by type
   public getTowerStats(type: string): TowerStats | undefined {
     return this.towerData.get(type);
   }
 
-  // Get all tower types
   public getTowerTypes(): string[] {
     return Array.from(this.towerData.keys());
   }
 
-  // Calculate tower damage with upgrades
+  /** Damage at display level — L1 equals catalog base (see balanceConstants). */
   public calculateTowerDamage(type: string, upgradeLevel: number): number {
-    const baseStats = this.towerData.get(type);
-    if (!baseStats) {
-      return 0;
-    }
-
-    // Simple damage scaling with upgrades
-    const damage = Math.floor(baseStats.damage * (1 + upgradeLevel * 0.5));
-    return debugMulFloor(damage, DebugConstants.TOWER_DAMAGE_MULTIPLIER);
+    return debugMulFloor(
+      calcDamageFromConstants(type, upgradeLevel),
+      DebugConstants.TOWER_DAMAGE_MULTIPLIER
+    );
   }
 
-  // Calculate tower range with upgrades
   public calculateTowerRange(type: string, upgradeLevel: number): number {
-    const baseStats = this.towerData.get(type);
-    if (!baseStats) {
-      return 0;
-    }
-
-    // Simple range scaling with upgrades
-    const range = Math.floor(baseStats.range * (1 + upgradeLevel * 0.2));
-    return debugMulFloor(range, DebugConstants.TOWER_RANGE_MULTIPLIER);
+    return debugMulFloor(
+      calcRangeFromConstants(type, upgradeLevel),
+      DebugConstants.TOWER_RANGE_MULTIPLIER
+    );
   }
 
-  // Calculate tower fire rate with upgrades
   public calculateTowerFireRate(type: string, upgradeLevel: number): number {
-    const baseStats = this.towerData.get(type);
-    if (!baseStats) {
-      return 0;
-    }
-
-    // Machine gun gets significant fire rate boost with upgrades
-    let fireRate: number;
-    if (type === 'MachineGun') {
-      // +30% fire rate per level
-      fireRate = baseStats.fireRate * (1 + upgradeLevel * 0.3);
-    } else {
-      // Other towers get minor fire rate boost
-      // +10% fire rate per level
-      fireRate = baseStats.fireRate * (1 + upgradeLevel * 0.1);
-    }
-    return debugMul(fireRate, DebugConstants.TOWER_FIRE_RATE_MULTIPLIER);
+    return debugMul(
+      calcFireRateFromConstants(type, upgradeLevel),
+      DebugConstants.TOWER_FIRE_RATE_MULTIPLIER
+    );
   }
 
-  // Calculate upgrade cost — single formula in towerConstants
   public calculateUpgradeCost(type: string, upgradeLevel: number): number {
     return calcUpgradeCostFromConstants(type, upgradeLevel);
   }
 
-  // Get tower cost by type
   public getTowerCost(type: string): number {
     const baseStats = this.towerData.get(type);
     if (!baseStats) {

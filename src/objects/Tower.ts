@@ -3,6 +3,7 @@ import type { ITowerRenderer } from '@/renderers/towers/ITowerRenderer';
 import { TowerRendererFactory } from '@/renderers/towers/TowerRendererFactory';
 import { HealthComponent } from '../components/HealthComponent';
 import { TransformComponent } from '../components/TransformComponent';
+import { TOWER_MAX_LEVEL } from '../config/balanceConstants';
 import { DebugConstants } from '../config/debugConstants';
 import { GameConfig } from '../config/gameConfig';
 import { getTowerStats, type IdleAnimationType } from '../config/towerConstants';
@@ -23,7 +24,7 @@ export class Tower extends GameObject implements ITower, TowerEffects {
   private fireRate = 0; // shots per second
   private lastShotTime = 0;
   private upgradeLevel = 1;
-  private maxUpgradeLevel = 5;
+  private maxUpgradeLevel = TOWER_MAX_LEVEL;
   private upgradeCost = 100;
   private visual: Graphics;
   private barrel: Container; // Separate barrel for rotation
@@ -572,7 +573,6 @@ export class Tower extends GameObject implements ITower, TowerEffects {
       upgradeLevel: this.upgradeLevel,
       barrelRotation: this.barrel.rotation,
     });
-
   }
 
   /**

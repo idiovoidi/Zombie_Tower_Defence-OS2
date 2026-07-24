@@ -1,3 +1,4 @@
+import { BalanceConstants } from '../config/balanceConstants';
 import type { Tower } from '../objects/Tower';
 import type { Zombie } from '../objects/Zombie';
 import type { ZombieSpatialQuery } from '../types/zombieSpatialQuery';
@@ -34,11 +35,7 @@ export class TowerCombatManager implements ZombieSpatialQuery {
     return killed;
   }
 
-  constructor(
-    worldWidth = 1024,
-    worldHeight = 768,
-    eventBus: EventBus = EventBus.getInstance()
-  ) {
+  constructor(worldWidth = 1024, worldHeight = 768, eventBus: EventBus = EventBus.getInstance()) {
     this.zombieGrid = new SpatialGrid<Zombie & { [key: string]: unknown }>(
       worldWidth,
       worldHeight,
@@ -416,8 +413,8 @@ export class TowerCombatManager implements ZombieSpatialQuery {
     // Calculate number of chain jumps based on upgrade level
     // Level 1: 1 target, Level 2: 2 targets, Level 3: 3 targets, etc.
     const maxJumps = tower.getUpgradeLevel();
-    const chainRange = 150; // Maximum distance for chain lightning to jump
-    const damageReduction = 0.7; // Each jump does 70% of previous damage
+    const chainRange = BalanceConstants.TESLA.CHAIN_RANGE;
+    const damageReduction = BalanceConstants.TESLA.DAMAGE_PER_HOP;
 
     // Track hit zombies to avoid hitting the same zombie twice
     const hitZombies = new Set<Zombie>();

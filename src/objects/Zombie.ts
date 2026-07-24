@@ -49,7 +49,7 @@ export class Zombie extends GameObject {
   private fireExposureTime = 0; // Time spent in fire (ms) - resets when leaving fire
   private isBurning = false; // Whether zombie is currently ignited
   private burnDurationRemaining = 0; // Remaining burn time (ms)
-  private burnDamagePerSecond = 25; // Base burn damage per second (75 total over 3s)
+  private burnDamagePerSecond = 15; // Base burn DPS (~45 over 3s)
   private wasInFireLastFrame = false; // Track fire exposure for reset logic
 
   constructor(type: string, x: number, y: number, wave: number) {
@@ -134,42 +134,42 @@ export class Zombie extends GameObject {
     switch (this.type) {
       case GameConfig.ZOMBIE_TYPES.BASIC:
         this.baseSpeed = 50; // pixels per second
-        this.reward = 10;
+        this.reward = 5;
         this.damage = 1; // 1 survivor killed
         break;
       case GameConfig.ZOMBIE_TYPES.FAST:
         this.baseSpeed = 100;
-        this.reward = 15;
+        this.reward = 8;
         this.damage = 1; // Fast but weak
         break;
       case GameConfig.ZOMBIE_TYPES.TANK:
         this.baseSpeed = 25;
-        this.reward = 50;
+        this.reward = 25;
         this.damage = 5; // Massive damage
         break;
       case GameConfig.ZOMBIE_TYPES.ARMORED:
         this.baseSpeed = 40;
-        this.reward = 30;
+        this.reward = 15;
         this.damage = 3; // Heavy damage
         break;
       case GameConfig.ZOMBIE_TYPES.SWARM:
         this.baseSpeed = 60;
-        this.reward = 5;
+        this.reward = 3;
         this.damage = 1; // Small but numerous
         break;
       case GameConfig.ZOMBIE_TYPES.STEALTH:
         this.baseSpeed = 70;
-        this.reward = 25;
+        this.reward = 12;
         this.damage = 2; // Moderate damage
         break;
       case GameConfig.ZOMBIE_TYPES.MECHANICAL:
         this.baseSpeed = 55;
-        this.reward = 40;
+        this.reward = 20;
         this.damage = 4; // High-tech threat
         break;
       default:
         this.baseSpeed = 50;
-        this.reward = 10;
+        this.reward = 5;
         this.damage = 1;
     }
 

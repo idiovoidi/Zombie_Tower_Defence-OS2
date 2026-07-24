@@ -1,4 +1,5 @@
 import { Container, Graphics } from 'pixi.js';
+import { calculateGrenadeBlastRadius } from '../../config/towerConstants';
 import { EffectCleanupManager } from '../../utils/EffectCleanupManager';
 import { ResourceCleanupManager } from '../../utils/ResourceCleanupManager';
 
@@ -18,12 +19,7 @@ export class ExplosionEffect extends Container {
 
     this.position.set(x, y);
     this.upgradeLevel = upgradeLevel;
-
-    // Calculate explosion radius based on upgrade level
-    // Level 1: 45px, Level 2: 56px, Level 3: 67px, Level 4: 78px, Level 5: 90px
-    const baseRadius = 45;
-    const radiusPerLevel = 11;
-    this.explosionRadius = baseRadius + (upgradeLevel - 1) * radiusPerLevel;
+    this.explosionRadius = calculateGrenadeBlastRadius(upgradeLevel);
 
     this.explosionGraphics = new Graphics();
     this.addChild(this.explosionGraphics);
