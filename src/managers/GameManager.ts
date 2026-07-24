@@ -1,7 +1,8 @@
-import { type Application, Container } from 'pixi.js';
+import { type Application, Container, Graphics } from 'pixi.js';
 import { DebugConstants } from '../config/debugConstants';
 import { DevConfig } from '../config/devConfig';
 import { GameConfig } from '../config/gameConfig';
+import { CAMERA, UI_DIMENSIONS } from '../config/visualConstants';
 import { configureTowerRuntime } from '../core/towerRuntime';
 import { type CustomMapDocument, registerCustomMap } from '../customMaps';
 import type { Tower } from '../objects/Tower';
@@ -11,6 +12,7 @@ import { EffectManager } from '../renderers/effects/EffectManager';
 import type { SludgePoolEffect } from '../renderers/effects/SludgePoolEffect';
 import { VisualMapRenderer } from '../renderers/VisualMapRenderer';
 import type { IStatTracker } from '../types/gameProviders';
+import { Camera } from '../utils/Camera';
 import { EffectCleanupManager } from '../utils/EffectCleanupManager';
 import { EventBus, GameEvents } from '../utils/EventBus';
 import { type GameLogEntry, LogExporter } from '../utils/LogExporter';
@@ -71,7 +73,11 @@ export class GameManager {
   private towerCombatManager: TowerCombatManager;
   private sludgePoolManager: SludgePoolManager;
 
+  private viewportContainer: Container;
+  private worldContainer: Container;
+  private playAreaMask: Graphics;
   private gameContainer: Container;
+  private camera: Camera;
   private waveStartLives = 0;
 
   constructor(app: Application, deps: GameManagerDeps = {}) {
@@ -96,9 +102,36 @@ export class GameManager {
       rangeVisualizer: this.rangeVisualizer,
     });
 
+    // Fixed play-area viewport (mask stays put); camera transforms only worldContainer.
+    this.viewportContainer = new Container();
+    app.stage.addChildAt(this.viewportContainer, 0);
+
+    this.playAreaMask = new Graphics()
+      .rect(0, 0, UI_DIMENSIONS.PLAY_AREA_WIDTH, UI_DIMENSIONS.HEIGHT)
+      .fill(0xffffff);
+    this.playAreaMask.eventMode = 'none';
+    this.viewportContainer.addChild(this.playAreaMask);
+    this.viewportContainer.mask = this.playAreaMask;
+
+    this.worldContainer = new Container();
+    this.worldContainer.sortableChildren = true;
+    this.viewportContainer.addChild(this.worldContainer);
+
     this.gameContainer = new Container();
     this.gameContainer.sortableChildren = true;
-    app.stage.addChild(this.gameContainer);
+    this.gameContainer.zIndex = CAMERA.GAME_CONTENT_Z_INDEX;
+    this.worldContainer.addChild(this.gameContainer);
+
+    this.camera = new Camera(
+      this.worldContainer,
+      {
+        worldWidth: UI_DIMENSIONS.PLAY_AREA_WIDTH,
+        worldHeight: UI_DIMENSIONS.HEIGHT,
+        viewportWidth: UI_DIMENSIONS.PLAY_AREA_WIDTH,
+        viewportHeight: UI_DIMENSIONS.HEIGHT,
+      },
+      { maxZoom: CAMERA.MAX_ZOOM, zoomStep: CAMERA.ZOOM_STEP }
+    );
 
     this.effectManager = new EffectManager(this.gameContainer);
 
@@ -235,6 +268,7 @@ export class GameManager {
       this.lives = level.startingLives;
     }
     this.visualMapRenderer?.renderMap(level.map);
+    this.syncCameraToCurrentMap();
 
     this.currentState = GameConfig.GAME_STATES.PLAYING;
 
@@ -281,6 +315,7 @@ export class GameManager {
     this.waveManager.reset(this.getStartingWave());
 
     this.visualMapRenderer?.renderMap(mapName);
+    this.syncCameraToCurrentMap();
 
     this.currentState = GameConfig.GAME_STATES.PLAYING;
 
@@ -577,10 +612,31 @@ export class GameManager {
     return this.visualMapRenderer;
   }
 
+  public getWorldContainer(): Container {
+    return this.worldContainer;
+  }
+
+  public getCamera(): Camera {
+    return this.camera;
+  }
+
   public setInputManager(inputManager: InputManager): void {
     if (!this.visualMapRenderer) {
-      this.visualMapRenderer = new VisualMapRenderer(this.app, this.mapManager, inputManager);
+      this.visualMapRenderer = new VisualMapRenderer(
+        this.app,
+        this.mapManager,
+        inputManager,
+        this.worldContainer
+      );
     }
+  }
+
+  private syncCameraToCurrentMap(): void {
+    const mapData = this.mapManager.getCurrentMap();
+    const width = mapData?.width ?? UI_DIMENSIONS.PLAY_AREA_WIDTH;
+    const height = mapData?.height ?? UI_DIMENSIONS.HEIGHT;
+    this.camera.setWorldSize(width, height);
+    this.camera.reset();
   }
 
   public getAIPlayerManager() {

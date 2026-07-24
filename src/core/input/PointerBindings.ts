@@ -17,7 +17,10 @@ export function bindPointerInput(
   towerShop: TowerShop
 ): void {
   inputManager.onPointerDown((coords, event) => {
-    if (event.defaultPrevented || !isActivePlayState(gameManager.getCurrentState())) {
+    if (event.defaultPrevented || event.button === 1 || inputManager.isCameraPanning()) {
+      return;
+    }
+    if (!isActivePlayState(gameManager.getCurrentState())) {
       return;
     }
 

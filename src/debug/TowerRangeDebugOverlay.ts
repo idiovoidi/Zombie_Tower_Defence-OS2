@@ -1,5 +1,6 @@
-import { type Application, Graphics } from 'pixi.js';
+import { type Container, Graphics } from 'pixi.js';
 import { DebugConstants } from '../config/debugConstants';
+import { CAMERA } from '../config/visualConstants';
 import type { Tower } from '../objects/Tower';
 
 /**
@@ -8,10 +9,11 @@ import type { Tower } from '../objects/Tower';
 export class TowerRangeDebugOverlay {
   private readonly graphics: Graphics;
 
-  constructor(app: Application) {
+  constructor(parent: Container) {
     this.graphics = new Graphics();
     this.graphics.eventMode = 'none';
-    app.stage.addChild(this.graphics);
+    this.graphics.zIndex = CAMERA.DEBUG_OVERLAY_Z_INDEX;
+    parent.addChild(this.graphics);
   }
 
   public update(towers: readonly Tower[]): void {

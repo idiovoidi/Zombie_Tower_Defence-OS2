@@ -10,6 +10,7 @@ type PixelArtRenderer = InstanceType<typeof import('../utils/PixelArtRenderer').
 
 export interface GameLoopDebugHooks {
   updateRangeOverlay?: () => void;
+  updateCamera?: (deltaMs: number) => void;
 }
 
 export function startGameLoop(
@@ -33,6 +34,8 @@ export function startGameLoop(
       console.warn(`⚠️ Delta time capped from ${deltaTime.toFixed(1)}ms to ${maxDeltaTime}ms`);
       deltaTime = maxDeltaTime;
     }
+
+    debugHooks?.updateCamera?.(deltaTime);
 
     const debugSpeed =
       DebugConstants.ENABLED && DebugConstants.GAME_SPEED_MULTIPLIER > 0

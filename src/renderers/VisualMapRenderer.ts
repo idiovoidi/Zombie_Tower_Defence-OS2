@@ -1,4 +1,4 @@
-import { type Application, Graphics } from 'pixi.js';
+import { type Application, type Container, Graphics } from 'pixi.js';
 import { GRAVEYARD, LAYER_INDICES } from '../config/visualConstants';
 import type { InputManager } from '../managers/InputManager';
 import type { MapData, MapManager } from '../managers/MapManager';
@@ -12,9 +12,9 @@ import { TerrainRenderer } from './map/TerrainRenderer';
 import { ZombieCorpseRenderer } from './zombies/ZombieCorpseRenderer';
 
 export class VisualMapRenderer {
-  private app: Application;
   private mapManager: MapManager;
   private inputManager: InputManager;
+  private worldContainer: Container;
   private mapContainer: Graphics;
   private pathGraphics: Graphics;
   private fogContainer: Graphics;
@@ -33,10 +33,15 @@ export class VisualMapRenderer {
   private fogRenderer: FogRenderer;
   private onMapRendered: ((mapData: MapData | null) => void) | null = null;
 
-  constructor(app: Application, mapManager: MapManager, inputManager: InputManager) {
-    this.app = app;
+  constructor(
+    _app: Application,
+    mapManager: MapManager,
+    inputManager: InputManager,
+    worldContainer: Container
+  ) {
     this.mapManager = mapManager;
     this.inputManager = inputManager;
+    this.worldContainer = worldContainer;
     this.mapContainer = new Graphics();
     this.pathGraphics = new Graphics();
     this.fogContainer = new Graphics();
@@ -57,17 +62,21 @@ export class VisualMapRenderer {
     // Initialize fog for graveyard area
     this.fogRenderer.initialize(GRAVEYARD.X, GRAVEYARD.Y, GRAVEYARD.WIDTH, GRAVEYARD.HEIGHT);
 
-    // Add to stage at the beginning so it renders behind everything
-    this.app.stage.addChildAt(this.mapContainer, LAYER_INDICES.MAP_BACKGROUND);
-    this.app.stage.addChildAt(this.pathGraphics, LAYER_INDICES.PATH);
-    // Corpses render on ground level
-    this.app.stage.addChildAt(this.corpseContainer, LAYER_INDICES.CORPSES);
-    // Decorative ambient animations (trees, ponds, birds)
-    this.app.stage.addChildAt(this.decalContainer, LAYER_INDICES.DECAL_ANIMATIONS);
-    // Camp animations render above corpses
-    this.app.stage.addChildAt(this.campAnimationContainer, LAYER_INDICES.CAMP_ANIMATIONS);
-    // Fog renders on top of corpses but behind game objects
-    this.app.stage.addChildAt(this.fogContainer, LAYER_INDICES.FOG);
+    this.mapContainer.zIndex = LAYER_INDICES.MAP_BACKGROUND;
+    this.pathGraphics.zIndex = LAYER_INDICES.PATH;
+    this.corpseContainer.zIndex = LAYER_INDICES.CORPSES;
+    this.decalContainer.zIndex = LAYER_INDICES.DECAL_ANIMATIONS;
+    this.campAnimationContainer.zIndex = LAYER_INDICES.CAMP_ANIMATIONS;
+    this.fogContainer.zIndex = LAYER_INDICES.FOG;
+
+    this.worldContainer.addChild(this.mapContainer);
+    this.worldContainer.addChild(this.pathGraphics);
+    this.worldContainer.addChild(this.corpseContainer);
+    this.worldContainer.addChild(this.decalContainer);
+    this.worldContainer.addChild(this.campAnimationContainer);
+    this.worldContainer.addChild(this.fogContainer);
+
+    this.inputManager.setWorldParent(this.worldContainer);
   }
 
   public setCampClickCallback(callback: () => void): void {

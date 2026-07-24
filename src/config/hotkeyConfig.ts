@@ -86,6 +86,11 @@ export const GAME_HOTKEYS: Record<string, HotkeyBinding> = {
     description: 'Pause Game',
     category: 'game',
   },
+  HOME: {
+    key: 'Home',
+    description: 'Reset camera zoom/pan',
+    category: 'game',
+  },
 };
 
 /**

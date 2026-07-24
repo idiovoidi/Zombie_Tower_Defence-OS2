@@ -29,10 +29,12 @@ import { DebugUtils } from './utils/DebugUtils';
   const gameManager = new GameManager(app);
   const timeControlManager = new TimeControlManager();
   const inputManager = new InputManager(app, scaleManager);
+  inputManager.setCamera(gameManager.getCamera());
   gameManager.setInputManager(inputManager);
 
-  const pathOverlay = new PathDebugOverlay(app);
-  const rangeOverlay = new TowerRangeDebugOverlay(app);
+  const worldContainer = gameManager.getWorldContainer();
+  const pathOverlay = new PathDebugOverlay(worldContainer);
+  const rangeOverlay = new TowerRangeDebugOverlay(worldContainer);
 
   const refreshPathOverlay = (): void => {
     pathOverlay.refresh(gameManager.getMapManager().getCurrentMap());
@@ -66,6 +68,7 @@ import { DebugUtils } from './utils/DebugUtils';
 
   startGameLoop(app, gameManager, timeControlManager, ui, pixelArtRenderer, {
     updateRangeOverlay: refreshRangeOverlay,
+    updateCamera: deltaMs => inputManager.updateCamera(deltaMs),
   });
   await registerDebugConsoleAPIs(gameManager, timeControlManager);
   registerDevApi({

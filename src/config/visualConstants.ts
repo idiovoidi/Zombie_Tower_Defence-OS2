@@ -15,6 +15,7 @@ export const LAYER_INDICES = {
   DECAL_ANIMATIONS: 3,
   CAMP_ANIMATIONS: 4,
   FOG: 5,
+  GAME_CONTENT: 10,
 } as const;
 
 // ============================================================================
@@ -378,6 +379,19 @@ export const UI_DIMENSIONS = {
   TOTAL_WIDTH: 1280,
   HEIGHT: 768,
   SEPARATOR_WIDTH: 4,
+} as const;
+
+/** Gameplay camera (world pan/zoom; UI stays untransformed). */
+export const CAMERA = {
+  MAX_ZOOM: 3,
+  /** Multiplier per wheel notch. */
+  ZOOM_STEP: 1.1,
+  /** Design-space pixels per second when holding arrow keys. */
+  PAN_SPEED: 500,
+  /** zIndex for gameplay objects inside worldContainer (above map layers). */
+  GAME_CONTENT_Z_INDEX: 10,
+  CAMP_HIT_Z_INDEX: 11,
+  DEBUG_OVERLAY_Z_INDEX: 12,
 } as const;
 
 // ============================================================================

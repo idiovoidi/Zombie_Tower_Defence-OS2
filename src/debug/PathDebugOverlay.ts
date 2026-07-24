@@ -1,5 +1,6 @@
-import { type Application, Container, Graphics, Text } from 'pixi.js';
+import { Container, Graphics, Text } from 'pixi.js';
 import { DebugConstants } from '../config/debugConstants';
+import { CAMERA } from '../config/visualConstants';
 import type { MapData } from '../managers/MapManager';
 import { ensurePathGraph } from '../path/pathGraph';
 
@@ -13,14 +14,15 @@ export class PathDebugOverlay {
   private readonly labelLayer: Container;
   private labelNodes: Text[] = [];
 
-  constructor(app: Application) {
+  constructor(parent: Container) {
     this.root = new Container();
     this.graphics = new Graphics();
     this.labelLayer = new Container();
     this.root.addChild(this.graphics);
     this.root.addChild(this.labelLayer);
     this.root.eventMode = 'none';
-    app.stage.addChild(this.root);
+    this.root.zIndex = CAMERA.DEBUG_OVERLAY_Z_INDEX;
+    parent.addChild(this.root);
   }
 
   public refresh(mapData: MapData | null | undefined): void {
@@ -54,7 +56,9 @@ export class PathDebugOverlay {
       const radius = isSpawn || isEnd ? 8 : 5;
 
       this.graphics.circle(node.x, node.y, radius).fill({ color, alpha: 0.85 });
-      this.graphics.circle(node.x, node.y, radius).stroke({ width: 1, color: 0xffffff, alpha: 0.9 });
+      this.graphics
+        .circle(node.x, node.y, radius)
+        .stroke({ width: 1, color: 0xffffff, alpha: 0.9 });
 
       const label = new Text({
         text: node.id,

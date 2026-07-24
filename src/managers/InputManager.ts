@@ -1,14 +1,21 @@
 import { type Application, Container, type FederatedPointerEvent, Graphics } from 'pixi.js';
+import { CAMERA, UI_DIMENSIONS } from '../config/visualConstants';
+import type { Camera } from '../utils/Camera';
 import type { ScaleManager } from '../utils/ScaleManager';
 
 interface InputCoordinates {
   screen: { x: number; y: number };
+  /** World-space coordinates (after letterbox + camera). */
   game: { x: number; y: number };
+  /** Design-canvas coordinates (after letterbox, before camera). */
+  design: { x: number; y: number };
 }
 
 export class InputManager {
   private app: Application;
   private scaleManager: ScaleManager;
+  private camera: Camera | null = null;
+  private worldParent: Container | null = null;
   private callbacks: {
     onPointerDown: ((coords: InputCoordinates, event: FederatedPointerEvent) => void)[];
     onPointerMove: ((coords: InputCoordinates, event: FederatedPointerEvent) => void)[];
@@ -17,10 +24,14 @@ export class InputManager {
     onKeyDown: ((key: string, event: KeyboardEvent) => void)[];
     onKeyUp: ((key: string, event: KeyboardEvent) => void)[];
   };
-  private debugMode = false; // Disable debug by default
+  private debugMode = false;
   private campClickArea: Container | null = null;
   private onCampClickCallback: (() => void) | null = null;
   private pressedKeys: Set<string> = new Set();
+
+  private isPanning = false;
+  private panLastDesignX = 0;
+  private panLastDesignY = 0;
 
   constructor(app: Application, scaleManager: ScaleManager) {
     this.app = app;
@@ -36,40 +47,89 @@ export class InputManager {
 
     this.setupEventListeners();
     this.setupKeyboardListeners();
+    this.setupWheelListener();
+  }
+
+  public setCamera(camera: Camera): void {
+    this.camera = camera;
+  }
+
+  public setWorldParent(container: Container): void {
+    this.worldParent = container;
+  }
+
+  public isCameraPanning(): boolean {
+    return this.isPanning;
+  }
+
+  /** Continuous arrow-key pan; call each frame with unscaled delta ms. */
+  public updateCamera(deltaMs: number): void {
+    if (!this.camera) {
+      return;
+    }
+
+    let dx = 0;
+    let dy = 0;
+    if (this.pressedKeys.has('ArrowLeft')) dx += 1;
+    if (this.pressedKeys.has('ArrowRight')) dx -= 1;
+    if (this.pressedKeys.has('ArrowUp')) dy += 1;
+    if (this.pressedKeys.has('ArrowDown')) dy -= 1;
+
+    if (dx === 0 && dy === 0) {
+      return;
+    }
+
+    const speed = CAMERA.PAN_SPEED * (deltaMs / 1000);
+    const len = Math.hypot(dx, dy) || 1;
+    this.camera.pan((dx / len) * speed, (dy / len) * speed);
   }
 
   private setupEventListeners(): void {
-    // Set up the main stage for interaction
     this.app.stage.eventMode = 'static';
-
-    // Use a simple approach - let PixiJS handle the hit area automatically
     this.app.stage.hitArea = this.app.screen;
 
-    // Pointer down events
     this.app.stage.on('pointerdown', (event: FederatedPointerEvent) => {
+      if (event.button === 1) {
+        this.beginPan(event);
+        return;
+      }
+
       const coords = this.getCoordinates(event);
       this.callbacks.onPointerDown.forEach(callback => {
         callback(coords, event);
       });
     });
 
-    // Pointer move events
     this.app.stage.on('pointermove', (event: FederatedPointerEvent) => {
+      if (this.isPanning) {
+        this.updatePan(event);
+        return;
+      }
+
       const coords = this.getCoordinates(event);
       this.callbacks.onPointerMove.forEach(callback => {
         callback(coords, event);
       });
     });
 
-    // Pointer up events
     this.app.stage.on('pointerup', (event: FederatedPointerEvent) => {
+      if (this.isPanning && event.button === 1) {
+        this.endPan();
+        return;
+      }
+
       const coords = this.getCoordinates(event);
       this.callbacks.onPointerUp.forEach(callback => {
         callback(coords, event);
       });
     });
 
-    // Right click events
+    this.app.stage.on('pointerupoutside', (_event: FederatedPointerEvent) => {
+      if (this.isPanning) {
+        this.endPan();
+      }
+    });
+
     this.app.stage.on('rightdown', (event: FederatedPointerEvent) => {
       const coords = this.getCoordinates(event);
       this.callbacks.onRightClick.forEach(callback => {
@@ -77,47 +137,93 @@ export class InputManager {
       });
     });
 
-    // Prevent context menu on right click
     this.app.canvas.addEventListener('contextmenu', e => {
       e.preventDefault();
     });
   }
 
+  private setupWheelListener(): void {
+    this.app.canvas.addEventListener(
+      'wheel',
+      (event: WheelEvent) => {
+        if (!this.camera) {
+          return;
+        }
+
+        const rect = this.app.canvas.getBoundingClientRect();
+        const design = this.scaleManager.screenToGame(
+          event.clientX - rect.left,
+          event.clientY - rect.top
+        );
+        if (!this.isInPlayAreaDesign(design.x, design.y)) {
+          return;
+        }
+
+        event.preventDefault();
+        this.camera.zoomAt(event.deltaY, design.x, design.y);
+      },
+      { passive: false }
+    );
+  }
+
+  private beginPan(event: FederatedPointerEvent): void {
+    if (!this.camera) {
+      return;
+    }
+
+    const design = this.scaleManager.screenToGame(event.global.x, event.global.y);
+    if (!this.isInPlayAreaDesign(design.x, design.y)) {
+      return;
+    }
+
+    this.isPanning = true;
+    this.panLastDesignX = design.x;
+    this.panLastDesignY = design.y;
+    event.stopPropagation();
+  }
+
+  private updatePan(event: FederatedPointerEvent): void {
+    if (!this.camera) {
+      return;
+    }
+
+    const design = this.scaleManager.screenToGame(event.global.x, event.global.y);
+    const dx = design.x - this.panLastDesignX;
+    const dy = design.y - this.panLastDesignY;
+    if (dx !== 0 || dy !== 0) {
+      this.camera.pan(dx, dy);
+      this.panLastDesignX = design.x;
+      this.panLastDesignY = design.y;
+    }
+  }
+
+  private endPan(): void {
+    this.isPanning = false;
+  }
+
   private setupKeyboardListeners(): void {
-    // Keyboard down events
     window.addEventListener('keydown', (event: KeyboardEvent) => {
-      // Prevent default for game keys to avoid browser shortcuts
       if (this.shouldPreventDefault(event.key)) {
         event.preventDefault();
       }
 
-      // Track pressed keys to prevent repeat events
       if (this.pressedKeys.has(event.key)) {
-        return; // Key is already pressed, ignore repeat
+        return;
       }
       this.pressedKeys.add(event.key);
 
-      // Debug logging
-      if (this.debugMode) {
-        // Key down event logged
+      if (event.key === 'Home' && this.camera) {
+        this.camera.reset();
       }
 
-      // Call all registered callbacks
       this.callbacks.onKeyDown.forEach(callback => {
         callback(event.key, event);
       });
     });
 
-    // Keyboard up events
     window.addEventListener('keyup', (event: KeyboardEvent) => {
       this.pressedKeys.delete(event.key);
 
-      // Debug logging
-      if (this.debugMode) {
-        // Key up event logged
-      }
-
-      // Call all registered callbacks
       this.callbacks.onKeyUp.forEach(callback => {
         callback(event.key, event);
       });
@@ -125,35 +231,34 @@ export class InputManager {
   }
 
   private shouldPreventDefault(key: string): boolean {
-    // Prevent default for keys that might trigger browser shortcuts
     const preventKeys = [
-      ' ', // Space (prevent page scroll)
-      'Tab', // Tab (prevent focus change)
-      'Escape', // Escape
+      ' ',
+      'Tab',
+      'Escape',
+      'ArrowLeft',
+      'ArrowRight',
+      'ArrowUp',
+      'ArrowDown',
+      'Home',
     ];
     return preventKeys.includes(key);
   }
 
   private getCoordinates(event: FederatedPointerEvent): InputCoordinates {
-    // Get screen coordinates (raw mouse position)
     const screenX = event.global.x;
     const screenY = event.global.y;
-
-    // Convert to game coordinates using ScaleManager
-    const gameCoords = this.scaleManager.screenToGame(screenX, screenY);
-
-    // Debug logging
-    if (this.debugMode) {
-      // Pointer coordinates logged
-    }
+    const design = this.scaleManager.screenToGame(screenX, screenY);
+    const game = this.camera
+      ? this.camera.designToWorld(design.x, design.y)
+      : { x: design.x, y: design.y };
 
     return {
       screen: { x: screenX, y: screenY },
-      game: { x: gameCoords.x, y: gameCoords.y },
+      design,
+      game,
     };
   }
 
-  // Public methods to register callbacks
   public onPointerDown(
     callback: (coords: InputCoordinates, event: FederatedPointerEvent) => void
   ): void {
@@ -190,18 +295,19 @@ export class InputManager {
     return this.pressedKeys.has(key);
   }
 
-  // Utility method to check if coordinates are within game area
   public isInGameArea(coords: InputCoordinates): boolean {
-    const { x, y } = coords.game;
-    return x >= 0 && x <= 1024 && y >= 0 && y <= 768; // GameConfig dimensions
+    return this.isInPlayAreaDesign(coords.design.x, coords.design.y);
   }
 
-  // Utility method to get coordinates at any time (for external use)
+  private isInPlayAreaDesign(x: number, y: number): boolean {
+    return x >= 0 && x <= UI_DIMENSIONS.PLAY_AREA_WIDTH && y >= 0 && y <= UI_DIMENSIONS.HEIGHT;
+  }
+
   public getGameCoordinates(screenX: number, screenY: number): { x: number; y: number } {
-    return this.scaleManager.screenToGame(screenX, screenY);
+    const design = this.scaleManager.screenToGame(screenX, screenY);
+    return this.camera ? this.camera.designToWorld(design.x, design.y) : design;
   }
 
-  // Debug methods
   public setDebugMode(enabled: boolean): void {
     this.debugMode = enabled;
   }
@@ -214,35 +320,30 @@ export class InputManager {
     return this.scaleManager.getDebugInfo();
   }
 
-  // Camp click area management
   public setCampClickCallback(callback: () => void): void {
     this.onCampClickCallback = callback;
   }
 
   public createCampClickArea(campX: number, campY: number): void {
-    // Remove old click area if it exists
     if (this.campClickArea) {
-      this.app.stage.removeChild(this.campClickArea);
+      this.campClickArea.parent?.removeChild(this.campClickArea);
       this.campClickArea.destroy();
     }
 
-    // Create new clickable container
     this.campClickArea = new Container();
     this.campClickArea.eventMode = 'static';
     this.campClickArea.cursor = 'pointer';
+    this.campClickArea.zIndex = CAMERA.CAMP_HIT_Z_INDEX;
 
-    // Create invisible hitbox covering the camp area
     const hitbox = new Graphics();
     hitbox.rect(campX - 65, campY - 60, 130, 110).fill({ color: 0x000000, alpha: 0.001 });
     hitbox.eventMode = 'static';
     this.campClickArea.addChild(hitbox);
 
-    // Add hover effect - highlight border
     const hoverBorder = new Graphics();
     hoverBorder.visible = false;
     this.campClickArea.addChild(hoverBorder);
 
-    // Hover events
     this.campClickArea.on('pointerover', () => {
       hoverBorder.clear();
       hoverBorder.rect(campX - 65, campY - 60, 130, 110).stroke({ width: 3, color: 0xffcc00 });
@@ -253,25 +354,21 @@ export class InputManager {
       hoverBorder.visible = false;
     });
 
-    // Click event
     this.campClickArea.on('pointerdown', event => {
       event.stopPropagation();
       event.preventDefault();
       if (this.onCampClickCallback) {
         this.onCampClickCallback();
-      } else {
-        // No camp click callback registered
       }
     });
 
-    // Add to stage at a high z-index to ensure it's on top
-    const _stageChildCount = this.app.stage.children.length;
-    this.app.stage.addChild(this.campClickArea);
+    const parent = this.worldParent ?? this.app.stage;
+    parent.addChild(this.campClickArea);
   }
 
   public clearCampClickArea(): void {
     if (this.campClickArea) {
-      this.app.stage.removeChild(this.campClickArea);
+      this.campClickArea.parent?.removeChild(this.campClickArea);
       this.campClickArea.destroy();
       this.campClickArea = null;
     }

@@ -136,6 +136,9 @@ export class DebugInfoPanel extends UIPanel {
       'R - Toggle tower ranges',
       'W - Toggle waypoints',
       'B - Toggle health bars',
+      'Wheel - Zoom camera',
+      'Middle-drag / Arrows - Pan',
+      'Home - Reset camera',
       'H - Hotkey help (console)',
       'dev.help() in console',
     ];
