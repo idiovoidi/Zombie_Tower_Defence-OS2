@@ -1,6 +1,7 @@
 import { Container, Graphics } from 'pixi.js';
 import { HealthComponent } from '../components/HealthComponent';
 import { TransformComponent } from '../components/TransformComponent';
+import { DebugConstants } from '../config/debugConstants';
 import { GameConfig } from '../config/gameConfig';
 import {
   convertToTowerType,
@@ -229,15 +230,15 @@ export class Zombie extends GameObject {
       this.renderer.render(this, state);
     }
 
-    // Update health bar
+    // Update health bar (dev flag — health is also readable from zombie colour)
     const healthComponent = this.getComponent<HealthComponent>('Health');
     if (healthComponent && this.healthBar) {
-      const healthPercentage = healthComponent.getHealthPercentage();
-      this.healthBarFg.width = 30 * (healthPercentage / 100);
-
-      // Show health bar when damaged
-      if (healthPercentage < 100) {
-        this.healthBar.visible = true;
+      if (!DebugConstants.SHOW_ZOMBIE_HEALTH_BARS) {
+        this.healthBar.visible = false;
+      } else {
+        const healthPercentage = healthComponent.getHealthPercentage();
+        this.healthBarFg.width = 30 * (healthPercentage / 100);
+        this.healthBar.visible = healthPercentage < 100;
       }
     }
 
