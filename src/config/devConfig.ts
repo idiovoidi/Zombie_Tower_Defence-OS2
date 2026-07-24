@@ -10,6 +10,8 @@ export const DevConfig = {
     SHOW_FPS: true,
     SHOW_COLLISION_BOUNDS: false,
     SHOW_PATHFINDING: false,
+    /** Visualize SDF heatmap on zombies (0=off, see SdfDebugMode). */
+    SHOW_SDF_DEBUG: false,
   },
 
   // Performance settings
@@ -78,6 +80,8 @@ export const DevConfig = {
     HOT_RELOAD: true,
     DEV_TOOLS: true,
     MOCK_DATA: false,
+    /** Use SDF mesh renderers instead of Graphics skeletal renderers. */
+    USE_SDF_ZOMBIE_RENDERERS: true,
   },
 
   // Testing settings

@@ -110,6 +110,22 @@ export class LevelManager {
     this.unlockedLevels.add('level1');
   }
 
+  /** Register or replace a level (used by custom map creator). */
+  public registerLevel(data: LevelData, options?: { unlock?: boolean }): void {
+    this.levels.set(data.id, { ...data });
+    if (options?.unlock !== false) {
+      this.unlockedLevels.add(data.id);
+    }
+  }
+
+  public unregisterLevel(levelId: string): boolean {
+    this.unlockedLevels.delete(levelId);
+    if (this.currentLevel === levelId) {
+      this.currentLevel = '';
+    }
+    return this.levels.delete(levelId);
+  }
+
   public loadLevel(levelId: string): boolean {
     if (!this.levels.has(levelId) || !this.unlockedLevels.has(levelId)) {
       return false;
@@ -133,6 +149,15 @@ export class LevelManager {
 
   public getAvailableLevels(): LevelData[] {
     return Array.from(this.levels.values()).filter(level => this.unlockedLevels.has(level.id));
+  }
+
+  /** Built-in campaign levels only (excludes custom_* ids). */
+  public getCampaignLevels(): LevelData[] {
+    return this.getAvailableLevels().filter(level => !level.id.startsWith('custom_'));
+  }
+
+  public getCustomLevels(): LevelData[] {
+    return this.getAvailableLevels().filter(level => level.id.startsWith('custom_'));
   }
 
   public unlockLevel(levelId: string): void {

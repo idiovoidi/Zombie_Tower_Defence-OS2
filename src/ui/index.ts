@@ -5,6 +5,7 @@ export { GameOverScreen } from './GameOverScreen';
 export { HUD } from './HUD';
 export { LevelSelectMenu } from './LevelSelectMenu';
 export { MainMenu } from './MainMenu';
+export { MapEditorScreen } from './MapEditorScreen';
 export { MoneyAnimation } from './MoneyAnimation';
 export { TowerInfoPanel } from './TowerInfoPanel';
 export { UIComponent } from './UIComponent';

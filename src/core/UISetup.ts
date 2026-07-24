@@ -1,6 +1,7 @@
 import type { Application } from 'pixi.js';
 import { DebugConstants } from '../config/debugConstants';
 import { GameConfig } from '../config/gameConfig';
+import { customMapStore, syncCustomMapsToManagers } from '../customMaps';
 import { CampUpgradeManager } from '../managers/CampUpgradeManager';
 import { DebugTestUIManager } from '../managers/DebugTestUIManager';
 import type { GameManager } from '../managers/GameManager';
@@ -12,6 +13,7 @@ import { GameOverScreen } from '../ui/GameOverScreen';
 import { HUD } from '../ui/HUD';
 import { LevelSelectMenu } from '../ui/LevelSelectMenu';
 import { MainMenu } from '../ui/MainMenu';
+import { MapEditorScreen } from '../ui/MapEditorScreen';
 import { MoneyAnimation } from '../ui/MoneyAnimation';
 import { TimeControlUI } from '../ui/TimeControlUI';
 import { TowerInfoPanel } from '../ui/TowerInfoPanel';
@@ -33,6 +35,7 @@ export interface UIContext {
   gameOverScreen: GameOverScreen;
   mainMenu: MainMenu;
   levelSelectMenu: LevelSelectMenu;
+  mapEditorScreen: MapEditorScreen;
   debugInfoPanel: DebugInfoPanel;
 }
 
@@ -61,6 +64,10 @@ export function createUI(
 
   const levelSelectMenu = new LevelSelectMenu();
   uiManager.registerComponent('levelSelectMenu', levelSelectMenu);
+
+  const mapEditorScreen = new MapEditorScreen();
+  uiManager.registerComponent('mapEditorScreen', mapEditorScreen);
+  mapEditorScreen.hide();
 
   const gameOverScreen = new GameOverScreen();
   uiManager.registerComponent('gameOverScreen', gameOverScreen);
@@ -142,16 +149,54 @@ export function createUI(
   });
 
   // Event handlers
+  const refreshLevelSelect = (): void => {
+    syncCustomMapsToManagers(customMapStore.list(), {
+      mapManager: gameManager.getMapManager(),
+      levelManager: gameManager.getLevelManager(),
+    });
+    levelSelectMenu.updateLevels(gameManager.getAvailableLevels());
+  };
+
   mainMenu.setStartCallback(() => {
     DebugUtils.debug('Starting game from main menu');
     uiManager.setState(GameConfig.GAME_STATES.LEVEL_SELECT);
-    const levels = gameManager.getAvailableLevels();
-    levelSelectMenu.updateLevels(levels);
+    refreshLevelSelect();
+  });
+
+  mainMenu.setMapCreatorCallback(() => {
+    DebugUtils.debug('Opening map creator');
+    mapEditorScreen.newDocument();
+    uiManager.setState(GameConfig.GAME_STATES.MAP_EDITOR);
+  });
+
+  mapEditorScreen.setBackCallback(() => {
+    uiManager.setState(GameConfig.GAME_STATES.MAIN_MENU);
+  });
+
+  mapEditorScreen.setDefaultWaveProvider(wave =>
+    gameManager.getWaveManager().getDefaultWaveZombies(wave)
+  );
+
+  mapEditorScreen.setPlayCallback(doc => {
+    DebugUtils.debug(`Playing custom map: ${doc.name}`);
+    gameManager.startCustomMap(doc);
+    uiManager.setState(gameManager.getCurrentState());
+    setupCampClickCallback(gameManager, campUpgradePanel);
   });
 
   levelSelectMenu.setLevelSelectCallback((levelId: string) => {
     DebugUtils.debug(`Loading level: ${levelId}`);
-    gameManager.startGameWithLevel(levelId);
+    if (levelId.startsWith('custom_')) {
+      const docId = levelId.slice('custom_'.length);
+      const doc = customMapStore.get(docId);
+      if (!doc) {
+        DebugUtils.debug(`Custom map not found: ${docId}`);
+        return;
+      }
+      gameManager.startCustomMap(doc);
+    } else {
+      gameManager.startGameWithLevel(levelId);
+    }
     uiManager.setState(gameManager.getCurrentState());
     setupCampClickCallback(gameManager, campUpgradePanel);
   });
@@ -165,7 +210,17 @@ export function createUI(
     DebugUtils.debug('Restarting game');
     const currentLevel = gameManager.getCurrentLevel();
     if (currentLevel) {
-      gameManager.startGameWithLevel(currentLevel.id);
+      if (currentLevel.id.startsWith('custom_')) {
+        const docId = currentLevel.id.slice('custom_'.length);
+        const doc = customMapStore.get(docId);
+        if (doc) {
+          gameManager.startCustomMap(doc);
+        } else {
+          gameManager.startGameWithLevel(currentLevel.id);
+        }
+      } else {
+        gameManager.startGameWithLevel(currentLevel.id);
+      }
       uiManager.setState(gameManager.getCurrentState());
       setupCampClickCallback(gameManager, campUpgradePanel);
     }
@@ -256,6 +311,7 @@ export function createUI(
     gameOverScreen,
     mainMenu,
     levelSelectMenu,
+    mapEditorScreen,
     debugInfoPanel,
   };
 }

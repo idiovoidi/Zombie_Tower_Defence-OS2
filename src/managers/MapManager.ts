@@ -140,6 +140,21 @@ export class MapManager {
     });
   }
 
+  /** Register or replace a map (used by custom map creator). */
+  public registerMap(data: MapData): void {
+    this.maps.set(data.name, {
+      ...data,
+      waypoints: data.waypoints.map(wp => ({ x: wp.x, y: wp.y })),
+    });
+  }
+
+  public unregisterMap(mapName: string): boolean {
+    if (this.currentMap === mapName) {
+      this.currentMap = 'default';
+    }
+    return this.maps.delete(mapName);
+  }
+
   // Load a map
   public loadMap(mapName: string): boolean {
     if (!this.maps.has(mapName)) {

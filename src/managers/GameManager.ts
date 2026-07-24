@@ -2,6 +2,7 @@ import { type Application, Container } from 'pixi.js';
 import { DebugConstants } from '../config/debugConstants';
 import { DevConfig } from '../config/devConfig';
 import { GameConfig } from '../config/gameConfig';
+import { type CustomMapDocument, registerCustomMap } from '../customMaps';
 import type { Tower } from '../objects/Tower';
 import type { Zombie } from '../objects/Zombie';
 import { EffectManager } from '../renderers/effects/EffectManager';
@@ -207,55 +208,67 @@ export class GameManager {
   }
 
   public startGameWithLevel(levelId: string): void {
-    if (this.levelManager.loadLevel(levelId)) {
-      const level = this.levelManager.getCurrentLevel();
-      if (level) {
-        this.clearGameState();
-        EffectCleanupManager.clearAll();
-        LogExporter.newSession();
+    this.prepareWaveOverridesForLevel(levelId);
 
-        // Reset contextual states
-        this.analyticsState.getBalanceTrackingManager().reset();
-        this.analyticsState.getBalanceTrackingManager().enable();
-
-        // Reset game state
-        this.wave = DebugConstants.ENABLED ? DebugConstants.START_AT_WAVE : 1;
-        this.score = 0;
-        this.waveManager.reset();
-
-        if (DebugConstants.ENABLED) {
-          // Debug constants already applied
-        } else {
-          this.money = level.startingMoney;
-          this.lives = level.startingLives;
-        }
-        if (this.visualMapRenderer) {
-          this.visualMapRenderer.renderMap(level.map);
-        } else {
-          // Visual map renderer not initialized yet
-        }
-
-        this.currentState = GameConfig.GAME_STATES.PLAYING;
-
-        // Start tracking
-        const aiEnabled = this.analyticsState.getAIPlayerManager().isEnabled();
-        this.analyticsState.getStatTracker().startTracking(aiEnabled);
-
-        this.spawnStarterTower();
-
-        if (DevConfig.TESTING?.SPAWN_TEST_TOWERS) {
-          this.spawnTestTowers();
-        }
-
-        this.waveStartLives = this.lives;
-        this.zombieManager.startWave();
-
-        // Emit wave start event - AnalyticsState listens and handles tracking
-        EventBus.getInstance().emit(GameEvents.WAVE_START, { wave: this.wave });
-      }
-    } else {
-      // Failed to load level - level ID may be invalid
+    if (!this.levelManager.loadLevel(levelId)) {
+      return;
     }
+
+    const level = this.levelManager.getCurrentLevel();
+    if (!level) {
+      return;
+    }
+
+    this.clearGameState();
+    EffectCleanupManager.clearAll();
+    LogExporter.newSession();
+
+    this.analyticsState.getBalanceTrackingManager().reset();
+    this.analyticsState.getBalanceTrackingManager().enable();
+
+    this.wave = DebugConstants.ENABLED ? DebugConstants.START_AT_WAVE : 1;
+    this.score = 0;
+    this.waveManager.reset();
+
+    if (!DebugConstants.ENABLED) {
+      this.money = level.startingMoney;
+      this.lives = level.startingLives;
+    }
+    this.visualMapRenderer?.renderMap(level.map);
+
+    this.currentState = GameConfig.GAME_STATES.PLAYING;
+
+    const aiEnabled = this.analyticsState.getAIPlayerManager().isEnabled();
+    this.analyticsState.getStatTracker().startTracking(aiEnabled);
+
+    this.spawnStarterTower();
+
+    if (DevConfig.TESTING?.SPAWN_TEST_TOWERS) {
+      this.spawnTestTowers();
+    }
+
+    this.waveStartLives = this.lives;
+    this.zombieManager.startWave();
+
+    EventBus.getInstance().emit(GameEvents.WAVE_START, { wave: this.wave });
+  }
+
+  private prepareWaveOverridesForLevel(levelId: string): void {
+    if (!levelId.startsWith('custom_')) {
+      this.waveManager.clearWaveOverrides();
+    }
+  }
+
+  /**
+   * Register a custom map document into managers and start playing it.
+   */
+  public startCustomMap(doc: CustomMapDocument): void {
+    const { levelId } = registerCustomMap(doc, {
+      mapManager: this.mapManager,
+      levelManager: this.levelManager,
+      waveManager: this.waveManager,
+    });
+    this.startGameWithLevel(levelId);
   }
 
   private clearGameState(): void {

@@ -13,7 +13,6 @@ export class LevelSelectMenu extends UIComponent {
   constructor() {
     super();
 
-    // Create title
     this.titleText = new Text({
       text: 'SELECT LEVEL',
       style: {
@@ -25,16 +24,14 @@ export class LevelSelectMenu extends UIComponent {
       },
     });
     this.titleText.anchor.set(0.5);
-    this.titleText.position.set(512, 100);
+    this.titleText.position.set(512, 60);
     this.addChild(this.titleText);
 
-    // Create level buttons (will be populated dynamically)
     this.levelButtons = [];
 
-    // Create back button
     this.backButton = new Graphics();
     this.backButton.roundRect(0, 0, 150, 50, 10).fill(0xff0000);
-    this.backButton.position.set(50, 650);
+    this.backButton.position.set(50, 700);
     this.backButton.eventMode = 'static';
     this.backButton.cursor = 'pointer';
     this.backButton.on('pointerdown', event => {
@@ -43,7 +40,6 @@ export class LevelSelectMenu extends UIComponent {
     });
     this.addChild(this.backButton);
 
-    // Create back button text
     this.backButtonText = new Text({
       text: 'BACK',
       style: {
@@ -54,54 +50,63 @@ export class LevelSelectMenu extends UIComponent {
       },
     });
     this.backButtonText.anchor.set(0.5);
-    this.backButtonText.position.set(125, 675);
+    this.backButtonText.position.set(125, 725);
     this.addChild(this.backButtonText);
   }
 
   public updateLevels(levels: LevelData[]): void {
-    // Clear existing level buttons
     this.levelButtons.forEach(item => {
       item.button.destroy({ children: true });
       item.text.destroy({ children: true });
     });
     this.levelButtons = [];
 
-    // Create buttons for each level
-    levels.forEach((level, index) => {
-      const x = 200 + (index % 3) * 220;
-      const y = 200 + Math.floor(index / 3) * 120;
+    const campaign = levels.filter(l => !l.id.startsWith('custom_'));
+    const custom = levels.filter(l => l.id.startsWith('custom_'));
 
-      // Create level button
-      const button = new Graphics();
-      button.roundRect(0, 0, 200, 80, 10).fill(0x00aa00);
-      button.position.set(x, y);
-      button.eventMode = 'static';
-      button.cursor = 'pointer';
-      button.on('pointerdown', event => {
-        event.stopPropagation();
-        this.onLevelSelected(level.id);
-      });
-      this.addChild(button);
+    campaign.forEach((level, index) => {
+      this.createLevelButton(level, index, false);
+    });
 
-      // Create level text
-      const levelText = new Text({
-        text: `${level.name}\n${level.difficulty}`,
-        style: {
-          fontFamily: 'Arial',
-          fontSize: 16,
-          fill: 0xffffff,
-          align: 'center',
-        },
-      });
-      levelText.anchor.set(0.5);
-      levelText.position.set(x + 100, y + 40);
-      this.addChild(levelText);
+    custom.forEach((level, index) => {
+      const slot = campaign.length + index;
+      this.createLevelButton(level, slot, true);
+    });
+  }
 
-      this.levelButtons.push({
-        button,
-        text: levelText,
-        levelId: level.id,
-      });
+  private createLevelButton(level: LevelData, index: number, isCustom: boolean): void {
+    const x = 80 + (index % 4) * 220;
+    const y = 120 + Math.floor(index / 4) * 110;
+
+    const button = new Graphics();
+    button.roundRect(0, 0, 200, 80, 10).fill(isCustom ? 0x2266aa : 0x00aa00);
+    button.position.set(x, y);
+    button.eventMode = 'static';
+    button.cursor = 'pointer';
+    button.on('pointerdown', event => {
+      event.stopPropagation();
+      this.onLevelSelected(level.id);
+    });
+    this.addChild(button);
+
+    const suffix = isCustom ? '\n(custom)' : '';
+    const levelText = new Text({
+      text: `${level.name}\n${level.difficulty}${suffix}`,
+      style: {
+        fontFamily: 'Arial',
+        fontSize: 15,
+        fill: 0xffffff,
+        align: 'center',
+      },
+    });
+    levelText.anchor.set(0.5);
+    levelText.position.set(x + 100, y + 40);
+    this.addChild(levelText);
+
+    this.levelButtons.push({
+      button,
+      text: levelText,
+      levelId: level.id,
     });
   }
 
@@ -110,15 +115,11 @@ export class LevelSelectMenu extends UIComponent {
   }
 
   private onLevelSelected(levelId: string): void {
-    if (this.onLevelSelectCallback) {
-      this.onLevelSelectCallback(levelId);
-    }
+    this.onLevelSelectCallback?.(levelId);
   }
 
   private onBackClicked(): void {
-    if (this.onBackCallback) {
-      this.onBackCallback();
-    }
+    this.onBackCallback?.();
   }
 
   public setLevelSelectCallback(callback: (levelId: string) => void): void {

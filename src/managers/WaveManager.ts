@@ -20,6 +20,8 @@ export interface ZombieGroup {
 export class WaveManager {
   private currentWave: number;
   private waveData: Map<number, ZombieGroup[]>;
+  /** Sparse per-wave overrides from custom maps; null means use built-in table. */
+  private waveOverrides: Map<number, ZombieGroup[]> | null;
   private playerPerformance: {
     killRate: number;
     livesLost: number;
@@ -30,6 +32,7 @@ export class WaveManager {
   constructor() {
     this.currentWave = 1;
     this.waveData = new Map<number, ZombieGroup[]>();
+    this.waveOverrides = null;
     this.playerPerformance = {
       killRate: 100,
       livesLost: 0,
@@ -471,9 +474,39 @@ export class WaveManager {
     }
   }
 
+  /**
+   * Set sparse wave composition overrides (custom maps).
+   * Waves without an override fall back to the built-in table.
+   */
+  public setWaveOverrides(overrides: Map<number, ZombieGroup[]> | null): void {
+    if (!overrides) {
+      this.waveOverrides = null;
+      return;
+    }
+    this.waveOverrides = new Map(
+      Array.from(overrides.entries()).map(([wave, groups]) => [
+        wave,
+        groups.map(g => ({ ...g })),
+      ])
+    );
+  }
+
+  public clearWaveOverrides(): void {
+    this.waveOverrides = null;
+  }
+
   // Get zombie groups for current wave
   public getCurrentWaveZombies(): ZombieGroup[] {
+    const override = this.waveOverrides?.get(this.currentWave);
+    if (override) {
+      return override.map(g => ({ ...g }));
+    }
     return this.waveData.get(this.currentWave) || [];
+  }
+
+  /** Built-in composition for a wave (ignores custom overrides). Useful for editor copy-from-default. */
+  public getDefaultWaveZombies(wave: number): ZombieGroup[] {
+    return (this.waveData.get(wave) || []).map(g => ({ ...g }));
   }
 
   // Advance to next wave
@@ -490,6 +523,7 @@ export class WaveManager {
       resourceEfficiency: 100,
     };
     this.difficultyModifier = 1.0;
+    // Intentionally keep waveOverrides — they belong to the active custom map session.
   }
 
   // Get current wave number

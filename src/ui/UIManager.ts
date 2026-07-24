@@ -13,6 +13,7 @@ const UI_STATE_CONFIG: StateVisibilityConfig = {
   [GameConfig.GAME_STATES.MAIN_MENU]: {
     mainMenu: true,
     levelSelectMenu: false,
+    mapEditorScreen: false,
     hud: false,
     bottomBar: false,
     towerShop: false,
@@ -23,6 +24,18 @@ const UI_STATE_CONFIG: StateVisibilityConfig = {
   [GameConfig.GAME_STATES.LEVEL_SELECT]: {
     mainMenu: false,
     levelSelectMenu: true,
+    mapEditorScreen: false,
+    hud: false,
+    bottomBar: false,
+    towerShop: false,
+    towerInfoPanel: false,
+    statsPanel: false,
+    gameOverScreen: false,
+  },
+  [GameConfig.GAME_STATES.MAP_EDITOR]: {
+    mainMenu: false,
+    levelSelectMenu: false,
+    mapEditorScreen: true,
     hud: false,
     bottomBar: false,
     towerShop: false,
@@ -33,6 +46,7 @@ const UI_STATE_CONFIG: StateVisibilityConfig = {
   [GameConfig.GAME_STATES.PLAYING]: {
     mainMenu: false,
     levelSelectMenu: false,
+    mapEditorScreen: false,
     hud: true,
     bottomBar: true,
     towerShop: true,
@@ -44,6 +58,7 @@ const UI_STATE_CONFIG: StateVisibilityConfig = {
   [GameConfig.GAME_STATES.WAVE_COMPLETE]: {
     mainMenu: false,
     levelSelectMenu: false,
+    mapEditorScreen: false,
     hud: true,
     bottomBar: true,
     towerShop: true,
@@ -55,6 +70,7 @@ const UI_STATE_CONFIG: StateVisibilityConfig = {
   [GameConfig.GAME_STATES.PAUSED]: {
     mainMenu: false,
     levelSelectMenu: false,
+    mapEditorScreen: false,
     hud: true,
     bottomBar: true,
     towerShop: false,
@@ -65,6 +81,7 @@ const UI_STATE_CONFIG: StateVisibilityConfig = {
   [GameConfig.GAME_STATES.GAME_OVER]: {
     mainMenu: false,
     levelSelectMenu: false,
+    mapEditorScreen: false,
     hud: false,
     bottomBar: false,
     towerShop: false,
@@ -75,6 +92,7 @@ const UI_STATE_CONFIG: StateVisibilityConfig = {
   [GameConfig.GAME_STATES.VICTORY]: {
     mainMenu: false,
     levelSelectMenu: false,
+    mapEditorScreen: false,
     hud: false,
     bottomBar: false,
     towerShop: false,
