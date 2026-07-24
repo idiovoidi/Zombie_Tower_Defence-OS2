@@ -224,7 +224,7 @@ export class CampRenderer {
   private renderGate(campX: number, campY: number, gateHeight: number): void {
     const g = this.pathGraphics;
 
-    // Gate posts with caps
+    // Gate posts with caps (top-down square posts)
     g.rect(campX - 71, campY - gateHeight / 2 - 4, 6, 8).fill(COLORS.CAMP_FENCE);
     g.stroke({ width: 1, color: COLORS.CAMP_FENCE_OUTLINE });
     g.rect(campX - 71, campY + gateHeight / 2 - 4, 6, 8).fill(COLORS.CAMP_FENCE);
@@ -232,33 +232,86 @@ export class CampRenderer {
     g.rect(campX - 72, campY - gateHeight / 2 - 6, 8, 3).fill(COLORS.CAMP_FENCE_BAR);
     g.rect(campX - 72, campY + gateHeight / 2 + 3, 8, 3).fill(COLORS.CAMP_FENCE_BAR);
 
-    const gateY1 = campY - gateHeight / 2;
-    const gateY2 = campY + gateHeight / 2;
+    const hingeX = campX - 68;
+    const topHingeY = campY - gateHeight / 2;
+    const botHingeY = campY + gateHeight / 2;
+    // Leaf length ≈ half the opening; thickness is the door's top-down face width
+    const leafLen = gateHeight * 0.42;
+    const thickness = 7;
 
-    // Top door (open outward)
-    g.moveTo(campX - 68, gateY1)
-      .lineTo(campX - 86, gateY1 - 8)
-      .lineTo(campX - 86, campY - 3)
-      .lineTo(campX - 68, campY + 1)
-      .fill({ color: COLORS.CAMP_GATE, alpha: 0.9 });
-    g.stroke({ width: 2, color: COLORS.CAMP_GATE_OUTLINE });
-    g.moveTo(campX - 82, gateY1 - 4)
-      .lineTo(campX - 70, campY - 1)
-      .stroke({ width: 1.5, color: COLORS.CAMP_GATE_OUTLINE });
-    g.moveTo(campX - 84, gateY1)
-      .lineTo(campX - 84, campY - 4)
-      .stroke({ width: 1, color: COLORS.CAMP_FENCE_BAR, alpha: 0.7 });
+    // Top leaf — hinged at north post, swung open westward (flat on ground plane)
+    this.drawOpenGateLeaf(hingeX, topHingeY, leafLen, thickness, 'top');
+    // Bottom leaf — hinged at south post, swung open westward
+    this.drawOpenGateLeaf(hingeX, botHingeY, leafLen, thickness, 'bottom');
+  }
 
-    // Bottom door
-    g.moveTo(campX - 68, gateY2)
-      .lineTo(campX - 86, gateY2 + 8)
-      .lineTo(campX - 86, campY + 3)
-      .lineTo(campX - 68, campY - 1)
-      .fill({ color: COLORS.CAMP_GATE, alpha: 0.9 });
-    g.stroke({ width: 2, color: COLORS.CAMP_GATE_OUTLINE });
-    g.moveTo(campX - 82, gateY2 + 4)
-      .lineTo(campX - 70, campY + 1)
-      .stroke({ width: 1.5, color: COLORS.CAMP_GATE_OUTLINE });
+  /**
+   * Top-down open gate leaf: a flat metal panel on the ground plane,
+   * hinged at the fence and swung outward along -X (toward the path approach).
+   */
+  private drawOpenGateLeaf(
+    hingeX: number,
+    hingeY: number,
+    leafLen: number,
+    thickness: number,
+    side: 'top' | 'bottom'
+  ): void {
+    const g = this.pathGraphics;
+    // Slight outward splay so leaves don't look perfectly parallel
+    const splay = side === 'top' ? -3 : 3;
+    const hingeTowardCenter = side === 'top' ? thickness : -thickness;
+
+    // Panel corners (parallelogram on the ground)
+    const h0x = hingeX;
+    const h0y = hingeY;
+    const h1x = hingeX;
+    const h1y = hingeY + hingeTowardCenter;
+    const t1x = hingeX - leafLen;
+    const t1y = hingeY + hingeTowardCenter + splay;
+    const t0x = hingeX - leafLen;
+    const t0y = hingeY + splay;
+
+    // Soft ground shadow under the leaf
+    g.moveTo(h0x + 1, h0y + 2)
+      .lineTo(t0x + 1, t0y + 3)
+      .lineTo(t1x + 1, t1y + 3)
+      .lineTo(h1x + 1, h1y + 2)
+      .fill({ color: COLORS.CAMP_SHADOW, alpha: 0.22 });
+
+    // Door face
+    g.moveTo(h0x, h0y)
+      .lineTo(t0x, t0y)
+      .lineTo(t1x, t1y)
+      .lineTo(h1x, h1y)
+      .fill({ color: COLORS.CAMP_GATE, alpha: 0.95 });
+    g.stroke({ width: 1.5, color: COLORS.CAMP_GATE_OUTLINE });
+
+    // Crossbars across the face (perpendicular to leaf length)
+    for (const t of [0.25, 0.5, 0.75]) {
+      const ax = h0x + (t0x - h0x) * t;
+      const ay = h0y + (t0y - h0y) * t;
+      const bx = h1x + (t1x - h1x) * t;
+      const by = h1y + (t1y - h1y) * t;
+      g.moveTo(ax, ay)
+        .lineTo(bx, by)
+        .stroke({ width: 1.2, color: COLORS.CAMP_GATE_OUTLINE, alpha: 0.75 });
+    }
+
+    // Long ribs along the leaf
+    const midHx = (h0x + h1x) / 2;
+    const midHy = (h0y + h1y) / 2;
+    const midTx = (t0x + t1x) / 2;
+    const midTy = (t0y + t1y) / 2;
+    g.moveTo(midHx, midHy)
+      .lineTo(midTx, midTy)
+      .stroke({ width: 1, color: COLORS.CAMP_FENCE_BAR, alpha: 0.55 });
+
+    // Hinge knuckles
+    g.circle(h0x, h0y, 1.8).fill(COLORS.CAMP_FENCE_OUTLINE);
+    g.circle(h1x, h1y, 1.8).fill(COLORS.CAMP_FENCE_OUTLINE);
+
+    // Latch stub on free edge
+    g.rect(t0x - 1, (t0y + t1y) / 2 - 1.5, 3, 3).fill(COLORS.CAMP_FENCE_BAR);
   }
 
   private renderTents(campX: number, campY: number): void {
