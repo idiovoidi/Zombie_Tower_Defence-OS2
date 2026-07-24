@@ -39,7 +39,6 @@ import { ZombieManager } from './ZombieManager';
 export class GameManager {
   private app: Application;
   private currentState: string;
-  private money: number;
   private lives: number;
   private wave: number;
   private score: number;
@@ -80,7 +79,6 @@ export class GameManager {
     this.currentState = GameConfig.GAME_STATES.MAIN_MENU;
 
     // Apply debug constants if enabled
-    this.money = DebugConstants.ENABLED ? DebugConstants.STARTING_MONEY : GameConfig.STARTING_MONEY;
     this.lives = DebugConstants.ENABLED ? DebugConstants.STARTING_LIVES : GameConfig.STARTING_LIVES;
     this.wave = DebugConstants.ENABLED ? DebugConstants.START_AT_WAVE : 1;
     this.score = 0;
@@ -141,8 +139,11 @@ export class GameManager {
       effectManager: this.effectManager,
     });
 
-    // Initialize EconomyState
-    this.economyState = new EconomyState();
+    // EconomyState is the single money owner
+    const startingMoney = DebugConstants.ENABLED
+      ? DebugConstants.STARTING_MONEY
+      : GameConfig.STARTING_MONEY;
+    this.economyState = new EconomyState({ startingMoney });
 
     // Initialize AnalyticsState
     this.analyticsState = new AnalyticsState({ gameManager: this });
@@ -231,7 +232,7 @@ export class GameManager {
     this.waveManager.reset();
 
     if (!DebugConstants.ENABLED) {
-      this.money = level.startingMoney;
+      this.economyState.reset(level.startingMoney);
       this.lives = level.startingLives;
     }
     this.visualMapRenderer?.renderMap(level.map);
@@ -248,9 +249,57 @@ export class GameManager {
     }
 
     this.waveStartLives = this.lives;
+    // Own startWave; WAVE_START is notification-only for analytics
     this.zombieManager.startWave();
-
     EventBus.getInstance().emit(GameEvents.WAVE_START, { wave: this.wave });
+  }
+
+  /**
+   * Debug helper: load a map layout by name and restart play.
+   * Prefers the campaign/custom level that owns the map when one exists.
+   */
+  public startGameWithMap(mapName: string): boolean {
+    const levelId = this.levelManager.findLevelIdByMap(mapName);
+    if (levelId) {
+      this.levelManager.unlockLevel(levelId);
+      this.startGameWithLevel(levelId);
+      return true;
+    }
+
+    if (!this.mapManager.loadMap(mapName)) {
+      return false;
+    }
+
+    this.prepareWaveOverridesForLevel('');
+    this.clearGameState();
+    EffectCleanupManager.clearAll();
+    LogExporter.newSession();
+
+    this.analyticsState.getBalanceTrackingManager().reset();
+    this.analyticsState.getBalanceTrackingManager().enable();
+
+    this.wave = DebugConstants.ENABLED ? DebugConstants.START_AT_WAVE : 1;
+    this.score = 0;
+    this.waveManager.reset();
+
+    this.visualMapRenderer?.renderMap(mapName);
+
+    this.currentState = GameConfig.GAME_STATES.PLAYING;
+
+    const aiEnabled = this.analyticsState.getAIPlayerManager().isEnabled();
+    this.analyticsState.getStatTracker().startTracking(aiEnabled);
+
+    this.spawnStarterTower();
+
+    if (DevConfig.TESTING?.SPAWN_TEST_TOWERS) {
+      this.spawnTestTowers();
+    }
+
+    this.waveStartLives = this.lives;
+    // Own startWave; WAVE_START is notification-only for analytics
+    this.zombieManager.startWave();
+    EventBus.getInstance().emit(GameEvents.WAVE_START, { wave: this.wave });
+    return true;
   }
 
   private prepareWaveOverridesForLevel(levelId: string): void {
@@ -347,7 +396,7 @@ export class GameManager {
 
     this.currentState = GameConfig.GAME_STATES.GAME_OVER;
 
-    const finalScore = this.wave * 1000 + this.money;
+    const finalScore = this.wave * 1000 + this.getMoney();
     this.score = finalScore;
 
     // Emit game over event
@@ -384,7 +433,7 @@ export class GameManager {
       endTime: new Date().toISOString(),
       gameData: {
         highestWave: this.wave,
-        finalMoney: this.money,
+        finalMoney: this.getMoney(),
         finalLives: this.lives,
         startLives: DebugConstants.ENABLED
           ? DebugConstants.STARTING_LIVES
@@ -445,12 +494,10 @@ export class GameManager {
   }
 
   public addMoney(amount: number): void {
-    this.money += amount;
+    this.economyState.addMoney(amount);
     if (this.onMoneyGainCallback) {
       this.onMoneyGainCallback(amount);
     }
-    // Emit money earned event
-    EventBus.getInstance().emit(GameEvents.MONEY_EARNED, amount);
   }
 
   public setMoneyGainCallback(callback: (amount: number) => void): void {
@@ -466,17 +513,12 @@ export class GameManager {
   }
 
   public spendMoney(amount: number): boolean {
-    if (this.money >= amount) {
-      this.money -= amount;
-      // Emit money spent event
-      EventBus.getInstance().emit(GameEvents.MONEY_SPENT, amount);
-      return true;
-    }
-    return false;
+    return this.economyState.spendMoney(amount);
   }
 
   public addLives(amount: number): void {
     this.lives += amount;
+    EventBus.getInstance().emit(GameEvents.LIVES_CHANGED, { lives: this.lives });
   }
 
   public loseLife(amount = 1): void {
@@ -493,6 +535,7 @@ export class GameManager {
 
     // Emit life lost event
     EventBus.getInstance().emit(GameEvents.LIFE_LOST, { amount, lives: this.lives });
+    EventBus.getInstance().emit(GameEvents.LIVES_CHANGED, { lives: this.lives });
     if (this.lives <= 0) {
       this.lives = 0;
       this.gameOver();
@@ -513,7 +556,7 @@ export class GameManager {
   }
 
   public getMoney(): number {
-    return this.money;
+    return this.economyState.getMoney();
   }
 
   public getLives(): number {
@@ -653,63 +696,24 @@ export class GameManager {
     this.analyticsState.update(deltaTime);
     PerformanceMonitor.endMeasure('analyticsState');
 
-    // Update effect manager
-    PerformanceMonitor.startMeasure('effectManager');
-    this.effectManager.update(deltaTime);
-    PerformanceMonitor.endMeasure('effectManager');
+    // Combat tick owned by LevelState (effects, zombies, sync, towers, projectiles)
+    const isPlaying = this.currentState === GameConfig.GAME_STATES.PLAYING;
+    PerformanceMonitor.startMeasure('levelState');
+    this.levelState.update(deltaTime, isPlaying);
+    PerformanceMonitor.endMeasure('levelState');
 
     // Update sludge pool manager
     PerformanceMonitor.startMeasure('sludgePoolManager');
-    this.sludgePoolManager.update(this.zombieManager.getZombies());
+    this.sludgePoolManager.update(this.towerCombatManager);
     PerformanceMonitor.endMeasure('sludgePoolManager');
 
-    if (this.currentState === GameConfig.GAME_STATES.PLAYING) {
-      // Update zombie manager
-      PerformanceMonitor.startMeasure('zombieManager');
-      this.zombieManager.update(deltaTime);
-      PerformanceMonitor.endMeasure('zombieManager');
-
-      // Sync entity arrays when dirty
-      const towersDirty = this.towerPlacementManager.areTowersDirty();
-      const zombiesDirty = this.zombieManager.areZombiesDirty();
-
-      if (DevConfig.PERFORMANCE.LOG_DIRTY_FLAGS && !towersDirty && !zombiesDirty) {
-        // No dirty flags - arrays are up to date
-      }
-
-      if (towersDirty) {
-        const towers = this.towerPlacementManager.getPlacedTowers();
-        this.towerCombatManager.setTowers(towers);
-        this.towerPlacementManager.clearTowersDirty();
-        OptimizationValidator.trackArrayRebuild('towers');
-        if (DevConfig.PERFORMANCE.LOG_DIRTY_FLAGS) {
-          // Tower arrays rebuilt
-        }
-      }
-
-      if (zombiesDirty) {
-        const zombies = this.zombieManager.getZombies();
-        this.towerCombatManager.setZombies(zombies);
-        this.projectileManager.setZombies(zombies);
-        this.effectManager.setZombies(zombies); // For fire pool damage detection
-        this.zombieManager.clearZombiesDirty();
-        OptimizationValidator.trackArrayRebuild('zombies');
-        if (DevConfig.PERFORMANCE.LOG_DIRTY_FLAGS) {
-          // Zombie arrays rebuilt
-        }
-      }
-
-      // Update tower combat
-      PerformanceMonitor.startMeasure('towerCombatManager');
-      this.towerCombatManager.update(deltaTime);
-      PerformanceMonitor.endMeasure('towerCombatManager');
-
+    if (isPlaying) {
       // Check wave completion
       if (this.zombieManager.isWaveComplete()) {
         this.onWaveComplete();
       }
 
-      // Process zombies
+      // Process zombie rewards and end-of-path damage
       const zombies = this.zombieManager.getZombies();
       for (let i = zombies.length - 1; i >= 0; i--) {
         const zombie = zombies[i];
@@ -739,7 +743,7 @@ export class GameManager {
     }
 
     // Track entity counts
-    if (this.currentState === GameConfig.GAME_STATES.PLAYING) {
+    if (isPlaying) {
       PerformanceMonitor.trackEntityCount('zombies', this.zombieManager.getZombies().length);
       PerformanceMonitor.trackEntityCount(
         'towers',
@@ -817,7 +821,7 @@ export class GameManager {
     this.waveStartLives = this.lives;
     PerformanceMonitor.recordWaveMemory(this.wave);
 
-    // Emit wave start event - AnalyticsState listens and handles tracking
+    // WAVE_START is notification-only — startWave already owned above
     EventBus.getInstance().emit(GameEvents.WAVE_START, { wave: this.wave });
   }
 }

@@ -1,11 +1,12 @@
 import type { Tower } from '../objects/Tower';
 import type { Zombie } from '../objects/Zombie';
+import type { ZombieSpatialQuery } from '../types/zombieSpatialQuery';
 import { EventBus, GameEvents } from '../utils/EventBus';
 import { OptimizationValidator } from '../utils/OptimizationValidator';
 import { SpatialGrid } from '../utils/SpatialGrid';
 import type { ProjectileManager } from './ProjectileManager';
 
-export class TowerCombatManager {
+export class TowerCombatManager implements ZombieSpatialQuery {
   private towers: Tower[] = [];
   private zombies: Zombie[] = [];
   private projectileManager: ProjectileManager | null = null;
@@ -61,28 +62,67 @@ export class TowerCombatManager {
 
   public setZombies(zombies: Zombie[]): void {
     this.zombies = zombies;
+    // Rebuild whenever the zombie array is dirtied — heuristic skips left the grid stale
+    this.rebuildZombieGrid();
 
-    // OPTIMIZATION: Only rebuild grid when zombie count changes significantly
-    // This prevents expensive grid rebuilds every frame
-    const currentSize = this.zombieGrid.size();
-    const newSize = zombies.filter(z => z.parent && !z.getIsDying()).length;
-
-    // Only rebuild if zombie count changed by more than 5 or grid is empty
-    if (Math.abs(currentSize - newSize) > 5 || currentSize === 0) {
-      this.zombieGrid.clear();
-      for (const zombie of zombies) {
-        // Only add active zombies that aren't dying to the grid
-        if (zombie.parent && !zombie.getIsDying()) {
-          // Type assertion: Zombie satisfies SpatialEntity requirements
-          this.zombieGrid.insert(zombie as Zombie & { [key: string]: unknown });
-        }
-      }
-    }
-
-    // Also update projectile manager with zombie list for collision detection
     if (this.projectileManager) {
       this.projectileManager.setZombies(zombies);
     }
+  }
+
+  private rebuildZombieGrid(): void {
+    this.zombieGrid.clear();
+    for (const zombie of this.zombies) {
+      if (zombie.parent && !zombie.getIsDying()) {
+        this.zombieGrid.insert(zombie as Zombie & { [key: string]: unknown });
+      }
+    }
+  }
+
+  public queryZombiesInRadius(x: number, y: number, radius: number): Zombie[] {
+    const radiusSq = radius * radius;
+    const results: Zombie[] = [];
+    for (const zombie of this.zombieGrid.queryRange(x, y, radius)) {
+      if (!zombie.parent || zombie.getIsDying()) {
+        continue;
+      }
+      const dx = zombie.position.x - x;
+      const dy = zombie.position.y - y;
+      if (dx * dx + dy * dy <= radiusSq) {
+        results.push(zombie);
+      }
+    }
+    return results;
+  }
+
+  public queryZombiesInRadiusWithDistance(
+    x: number,
+    y: number,
+    radius: number
+  ): Array<{ zombie: Zombie; distance: number }> {
+    const radiusSq = radius * radius;
+    const results: Array<{ zombie: Zombie; distance: number }> = [];
+    for (const zombie of this.zombieGrid.queryRange(x, y, radius)) {
+      if (!zombie.parent || zombie.getIsDying()) {
+        continue;
+      }
+      const dx = zombie.position.x - x;
+      const dy = zombie.position.y - y;
+      const distSq = dx * dx + dy * dy;
+      if (distSq <= radiusSq) {
+        results.push({ zombie, distance: Math.sqrt(distSq) });
+      }
+    }
+    return results;
+  }
+
+  public queryFirstZombieInRadius(x: number, y: number, radius: number): Zombie | null {
+    return this.zombieGrid.queryFirst(
+      x,
+      y,
+      radius,
+      z => !!(z.parent && !z.getIsDying())
+    ) as Zombie | null;
   }
 
   public setOnDamageCallback(
@@ -247,14 +287,29 @@ export class TowerCombatManager {
       return;
     }
 
-    if (projectileType === 'grenade' || projectileType === 'sludge') {
-      const speed = projectileType === 'grenade' ? 350 : 300;
+    if (projectileType === 'grenade') {
+      // Land at a random point inside the aim cone (circular scatter) — not dead-on the target
+      const impactPos = this.getRandomConeImpact(spawnPos, target.position);
+      this.createTargetedProjectile(
+        tower,
+        spawnPos,
+        impactPos,
+        damage,
+        350,
+        projectileType,
+        null, // Damage comes only from the explosion at impact
+        true
+      );
+      return;
+    }
+
+    if (projectileType === 'sludge') {
       this.createTargetedProjectile(
         tower,
         spawnPos,
         target.position,
         damage,
-        speed,
+        300,
         projectileType,
         target,
         true
@@ -277,6 +332,46 @@ export class TowerCombatManager {
       projectileType,
       target
     );
+  }
+
+  /**
+   * Pick a random impact point inside a circular scatter disk around the target,
+   * constrained to the aim cone from the tower. Makes grenade blasts less consistent.
+   */
+  private getRandomConeImpact(
+    spawnPos: { x: number; y: number },
+    targetPos: { x: number; y: number }
+  ): { x: number; y: number } {
+    const dx = targetPos.x - spawnPos.x;
+    const dy = targetPos.y - spawnPos.y;
+    const distanceToTarget = Math.sqrt(dx * dx + dy * dy) || 1;
+    const baseAngle = Math.atan2(dy, dx);
+
+    // ~±25° cone; scatter disk grows with range but stays meaningful vs explosion radius
+    const coneHalfAngle = 0.44;
+    const scatterRadius = Math.min(60, Math.max(35, distanceToTarget * 0.35));
+
+    // Uniform random point in a disk centered on the target
+    const r = Math.sqrt(Math.random()) * scatterRadius;
+    const theta = Math.random() * Math.PI * 2;
+    let impactX = targetPos.x + Math.cos(theta) * r;
+    let impactY = targetPos.y + Math.sin(theta) * r;
+
+    // Pull impacts that land outside the cone back onto the cone edge
+    const impactDx = impactX - spawnPos.x;
+    const impactDy = impactY - spawnPos.y;
+    const impactDist = Math.sqrt(impactDx * impactDx + impactDy * impactDy) || 1;
+    let angleDiff = Math.atan2(impactDy, impactDx) - baseAngle;
+    while (angleDiff > Math.PI) angleDiff -= Math.PI * 2;
+    while (angleDiff < -Math.PI) angleDiff += Math.PI * 2;
+
+    if (Math.abs(angleDiff) > coneHalfAngle) {
+      const clampedAngle = baseAngle + Math.sign(angleDiff) * coneHalfAngle;
+      impactX = spawnPos.x + Math.cos(clampedAngle) * impactDist;
+      impactY = spawnPos.y + Math.sin(clampedAngle) * impactDist;
+    }
+
+    return { x: impactX, y: impactY };
   }
 
   private fireShotgunPellets(
@@ -381,23 +476,11 @@ export class TowerCombatManager {
     maxRange: number,
     excludeZombies: Set<Zombie>
   ): Zombie | null {
-    let nearestZombie: Zombie | null = null;
-    let nearestDistance = Number.POSITIVE_INFINITY;
-
-    for (const zombie of this.zombies) {
-      // Skip if zombie is destroyed, already hit, dying, or out of range
-      if (!zombie.parent || excludeZombies.has(zombie) || zombie.getIsDying()) {
-        continue;
-      }
-
-      const distance = Math.sqrt((x - zombie.position.x) ** 2 + (y - zombie.position.y) ** 2);
-
-      if (distance <= maxRange && distance < nearestDistance) {
-        nearestDistance = distance;
-        nearestZombie = zombie;
-      }
-    }
-
-    return nearestZombie;
+    return this.zombieGrid.queryClosest(
+      x,
+      y,
+      maxRange,
+      z => !!(z.parent && !z.getIsDying() && !excludeZombies.has(z as Zombie))
+    ) as Zombie | null;
   }
 }

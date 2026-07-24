@@ -1,6 +1,7 @@
 import type { Container } from 'pixi.js';
 import { Projectile } from '../objects/Projectile';
 import type { Zombie } from '../objects/Zombie';
+import type { ZombieSpatialQuery } from '../types/zombieSpatialQuery';
 import { EffectCleanupManager } from '../utils/EffectCleanupManager';
 import { ObjectPool } from '../utils/ObjectPool';
 
@@ -8,6 +9,7 @@ export class ProjectileManager {
   private projectiles: Projectile[] = [];
   private container: Container;
   private zombies: Zombie[] = [];
+  private spatialQuery: ZombieSpatialQuery | null = null;
   private projectilesDirty = false; // Track when projectile array changes
   private projectilePool: ObjectPool<Projectile>;
 
@@ -27,6 +29,10 @@ export class ProjectileManager {
     this.zombies = zombies;
   }
 
+  public setSpatialQuery(query: ZombieSpatialQuery | null): void {
+    this.spatialQuery = query;
+  }
+
   public createProjectile(
     x: number,
     y: number,
@@ -40,7 +46,8 @@ export class ProjectileManager {
     const projectile = this.projectilePool.acquire();
     projectile.init(x, y, targetX, targetY, damage, speed, projectileType, target);
     projectile.visible = true;
-    projectile.setZombies(this.zombies); // Pass zombie list for collision detection
+    projectile.setZombies(this.zombies);
+    projectile.setSpatialQuery(this.spatialQuery);
     this.projectiles.push(projectile);
     this.projectilesDirty = true; // Mark projectiles as changed
     this.container.addChild(projectile);

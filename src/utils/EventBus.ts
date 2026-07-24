@@ -135,6 +135,7 @@ export const GameEvents = {
   MONEY_EARNED: 'economy:money:earned',
   MONEY_SPENT: 'economy:money:spent',
   LIFE_LOST: 'game:life:lost',
+  LIVES_CHANGED: 'game:lives:changed',
 
   // Combat events
   ZOMBIE_SPAWNED: 'combat:zombie:spawned',

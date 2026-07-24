@@ -3,8 +3,10 @@
  *
  * This groups ResourceManager and UpgradeManager to handle all economy-related
  * functionality in a cohesive unit, reducing direct dependencies in GameManager.
+ * GameManager must delegate money reads/writes here — this is the single money owner.
  */
 
+import { GameConfig } from '../config/gameConfig';
 import type { ITower } from '../objects/Tower.interface';
 import { EventBus, GameEvents } from '../utils/EventBus';
 import { ResourceManager } from './ResourceManager';
@@ -18,10 +20,19 @@ export class EconomyState {
   private resourceManager: ResourceManager;
   private upgradeManager: UpgradeManager;
 
-  constructor(_config?: EconomyConfig) {
-    // Initialize managers
+  constructor(config?: EconomyConfig) {
     this.resourceManager = new ResourceManager();
     this.upgradeManager = new UpgradeManager(this.resourceManager);
+
+    const startingMoney = config?.startingMoney ?? GameConfig.STARTING_MONEY;
+    this.applyStartingMoney(startingMoney);
+  }
+
+  private applyStartingMoney(startingMoney: number): void {
+    const current = this.resourceManager.getMoney();
+    if (startingMoney !== current) {
+      this.resourceManager.add(startingMoney - current);
+    }
   }
 
   // Money management
@@ -86,14 +97,8 @@ export class EconomyState {
    * @param startingMoney - Initial money amount
    */
   public reset(startingMoney: number): void {
-    // Reset resource manager by creating a new one
     this.resourceManager = new ResourceManager();
-    // Add the starting money (minus default) to set correct value
-    const defaultMoney = this.resourceManager.getMoney();
-    if (startingMoney !== defaultMoney) {
-      this.resourceManager.add(startingMoney - defaultMoney);
-    }
-    // Recreate upgrade manager with new resource manager
+    this.applyStartingMoney(startingMoney);
     this.upgradeManager = new UpgradeManager(this.resourceManager);
   }
 

@@ -4,7 +4,7 @@ import { DevConfig } from '../config/devConfig';
 import { GameConfig } from '../config/gameConfig';
 import type { GameManager } from '../managers/GameManager';
 import type { TimeControlManager } from '../managers/TimeControlManager';
-import { canAffordSelectedTower, type UIContext } from './UISetup';
+import type { UIContext } from './UISetup';
 
 type PixelArtRenderer = InstanceType<typeof import('../utils/PixelArtRenderer').PixelArtRenderer>;
 
@@ -21,6 +21,7 @@ export function startGameLoop(
   debugHooks?: GameLoopDebugHooks
 ): void {
   let lastTime = performance.now();
+  let lastDebugWave = -1;
 
   app.ticker.add(() => {
     const currentTime = performance.now();
@@ -51,36 +52,16 @@ export function startGameLoop(
     ui.moneyAnimation.update(deltaTime);
     ui.uiManager.update(deltaTime / 1000);
 
-    ui.hud.updateMoney(gameManager.getMoney());
-    ui.hud.updateLives(gameManager.getLives());
-    ui.hud.updateWave(gameManager.getWave());
-
-    ui.bottomBar.updateMoney(gameManager.getMoney());
-    ui.bottomBar.updateLives(gameManager.getLives());
-    ui.bottomBar.updateWave(gameManager.getWave());
+    // HUD / BottomBar / shop affordability refresh on EventBus (see bindGameHudEvents)
 
     if (DebugConstants.ENABLED) {
       ui.debugTestUIManager.update(deltaTime);
-      ui.debugTestUIManager.updateWaveInfo(gameManager.getWave());
+      const wave = gameManager.getWave();
+      if (wave !== lastDebugWave) {
+        lastDebugWave = wave;
+        ui.debugTestUIManager.updateWaveInfo(wave);
+      }
       debugHooks?.updateRangeOverlay?.();
-    }
-
-    ui.towerShop.updateAffordability(gameManager.getMoney());
-
-    const placementManager = gameManager.getTowerPlacementManager();
-    if (placementManager.isInPlacementMode()) {
-      const { affordable } = canAffordSelectedTower(ui.towerShop, gameManager);
-      placementManager.setCanAfford(affordable);
-    }
-
-    ui.campUpgradePanel.setMoneyAvailable(gameManager.getMoney());
-
-    if (gameManager.getCurrentState() === GameConfig.GAME_STATES.WAVE_COMPLETE) {
-      ui.hud.showNextWaveButton();
-      ui.bottomBar.showNextWaveButton();
-    } else {
-      ui.hud.hideNextWaveButton();
-      ui.bottomBar.hideNextWaveButton();
     }
 
     if (pixelArtRenderer.isEnabled()) {

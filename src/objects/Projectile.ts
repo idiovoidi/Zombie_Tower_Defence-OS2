@@ -2,6 +2,7 @@ import { Container, Graphics } from 'pixi.js';
 import { ExplosionEffect } from '../renderers/effects/ExplosionEffect';
 import { ImpactEffect } from '../renderers/effects/ImpactEffect';
 import { SludgePoolEffect } from '../renderers/effects/SludgePoolEffect';
+import type { ZombieSpatialQuery } from '../types/zombieSpatialQuery';
 import { EventBus, GameEvents } from '../utils/EventBus';
 import type { Zombie } from './Zombie';
 
@@ -19,6 +20,7 @@ export class Projectile extends Container {
     | ((damage: number, towerType: string, killed: boolean, overkill: number) => void)
     | null = null;
   private zombies: Zombie[] = [];
+  private spatialQuery: ZombieSpatialQuery | null = null;
 
   // Arc trajectory for grenades
   private startX: number;
@@ -138,6 +140,56 @@ export class Projectile extends Container {
     this.zombies = zombies;
   }
 
+  public setSpatialQuery(query: ZombieSpatialQuery | null): void {
+    this.spatialQuery = query;
+  }
+
+  /**
+   * Get all active zombies within the specified radius.
+   * Prefers spatial grid when available.
+   */
+  private getZombiesInRadius(radius: number): Array<{ zombie: Zombie; distance: number }> {
+    if (this.spatialQuery) {
+      return this.spatialQuery.queryZombiesInRadiusWithDistance(
+        this.position.x,
+        this.position.y,
+        radius
+      );
+    }
+
+    const result: Array<{ zombie: Zombie; distance: number }> = [];
+    for (const zombie of this.zombies) {
+      if (!zombie.parent) {
+        continue;
+      }
+
+      const dx = zombie.position.x - this.position.x;
+      const dy = zombie.position.y - this.position.y;
+      const distance = Math.sqrt(dx * dx + dy * dy);
+
+      if (distance <= radius) {
+        result.push({ zombie, distance });
+      }
+    }
+    return result;
+  }
+
+  /**
+   * Find first zombie within the specified radius of this projectile.
+   */
+  private findZombieInRadius(radius: number): Zombie | null {
+    if (this.spatialQuery) {
+      return this.spatialQuery.queryFirstZombieInRadius(
+        this.position.x,
+        this.position.y,
+        radius
+      );
+    }
+
+    const zombiesInRadius = this.getZombiesInRadius(radius);
+    return zombiesInRadius.length > 0 ? zombiesInRadius[0].zombie : null;
+  }
+
   public update(deltaTime: number): void {
     if (!this.isActive) {
       return;
@@ -229,8 +281,10 @@ export class Projectile extends Container {
   private onHitTarget(): void {
     this.isActive = false;
 
-    // Apply damage to target if it still exists in the scene and isn't dying
-    if (this.target?.parent && !this.target.getIsDying()) {
+    // Grenade/sludge deal damage via area effects at impact, not a direct hit
+    const isAreaProjectile =
+      this.projectileType === 'grenade' || this.projectileType === 'sludge';
+    if (this.target?.parent && !this.target.getIsDying() && !isAreaProjectile) {
       this.applyDamageToZombie(this.target, this.damage);
     }
 
@@ -265,39 +319,6 @@ export class Projectile extends Container {
    */
   public getKnockbackForce(): number {
     return this.knockbackForce;
-  }
-
-  /**
-   * Get all active zombies within the specified radius.
-   * @param radius - Search radius in pixels
-   * @returns Array of zombies within radius with their distances
-   */
-  private getZombiesInRadius(radius: number): Array<{ zombie: Zombie; distance: number }> {
-    const result: Array<{ zombie: Zombie; distance: number }> = [];
-    for (const zombie of this.zombies) {
-      if (!zombie.parent) {
-        continue;
-      }
-
-      const dx = zombie.position.x - this.position.x;
-      const dy = zombie.position.y - this.position.y;
-      const distance = Math.sqrt(dx * dx + dy * dy);
-
-      if (distance <= radius) {
-        result.push({ zombie, distance });
-      }
-    }
-    return result;
-  }
-
-  /**
-   * Find first zombie within the specified radius of this projectile.
-   * @param radius - Search radius in pixels
-   * @returns First zombie found within radius, or null if none found
-   */
-  private findZombieInRadius(radius: number): Zombie | null {
-    const zombiesInRadius = this.getZombiesInRadius(radius);
-    return zombiesInRadius.length > 0 ? zombiesInRadius[0].zombie : null;
   }
 
   /**

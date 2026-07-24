@@ -1,6 +1,7 @@
 import type { Zombie } from '../objects/Zombie';
 import { GooCoatingEffect } from '../renderers/effects/GooCoatingEffect';
 import type { SludgePoolEffect } from '../renderers/effects/SludgePoolEffect';
+import type { ZombieSpatialQuery } from '../types/zombieSpatialQuery';
 
 /**
  * SludgePoolManager - Manages sludge pool effects and zombie slow interactions
@@ -32,36 +33,22 @@ export class SludgePoolManager {
   /**
    * Update sludge pool collisions and effects
    */
-  public update(zombies: Zombie[]): void {
+  public update(spatialQuery: ZombieSpatialQuery): void {
     // Clear all affected zombies from pools first
     for (const pool of this.activePools) {
       const poolData = pool.getPoolData();
       poolData.affectedZombies.clear();
     }
 
-    // Check each zombie against each pool
-    for (const zombie of zombies) {
-      if (!zombie.parent || zombie.getIsDying()) continue;
+    // Query nearby zombies per pool via spatial grid (avoids O(zombies × pools))
+    for (const pool of this.activePools) {
+      const poolData = pool.getPoolData();
+      const nearby = spatialQuery.queryZombiesInRadius(poolData.x, poolData.y, poolData.radius);
 
-      for (const pool of this.activePools) {
-        const poolData = pool.getPoolData();
-
-        // Calculate distance from zombie to pool center
-        const dx = zombie.position.x - poolData.x;
-        const dy = zombie.position.y - poolData.y;
-        const distance = Math.sqrt(dx * dx + dy * dy);
-
-        // Check if zombie is in pool range
-        if (distance <= poolData.radius) {
-          // Apply slow effect to zombie
-          zombie.applySlow(poolData.slowPercent);
-
-          // Add zombie to pool's affected set
-          poolData.affectedZombies.add(zombie);
-
-          // Apply goo coating effect
-          this.applyGooCoating(zombie, poolData.slowPercent);
-        }
+      for (const zombie of nearby) {
+        zombie.applySlow(poolData.slowPercent);
+        poolData.affectedZombies.add(zombie);
+        this.applyGooCoating(zombie, poolData.slowPercent);
       }
     }
 

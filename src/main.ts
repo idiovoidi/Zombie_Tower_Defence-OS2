@@ -5,7 +5,7 @@ import { registerDebugConsoleAPIs } from './core/DebugConsole';
 import { bindDebugHotkeys } from './core/DebugHotkeys';
 import { startGameLoop } from './core/GameLoop';
 import { bindInput } from './core/InputBindings';
-import { createUI, setupCampClickCallback } from './core/UISetup';
+import { createUI, setupCampClickCallback, syncGameHud } from './core/UISetup';
 import {
   applyUrlDevOverrides,
   PathDebugOverlay,
@@ -60,6 +60,7 @@ import { DebugUtils } from './utils/DebugUtils';
     gameManager.startGameWithLevel(defaultLevel);
     ui.uiManager.setState(GameConfig.GAME_STATES.PLAYING);
     setupCampClickCallback(gameManager, ui.campUpgradePanel);
+    syncGameHud(gameManager, ui);
     refreshPathOverlay();
   }
 

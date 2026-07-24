@@ -122,8 +122,13 @@ export class CampUpgradePanel extends UIComponent {
   }
 
   public setMoneyAvailable(money: number): void {
+    if (this.moneyAvailable === money) {
+      return;
+    }
     this.moneyAvailable = money;
-    this.updateUpgradeDisplay();
+    if (this.visible) {
+      this.updateUpgradeDisplay();
+    }
   }
 
   private updateUpgradeDisplay(): void {

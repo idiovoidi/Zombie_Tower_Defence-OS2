@@ -17,6 +17,7 @@ export class TowerShop extends UIComponent {
   private selectedTowerType: string | null = null;
   private towerManager: TowerManager;
   private onTowerSelectCallback: ((type: string) => void) | null = null;
+  private lastAffordabilityMoney: number | null = null;
 
   constructor() {
     super();
@@ -605,6 +606,11 @@ export class TowerShop extends UIComponent {
 
   // Update button affordability based on current money
   public updateAffordability(currentMoney: number): void {
+    if (this.lastAffordabilityMoney === currentMoney) {
+      return;
+    }
+    this.lastAffordabilityMoney = currentMoney;
+
     this.towerButtons.forEach((button, type) => {
       const stats = this.towerManager.getTowerStats(type);
       if (!stats) {

@@ -1,4 +1,5 @@
 import type { Zombie } from '@objects/Zombie';
+import type { ZombieSpatialQuery } from '../../types/zombieSpatialQuery';
 import { EffectCleanupManager } from '@utils/EffectCleanupManager';
 import { ObjectPool } from '@utils/ObjectPool';
 import { ResourceCleanupManager } from '@utils/ResourceCleanupManager';
@@ -98,6 +99,7 @@ export class EffectManager {
 
   // Zombie tracking for fire pool damage
   private zombies: Zombie[] = [];
+  private spatialQuery: ZombieSpatialQuery | null = null;
 
   // Configurable limits for each effect type
   private limits: EffectLimits = {
@@ -823,10 +825,17 @@ export class EffectManager {
   }
 
   /**
-   * Set zombie list for fire pool damage detection
+   * Set zombie list for fire pool damage detection (fallback when no spatial query)
    */
   public setZombies(zombies: Zombie[]): void {
     this.zombies = zombies;
+  }
+
+  /**
+   * Prefer spatial queries for fire DoT instead of scanning all zombies
+   */
+  public setSpatialQuery(query: ZombieSpatialQuery | null): void {
+    this.spatialQuery = query;
   }
 
   /**
@@ -838,18 +847,24 @@ export class EffectManager {
     // Base pool radius is 25, increases with upgrade level
     const poolRadius = 28; // Slightly larger to match visual radius
 
-    for (const zombie of this.zombies) {
-      // Skip dead/dying zombies
+    const candidates = this.spatialQuery
+      ? this.spatialQuery.queryZombiesInRadius(fireX, fireY, poolRadius)
+      : this.zombies;
+
+    for (const zombie of candidates) {
       if (!zombie.parent || zombie.getIsDying()) {
         continue;
       }
 
-      // Calculate distance to fire center
+      if (this.spatialQuery) {
+        // Spatial query already distance-filtered
+        zombie.updateFireExposure(deltaTime);
+        continue;
+      }
+
       const dx = zombie.position.x - fireX;
       const dy = zombie.position.y - fireY;
       const distance = Math.sqrt(dx * dx + dy * dy);
-
-      // If zombie is in fire, update fire exposure
       if (distance <= poolRadius) {
         zombie.updateFireExposure(deltaTime);
       }

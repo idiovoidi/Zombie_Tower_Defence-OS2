@@ -11,6 +11,7 @@ import type { Tower } from '../objects/Tower';
 import { CombatRenderer } from '../renderers/CombatRenderer';
 import type { EffectManager } from '../renderers/effects/EffectManager';
 import { EventBus, type EventSubscription, GameEvents } from '../utils/EventBus';
+import { OptimizationValidator } from '../utils/OptimizationValidator';
 import type { MapManager } from './MapManager';
 import type { ProjectileManager } from './ProjectileManager';
 import type { TowerCombatManager } from './TowerCombatManager';
@@ -75,6 +76,10 @@ export class LevelState {
 
     // Wire up dependencies
     this.towerCombatManager.setProjectileManager(this.projectileManager);
+    this.projectileManager.setSpatialQuery(this.towerCombatManager);
+    if (this.effectManager) {
+      this.effectManager.setSpatialQuery(this.towerCombatManager);
+    }
 
     // Set up combat renderer for visual effects if EffectManager is available
     if (this.effectManager) {
@@ -88,12 +93,7 @@ export class LevelState {
   private setupEventListeners(): void {
     const eventBus = EventBus.getInstance();
 
-    // Listen for wave start events
-    this.eventSubscriptions.push(
-      eventBus.on(GameEvents.WAVE_START, () => {
-        this.zombieManager.startWave();
-      })
-    );
+    // WAVE_START is notification-only (analytics, UI). GameManager owns startWave().
 
     // Listen for cleanup events
     this.eventSubscriptions.push(
@@ -115,6 +115,7 @@ export class LevelState {
    */
   public setEffectManager(effectManager: EffectManager): void {
     this.effectManager = effectManager;
+    this.effectManager.setSpatialQuery(this.towerCombatManager);
     // Create CombatRenderer to handle visual effects via EventBus
     if (!this.combatRenderer) {
       this.combatRenderer = new CombatRenderer(effectManager);
@@ -196,18 +197,14 @@ export class LevelState {
     }
 
     if (isPlaying) {
-      // Update zombie manager
       this.zombieManager.update(deltaTime);
-
-      // Sync arrays if dirty
       this.syncEntityArrays();
-
-      // Update tower combat
+      // TowerCombatManager.update also advances projectiles while playing
       this.towerCombatManager.update(deltaTime);
+    } else {
+      // Keep projectiles moving/cleaning up outside PLAYING (combat tick is paused)
+      this.projectileManager.update(deltaTime);
     }
-
-    // Update projectiles (runs in all states to clean up)
-    this.projectileManager.update(deltaTime);
   }
 
   /**
@@ -221,13 +218,18 @@ export class LevelState {
       const towers = this.towerPlacementManager.getPlacedTowers();
       this.towerCombatManager.setTowers(towers);
       this.towerPlacementManager.clearTowersDirty();
+      OptimizationValidator.trackArrayRebuild('towers');
     }
 
     if (zombiesDirty) {
       const zombies = this.zombieManager.getZombies();
       this.towerCombatManager.setZombies(zombies);
       this.projectileManager.setZombies(zombies);
+      if (this.effectManager) {
+        this.effectManager.setZombies(zombies);
+      }
       this.zombieManager.clearZombiesDirty();
+      OptimizationValidator.trackArrayRebuild('zombies');
     }
   }
 
@@ -240,6 +242,9 @@ export class LevelState {
     this.towerCombatManager.setTowers(towers);
     this.towerCombatManager.setZombies(zombies);
     this.projectileManager.setZombies(zombies);
+    if (this.effectManager) {
+      this.effectManager.setZombies(zombies);
+    }
     this.towerPlacementManager.clearTowersDirty();
     this.zombieManager.clearZombiesDirty();
   }

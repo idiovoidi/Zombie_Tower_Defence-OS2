@@ -20,6 +20,7 @@ import { TowerInfoPanel } from '../ui/TowerInfoPanel';
 import { TowerShop } from '../ui/TowerShop';
 import { UIManager } from '../ui/UIManager';
 import { DebugUtils } from '../utils/DebugUtils';
+import { EventBus, GameEvents } from '../utils/EventBus';
 import { VisualEffects } from '../utils/VisualEffects';
 
 export interface UIContext {
@@ -104,6 +105,7 @@ export function createUI(
   debugInfoPanel.setBestiaryCallback(() => debugTestUIManager.openBestiaryPanel());
   debugInfoPanel.setAIControlCallback(() => debugTestUIManager.openAIControlPanel());
   debugInfoPanel.setProgressToNextLevelCallback(() => debugTestUIManager.progressToNextLevel());
+  debugInfoPanel.setMapSelectCallback(() => debugTestUIManager.openMapSelectPanel());
   debugInfoPanel.setMapCreatorCallback(() => {
     DebugUtils.debug('Opening map creator from debug panel');
     mapEditorScreen.newDocument();
@@ -154,12 +156,20 @@ export function createUI(
   });
 
   // Event handlers
+  let hudUi: UIContext | null = null;
+
   const refreshLevelSelect = (): void => {
     syncCustomMapsToManagers(customMapStore.list(), {
       mapManager: gameManager.getMapManager(),
       levelManager: gameManager.getLevelManager(),
     });
     levelSelectMenu.updateLevels(gameManager.getAvailableLevels());
+  };
+
+  const pushHudAfterPlayStart = (): void => {
+    if (hudUi) {
+      syncGameHud(gameManager, hudUi);
+    }
   };
 
   mainMenu.setStartCallback(() => {
@@ -189,6 +199,7 @@ export function createUI(
     gameManager.startCustomMap(doc);
     uiManager.setState(gameManager.getCurrentState());
     setupCampClickCallback(gameManager, campUpgradePanel);
+    pushHudAfterPlayStart();
   });
 
   levelSelectMenu.setLevelSelectCallback((levelId: string) => {
@@ -206,6 +217,7 @@ export function createUI(
     }
     uiManager.setState(gameManager.getCurrentState());
     setupCampClickCallback(gameManager, campUpgradePanel);
+    pushHudAfterPlayStart();
   });
 
   levelSelectMenu.setBackCallback(() => {
@@ -230,6 +242,7 @@ export function createUI(
       }
       uiManager.setState(gameManager.getCurrentState());
       setupCampClickCallback(gameManager, campUpgradePanel);
+      pushHudAfterPlayStart();
     }
   });
 
@@ -248,6 +261,8 @@ export function createUI(
     const placementManager = gameManager.getTowerPlacementManager();
     placementManager.startPlacement(type);
     timeControlManager.startPlacement(true);
+    const { affordable } = canAffordSelectedTower(towerShop, gameManager);
+    placementManager.setCanAfford(affordable);
   });
 
   // Tower placement callbacks
@@ -305,7 +320,7 @@ export function createUI(
     }
   });
 
-  return {
+  const ui: UIContext = {
     uiManager,
     hud,
     bottomBar,
@@ -321,6 +336,77 @@ export function createUI(
     mapEditorScreen,
     debugInfoPanel,
   };
+
+  hudUi = ui;
+  bindGameHudEvents(gameManager, ui);
+
+  return ui;
+}
+
+/**
+ * Push money/lives/wave/next-wave UI from game state (also used after level start).
+ */
+export function syncGameHud(gameManager: GameManager, ui: UIContext): void {
+  const money = gameManager.getMoney();
+  ui.bottomBar.updateMoney(money);
+  ui.bottomBar.updateLives(gameManager.getLives());
+  ui.bottomBar.updateWave(gameManager.getWave());
+  ui.towerShop.updateAffordability(money);
+  ui.campUpgradePanel.setMoneyAvailable(money);
+
+  const placementManager = gameManager.getTowerPlacementManager();
+  if (placementManager.isInPlacementMode()) {
+    const { affordable } = canAffordSelectedTower(ui.towerShop, gameManager);
+    placementManager.setCanAfford(affordable);
+  }
+
+  if (gameManager.getCurrentState() === GameConfig.GAME_STATES.WAVE_COMPLETE) {
+    ui.bottomBar.showNextWaveButton();
+  } else {
+    ui.bottomBar.hideNextWaveButton();
+  }
+}
+
+/**
+ * Subscribe HUD surfaces to economy/wave events instead of polling every frame.
+ */
+export function bindGameHudEvents(gameManager: GameManager, ui: UIContext): void {
+  const eventBus = EventBus.getInstance();
+
+  const refreshMoney = (): void => {
+    const money = gameManager.getMoney();
+    ui.bottomBar.updateMoney(money);
+    ui.towerShop.updateAffordability(money);
+    ui.campUpgradePanel.setMoneyAvailable(money);
+
+    const placementManager = gameManager.getTowerPlacementManager();
+    if (placementManager.isInPlacementMode()) {
+      const { affordable } = canAffordSelectedTower(ui.towerShop, gameManager);
+      placementManager.setCanAfford(affordable);
+    }
+  };
+
+  const refreshLives = (): void => {
+    ui.bottomBar.updateLives(gameManager.getLives());
+  };
+
+  const refreshWave = (): void => {
+    ui.bottomBar.updateWave(gameManager.getWave());
+  };
+
+  eventBus.on(GameEvents.MONEY_EARNED, refreshMoney);
+  eventBus.on(GameEvents.MONEY_SPENT, refreshMoney);
+  eventBus.on(GameEvents.LIFE_LOST, refreshLives);
+  eventBus.on(GameEvents.LIVES_CHANGED, refreshLives);
+  eventBus.on(GameEvents.WAVE_START, () => {
+    refreshWave();
+    ui.bottomBar.hideNextWaveButton();
+  });
+  eventBus.on(GameEvents.WAVE_COMPLETE, () => {
+    ui.bottomBar.showNextWaveButton();
+  });
+
+  syncGameHud(gameManager, ui);
 }
 
 function createNextWaveCallback(
