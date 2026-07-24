@@ -171,14 +171,14 @@ export const TowerConstants = {
   } as TowerStats,
 
   // Grenade Tower - Explosive area damage with arc trajectory
-
+  // NERF: Reduced damage from 90 to 50 - was one-shotting spawn clusters; blast also uses RNG cone scatter
   GRENADE: {
     cost: 1250,
-    damage: 90,
+    damage: 50,
     range: 180,
     fireRate: 0.3,
     health: 95,
-    specialAbility: 'Explosive area damage, arc trajectory',
+    specialAbility: 'Explosive area damage, inaccurate arc (RNG cone)',
     upgradeCostMultiplier: 0.75,
     idleAnimation: 'grenade',
     barrelLength: 20,

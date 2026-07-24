@@ -160,6 +160,16 @@ export class LevelManager {
     return this.getAvailableLevels().filter(level => level.id.startsWith('custom_'));
   }
 
+  /** Find a level that uses the given map name (first match). */
+  public findLevelIdByMap(mapName: string): string | undefined {
+    for (const level of this.levels.values()) {
+      if (level.map === mapName) {
+        return level.id;
+      }
+    }
+    return undefined;
+  }
+
   public unlockLevel(levelId: string): void {
     if (this.levels.has(levelId)) {
       this.unlockedLevels.add(levelId);

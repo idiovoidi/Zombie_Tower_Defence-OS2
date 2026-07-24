@@ -2,6 +2,7 @@ import type { Application } from 'pixi.js';
 import { DebugConstants } from '../config/debugConstants';
 import { GameConfig } from '../config/gameConfig';
 import { AIControlPanel } from '../ui/AIControlPanel';
+import { MapSelectPanel } from '../ui/MapSelectPanel';
 import { StatsPanel } from '../ui/StatsPanel';
 import { WaveInfoPanel } from '../ui/WaveInfoPanel';
 import { ZombieBestiary } from '../ui/ZombieBestiary';
@@ -19,6 +20,7 @@ export class DebugTestUIManager {
   private bestiaryPanel: ZombieBestiary | null = null;
   private statsPanel: StatsPanel | null = null;
   private aiControlPanel: AIControlPanel | null = null;
+  private mapSelectPanel: MapSelectPanel | null = null;
   private gameManager: GameManager | null = null;
   private waveManager: WaveManager | null = null;
 
@@ -37,6 +39,7 @@ export class DebugTestUIManager {
     this.createBestiaryPanel();
     this.createStatsPanel();
     this.createAIControlPanel();
+    this.createMapSelectPanel();
 
     this.layoutPanels();
   }
@@ -85,6 +88,20 @@ export class DebugTestUIManager {
     } else {
       this.aiControlPanel.hide();
     }
+  }
+
+  private createMapSelectPanel(): void {
+    if (!this.gameManager) {
+      return;
+    }
+    const mapManager = this.gameManager.getMapManager();
+    this.mapSelectPanel = new MapSelectPanel();
+    this.mapSelectPanel.setMapsProvider(
+      () => mapManager.getAvailableMaps(),
+      () => mapManager.getCurrentMapName()
+    );
+    this.mapSelectPanel.setSelectCallback(mapName => this.selectMap(mapName));
+    this.app.stage.addChild(this.mapSelectPanel.getContentContainer());
   }
 
   private layoutPanels(): void {
@@ -170,6 +187,10 @@ export class DebugTestUIManager {
     return this.aiControlPanel;
   }
 
+  public getMapSelectPanel(): MapSelectPanel | null {
+    return this.mapSelectPanel;
+  }
+
   private currentLevelIndex = 1;
   private readonly maxLevel = 6;
 
@@ -199,6 +220,20 @@ export class DebugTestUIManager {
     }
   }
 
+  public selectMap(mapName: string): void {
+    if (!this.gameManager) {
+      DebugUtils.warn('Cannot select map: GameManager not initialized');
+      return;
+    }
+
+    const success = this.gameManager.startGameWithMap(mapName);
+    if (success) {
+      DebugUtils.info(`🗺️ Loaded map: ${mapName}`);
+    } else {
+      DebugUtils.error(`Failed to load map: ${mapName}`);
+    }
+  }
+
   public openWaveInfoPanel(): void {
     this.waveInfoPanel?.open();
   }
@@ -222,6 +257,10 @@ export class DebugTestUIManager {
     }
   }
 
+  public openMapSelectPanel(): void {
+    this.mapSelectPanel?.open();
+  }
+
   public setAIToggleCallback(callback: (enabled: boolean) => void): void {
     this.aiControlPanel?.setToggleCallback(callback);
   }
@@ -238,6 +277,9 @@ export class DebugTestUIManager {
 
     this.aiControlPanel?.destroy();
     this.aiControlPanel = null;
+
+    this.mapSelectPanel?.destroy();
+    this.mapSelectPanel = null;
   }
 
   public onResize(): void {

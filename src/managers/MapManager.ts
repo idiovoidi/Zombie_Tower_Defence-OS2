@@ -230,6 +230,10 @@ export class MapManager {
     return this.maps.get(this.currentMap);
   }
 
+  public getCurrentMapName(): string {
+    return this.currentMap;
+  }
+
   public getCurrentMapWaypoints(): Waypoint[] {
     const map = this.maps.get(this.currentMap);
     return map ? map.waypoints : [];
