@@ -23,15 +23,16 @@ export class StructureRenderer {
    * Render all structures on the map
    */
   public render(mapData: MapData): void {
-    this.renderDestroyedHouses();
+    this.renderDestroyedHouses(mapData);
     this.renderCornerTrees(mapData);
     this.renderDecorativeElements(mapData);
   }
 
   /**
-   * Render destroyed houses at the top of the map
+   * Render destroyed houses along the top of the map (spread across map width).
    */
-  private renderDestroyedHouses(): void {
+  private renderDestroyedHouses(mapData: MapData): void {
+    const scaleX = mapData.width / 1024;
     const houses: Array<{
       x: number;
       y: number;
@@ -40,12 +41,23 @@ export class StructureRenderer {
       destroyed: number;
       style: HouseStyle;
     }> = [
-      { x: 120, y: 20, width: 75, height: 65, destroyed: 0.8, style: 'cottage' },
-      { x: 280, y: 45, width: 85, height: 70, destroyed: 0.6, style: 'townhouse' },
-      { x: 480, y: 15, width: 70, height: 60, destroyed: 0.9, style: 'cottage' },
-      { x: 650, y: 35, width: 80, height: 68, destroyed: 0.7, style: 'farmhouse' },
-      { x: 950, y: 50, width: 72, height: 62, destroyed: 0.75, style: 'cottage' },
+      { x: 120 * scaleX, y: 20, width: 75, height: 65, destroyed: 0.8, style: 'cottage' },
+      { x: 280 * scaleX, y: 45, width: 85, height: 70, destroyed: 0.6, style: 'townhouse' },
+      { x: 480 * scaleX, y: 15, width: 70, height: 60, destroyed: 0.9, style: 'cottage' },
+      { x: 650 * scaleX, y: 35, width: 80, height: 68, destroyed: 0.7, style: 'farmhouse' },
+      { x: 920 * scaleX, y: 50, width: 72, height: 62, destroyed: 0.75, style: 'cottage' },
     ];
+
+    if (mapData.width > 1200) {
+      houses.push({
+        x: mapData.width - 160,
+        y: 30,
+        width: 78,
+        height: 64,
+        destroyed: 0.7,
+        style: 'farmhouse',
+      });
+    }
 
     for (const house of houses) {
       this.renderDestroyedHouse(
@@ -87,9 +99,7 @@ export class StructureRenderer {
       .fill({ color: COLORS.HOUSE_SHADOW, alpha: 0.28 });
 
     // Foundation
-    this.mapContainer
-      .rect(x - 2, baseY, width + 4, foundationHeight)
-      .fill(COLORS.HOUSE_FOUNDATION);
+    this.mapContainer.rect(x - 2, baseY, width + 4, foundationHeight).fill(COLORS.HOUSE_FOUNDATION);
     this.mapContainer.stroke({ width: 1, color: COLORS.HOUSE_FOUNDATION_OUTLINE });
 
     for (let i = 0; i < 2; i++) {
@@ -108,7 +118,12 @@ export class StructureRenderer {
 
     // Interior floor visible through collapse gap
     this.mapContainer
-      .rect(x + wallThickness, baseY - wallHeight * 0.85, width - wallThickness * 2, wallHeight * 0.7)
+      .rect(
+        x + wallThickness,
+        baseY - wallHeight * 0.85,
+        width - wallThickness * 2,
+        wallHeight * 0.7
+      )
       .fill({ color: COLORS.HOUSE_INTERIOR, alpha: 0.85 });
 
     // Back wall
@@ -230,7 +245,16 @@ export class StructureRenderer {
 
     // Collapsed roof with exposed beams
     if (destroyedLevel < 0.92) {
-      this.drawCollapsedRoof(x, baseY, width, wallHeight, wallThickness, destroyedLevel, style, rand);
+      this.drawCollapsedRoof(
+        x,
+        baseY,
+        width,
+        wallHeight,
+        wallThickness,
+        destroyedLevel,
+        style,
+        rand
+      );
     }
 
     // Windows
@@ -572,7 +596,9 @@ export class StructureRenderer {
           .ellipse(rx + 1, ry + size * 0.45, size * 0.75, size * 0.35)
           .fill({ color: COLORS.HOUSE_SHADOW, alpha: 0.25 });
       }
-      this.mapContainer.poly(rubblePath).fill(rubbleColors[Math.floor(rand() * rubbleColors.length)]);
+      this.mapContainer
+        .poly(rubblePath)
+        .fill(rubbleColors[Math.floor(rand() * rubbleColors.length)]);
     }
 
     if (destroyedLevel > 0.7) {
@@ -768,10 +794,14 @@ export class StructureRenderer {
    * Render decorative elements (bushes, rocks, stumps, grass, bones)
    */
   private renderDecorativeElements(mapData: MapData): void {
+    const referenceArea = 1024 * 768;
+    const areaScale = (mapData.width * mapData.height) / referenceArea;
+    const decorCount = Math.max(25, Math.round(25 * areaScale));
+
     // Add apocalyptic decorative elements with organic shapes
-    for (let i = 0; i < 25; i++) {
-      const x = Math.random() * mapData.width;
-      const y = Math.random() * mapData.height;
+    for (let i = 0; i < decorCount; i++) {
+      const x = 20 + Math.random() * Math.max(1, mapData.width - 40);
+      const y = 20 + Math.random() * Math.max(1, mapData.height - 40);
 
       // Only place decorations away from the path and not at the top (where houses are)
       if (y > 150 && this.isAwayFromPath(x, y, mapData)) {

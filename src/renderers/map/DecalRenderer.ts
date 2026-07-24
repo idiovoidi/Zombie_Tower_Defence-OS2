@@ -64,7 +64,9 @@ export class DecalRenderer {
     this.mapWidth = mapData.width;
     this.mapHeight = mapData.height;
 
-    const rand = createSeededRandom(hashString(mapData.name) ^ (mapData.width * 31 + mapData.height));
+    const rand = createSeededRandom(
+      hashString(mapData.name) ^ (mapData.width * 31 + mapData.height)
+    );
 
     this.placeTrees(mapData, rand);
     this.placePonds(mapData, rand);
@@ -85,7 +87,8 @@ export class DecalRenderer {
 
     for (const bird of this.birds) {
       bird.x += bird.speed * bird.direction * (deltaTime * 0.001);
-      bird.y = bird.baseY + Math.sin(this.time * bird.bobSpeed + bird.phase) * DECALS.BIRD_BOB_AMPLITUDE;
+      bird.y =
+        bird.baseY + Math.sin(this.time * bird.bobSpeed + bird.phase) * DECALS.BIRD_BOB_AMPLITUDE;
 
       if (bird.direction === 1 && bird.x > this.mapWidth + 20) {
         bird.x = -20;
@@ -131,8 +134,12 @@ export class DecalRenderer {
   }
 
   private placeTrees(mapData: MapData, rand: () => number): void {
+    const target = Math.max(
+      DECALS.TREE_COUNT,
+      Math.round(DECALS.TREE_COUNT * ((mapData.width * mapData.height) / (1024 * 768)))
+    );
     let attempts = 0;
-    while (this.trees.length < DECALS.TREE_COUNT && attempts < DECALS.TREE_COUNT * 40) {
+    while (this.trees.length < target && attempts < target * 40) {
       attempts++;
       const x = 40 + rand() * (mapData.width - 80);
       const y = DECALS.MIN_Y + rand() * (mapData.height - DECALS.MIN_Y - 40);
@@ -150,8 +157,12 @@ export class DecalRenderer {
   }
 
   private placePonds(mapData: MapData, rand: () => number): void {
+    const target = Math.max(
+      DECALS.POND_COUNT,
+      Math.round(DECALS.POND_COUNT * ((mapData.width * mapData.height) / (1024 * 768)))
+    );
     let attempts = 0;
-    while (this.ponds.length < DECALS.POND_COUNT && attempts < DECALS.POND_COUNT * 50) {
+    while (this.ponds.length < target && attempts < target * 50) {
       attempts++;
       const x = 80 + rand() * (mapData.width - 160);
       const y = DECALS.MIN_Y + 40 + rand() * (mapData.height - DECALS.MIN_Y - 120);
@@ -259,8 +270,7 @@ export class DecalRenderer {
   }
 
   private drawReed(reed: Reed): void {
-    const sway =
-      Math.sin(this.time * reed.swaySpeed + reed.phase) * DECALS.REED_SWAY_AMPLITUDE;
+    const sway = Math.sin(this.time * reed.swaySpeed + reed.phase) * DECALS.REED_SWAY_AMPLITUDE;
     const tipX = reed.x + sway;
     const tipY = reed.y - reed.height;
 
@@ -277,8 +287,7 @@ export class DecalRenderer {
   }
 
   private drawSwayTree(tree: SwayTree): void {
-    const sway =
-      Math.sin(this.time * tree.swaySpeed + tree.phase) * DECALS.TREE_SWAY_AMPLITUDE;
+    const sway = Math.sin(this.time * tree.swaySpeed + tree.phase) * DECALS.TREE_SWAY_AMPLITUDE;
     const trunkWidth = tree.height * 0.14;
     const trunkHeight = tree.height * 0.45;
     const trunkTop = tree.y;

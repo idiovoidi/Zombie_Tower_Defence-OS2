@@ -262,6 +262,12 @@ export const GRAVEYARD = {
 // GROUND TEXTURE PARAMETERS
 // ============================================================================
 export const GROUND_TEXTURE = {
+  /** Baseline area used to scale feature density with map size. */
+  REFERENCE_WIDTH: 1024,
+  REFERENCE_HEIGHT: 768,
+  /** Keep large soft blobs away from map borders to avoid jagged cutoffs. */
+  EDGE_INSET: 48,
+
   // Large-scale mottling under patch layers
   MOTTLE_COUNT: 45,
   MOTTLE_MIN_SIZE: 50,
