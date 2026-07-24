@@ -105,17 +105,13 @@ export class TowerPlacementManager {
 
   // Check if placement position is valid
   private isValidPlacement(x: number, y: number): boolean {
-    // Check if position is on the path (should not be)
-    const waypoints = this.mapManager.getWaypoints();
-    for (let i = 0; i < waypoints.length - 1; i++) {
-      const wp1 = waypoints[i];
-      const wp2 = waypoints[i + 1];
-
-      // Check distance to path segment
-      const dist = this.distanceToSegment(x, y, wp1.x, wp1.y, wp2.x, wp2.y);
+    // Check if position is on any path segment (should not be)
+    const segments = this.mapManager.getPathSegments();
+    for (const seg of segments) {
+      const dist = this.distanceToSegment(x, y, seg.a.x, seg.a.y, seg.b.x, seg.b.y);
       if (dist < 50) {
         return false;
-      } // Too close to path
+      }
     }
 
     // Check if too close to other towers

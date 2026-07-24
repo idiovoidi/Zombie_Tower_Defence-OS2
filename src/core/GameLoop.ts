@@ -33,7 +33,9 @@ export function startGameLoop(
 
     gameManager.getAIPlayerManager().update(deltaTime / 1000);
 
-    if (scaledDeltaTime > 0) {
+    // Freeze gameplay while the map editor is open (opened from debug / menu).
+    const uiState = ui.uiManager.getCurrentState();
+    if (scaledDeltaTime > 0 && uiState !== GameConfig.GAME_STATES.MAP_EDITOR) {
       gameManager.update(scaledDeltaTime);
     }
 

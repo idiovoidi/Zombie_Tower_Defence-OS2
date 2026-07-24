@@ -39,7 +39,7 @@ export class LevelManager {
       id: 'level1',
       name: 'Training Grounds',
       description: 'A basic level for learning the game mechanics',
-      map: 'default',
+      map: 'forked',
       difficulty: 'Easy',
       startingMoney: 500,
       startingLives: 20,

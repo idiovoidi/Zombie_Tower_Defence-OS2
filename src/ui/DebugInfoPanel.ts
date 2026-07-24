@@ -7,11 +7,12 @@ export class DebugInfoPanel extends UIPanel {
   private onOpenStats?: () => void;
   private onOpenAIControl?: () => void;
   private onProgressToNextLevel?: () => void;
+  private onOpenMapCreator?: () => void;
 
   constructor() {
     super();
     this.createToggleButton('🐛 Debug Info', 120, 0x00ff00);
-    this.createPanelFrame(280, 460, 'Debug Information', '', 0x00ff00);
+    this.createPanelFrame(280, 500, 'Debug Information', '', 0x00ff00);
     this.buildPanelContent();
   }
 
@@ -29,6 +30,9 @@ export class DebugInfoPanel extends UIPanel {
   }
   public setProgressToNextLevelCallback(callback: () => void): void {
     this.onProgressToNextLevel = callback;
+  }
+  public setMapCreatorCallback(callback: () => void): void {
+    this.onOpenMapCreator = callback;
   }
 
   private buildPanelContent(): void {
@@ -81,6 +85,14 @@ export class DebugInfoPanel extends UIPanel {
         0xff6600,
         () => {
           this.onProgressToNextLevel?.();
+          this.close();
+        },
+      ],
+      [
+        '🗺️ Map Creator',
+        0x4488cc,
+        () => {
+          this.onOpenMapCreator?.();
           this.close();
         },
       ],

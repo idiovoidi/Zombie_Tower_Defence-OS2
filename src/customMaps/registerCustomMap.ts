@@ -1,6 +1,7 @@
 import type { LevelData, LevelManager } from '../managers/LevelManager';
 import type { MapData, MapManager } from '../managers/MapManager';
 import type { WaveManager, ZombieGroup } from '../managers/WaveManager';
+import { pathGraphFromWaypoints } from '../path/pathGraph';
 import { type CustomMapDocument, customLevelId, customMapKey } from './types';
 import { assertValidCustomMap } from './validateCustomMap';
 
@@ -30,11 +31,13 @@ export function registerCustomMap(
   const levelId = customLevelId(doc.id);
   const applyWaves = options?.applyWaves !== false;
 
+  const waypoints = doc.map.waypoints.map(wp => ({ x: wp.x, y: wp.y }));
   const mapData: MapData = {
     name: mapName,
     width: doc.map.width,
     height: doc.map.height,
-    waypoints: doc.map.waypoints.map(wp => ({ x: wp.x, y: wp.y })),
+    waypoints,
+    pathGraph: pathGraphFromWaypoints(waypoints),
   };
   managers.mapManager.registerMap(mapData);
 
@@ -77,11 +80,13 @@ export function syncCustomMapsToManagers(
     const mapName = customMapKey(doc.id);
     const levelId = customLevelId(doc.id);
 
+    const waypoints = doc.map.waypoints.map(wp => ({ x: wp.x, y: wp.y }));
     managers.mapManager.registerMap({
       name: mapName,
       width: doc.map.width,
       height: doc.map.height,
-      waypoints: doc.map.waypoints.map(wp => ({ x: wp.x, y: wp.y })),
+      waypoints,
+      pathGraph: pathGraphFromWaypoints(waypoints),
     });
 
     managers.levelManager.registerLevel(

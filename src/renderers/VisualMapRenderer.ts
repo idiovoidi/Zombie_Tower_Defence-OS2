@@ -95,7 +95,12 @@ export class VisualMapRenderer {
     this.structureRenderer.render(mapData);
 
     // Add survivor camp at the end of the path
-    const endpoint = mapData.waypoints[mapData.waypoints.length - 1];
+    const graphEnd = mapData.pathGraph
+      ? mapData.pathGraph.nodes.find(n => n.id === mapData.pathGraph?.endId)
+      : undefined;
+    const endpoint = graphEnd
+      ? { x: graphEnd.x, y: graphEnd.y }
+      : mapData.waypoints[mapData.waypoints.length - 1];
     this.campRenderer.render(endpoint);
 
     // Create clickable area for camp via InputManager

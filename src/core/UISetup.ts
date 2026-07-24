@@ -104,6 +104,11 @@ export function createUI(
   debugInfoPanel.setBestiaryCallback(() => debugTestUIManager.openBestiaryPanel());
   debugInfoPanel.setAIControlCallback(() => debugTestUIManager.openAIControlPanel());
   debugInfoPanel.setProgressToNextLevelCallback(() => debugTestUIManager.progressToNextLevel());
+  debugInfoPanel.setMapCreatorCallback(() => {
+    DebugUtils.debug('Opening map creator from debug panel');
+    mapEditorScreen.newDocument();
+    uiManager.setState(GameConfig.GAME_STATES.MAP_EDITOR);
+  });
 
   debugTestUIManager.setAIToggleCallback((enabled: boolean) => {
     DebugUtils.debug(`AI Player ${enabled ? 'enabled' : 'disabled'}`);
@@ -170,7 +175,9 @@ export function createUI(
   });
 
   mapEditorScreen.setBackCallback(() => {
-    uiManager.setState(GameConfig.GAME_STATES.MAIN_MENU);
+    // Return to whatever gameplay/menu state the game is in (works with SKIP_MENU).
+    const resumeState = gameManager.getCurrentState() || GameConfig.GAME_STATES.MAIN_MENU;
+    uiManager.setState(resumeState);
   });
 
   mapEditorScreen.setDefaultWaveProvider(wave =>

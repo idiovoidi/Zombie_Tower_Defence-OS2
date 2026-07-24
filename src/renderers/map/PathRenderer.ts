@@ -2,6 +2,7 @@ import type { Graphics } from 'pixi.js';
 import { COLORS, PATH } from '../../config/visualConstants';
 import type { MapData } from '../../managers/MapManager';
 import type { Waypoint } from '../../managers/PathfindingManager';
+import { ensurePathGraph, pathGraphToSegments } from '../../path/pathGraph';
 
 /**
  * PathRenderer
@@ -15,6 +16,8 @@ import type { Waypoint } from '../../managers/PathfindingManager';
  * - Small rocks
  * - Footprints
  * - Edge wear
+ *
+ * Supports branching graphs by stroking every edge segment.
  */
 export class PathRenderer {
   private graphics: Graphics;
@@ -24,19 +27,44 @@ export class PathRenderer {
   }
 
   public render(mapData: MapData): void {
-    if (mapData.waypoints.length < 2) {
+    const polylines = this.getPathPolylines(mapData);
+    if (polylines.length === 0) {
       return;
     }
 
     const pathWidth = PATH.WIDTH;
 
-    // Draw layers from bottom to top
-    this.renderPathBorder(mapData.waypoints, pathWidth);
-    this.renderMainPath(mapData.waypoints, pathWidth);
-    this.renderCenterTrack(mapData.waypoints, pathWidth);
-    this.renderTireTracks(mapData.waypoints, pathWidth);
-    this.renderPathTexture(mapData.waypoints, pathWidth);
-    this.renderEdgeWear(mapData.waypoints, pathWidth);
+    for (const line of polylines) {
+      this.renderPathBorder(line, pathWidth);
+    }
+    for (const line of polylines) {
+      this.renderMainPath(line, pathWidth);
+    }
+    for (const line of polylines) {
+      this.renderCenterTrack(line, pathWidth);
+    }
+    for (const line of polylines) {
+      this.renderTireTracks(line, pathWidth);
+    }
+    for (const line of polylines) {
+      this.renderPathTexture(line, pathWidth);
+    }
+    for (const line of polylines) {
+      this.renderEdgeWear(line, pathWidth);
+    }
+  }
+
+  /** Each graph edge as a 2-point polyline (or legacy single polyline). */
+  private getPathPolylines(mapData: MapData): Waypoint[][] {
+    const graph = ensurePathGraph(mapData);
+    const segments = pathGraphToSegments(graph);
+    if (segments.length > 0) {
+      return segments.map(seg => [seg.a, seg.b]);
+    }
+    if (mapData.waypoints.length >= 2) {
+      return [mapData.waypoints];
+    }
+    return [];
   }
 
   private drawPathLine(waypoints: Waypoint[], cornerRadius: number): void {

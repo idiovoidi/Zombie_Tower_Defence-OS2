@@ -146,7 +146,7 @@ export class ZombieManager {
   private spawnZombie(type: string): void {
     // Get spawn position from map
     const spawnPoint = this.mapManager.getSpawnPoint();
-    const waypoints = this.mapManager.getWaypoints();
+    const waypoints = this.mapManager.getRandomPath();
 
     if (!spawnPoint) {
       return;
@@ -166,9 +166,12 @@ export class ZombieManager {
     zombie.init(spawnX, spawnY, this.waveManager.getCurrentWave());
 
     if (zombie) {
-      // Set waypoints for zombie path
+      // Set waypoints for zombie path (per-zombie copy of a random graph route)
       if (waypoints.length > 0) {
-        (zombie as unknown as HasWaypoints).waypoints = waypoints;
+        (zombie as unknown as HasWaypoints).waypoints = waypoints.map(wp => ({
+          x: wp.x,
+          y: wp.y,
+        }));
       }
 
       // Listen for zombie death to trigger effects

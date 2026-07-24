@@ -1,6 +1,7 @@
 import type { Graphics } from 'pixi.js';
 import type { MapData } from '../../managers/MapManager';
 import type { Waypoint } from '../../managers/PathfindingManager';
+import { ensurePathGraph, pathGraphToSegments } from '../../path/pathGraph';
 
 /**
  * StructureRenderer handles all structure rendering including:
@@ -604,7 +605,7 @@ export class StructureRenderer {
       const y = Math.random() * mapData.height;
 
       // Only place decorations away from the path and not at the top (where houses are)
-      if (y > 150 && this.isAwayFromPath(x, y, mapData.waypoints)) {
+      if (y > 150 && this.isAwayFromPath(x, y, mapData)) {
         const decorType = Math.random();
 
         if (decorType < 0.3) {
@@ -680,7 +681,7 @@ export class StructureRenderer {
       const x = Math.random() * mapData.width;
       const y = Math.random() * mapData.height;
 
-      if (y > 150 && this.isAwayFromPath(x, y, mapData.waypoints)) {
+      if (y > 150 && this.isAwayFromPath(x, y, mapData)) {
         // Small skull (slightly irregular)
         this.mapContainer
           .moveTo(x - 4, y)
@@ -698,19 +699,30 @@ export class StructureRenderer {
   }
 
   /**
-   * Check if a point is away from the path
+   * Check if a point is away from all path segments (including branches).
    */
-  private isAwayFromPath(x: number, y: number, waypoints: Waypoint[]): boolean {
-    // Simple distance check from path
+  private isAwayFromPath(x: number, y: number, mapData: MapData): boolean {
+    const segments = pathGraphToSegments(ensurePathGraph(mapData));
+    if (segments.length === 0) {
+      return this.isAwayFromPolyline(x, y, mapData.waypoints);
+    }
+    for (const seg of segments) {
+      const distance = this.distanceToLineSegment(x, y, seg.a.x, seg.a.y, seg.b.x, seg.b.y);
+      if (distance < 50) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  private isAwayFromPolyline(x: number, y: number, waypoints: Waypoint[]): boolean {
     for (let i = 0; i < waypoints.length - 1; i++) {
       const p1 = waypoints[i];
       const p2 = waypoints[i + 1];
-
-      // Calculate distance from point to line segment
       const distance = this.distanceToLineSegment(x, y, p1.x, p1.y, p2.x, p2.y);
       if (distance < 50) {
         return false;
-      } // Too close to path
+      }
     }
     return true;
   }
