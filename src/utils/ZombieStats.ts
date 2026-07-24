@@ -36,6 +36,9 @@ export class ZombieStats {
       case GameConfig.ZOMBIE_TYPES.MECHANICAL:
         baseHealth = 250;
         break;
+      case GameConfig.ZOMBIE_TYPES.BOSS:
+        baseHealth = 1000;
+        break;
     }
 
     // Scale health based on wave (from design document)
@@ -70,6 +73,9 @@ export class ZombieStats {
         break;
       case GameConfig.ZOMBIE_TYPES.MECHANICAL:
         baseDamage = 18;
+        break;
+      case GameConfig.ZOMBIE_TYPES.BOSS:
+        baseDamage = 40;
         break;
     }
 

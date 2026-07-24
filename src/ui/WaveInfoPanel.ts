@@ -1,31 +1,81 @@
-import { Text } from 'pixi.js';
+import { Container, Graphics, Text } from 'pixi.js';
+import { GameConfig } from '../config/gameConfig';
 import { WaveManager, type ZombieGroup } from '../managers/WaveManager';
 import { UIPanel } from './UIPanel';
 
+interface ZombieMeta {
+  color: number;
+  short: string;
+}
+
+const ZOMBIE_META: Record<string, ZombieMeta> = {
+  [GameConfig.ZOMBIE_TYPES.BASIC]: { color: 0x4caf50, short: 'BAS' },
+  [GameConfig.ZOMBIE_TYPES.FAST]: { color: 0xff8a3d, short: 'FST' },
+  [GameConfig.ZOMBIE_TYPES.TANK]: { color: 0xe53935, short: 'TNK' },
+  [GameConfig.ZOMBIE_TYPES.ARMORED]: { color: 0x9e9e9e, short: 'ARM' },
+  [GameConfig.ZOMBIE_TYPES.SWARM]: { color: 0xcddc39, short: 'SWM' },
+  [GameConfig.ZOMBIE_TYPES.STEALTH]: { color: 0x9c27b0, short: 'STL' },
+  [GameConfig.ZOMBIE_TYPES.MECHANICAL]: { color: 0x00bcd4, short: 'MCH' },
+  [GameConfig.ZOMBIE_TYPES.BOSS]: { color: 0xffaa00, short: 'BOS' },
+};
+
+const PANEL_W = 540;
+const PANEL_H = 760;
+const CARD_W = 510;
+const WAVES_VISIBLE = 3;
+const ACCENT = 0xffcc00;
+
+/**
+ * Debug panel showing upcoming wave composition with visual bars and navigation.
+ */
 export class WaveInfoPanel extends UIPanel {
   private waveManager: WaveManager | null = null;
   private currentWave = 1;
-  private waveInfoTexts: Text[] = [];
+  /** First wave shown in the preview window (can browse ahead/behind). */
+  private previewStartWave = 1;
+  private dynamicRoot: Container | null = null;
+  private panelWidth = PANEL_W;
 
   constructor() {
     super();
     this.cullableChildren = false;
-    this.createPanelFrame(320, 600, 'Wave Information', 'Upcoming Wave Composition', 0xffcc00);
+    this.createPanelFrame(
+      PANEL_W,
+      PANEL_H,
+      'WAVE INTEL',
+      'Composition · spawn rates · difficulty',
+      ACCENT
+    );
+    this.panelWidth = PANEL_W;
   }
 
   public setWaveManager(waveManager: WaveManager): void {
     this.waveManager = waveManager;
+    this.previewStartWave = waveManager.getCurrentWave();
     this.updateWaveInfo();
   }
 
   protected override onOpen(): void {
+    this.previewStartWave = this.currentWave;
     this.updateWaveInfo();
   }
 
   public updateCurrentWave(wave: number): void {
+    const wasTrackingLive = this.previewStartWave === this.currentWave;
     this.currentWave = wave;
+    if (wasTrackingLive || !this.isExpanded) {
+      this.previewStartWave = wave;
+    }
     if (this.isExpanded) {
       this.updateWaveInfo();
+    }
+  }
+
+  private clearDynamic(): void {
+    if (this.dynamicRoot) {
+      this.contentContainer.removeChild(this.dynamicRoot);
+      this.dynamicRoot.destroy({ children: true });
+      this.dynamicRoot = null;
     }
   }
 
@@ -34,223 +84,286 @@ export class WaveInfoPanel extends UIPanel {
       return;
     }
 
-    // Clear previous wave info texts
-    this.waveInfoTexts.forEach(text => {
-      this.contentContainer.removeChild(text);
-      text.destroy();
-    });
-    this.waveInfoTexts = [];
+    this.clearDynamic();
+    this.dynamicRoot = new Container();
+    this.contentContainer.addChild(this.dynamicRoot);
 
-    const panelLeft = 0;
-    const panelTop = 0;
-    let yPos = panelTop + 60;
+    const pad = 15;
+    let y = 58;
 
-    // Show current wave and next 3 waves
-    for (let i = 0; i < 4; i++) {
-      const waveNum = this.currentWave + i;
-      const zombieGroups = this.getWaveZombies(waveNum);
+    // Difficulty + nav row
+    y = this.buildHeaderRow(y, pad);
+    y += 8;
 
-      if (zombieGroups.length === 0) {
+    // Wave cards
+    for (let i = 0; i < WAVES_VISIBLE; i++) {
+      const waveNum = this.previewStartWave + i;
+      const groups = this.waveManager.getZombiesForWave(waveNum);
+      if (groups.length === 0) {
         continue;
       }
+      const cardH = this.buildWaveCard(waveNum, groups, pad, y);
+      y += cardH + 10;
+    }
 
-      // Wave header
-      const waveHeader = new Text({
-        text: i === 0 ? `⚡ Wave ${waveNum} (Current)` : `Wave ${waveNum}`,
-        style: {
-          fontFamily: 'Impact, Arial Black, sans-serif',
-          fontSize: 14,
-          fill: i === 0 ? 0x00ff00 : 0xffcc00,
-          fontWeight: 'bold',
-        },
-      });
-      waveHeader.position.set(panelLeft + 15, yPos);
-      this.contentContainer.addChild(waveHeader);
-      this.waveInfoTexts.push(waveHeader);
-      yPos += 25;
+    // Legend
+    y = this.buildLegend(y + 4, pad);
+  }
 
-      // Calculate total zombies
-      let totalZombies = 0;
-      zombieGroups.forEach(group => {
-        const adjustedCount = this.waveManager?.calculateZombieCount(group.count, waveNum) ?? 0;
-        totalZombies += adjustedCount;
-      });
+  private buildHeaderRow(y: number, pad: number): number {
+    const row = new Container();
+    row.position.set(pad, y);
 
-      // Total count
-      const totalText = new Text({
-        text: `Total: ${totalZombies} zombies`,
+    const diff = this.waveManager?.getDifficultyModifier() ?? 1;
+    const diffPct = Math.round(diff * 100);
+    const diffColor = diff > 1.05 ? 0xff6b6b : diff < 0.95 ? 0x69f0ae : 0xb0bec5;
+
+    const status = new Text({
+      text: `Live wave ${this.currentWave}  ·  Difficulty ${diffPct}%`,
+      style: {
+        fontFamily: 'Courier New, monospace',
+        fontSize: 11,
+        fill: diffColor,
+      },
+    });
+    row.addChild(status);
+
+    const navY = 22;
+    const btnW = 72;
+    const btnH = 26;
+    const gap = 8;
+
+    const prevBtn = this.createActionButton('◀ Prev', btnW, btnH, ACCENT, () => {
+      this.previewStartWave = Math.max(1, this.previewStartWave - 1);
+      this.updateWaveInfo();
+    });
+    prevBtn.position.set(0, navY);
+    row.addChild(prevBtn);
+
+    const liveBtn = this.createActionButton('● Live', btnW, btnH, 0x69f0ae, () => {
+      this.previewStartWave = this.currentWave;
+      this.updateWaveInfo();
+    });
+    liveBtn.position.set(btnW + gap, navY);
+    row.addChild(liveBtn);
+
+    const nextBtn = this.createActionButton('Next ▶', btnW, btnH, ACCENT, () => {
+      this.previewStartWave = Math.min(98, this.previewStartWave + 1);
+      this.updateWaveInfo();
+    });
+    nextBtn.position.set((btnW + gap) * 2, navY);
+    row.addChild(nextBtn);
+
+    const jumpBtn = this.createActionButton('+5', 44, btnH, 0xff8a3d, () => {
+      this.previewStartWave = Math.min(98, this.previewStartWave + 5);
+      this.updateWaveInfo();
+    });
+    jumpBtn.position.set((btnW + gap) * 3, navY);
+    row.addChild(jumpBtn);
+
+    this.dynamicRoot?.addChild(row);
+    return y + navY + btnH + 4;
+  }
+
+  private buildWaveCard(waveNum: number, groups: ZombieGroup[], pad: number, y: number): number {
+    const isCurrent = waveNum === this.currentWave;
+    const hasBoss = groups.some(g => g.type === GameConfig.ZOMBIE_TYPES.BOSS);
+    const borderColor = isCurrent ? 0x69f0ae : hasBoss ? 0xffaa00 : 0x444444;
+    const bgColor = isCurrent ? 0x1e2a1e : 0x222222;
+
+    const entries = groups.map(group => {
+      const count =
+        this.waveManager?.calculateZombieCount(group.count, waveNum, group.type) ?? 0;
+      const interval =
+        this.waveManager?.calculateSpawnRate(group.spawnInterval, waveNum, group.type) ?? 0;
+      return { type: group.type, count, interval };
+    });
+    const total = entries.reduce((sum, e) => sum + e.count, 0);
+
+    // Height: header + bar + rows + padding
+    const rowH = 14;
+    const cardH = 34 + 12 + entries.length * rowH + 10;
+
+    const card = new Container();
+    card.position.set(pad, y);
+
+    const bg = new Graphics();
+    bg.roundRect(0, 0, CARD_W, cardH, 8).fill({ color: bgColor, alpha: 0.95 });
+    bg.stroke({ width: isCurrent || hasBoss ? 2 : 1, color: borderColor });
+    card.addChild(bg);
+
+    // Header
+    const titleLabel = isCurrent
+      ? `WAVE ${waveNum}  ·  NOW`
+      : hasBoss
+        ? `WAVE ${waveNum}  ·  BOSS`
+        : `WAVE ${waveNum}`;
+    const title = new Text({
+      text: titleLabel,
+      style: {
+        fontFamily: 'Impact, Arial Black, sans-serif',
+        fontSize: 13,
+        fill: borderColor,
+        letterSpacing: 1,
+      },
+    });
+    title.position.set(12, 8);
+    card.addChild(title);
+
+    const totalText = new Text({
+      text: `${total} zombies`,
+      style: {
+        fontFamily: 'Courier New, monospace',
+        fontSize: 11,
+        fill: 0xaaaaaa,
+      },
+    });
+    totalText.anchor.set(1, 0);
+    totalText.position.set(CARD_W - 12, 10);
+    card.addChild(totalText);
+
+    // Composition bar
+    const barY = 28;
+    const barX = 12;
+    const barW = CARD_W - 24;
+    const barH = 8;
+    const barBg = new Graphics();
+    barBg.roundRect(barX, barY, barW, barH, 3).fill({ color: 0x111111 });
+    card.addChild(barBg);
+
+    if (total > 0) {
+      let xOff = barX;
+      const bar = new Graphics();
+      for (const entry of entries) {
+        if (entry.count <= 0) continue;
+        const segW = Math.max(2, (entry.count / total) * barW);
+        const meta = this.getMeta(entry.type);
+        bar.rect(xOff, barY, segW, barH).fill({ color: meta.color });
+        xOff += segW;
+      }
+      card.addChild(bar);
+    }
+
+    // Type rows
+    let rowY = barY + 14;
+    for (const entry of entries) {
+      if (entry.count <= 0) continue;
+      const meta = this.getMeta(entry.type);
+      const pct = total > 0 ? Math.round((entry.count / total) * 100) : 0;
+      const isBoss = entry.type === GameConfig.ZOMBIE_TYPES.BOSS;
+
+      const swatch = new Graphics();
+      swatch.roundRect(12, rowY + 3, 8, 8, 2).fill({ color: meta.color });
+      card.addChild(swatch);
+
+      const nameText = new Text({
+        text: isBoss ? `★ ${entry.type}` : entry.type,
         style: {
           fontFamily: 'Arial',
           fontSize: 11,
-          fill: 0xcccccc,
-          fontStyle: 'italic',
+          fill: isBoss ? 0xffaa00 : 0xe0e0e0,
+          fontWeight: isBoss ? 'bold' : 'normal',
         },
       });
-      totalText.position.set(panelLeft + 25, yPos);
-      this.contentContainer.addChild(totalText);
-      this.waveInfoTexts.push(totalText);
-      yPos += 20;
+      nameText.position.set(26, rowY);
+      card.addChild(nameText);
 
-      // Zombie composition
-      zombieGroups.forEach(group => {
-        const adjustedCount = this.waveManager?.calculateZombieCount(group.count, waveNum) ?? 0;
-        const percentage =
-          totalZombies > 0 ? ((adjustedCount / totalZombies) * 100).toFixed(0) : '0';
-        const spawnRate = this.waveManager?.calculateSpawnRate(group.spawnInterval, waveNum) ?? 0;
-
-        const zombieColor = this.getZombieColor(group.type);
-        const zombieIcon = this.getZombieIcon(group.type);
-
-        const zombieText = new Text({
-          text: `${zombieIcon} ${group.type}: ${adjustedCount} (${percentage}%)`,
-          style: {
-            fontFamily: 'Courier New, monospace',
-            fontSize: 11,
-            fill: zombieColor,
-          },
-        });
-        zombieText.position.set(panelLeft + 30, yPos);
-        this.contentContainer.addChild(zombieText);
-        this.waveInfoTexts.push(zombieText);
-        yPos += 16;
-
-        // Spawn rate info
-        const rateText = new Text({
-          text: `  ↳ Spawn: ${spawnRate.toFixed(1)}s interval`,
-          style: {
-            fontFamily: 'Arial',
-            fontSize: 9,
-            fill: 0x888888,
-            fontStyle: 'italic',
-          },
-        });
-        rateText.position.set(panelLeft + 30, yPos);
-        this.contentContainer.addChild(rateText);
-        this.waveInfoTexts.push(rateText);
-        yPos += 14;
+      const statsText = new Text({
+        text: `${entry.count}  (${pct}%)`,
+        style: {
+          fontFamily: 'Courier New, monospace',
+          fontSize: 11,
+          fill: 0xcccccc,
+        },
       });
+      statsText.position.set(140, rowY);
+      card.addChild(statsText);
 
-      // Difficulty info
-      const difficultyMod = this.waveManager?.getDifficultyModifier();
-      if (i === 0 && difficultyMod !== 1.0) {
-        const diffText = new Text({
-          text: `Difficulty: ${(difficultyMod * 100).toFixed(0)}%`,
-          style: {
-            fontFamily: 'Arial',
-            fontSize: 10,
-            fill: difficultyMod > 1.0 ? 0xff6666 : 0x66ff66,
-            fontStyle: 'italic',
-          },
-        });
-        diffText.position.set(panelLeft + 25, yPos);
-        this.contentContainer.addChild(diffText);
-        this.waveInfoTexts.push(diffText);
-        yPos += 18;
-      }
-
-      yPos += 10; // Space between waves
-    }
-
-    // Legend at bottom
-    yPos += 10;
-    const legendTitle = new Text({
-      text: '🎨 Zombie Colors:',
-      style: {
-        fontFamily: 'Arial',
-        fontSize: 12,
-        fill: 0xffcc00,
-        fontWeight: 'bold',
-      },
-    });
-    legendTitle.position.set(panelLeft + 15, yPos);
-    this.contentContainer.addChild(legendTitle);
-    this.waveInfoTexts.push(legendTitle);
-    yPos += 20;
-
-    const legend = [
-      { type: 'Basic', color: 0x00ff00 },
-      { type: 'Fast', color: 0xff6600 },
-      { type: 'Tank', color: 0xff0000 },
-      { type: 'Armored', color: 0x888888 },
-      { type: 'Swarm', color: 0xffff00 },
-      { type: 'Stealth', color: 0x6600ff },
-      { type: 'Mechanical', color: 0x00ffff },
-    ];
-
-    legend.forEach(item => {
-      const icon = this.getZombieIcon(item.type);
-      const legendText = new Text({
-        text: `${icon} ${item.type}`,
+      const rateText = new Text({
+        text: `every ${entry.interval.toFixed(1)}s`,
         style: {
           fontFamily: 'Arial',
           fontSize: 10,
-          fill: item.color,
+          fill: 0x777777,
         },
       });
-      legendText.position.set(panelLeft + 25, yPos);
-      this.contentContainer.addChild(legendText);
-      this.waveInfoTexts.push(legendText);
-      yPos += 16;
+      rateText.anchor.set(1, 0);
+      rateText.position.set(CARD_W - 12, rowY + 1);
+      card.addChild(rateText);
+
+      rowY += rowH;
+    }
+
+    this.dynamicRoot?.addChild(card);
+    return cardH;
+  }
+
+  private buildLegend(y: number, pad: number): number {
+    const legend = new Container();
+    legend.position.set(pad, y);
+
+    const label = new Text({
+      text: 'TYPES',
+      style: {
+        fontFamily: 'Impact, Arial Black, sans-serif',
+        fontSize: 11,
+        fill: ACCENT,
+        letterSpacing: 1,
+      },
     });
+    legend.addChild(label);
+
+    const types = Object.values(GameConfig.ZOMBIE_TYPES);
+    const chipW = 58;
+    const chipH = 20;
+    let x = 0;
+    let chipY = 18;
+    const maxX = this.panelWidth - pad * 2;
+
+    for (const type of types) {
+      const meta = this.getMeta(type);
+      if (x + chipW > maxX) {
+        x = 0;
+        chipY += chipH + 4;
+      }
+
+      const chip = new Container();
+      chip.position.set(x, chipY);
+
+      const bg = new Graphics();
+      bg.roundRect(0, 0, chipW - 4, chipH, 4).fill({ color: 0x2a2a2a, alpha: 0.9 });
+      bg.stroke({ width: 1, color: meta.color });
+      chip.addChild(bg);
+
+      const dot = new Graphics();
+      dot.circle(8, chipH / 2, 3).fill({ color: meta.color });
+      chip.addChild(dot);
+
+      const t = new Text({
+        text: meta.short,
+        style: {
+          fontFamily: 'Courier New, monospace',
+          fontSize: 9,
+          fill: meta.color,
+          fontWeight: 'bold',
+        },
+      });
+      t.position.set(14, 4);
+      chip.addChild(t);
+
+      legend.addChild(chip);
+      x += chipW;
+    }
+
+    this.dynamicRoot?.addChild(legend);
+    return y + chipY + chipH;
   }
 
-  private getWaveZombies(wave: number): ZombieGroup[] {
-    if (!this.waveManager) {
-      return [];
-    }
-
-    // Access the wave data through a temporary instance
-    const tempManager = new WaveManager();
-    // Get the current wave zombies by setting the wave
-    for (let i = 1; i < wave; i++) {
-      tempManager.nextWave();
-    }
-    return tempManager.getCurrentWaveZombies();
-  }
-
-  private getZombieColor(type: string): number {
-    switch (type) {
-      case 'Basic':
-        return 0x00ff00;
-      case 'Fast':
-        return 0xff6600;
-      case 'Tank':
-        return 0xff0000;
-      case 'Armored':
-        return 0x888888;
-      case 'Swarm':
-        return 0xffff00;
-      case 'Stealth':
-        return 0x6600ff;
-      case 'Mechanical':
-        return 0x00ffff;
-      default:
-        return 0xffffff;
-    }
-  }
-
-  private getZombieIcon(type: string): string {
-    switch (type) {
-      case 'Basic':
-        return '🧟';
-      case 'Fast':
-        return '🏃';
-      case 'Tank':
-        return '💪';
-      case 'Armored':
-        return '🛡️';
-      case 'Swarm':
-        return '🐝';
-      case 'Stealth':
-        return '👻';
-      case 'Mechanical':
-        return '🤖';
-      default:
-        return '❓';
-    }
+  private getMeta(type: string): ZombieMeta {
+    return ZOMBIE_META[type] ?? { color: 0xffffff, short: '???' };
   }
 
   public update(_deltaTime: number): void {
-    // Update logic if needed
+    // Content refreshes on open / wave change
   }
 }

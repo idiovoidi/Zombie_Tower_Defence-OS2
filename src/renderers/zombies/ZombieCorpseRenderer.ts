@@ -94,6 +94,9 @@ export class ZombieCorpseRenderer {
       case GameConfig.ZOMBIE_TYPES.MECHANICAL:
         this.renderMechanicalCorpse(x, y, cos, sin, alpha);
         break;
+      case GameConfig.ZOMBIE_TYPES.BOSS:
+        this.renderBossCorpse(x, y, cos, sin, alpha);
+        break;
     }
 
     this.graphics.restore();
@@ -236,6 +239,17 @@ export class ZombieCorpseRenderer {
       this.graphics.circle(x + Math.cos(angle) * dist, y + Math.sin(angle) * dist, 1);
       this.graphics.fill({ color: 0xffff00, alpha: alpha * 0.6 });
     }
+  }
+
+  private renderBossCorpse(x: number, y: number, cos: number, sin: number, alpha: number): void {
+    this.drawCorpseBody(x, y, cos, sin, alpha, 16, 24, 0x1a0a12, 0.8, 6, 0x2a1018, 0.75, 5.5);
+    this.graphics.circle(x, y, 20);
+    this.graphics.fill({ color: 0x8b0000, alpha: alpha * 0.45 });
+    // Amber eye glow residue
+    this.graphics.circle(x - 4, y - 2, 2);
+    this.graphics.fill({ color: 0xffaa00, alpha: alpha * 0.5 });
+    this.graphics.circle(x + 4, y - 2, 2);
+    this.graphics.fill({ color: 0xffaa00, alpha: alpha * 0.5 });
   }
 
   public clear(): void {

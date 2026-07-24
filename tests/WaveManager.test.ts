@@ -121,8 +121,8 @@ describe('WaveManager', () => {
       (waveManager as any).currentWave = 45;
       const zombies = waveManager.getCurrentWaveZombies();
 
-      // Should have 7 zombie types
-      expect(zombies.length).toBe(7);
+      // Should have 8 zombie types (includes Boss)
+      expect(zombies.length).toBe(8);
 
       // Check zombie types
       expect(zombies[0].type).toBe(GameConfig.ZOMBIE_TYPES.BASIC);
@@ -132,6 +132,23 @@ describe('WaveManager', () => {
       expect(zombies[4].type).toBe(GameConfig.ZOMBIE_TYPES.SWARM);
       expect(zombies[5].type).toBe(GameConfig.ZOMBIE_TYPES.STEALTH);
       expect(zombies[6].type).toBe(GameConfig.ZOMBIE_TYPES.MECHANICAL);
+      expect(zombies[7].type).toBe(GameConfig.ZOMBIE_TYPES.BOSS);
+      expect(zombies[7].count).toBe(2);
+    });
+
+    test('should introduce Boss zombies starting at wave 16', () => {
+      // biome-ignore lint/suspicious/noExplicitAny: Test needs access to private property
+      (waveManager as any).currentWave = 15;
+      expect(
+        waveManager.getCurrentWaveZombies().some(g => g.type === GameConfig.ZOMBIE_TYPES.BOSS)
+      ).toBe(false);
+
+      // biome-ignore lint/suspicious/noExplicitAny: Test needs access to private property
+      (waveManager as any).currentWave = 16;
+      const wave16 = waveManager.getCurrentWaveZombies();
+      const boss = wave16.find(g => g.type === GameConfig.ZOMBIE_TYPES.BOSS);
+      expect(boss).toBeDefined();
+      expect(boss?.count).toBe(1);
     });
   });
 
@@ -174,6 +191,16 @@ describe('WaveManager', () => {
     test('should calculate correct zombie count', () => {
       const count = waveManager.calculateZombieCount(10, 1);
       expect(count).toBe(10); // 10 * (1.08^1) * 1.0 = 10.8, floored to 10
+    });
+
+    test('should not exponentially scale Boss zombie counts', () => {
+      const early = waveManager.calculateZombieCount(1, 16, GameConfig.ZOMBIE_TYPES.BOSS);
+      const late = waveManager.calculateZombieCount(1, 35, GameConfig.ZOMBIE_TYPES.BOSS);
+      expect(early).toBe(1);
+      expect(late).toBe(1);
+      // Milestone waves get +1 boss
+      const milestone = waveManager.calculateZombieCount(1, 20, GameConfig.ZOMBIE_TYPES.BOSS);
+      expect(milestone).toBe(2);
     });
 
     test('should apply bonus for every 5th wave', () => {

@@ -222,13 +222,13 @@ export class WaveManager {
       ]);
     }
 
-    // Waves 16-20 (All types active - 30% Basic, 20% Fast, 15% Tank, 15% Armored, 10% Swarm, 5% Stealth, 5% Mechanical)
+    // Waves 16-20 (Boss debut — all types + 1 Boss)
     for (let i = 16; i <= 20; i++) {
       const totalZombies = Math.floor(40 + i * 4);
       this.waveData.set(i, [
         {
           type: GameConfig.ZOMBIE_TYPES.BASIC,
-          count: Math.floor(totalZombies * 0.3),
+          count: Math.floor(totalZombies * 0.28),
           spawnInterval: 1.0,
         },
         {
@@ -261,16 +261,21 @@ export class WaveManager {
           count: Math.floor(totalZombies * 0.05),
           spawnInterval: 2.0,
         },
+        {
+          type: GameConfig.ZOMBIE_TYPES.BOSS,
+          count: 1,
+          spawnInterval: 10.0,
+        },
       ]);
     }
 
-    // Waves 21-30 (Balanced mix - 25% Basic, 20% Fast, 15% Tank, 15% Armored, 12% Swarm, 8% Stealth, 5% Mechanical)
+    // Waves 21-30 (Balanced mix + 1 Boss)
     for (let i = 21; i <= 30; i++) {
       const totalZombies = Math.floor(50 + i * 4.5);
       this.waveData.set(i, [
         {
           type: GameConfig.ZOMBIE_TYPES.BASIC,
-          count: Math.floor(totalZombies * 0.25),
+          count: Math.floor(totalZombies * 0.24),
           spawnInterval: 0.9,
         },
         {
@@ -303,16 +308,21 @@ export class WaveManager {
           count: Math.floor(totalZombies * 0.05),
           spawnInterval: 1.8,
         },
+        {
+          type: GameConfig.ZOMBIE_TYPES.BOSS,
+          count: 1,
+          spawnInterval: 9.0,
+        },
       ]);
     }
 
-    // Waves 31-40 (Heavy assault - 20% Basic, 18% Fast, 18% Tank, 18% Armored, 12% Swarm, 8% Stealth, 6% Mechanical)
+    // Waves 31-40 (Heavy assault + 1 Boss)
     for (let i = 31; i <= 40; i++) {
       const totalZombies = Math.floor(70 + i * 5);
       this.waveData.set(i, [
         {
           type: GameConfig.ZOMBIE_TYPES.BASIC,
-          count: Math.floor(totalZombies * 0.2),
+          count: Math.floor(totalZombies * 0.19),
           spawnInterval: 0.8,
         },
         {
@@ -345,16 +355,21 @@ export class WaveManager {
           count: Math.floor(totalZombies * 0.06),
           spawnInterval: 1.6,
         },
+        {
+          type: GameConfig.ZOMBIE_TYPES.BOSS,
+          count: 1,
+          spawnInterval: 8.0,
+        },
       ]);
     }
 
-    // Waves 41-60 (Expert - 15% Basic, 15% Fast, 15% Tank, 20% Armored, 15% Swarm, 12% Stealth, 8% Mechanical)
+    // Waves 41-60 (Expert + 2 Bosses)
     for (let i = 41; i <= 60; i++) {
       const totalZombies = Math.floor(100 + i * 6);
       this.waveData.set(i, [
         {
           type: GameConfig.ZOMBIE_TYPES.BASIC,
-          count: Math.floor(totalZombies * 0.15),
+          count: Math.floor(totalZombies * 0.14),
           spawnInterval: 0.7,
         },
         {
@@ -387,16 +402,21 @@ export class WaveManager {
           count: Math.floor(totalZombies * 0.08),
           spawnInterval: 1.5,
         },
+        {
+          type: GameConfig.ZOMBIE_TYPES.BOSS,
+          count: 2,
+          spawnInterval: 7.0,
+        },
       ]);
     }
 
-    // Waves 61-80 (Master - 12% Basic, 15% Fast, 15% Tank, 22% Armored, 18% Swarm, 10% Stealth, 8% Mechanical)
+    // Waves 61-80 (Master + 2 Bosses)
     for (let i = 61; i <= 80; i++) {
       const totalZombies = Math.floor(150 + i * 7);
       this.waveData.set(i, [
         {
           type: GameConfig.ZOMBIE_TYPES.BASIC,
-          count: Math.floor(totalZombies * 0.12),
+          count: Math.floor(totalZombies * 0.11),
           spawnInterval: 0.6,
         },
         {
@@ -429,16 +449,21 @@ export class WaveManager {
           count: Math.floor(totalZombies * 0.08),
           spawnInterval: 1.3,
         },
+        {
+          type: GameConfig.ZOMBIE_TYPES.BOSS,
+          count: 2,
+          spawnInterval: 6.0,
+        },
       ]);
     }
 
-    // Waves 81-100 (Nightmare - 10% Basic, 12% Fast, 18% Tank, 25% Armored, 20% Swarm, 10% Stealth, 5% Mechanical)
+    // Waves 81-100 (Nightmare + 3 Bosses)
     for (let i = 81; i <= 100; i++) {
       const totalZombies = Math.floor(200 + i * 8);
       this.waveData.set(i, [
         {
           type: GameConfig.ZOMBIE_TYPES.BASIC,
-          count: Math.floor(totalZombies * 0.1),
+          count: Math.floor(totalZombies * 0.09),
           spawnInterval: 0.5,
         },
         {
@@ -471,6 +496,11 @@ export class WaveManager {
           count: Math.floor(totalZombies * 0.05),
           spawnInterval: 1.1,
         },
+        {
+          type: GameConfig.ZOMBIE_TYPES.BOSS,
+          count: 3,
+          spawnInterval: 5.0,
+        },
       ]);
     }
   }
@@ -498,11 +528,16 @@ export class WaveManager {
 
   // Get zombie groups for current wave
   public getCurrentWaveZombies(): ZombieGroup[] {
-    const override = this.waveOverrides?.get(this.currentWave);
+    return this.getZombiesForWave(this.currentWave);
+  }
+
+  /** Composition for a specific wave (honors custom overrides). */
+  public getZombiesForWave(wave: number): ZombieGroup[] {
+    const override = this.waveOverrides?.get(wave);
     if (override) {
       return override.map(g => ({ ...g }));
     }
-    return this.waveData.get(this.currentWave) || [];
+    return this.waveData.get(wave) || [];
   }
 
   /** Built-in composition for a wave (ignores custom overrides). Useful for editor copy-from-default. */
@@ -563,6 +598,9 @@ export class WaveManager {
       case GameConfig.ZOMBIE_TYPES.MECHANICAL:
         baseDamage = 20;
         break;
+      case GameConfig.ZOMBIE_TYPES.BOSS:
+        baseDamage = 40;
+        break;
     }
 
     // Scale damage based on wave (from design document)
@@ -612,18 +650,30 @@ export class WaveManager {
   }
 
   // Calculate spawn rate with scaling (from design document)
-  public calculateSpawnRate(baseInterval: number, wave: number): number {
-    const scaledInterval = baseInterval * 0.95 ** wave * this.difficultyModifier;
+  public calculateSpawnRate(baseInterval: number, wave: number, type?: string): number {
+    // Bosses stay spaced out — milder interval decay than the horde
+    const decayBase = type === GameConfig.ZOMBIE_TYPES.BOSS ? 0.98 : 0.95;
+    const minInterval = type === GameConfig.ZOMBIE_TYPES.BOSS ? 4.0 : 0.5;
+    const scaledInterval = baseInterval * decayBase ** wave * this.difficultyModifier;
     // ZOMBIE_SPAWN_RATE_MULTIPLIER: lower = fewer spawns (longer interval)
     const debugFactor =
       DebugConstants.ENABLED && DebugConstants.ZOMBIE_SPAWN_RATE_MULTIPLIER > 0
         ? 1 / DebugConstants.ZOMBIE_SPAWN_RATE_MULTIPLIER
         : 1;
-    return Math.max(0.5, scaledInterval * debugFactor); // Minimum 0.5 seconds
+    return Math.max(minInterval, scaledInterval * debugFactor);
   }
 
   // Calculate zombie count with scaling (from design document)
-  public calculateZombieCount(baseCount: number, wave: number): number {
+  public calculateZombieCount(baseCount: number, wave: number, type?: string): number {
+    // Bosses are elite singletons — skip horde exponential scaling
+    if (type === GameConfig.ZOMBIE_TYPES.BOSS) {
+      let count = baseCount;
+      if (wave % 10 === 0) {
+        count += 1; // Extra boss on milestone waves
+      }
+      return Math.max(baseCount > 0 ? 1 : 0, Math.floor(count * Math.min(1.15, this.difficultyModifier)));
+    }
+
     let count = baseCount * 1.08 ** wave * this.difficultyModifier;
 
     // 20% spikes every 5 waves
@@ -641,7 +691,7 @@ export class WaveManager {
 
     for (const group of zombieGroups) {
       // Calculate adjusted count based on wave and difficulty
-      const adjustedCount = this.calculateZombieCount(group.count, this.currentWave);
+      const adjustedCount = this.calculateZombieCount(group.count, this.currentWave, group.type);
 
       for (let i = 0; i < adjustedCount; i++) {
         // Create zombie using ZombieFactory

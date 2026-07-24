@@ -74,11 +74,13 @@ export class ZombieManager {
     for (const group of zombieGroups) {
       const adjustedCount = this.waveManager.calculateZombieCount(
         group.count,
-        this.waveManager.getCurrentWave()
+        this.waveManager.getCurrentWave(),
+        group.type
       );
       const spawnInterval = this.waveManager.calculateSpawnRate(
         group.spawnInterval,
-        this.waveManager.getCurrentWave()
+        this.waveManager.getCurrentWave(),
+        group.type
       );
 
       for (let i = 0; i < adjustedCount; i++) {

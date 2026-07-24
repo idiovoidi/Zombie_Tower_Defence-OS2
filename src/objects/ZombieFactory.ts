@@ -2,6 +2,7 @@ import { GameConfig } from '../config/gameConfig';
 import type { Zombie } from './Zombie';
 import { ArmoredZombie } from './zombies/ArmoredZombie';
 import { BasicZombie } from './zombies/BasicZombie';
+import { BossZombie } from './zombies/BossZombie';
 import { FastZombie } from './zombies/FastZombie';
 import { MechanicalZombie } from './zombies/MechanicalZombie';
 import { StealthZombie } from './zombies/StealthZombie';
@@ -26,6 +27,8 @@ export class ZombieFactory {
         return new StealthZombie(x, y, wave);
       case GameConfig.ZOMBIE_TYPES.MECHANICAL:
         return new MechanicalZombie(x, y, wave);
+      case GameConfig.ZOMBIE_TYPES.BOSS:
+        return new BossZombie(x, y, wave);
       default:
         return null;
     }

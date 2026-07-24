@@ -240,8 +240,8 @@ export class LevelState {
   /**
    * Calculate zombie count for wave scaling
    */
-  public calculateZombieCount(baseCount: number, wave: number): number {
-    return this.waveManager.calculateZombieCount(baseCount, wave);
+  public calculateZombieCount(baseCount: number, wave: number, type?: string): number {
+    return this.waveManager.calculateZombieCount(baseCount, wave, type);
   }
 
   /**

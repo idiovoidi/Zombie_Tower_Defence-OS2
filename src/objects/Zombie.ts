@@ -167,6 +167,11 @@ export class Zombie extends GameObject {
         this.reward = 20;
         this.damage = 4; // High-tech threat
         break;
+      case GameConfig.ZOMBIE_TYPES.BOSS:
+        this.baseSpeed = 18;
+        this.reward = 75;
+        this.damage = 10; // Devastating camp damage
+        break;
       default:
         this.baseSpeed = 50;
         this.reward = 5;
@@ -375,6 +380,8 @@ export class Zombie extends GameObject {
    */
   private getKnockbackResistance(): number {
     switch (this.type) {
+      case GameConfig.ZOMBIE_TYPES.BOSS:
+        return 0.97; // Nearly immovable
       case GameConfig.ZOMBIE_TYPES.TANK:
         return 0.9; // 90% resistant (hard to knock back)
       case GameConfig.ZOMBIE_TYPES.ARMORED:
@@ -440,6 +447,8 @@ export class Zombie extends GameObject {
         return 6; // Weaving, unpredictable
       case GameConfig.ZOMBIE_TYPES.MECHANICAL:
         return 4; // Slight mechanical drift
+      case GameConfig.ZOMBIE_TYPES.BOSS:
+        return 15; // Massive lumbering sway
       default:
         return 8;
     }
@@ -542,6 +551,8 @@ export class Zombie extends GameObject {
   // Get visual size for corpse creation
   private getVisualSize(): number {
     switch (this.type) {
+      case GameConfig.ZOMBIE_TYPES.BOSS:
+        return 20;
       case GameConfig.ZOMBIE_TYPES.TANK:
         return 15;
       case GameConfig.ZOMBIE_TYPES.ARMORED:

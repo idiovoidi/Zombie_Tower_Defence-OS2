@@ -1,6 +1,7 @@
 import { GameConfig } from '../../config/gameConfig';
 import { ArmoredZombieRenderer } from './ArmoredZombieRenderer';
 import { BasicZombieRenderer } from './BasicZombieRenderer';
+import { BossZombieRenderer } from './BossZombieRenderer';
 import { FastZombieRenderer } from './FastZombieRenderer';
 import { MechanicalZombieRenderer } from './MechanicalZombieRenderer';
 import { StealthZombieRenderer } from './StealthZombieRenderer';
@@ -35,6 +36,9 @@ export class ZombieRendererFactory {
 
       case GameConfig.ZOMBIE_TYPES.MECHANICAL:
         return new MechanicalZombieRenderer();
+
+      case GameConfig.ZOMBIE_TYPES.BOSS:
+        return new BossZombieRenderer();
 
       default:
         return new BasicZombieRenderer();

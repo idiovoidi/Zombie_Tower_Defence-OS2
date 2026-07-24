@@ -7,7 +7,15 @@
  * - Value = 1.0 = Normal damage
  */
 
-export type ZombieType = 'BASIC' | 'FAST' | 'TANK' | 'ARMORED' | 'SWARM' | 'STEALTH' | 'MECHANICAL';
+export type ZombieType =
+  | 'BASIC'
+  | 'FAST'
+  | 'TANK'
+  | 'ARMORED'
+  | 'SWARM'
+  | 'STEALTH'
+  | 'MECHANICAL'
+  | 'BOSS';
 export type TowerType = 'MACHINE_GUN' | 'SNIPER' | 'SHOTGUN' | 'FLAME' | 'TESLA' | 'GRENADE';
 
 type DamageModifierMap = {
@@ -89,6 +97,16 @@ const DAMAGE_MODIFIERS: DamageModifierMap = {
     FLAME: 0.5, // Heat-resistant metal
     TESLA: 2.0, // Electricity fries circuits
     GRENADE: 0.9, // Metal frame absorbs some blast
+  },
+
+  // Boss Zombie - Massive threat; shrug off light weapons, weak to heavy hitters
+  BOSS: {
+    MACHINE_GUN: 0.5, // Bullets barely scratch hide
+    SNIPER: 1.6, // Armor-piercing weak points
+    SHOTGUN: 0.6, // Pellets scatter harmlessly
+    FLAME: 1.1, // Slight fire vulnerability
+    TESLA: 1.4, // High-voltage staggers
+    GRENADE: 1.5, // Explosives crack the shell
   },
 };
 

@@ -134,6 +134,17 @@ export class ZombieAnimator {
           armForwardReach: 0.4, // Arms reach forward menacingly
           legStride: 0.5, // Short, heavy steps
         };
+      case 'BOSS':
+        return {
+          bobIntensity: 2.0, // Massive ground-shaking bob
+          headBobIntensity: 0.04,
+          headJerkiness: 0.15,
+          headSwayFreq: 0.25,
+          headSwayAmp: 1.0, // Slow, menacing head sway
+          armSwing: 0.15,
+          armForwardReach: 0.5,
+          legStride: 0.4, // Slow, crushing steps
+        };
       case 'STEALTH':
         return {
           bobIntensity: 0.3,
@@ -202,6 +213,8 @@ export class ZombieAnimator {
         return 1.2;
       case 'TANK':
         return 0.7;
+      case 'BOSS':
+        return 0.55;
       default:
         return 1.0;
     }

@@ -830,7 +830,7 @@ export class GameManager {
     const zombieGroups = this.waveManager.getCurrentWaveZombies();
     let totalZombiesSpawned = 0;
     for (const group of zombieGroups) {
-      const adjustedCount = this.waveManager.calculateZombieCount(group.count, wave);
+      const adjustedCount = this.waveManager.calculateZombieCount(group.count, wave, group.type);
       totalZombiesSpawned += adjustedCount;
     }
     const livesLostThisWave = this.waveStartLives - this.lives;

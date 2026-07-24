@@ -52,5 +52,6 @@ export const GameConfig = {
     SWARM: 'Swarm',
     STEALTH: 'Stealth',
     MECHANICAL: 'Mechanical',
+    BOSS: 'Boss',
   },
 };

@@ -90,12 +90,23 @@ export class ZombieBestiary extends UIPanel {
       type: GameConfig.ZOMBIE_TYPES.MECHANICAL,
       name: 'Mechanical Zombie',
       color: 0x3a4a5a, // Cyan-gray
-      health: 120,
+      health: 250,
       speed: 55,
-      reward: 40,
+      reward: 20,
       damage: 4,
       description: 'Cyborg zombie. High-tech threat.',
       characteristics: ['Robotic parts', 'Consistent pattern', '4 survivors killed'],
+    },
+    {
+      type: GameConfig.ZOMBIE_TYPES.BOSS,
+      name: 'Boss Zombie',
+      color: 0xffaa00, // Amber eyes
+      health: 1000,
+      speed: 18,
+      reward: 75,
+      damage: 10,
+      description: 'Apex undead. Slow, enormous, and devastating.',
+      characteristics: ['10x health', 'Nearly immovable', '10 survivors killed!'],
     },
   ];
 
@@ -104,7 +115,7 @@ export class ZombieBestiary extends UIPanel {
     this.createToggleButton('📖 Bestiary', 140, 0xff0000);
     this.createPanelFrame(
       900,
-      580,
+      760,
       '🧟 ZOMBIE BESTIARY 🧟',
       'Know Your Enemy - All Zombie Types',
       0xff0000
@@ -116,7 +127,7 @@ export class ZombieBestiary extends UIPanel {
     const panelLeft = 0;
     const panelTop = 0;
 
-    // Create zombie cards - adjusted for 7 cards (3 rows)
+    // Create zombie cards - 8 cards in 3 columns (3 rows)
     let xPos = panelLeft + 15;
     let yPos = panelTop + 75;
     const cardWidth = 280;
