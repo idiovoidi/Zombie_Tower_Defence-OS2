@@ -3,6 +3,7 @@ import type { ITowerRenderer } from '@/renderers/towers/ITowerRenderer';
 import { TowerRendererFactory } from '@/renderers/towers/TowerRendererFactory';
 import { HealthComponent } from '../components/HealthComponent';
 import { TransformComponent } from '../components/TransformComponent';
+import { DebugConstants } from '../config/debugConstants';
 import { GameConfig } from '../config/gameConfig';
 import { getTowerStats, type IdleAnimationType } from '../config/towerConstants';
 import { TowerManager } from '../managers/TowerManager';
@@ -107,21 +108,14 @@ export class Tower extends GameObject implements ITower, TowerEffects {
   }
 
   private initializeStats(): void {
-    // Use centralized config for all tower stats
-    const stats = getTowerStats(this.type);
-
-    if (stats) {
-      this.damage = stats.damage;
-      this.range = stats.range;
-      this.fireRate = stats.fireRate;
-    } else {
-      // Default values if stats not found
-      this.damage = 10;
-      this.range = 100;
-      this.fireRate = 1;
-    }
+    // Use TowerManager so debug multipliers apply consistently
+    const towerManager = TowerManager.getInstance();
+    this.damage = towerManager.calculateTowerDamage(this.type, this.upgradeLevel);
+    this.range = towerManager.calculateTowerRange(this.type, this.upgradeLevel);
+    this.fireRate = towerManager.calculateTowerFireRate(this.type, this.upgradeLevel);
 
     // Add health component for tower durability - use centralized config
+    const stats = getTowerStats(this.type);
     const towerHealth = stats?.health ?? 100;
     const healthComponent = new HealthComponent(towerHealth);
     this.addComponent(healthComponent);
@@ -386,6 +380,10 @@ export class Tower extends GameObject implements ITower, TowerEffects {
 
   // Apply damage to the tower
   public takeDamage(damage: number): number {
+    if (DebugConstants.ENABLED && DebugConstants.INVINCIBLE_TOWERS) {
+      return 0;
+    }
+
     const healthComponent = this.getComponent<HealthComponent>('Health');
     if (healthComponent) {
       const actualDamage = healthComponent.takeDamage(damage);

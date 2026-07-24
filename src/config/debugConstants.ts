@@ -1,8 +1,13 @@
 /**
  * Debug Constants - Easy to modify values for testing and debugging
  *
- * Change these values to quickly test different game scenarios
- * These override the default game config values when enabled
+ * Change these values to quickly test different game scenarios.
+ * These override the default game config values when ENABLED is true.
+ *
+ * Runtime without editing this file:
+ *   - Console: `dev.help()`
+ *   - URL: `?wave=10&money=99999&waypoints=1&ranges=1&god=1&ohk=1&skipMenu=0&level=level2&speed=2`
+ *   - Hotkeys: H for list (when ENABLED)
  */
 
 export const DebugConstants = {

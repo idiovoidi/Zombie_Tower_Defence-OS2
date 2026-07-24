@@ -480,6 +480,10 @@ export class GameManager {
   }
 
   public loseLife(amount = 1): void {
+    if (DebugConstants.ENABLED && DebugConstants.DISABLE_GAME_OVER) {
+      return;
+    }
+
     this.lives -= amount;
     if (this.onDamageFlashCallback) {
       this.onDamageFlashCallback();

@@ -6,12 +6,20 @@ import { bindDebugHotkeys } from './core/DebugHotkeys';
 import { startGameLoop } from './core/GameLoop';
 import { bindInput } from './core/InputBindings';
 import { createUI, setupCampClickCallback } from './core/UISetup';
+import {
+  applyUrlDevOverrides,
+  PathDebugOverlay,
+  registerDevApi,
+  TowerRangeDebugOverlay,
+} from './debug';
 import { GameManager } from './managers/GameManager';
 import { InputManager } from './managers/InputManager';
 import { TimeControlManager } from './managers/TimeControlManager';
 import { DebugUtils } from './utils/DebugUtils';
 
 (async () => {
+  applyUrlDevOverrides();
+
   DebugUtils.setEnabled(DevConfig.DEBUG.ENABLED);
   DebugUtils.setLogLevel(DevConfig.DEBUG.LOG_LEVEL as 'debug' | 'info' | 'warn' | 'error');
   DebugUtils.info('Initializing game...');
@@ -23,11 +31,28 @@ import { DebugUtils } from './utils/DebugUtils';
   const inputManager = new InputManager(app, scaleManager);
   gameManager.setInputManager(inputManager);
 
+  const pathOverlay = new PathDebugOverlay(app);
+  const rangeOverlay = new TowerRangeDebugOverlay(app);
+
+  const refreshPathOverlay = (): void => {
+    pathOverlay.refresh(gameManager.getMapManager().getCurrentMap());
+  };
+  const refreshRangeOverlay = (): void => {
+    rangeOverlay.update(gameManager.getTowerCombatManager().getTowers());
+  };
+
   const ui = createUI(app, gameManager, timeControlManager);
   bindInput(inputManager, gameManager, timeControlManager, ui.towerShop, ui.bottomBar);
-  bindDebugHotkeys(inputManager, gameManager, scaleManager);
+  bindDebugHotkeys(inputManager, gameManager, scaleManager, {
+    refreshPathOverlay,
+    refreshRangeOverlay,
+  });
 
   gameManager.init();
+
+  const mapRenderer = gameManager.getMapRenderer();
+  mapRenderer?.setOnMapRendered(() => refreshPathOverlay());
+  refreshPathOverlay();
 
   if (DevConfig.TESTING.SKIP_MENU && DevConfig.TESTING.AUTO_START_GAME) {
     DebugUtils.info('Quick start enabled - skipping menus');
@@ -35,8 +60,18 @@ import { DebugUtils } from './utils/DebugUtils';
     gameManager.startGameWithLevel(defaultLevel);
     ui.uiManager.setState(GameConfig.GAME_STATES.PLAYING);
     setupCampClickCallback(gameManager, ui.campUpgradePanel);
+    refreshPathOverlay();
   }
 
-  startGameLoop(app, gameManager, timeControlManager, ui, pixelArtRenderer);
+  startGameLoop(app, gameManager, timeControlManager, ui, pixelArtRenderer, {
+    updateRangeOverlay: refreshRangeOverlay,
+  });
   await registerDebugConsoleAPIs(gameManager, timeControlManager);
+  registerDevApi({
+    gameManager,
+    timeControlManager,
+    pathOverlay,
+    rangeOverlay,
+    refreshPathOverlay,
+  });
 })();

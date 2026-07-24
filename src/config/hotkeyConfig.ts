@@ -113,14 +113,49 @@ export const UI_HOTKEYS: Record<string, HotkeyBinding> = {
  * Debug hotkeys (only active in debug mode)
  */
 export const DEBUG_HOTKEYS: Record<string, HotkeyBinding> = {
-  D: {
-    key: 'D',
-    description: 'Toggle Debug Info',
+  M: {
+    key: 'M',
+    description: 'Add money (Shift for more)',
+    category: 'debug',
+  },
+  L: {
+    key: 'L',
+    description: 'Add lives (Shift for more)',
+    category: 'debug',
+  },
+  N: {
+    key: 'N',
+    description: 'Start next wave',
+    category: 'debug',
+  },
+  K: {
+    key: 'K',
+    description: 'Kill all zombies',
+    category: 'debug',
+  },
+  G: {
+    key: 'G',
+    description: 'Toggle god mode',
     category: 'debug',
   },
   R: {
     key: 'R',
-    description: 'Toggle Range Visualization',
+    description: 'Toggle tower ranges overlay',
+    category: 'debug',
+  },
+  W: {
+    key: 'W',
+    description: 'Toggle path waypoints overlay',
+    category: 'debug',
+  },
+  B: {
+    key: 'B',
+    description: 'Toggle zombie health bars',
+    category: 'debug',
+  },
+  H: {
+    key: 'H',
+    description: 'Print debug help',
     category: 'debug',
   },
 };

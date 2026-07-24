@@ -12,7 +12,7 @@ export class DebugInfoPanel extends UIPanel {
   constructor() {
     super();
     this.createToggleButton('🐛 Debug Info', 120, 0x00ff00);
-    this.createPanelFrame(280, 500, 'Debug Information', '', 0x00ff00);
+    this.createPanelFrame(280, 560, 'Debug Information', '', 0x00ff00);
     this.buildPanelContent();
   }
 
@@ -115,12 +115,17 @@ export class DebugInfoPanel extends UIPanel {
     yPos += 25;
 
     const controls = [
-      'D - Toggle Debug Info',
-      'G - Toggle God Mode',
-      'K - Kill All Zombies',
-      'N - Next Wave',
-      'M - Add $1000',
-      'R - Show Ranges',
+      'M / Shift+M - Add money',
+      'L / Shift+L - Add lives',
+      'N - Next wave',
+      'K - Kill all zombies',
+      'U - Max upgrade towers',
+      'G - Toggle god mode',
+      'R - Toggle tower ranges',
+      'W - Toggle waypoints',
+      'B - Toggle health bars',
+      'H - Hotkey help (console)',
+      'dev.help() in console',
     ];
     for (const control of controls) {
       const text = new Text({

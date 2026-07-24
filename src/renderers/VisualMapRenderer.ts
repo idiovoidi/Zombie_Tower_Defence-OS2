@@ -31,6 +31,7 @@ export class VisualMapRenderer {
   private structureRenderer: StructureRenderer;
   private decalRenderer: DecalRenderer;
   private fogRenderer: FogRenderer;
+  private onMapRendered: ((mapData: MapData | null) => void) | null = null;
 
   constructor(app: Application, mapManager: MapManager, inputManager: InputManager) {
     this.app = app;
@@ -81,6 +82,7 @@ export class VisualMapRenderer {
     // Get map data
     const mapData = this.mapManager.getCurrentMap();
     if (!mapData) {
+      this.onMapRendered?.(null);
       return;
     }
 
@@ -97,6 +99,8 @@ export class VisualMapRenderer {
 
     // Render graveyard and other foreground elements
     this.renderForegroundElements(mapData);
+
+    this.onMapRendered?.(mapData);
   }
 
   private renderForegroundElements(mapData: MapData): void {
@@ -155,6 +159,10 @@ export class VisualMapRenderer {
 
   public addCorpse(x: number, y: number, type: string): void {
     this.corpseRenderer.addCorpse(x, y, type);
+  }
+
+  public setOnMapRendered(callback: ((mapData: MapData | null) => void) | null): void {
+    this.onMapRendered = callback;
   }
 
   private renderCorpses(): void {

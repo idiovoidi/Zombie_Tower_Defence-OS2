@@ -8,12 +8,17 @@ import { canAffordSelectedTower, type UIContext } from './UISetup';
 
 type PixelArtRenderer = InstanceType<typeof import('../utils/PixelArtRenderer').PixelArtRenderer>;
 
+export interface GameLoopDebugHooks {
+  updateRangeOverlay?: () => void;
+}
+
 export function startGameLoop(
   app: Application,
   gameManager: GameManager,
   timeControlManager: TimeControlManager,
   ui: UIContext,
-  pixelArtRenderer: PixelArtRenderer
+  pixelArtRenderer: PixelArtRenderer,
+  debugHooks?: GameLoopDebugHooks
 ): void {
   let lastTime = performance.now();
 
@@ -28,7 +33,11 @@ export function startGameLoop(
       deltaTime = maxDeltaTime;
     }
 
-    const timeMultiplier = timeControlManager.getTimeMultiplier();
+    const debugSpeed =
+      DebugConstants.ENABLED && DebugConstants.GAME_SPEED_MULTIPLIER > 0
+        ? DebugConstants.GAME_SPEED_MULTIPLIER
+        : 1;
+    const timeMultiplier = timeControlManager.getTimeMultiplier() * debugSpeed;
     const scaledDeltaTime = deltaTime * timeMultiplier;
 
     gameManager.getAIPlayerManager().update(deltaTime / 1000);
@@ -53,6 +62,7 @@ export function startGameLoop(
     if (DebugConstants.ENABLED) {
       ui.debugTestUIManager.update(deltaTime);
       ui.debugTestUIManager.updateWaveInfo(gameManager.getWave());
+      debugHooks?.updateRangeOverlay?.();
     }
 
     ui.towerShop.updateAffordability(gameManager.getMoney());

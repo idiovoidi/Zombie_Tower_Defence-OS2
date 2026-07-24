@@ -7,6 +7,7 @@
  */
 
 import { GameConfig } from '../config/gameConfig';
+import { DebugConstants } from '../config/debugConstants';
 import type { Zombie } from '../objects/Zombie';
 import { ZombieFactory } from '../objects/ZombieFactory';
 import { ZombieStats } from '../utils/ZombieStats';
@@ -613,7 +614,12 @@ export class WaveManager {
   // Calculate spawn rate with scaling (from design document)
   public calculateSpawnRate(baseInterval: number, wave: number): number {
     const scaledInterval = baseInterval * 0.95 ** wave * this.difficultyModifier;
-    return Math.max(0.5, scaledInterval); // Minimum 0.5 seconds
+    // ZOMBIE_SPAWN_RATE_MULTIPLIER: lower = fewer spawns (longer interval)
+    const debugFactor =
+      DebugConstants.ENABLED && DebugConstants.ZOMBIE_SPAWN_RATE_MULTIPLIER > 0
+        ? 1 / DebugConstants.ZOMBIE_SPAWN_RATE_MULTIPLIER
+        : 1;
+    return Math.max(0.5, scaledInterval * debugFactor); // Minimum 0.5 seconds
   }
 
   // Calculate zombie count with scaling (from design document)

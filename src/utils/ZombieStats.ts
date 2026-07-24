@@ -1,4 +1,6 @@
+import { DebugConstants } from '../config/debugConstants';
 import { GameConfig } from '../config/gameConfig';
+import { debugMulFloor } from '../debug/debugScale';
 
 /**
  * ZombieStats - Static utility for calculating zombie statistics
@@ -37,7 +39,8 @@ export class ZombieStats {
     }
 
     // Scale health based on wave (from design document)
-    return Math.floor(baseHealth + wave * 1.8);
+    const health = Math.floor(baseHealth + wave * 1.8);
+    return Math.max(1, debugMulFloor(health, DebugConstants.ZOMBIE_HEALTH_MULTIPLIER));
   }
 
   /**

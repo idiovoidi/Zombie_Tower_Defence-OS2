@@ -173,7 +173,10 @@ export class Zombie extends GameObject {
         this.damage = 1;
     }
 
-    // Apply random speed variation (±15%) for more organic movement
+    // Apply debug speed multiplier, then random variation (±15%)
+    if (DebugConstants.ENABLED) {
+      this.baseSpeed *= DebugConstants.ZOMBIE_SPEED_MULTIPLIER;
+    }
     this.speedVariation = 0.85 + Math.random() * 0.3;
     this.speed = this.baseSpeed * this.speedVariation;
   }
@@ -463,8 +466,13 @@ export class Zombie extends GameObject {
       this.lastDamageSourcePosition = { x: sourceX, y: sourceY };
     }
 
+    const appliedDamage =
+      DebugConstants.ENABLED && DebugConstants.ONE_HIT_KILL
+        ? this.healthComponent.getHealth()
+        : damage;
+
     // Apply damage to health component
-    const actualDamage = this.healthComponent.takeDamage(damage);
+    const actualDamage = this.healthComponent.takeDamage(appliedDamage);
 
     // Visual feedback for damage via renderer
     if (this.renderer) {
