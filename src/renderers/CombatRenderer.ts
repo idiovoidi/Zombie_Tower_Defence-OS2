@@ -119,73 +119,65 @@ export class CombatRenderer {
   private setupEventListeners(): void {
     const eventBus = EventBus.getInstance();
 
-    // Listen for target hit events (for projectile-based towers)
     this.eventSubscriptions.push(
-      eventBus.on<TargetHitEventData>(GameEvents.TARGET_HIT, data => {
-        if (data && this.enabled) {
-          this.onTargetHit(data);
+      eventBus.on(GameEvents.TARGET_HIT, data => {
+        if (this.enabled) {
+          this.onTargetHit(data as TargetHitEventData);
         }
       })
     );
 
-    // Listen for lightning arc events (Tesla tower)
     this.eventSubscriptions.push(
-      eventBus.on<LightningArcEventData>(GameEvents.LIGHTNING_ARC, data => {
-        if (data && this.enabled) {
+      eventBus.on(GameEvents.LIGHTNING_ARC, data => {
+        if (this.enabled) {
           this.onLightningArc(data);
         }
       })
     );
 
-    // Listen for sniper hit events
     this.eventSubscriptions.push(
-      eventBus.on<SniperHitEventData>(GameEvents.SNIPER_HIT, data => {
-        if (data && this.enabled) {
-          this.onSniperHit(data);
+      eventBus.on(GameEvents.SNIPER_HIT, data => {
+        if (this.enabled) {
+          this.onSniperHit(data as SniperHitEventData);
         }
       })
     );
 
-    // Listen for shooting effect events
     this.eventSubscriptions.push(
-      eventBus.on<ShootingEffectEventData>(GameEvents.SHOOTING_EFFECT, data => {
-        if (data && this.enabled) {
-          this.onShootingEffect(data);
+      eventBus.on(GameEvents.SHOOTING_EFFECT, data => {
+        if (this.enabled) {
+          this.onShootingEffect(data as ShootingEffectEventData);
         }
       })
     );
 
-    // Listen for tower damaged events
     this.eventSubscriptions.push(
-      eventBus.on<TowerDamagedEventData>(GameEvents.TOWER_DAMAGED, data => {
-        if (data && this.enabled) {
-          this.onTowerDamaged(data);
+      eventBus.on(GameEvents.TOWER_DAMAGED, data => {
+        if (this.enabled) {
+          this.onTowerDamaged(data as TowerDamagedEventData);
         }
       })
     );
 
-    // Listen for damage dealt events (for overkill gib explosions)
     this.eventSubscriptions.push(
-      eventBus.on<DamageDealtEventData>(GameEvents.DAMAGE_DEALT, data => {
-        if (data && this.enabled) {
+      eventBus.on(GameEvents.DAMAGE_DEALT, data => {
+        if (this.enabled) {
           this.onDamageDealt(data);
         }
       })
     );
 
-    // Listen for gib death events (unique overkill death animation)
     this.eventSubscriptions.push(
-      eventBus.on<GibDeathEventData>(GameEvents.GIB_DEATH, data => {
-        if (data && this.enabled) {
+      eventBus.on(GameEvents.GIB_DEATH, data => {
+        if (this.enabled) {
           this.onGibDeath(data);
         }
       })
     );
 
-    // Listen for flame ground hit events (Flame tower fire pools)
     this.eventSubscriptions.push(
-      eventBus.on<FlameGroundHitEventData>(GameEvents.FLAME_GROUND_HIT, data => {
-        if (data && this.enabled) {
+      eventBus.on(GameEvents.FLAME_GROUND_HIT, data => {
+        if (this.enabled) {
           this.onFlameGroundHit(data);
         }
       })

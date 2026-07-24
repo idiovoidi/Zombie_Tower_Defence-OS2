@@ -1,28 +1,34 @@
 /**
- * EconomyState - Contextual object that encapsulates resource and upgrade management
+ * EconomyState - Single owner for money, tower upgrades, and tower sales.
  *
- * This groups ResourceManager and UpgradeManager to handle all economy-related
- * functionality in a cohesive unit, reducing direct dependencies in GameManager.
- * GameManager must delegate money reads/writes here — this is the single money owner.
+ * GameManager and UI must route economy mutations through this object.
  */
 
 import { GameConfig } from '../config/gameConfig';
 import type { ITower } from '../objects/Tower.interface';
 import { EventBus, GameEvents } from '../utils/EventBus';
 import { ResourceManager } from './ResourceManager';
+import { TowerManager } from './TowerManager';
 import { UpgradeManager } from './UpgradeManager';
 
 interface EconomyConfig {
   startingMoney?: number;
+  /** Defaults to TowerManager.getInstance() — inject from GameManager composition root. */
+  costCatalog?: TowerManager;
+  eventBus?: EventBus;
 }
 
 export class EconomyState {
   private resourceManager: ResourceManager;
   private upgradeManager: UpgradeManager;
+  private costCatalog: TowerManager;
+  private eventBus: EventBus;
 
   constructor(config?: EconomyConfig) {
     this.resourceManager = new ResourceManager();
-    this.upgradeManager = new UpgradeManager(this.resourceManager);
+    this.costCatalog = config?.costCatalog ?? TowerManager.getInstance();
+    this.eventBus = config?.eventBus ?? EventBus.getInstance();
+    this.upgradeManager = new UpgradeManager(this.resourceManager, this.costCatalog);
 
     const startingMoney = config?.startingMoney ?? GameConfig.STARTING_MONEY;
     this.applyStartingMoney(startingMoney);
@@ -35,18 +41,20 @@ export class EconomyState {
     }
   }
 
+  private recreateUpgradeManager(): void {
+    this.upgradeManager = new UpgradeManager(this.resourceManager, this.costCatalog);
+  }
+
   // Money management
   public addMoney(amount: number): void {
     this.resourceManager.add(amount);
-    // Emit event for notification (not for action - prevents circular flow)
-    EventBus.getInstance().emit(GameEvents.MONEY_EARNED, amount);
+    this.eventBus.emit(GameEvents.MONEY_EARNED, amount);
   }
 
   public spendMoney(amount: number): boolean {
     const success = this.resourceManager.spend({ money: amount });
     if (success) {
-      // Emit event for notification (not for action - prevents circular flow)
-      EventBus.getInstance().emit(GameEvents.MONEY_SPENT, amount);
+      this.eventBus.emit(GameEvents.MONEY_SPENT, amount);
     }
     return success;
   }
@@ -59,31 +67,62 @@ export class EconomyState {
     return this.resourceManager.canAfford({ money: amount });
   }
 
-  // Upgrade management
+  // Upgrade / sell
   public canUpgradeTower(tower: ITower): boolean {
     return this.upgradeManager.canUpgrade(tower);
   }
 
-  public upgradeTower(tower: ITower): boolean {
-    const cost = this.getUpgradeCost(tower);
-    const success = this.upgradeManager.performUpgrade(tower);
-    if (success) {
-      // Emit event for successful upgrade
-      EventBus.getInstance().emit(GameEvents.TOWER_UPGRADED, {
-        type: tower.getType(),
-        cost: cost,
-        level: tower.getUpgradeLevel(),
-      });
-    }
-    return success;
-  }
-
   public getUpgradeCost(tower: ITower): number {
-    const cost = this.upgradeManager.getUpgradeCost(tower);
-    return cost.money;
+    return this.upgradeManager.getUpgradeCost(tower).money;
   }
 
-  // Manager getters
+  public getSellValue(tower: ITower): number {
+    return this.upgradeManager.getSellValue(tower);
+  }
+
+  /**
+   * Spend for the next upgrade and apply tower.upgrade().
+   * Emits MONEY_SPENT and TOWER_UPGRADED. Caller refreshes placement visuals.
+   */
+  public upgradeTower(tower: ITower): boolean {
+    if (!tower.canUpgrade()) {
+      return false;
+    }
+
+    const cost = this.getUpgradeCost(tower);
+    if (!this.spendMoney(cost)) {
+      return false;
+    }
+
+    tower.upgrade();
+
+    this.eventBus.emit(GameEvents.TOWER_UPGRADED, {
+      type: tower.getType(),
+      cost,
+      level: tower.getUpgradeLevel(),
+    });
+
+    return true;
+  }
+
+  /**
+   * Refund sell value for a tower (does not remove it from the map).
+   * Emits MONEY_EARNED and TOWER_SOLD. Caller must remove the tower afterward.
+   */
+  public sellTower(tower: ITower): number {
+    const sellValue = this.getSellValue(tower);
+    const type = tower.getType();
+
+    this.addMoney(sellValue);
+
+    this.eventBus.emit(GameEvents.TOWER_SOLD, {
+      type,
+      cost: sellValue,
+    });
+
+    return sellValue;
+  }
+
   public getResourceManager(): ResourceManager {
     return this.resourceManager;
   }
@@ -92,20 +131,13 @@ export class EconomyState {
     return this.upgradeManager;
   }
 
-  /**
-   * Reset economy state for a new game
-   * @param startingMoney - Initial money amount
-   */
   public reset(startingMoney: number): void {
     this.resourceManager = new ResourceManager();
     this.applyStartingMoney(startingMoney);
-    this.upgradeManager = new UpgradeManager(this.resourceManager);
+    this.recreateUpgradeManager();
   }
 
-  /**
-   * Dispose of resources
-   */
   public dispose(): void {
-    // No event listeners to clean up in this refactored version
+    // No event listeners owned here
   }
 }

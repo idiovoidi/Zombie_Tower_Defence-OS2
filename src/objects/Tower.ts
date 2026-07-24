@@ -6,12 +6,13 @@ import { TransformComponent } from '../components/TransformComponent';
 import { DebugConstants } from '../config/debugConstants';
 import { GameConfig } from '../config/gameConfig';
 import { getTowerStats, type IdleAnimationType } from '../config/towerConstants';
-import { TowerManager } from '../managers/TowerManager';
+import { getTowerRuntime } from '../core/towerRuntime';
+import type { TowerManager } from '../managers/TowerManager';
 import { BarrelHeatGlow } from '../renderers/effects/BarrelHeatGlow';
 import type { TowerEffects } from '../types/tower-internal';
 import { EffectCleanupManager } from '../utils/EffectCleanupManager';
-import { EventBus, GameEvents } from '../utils/EventBus';
-import { TowerRangeVisualizer } from '../utils/TowerRangeVisualizer';
+import { type EventBus, GameEvents } from '../utils/EventBus';
+import type { TowerRangeVisualizer } from '../utils/TowerRangeVisualizer';
 import { GameObject } from './GameObject';
 import type { ITower } from './Tower.interface';
 
@@ -28,6 +29,7 @@ export class Tower extends GameObject implements ITower, TowerEffects {
   private barrel: Container; // Separate barrel for rotation
   private renderer: ITowerRenderer; // Renderer for visual representation
   private rangeVisualizer: TowerRangeVisualizer;
+  private towerManager: TowerManager;
   private currentRotation = 0;
 
   // Idle animation properties
@@ -72,10 +74,12 @@ export class Tower extends GameObject implements ITower, TowerEffects {
 
   constructor(type: string, x: number, y: number) {
     super();
+    const runtime = getTowerRuntime();
     this.type = type;
     this.lastShotTime = 0;
-    this.rangeVisualizer = TowerRangeVisualizer.getInstance();
-    this.eventBus = EventBus.getInstance();
+    this.rangeVisualizer = runtime.rangeVisualizer;
+    this.eventBus = runtime.eventBus;
+    this.towerManager = runtime.towerManager;
 
     // Set the container position
     this.position.set(x, y);
@@ -108,11 +112,10 @@ export class Tower extends GameObject implements ITower, TowerEffects {
   }
 
   private initializeStats(): void {
-    // Use TowerManager so debug multipliers apply consistently
-    const towerManager = TowerManager.getInstance();
-    this.damage = towerManager.calculateTowerDamage(this.type, this.upgradeLevel);
-    this.range = towerManager.calculateTowerRange(this.type, this.upgradeLevel);
-    this.fireRate = towerManager.calculateTowerFireRate(this.type, this.upgradeLevel);
+    // Use injected TowerManager so debug multipliers apply consistently
+    this.damage = this.towerManager.calculateTowerDamage(this.type, this.upgradeLevel);
+    this.range = this.towerManager.calculateTowerRange(this.type, this.upgradeLevel);
+    this.fireRate = this.towerManager.calculateTowerFireRate(this.type, this.upgradeLevel);
 
     // Add health component for tower durability - use centralized config
     const stats = getTowerStats(this.type);
@@ -328,8 +331,7 @@ export class Tower extends GameObject implements ITower, TowerEffects {
   }
 
   /**
-   * Get the base upgrade cost
-   * @returns The base upgrade cost
+   * Base upgrade cost constant stored on the tower (legacy; prefer EconomyState.getUpgradeCost).
    */
   public getUpgradeCost(): number {
     return this.upgradeCost;
@@ -358,11 +360,9 @@ export class Tower extends GameObject implements ITower, TowerEffects {
    */
   private applyUpgradeEffects(): void {
     // Recalculate stats based on upgrade level
-    // Use a shared TowerManager instance instead of creating new one
-    const towerManager = TowerManager.getInstance();
-    this.damage = towerManager.calculateTowerDamage(this.type, this.upgradeLevel);
-    this.range = towerManager.calculateTowerRange(this.type, this.upgradeLevel);
-    this.fireRate = towerManager.calculateTowerFireRate(this.type, this.upgradeLevel);
+    this.damage = this.towerManager.calculateTowerDamage(this.type, this.upgradeLevel);
+    this.range = this.towerManager.calculateTowerRange(this.type, this.upgradeLevel);
+    this.fireRate = this.towerManager.calculateTowerFireRate(this.type, this.upgradeLevel);
 
     // When upgrading, also increase health
     const healthComponent = this.getComponent<HealthComponent>('Health');

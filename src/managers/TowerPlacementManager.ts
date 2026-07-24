@@ -255,7 +255,7 @@ export class TowerPlacementManager {
     return false;
   }
 
-  // Upgrade selected tower
+  // Upgrade selected tower (mutates stats/visuals only — economy must already have charged)
   public upgradeSelectedTower(): boolean {
     if (!this.selectedTower) {
       return false;
@@ -263,20 +263,26 @@ export class TowerPlacementManager {
 
     if (this.selectedTower.canUpgrade()) {
       this.selectedTower.upgrade();
-
-      // Re-setup interaction after upgrade (visual update might affect hit areas)
-      this.setupTowerInteraction(this.selectedTower);
-
-      // Refresh selection visuals
-      this.selectedTower.hideSelectionEffect();
-      this.selectedTower.showSelectionEffect();
-      this.selectedTower.hideRange();
-      this.selectedTower.showRange(this.container);
-
+      this.refreshSelectedTowerVisuals();
       return true;
     }
 
     return false;
+  }
+
+  /**
+   * Refresh selection / range visuals after an external upgrade (e.g. EconomyState.upgradeTower).
+   */
+  public refreshSelectedTowerVisuals(): void {
+    if (!this.selectedTower) {
+      return;
+    }
+
+    this.setupTowerInteraction(this.selectedTower);
+    this.selectedTower.hideSelectionEffect();
+    this.selectedTower.showSelectionEffect();
+    this.selectedTower.hideRange();
+    this.selectedTower.showRange(this.container);
   }
 
   // Getters

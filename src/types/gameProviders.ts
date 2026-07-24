@@ -1,9 +1,11 @@
-import type { Tower } from '../objects/Tower';
-import type { Zombie } from '../objects/Zombie';
-import type { StatTracker } from '../utils/StatTracker';
+/**
+ * Provider interfaces for analytics / AI — keep this module a leaf.
+ * Do not import concrete classes from objects/ or utils/ (breaks boundaries + causes cycles).
+ */
 
 /**
- * Core game state interface — money, lives, wave, and game status.
+ * Core game state — money, lives, wave, and game status.
+ * Wave number is owned by WaveManager; GameManager.getWave() delegates to it.
  */
 export interface IGameStateProvider {
   getMoney(): number;
@@ -13,24 +15,17 @@ export interface IGameStateProvider {
 }
 
 /**
- * Wave management interface for analytics and tracking systems.
- */
-export interface IWaveStateProvider {
-  getCurrentWave(): number;
-}
-
-/**
- * Tower state interface for systems tracking tower count and composition.
+ * Tower population for analytics (counts only — no Tower class import).
  */
 export interface ITowerStateProvider {
-  getPlacedTowers(): Tower[];
+  getPlacedTowerCount(): number;
 }
 
 /**
- * Zombie state interface for analytics systems tracking combat statistics.
+ * Zombie population for analytics (counts only — no Zombie class import).
  */
 export interface IZombieStateProvider {
-  getZombies(): Zombie[];
+  getZombieCount(): number;
 }
 
 /**
@@ -42,17 +37,50 @@ export interface BalanceTrackingReporter {
 }
 
 /**
- * Balance tracking access interface for analytics systems.
+ * Balance tracking access for analytics systems.
  */
 export interface IBalanceTrackingProvider {
   getBalanceTrackingManager(): BalanceTrackingReporter;
 }
 
 /**
- * Stat tracker access interface for analytics and AI systems.
+ * Snapshot returned by IStatTracker.getCurrentStats().
+ */
+export interface StatTrackerSnapshot {
+  currentWave: number;
+  highestWave: number;
+  currentMoney: number;
+  currentLives: number;
+  totalDamage: number;
+  averageDPS: number;
+  peakDPS: number;
+  totalKills: number;
+  accuracy: number;
+  totalIncome: number;
+  totalExpenses: number;
+  netProfit: number;
+  economyEfficiency: number;
+  damagePerDollar: number;
+  killsPerDollar: number;
+}
+
+/**
+ * Narrow stat-tracker surface for AI / UI / providers (no concrete StatTracker import).
+ */
+export interface IStatTracker {
+  startTracking(aiModeEnabled?: boolean): void;
+  setAIModeEnabled(enabled: boolean): void;
+  trackTowerBuilt(towerType: string, cost: number): void;
+  getCurrentStats(): StatTrackerSnapshot;
+  exportCurrentStats(): void;
+  isActive(): boolean;
+}
+
+/**
+ * Stat tracker access for analytics and AI systems.
  */
 export interface IStatTrackerProvider {
-  getStatTracker(): StatTracker;
+  getStatTracker(): IStatTracker;
 }
 
 /**

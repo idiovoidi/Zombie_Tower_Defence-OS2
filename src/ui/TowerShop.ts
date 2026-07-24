@@ -19,10 +19,14 @@ export class TowerShop extends UIComponent {
   private onTowerSelectCallback: ((type: string) => void) | null = null;
   private lastAffordabilityMoney: number | null = null;
 
-  constructor() {
+  constructor(towerManager: TowerManager = TowerManager.getInstance()) {
     super();
-    this.towerManager = TowerManager.getInstance();
+    this.towerManager = towerManager;
     this.createShopUI();
+  }
+
+  public setTowerManager(towerManager: TowerManager): void {
+    this.towerManager = towerManager;
   }
 
   private createShopUI(): void {

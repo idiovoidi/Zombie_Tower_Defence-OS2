@@ -15,31 +15,32 @@ import type {
   IGameStateProvider,
   IStatTrackerProvider,
   ITowerStateProvider,
-  IWaveStateProvider,
   IZombieStateProvider,
 } from '../types/gameProviders';
 
 interface AnalyticsConfig {
   gameManager: IGameStateProvider &
-    IWaveStateProvider &
     ITowerStateProvider &
     IZombieStateProvider &
     IBalanceTrackingProvider &
     IStatTrackerProvider &
     IAIActionProvider;
   enabled?: boolean;
+  eventBus?: EventBus;
 }
 
 export class AnalyticsState {
   private statTracker: StatTracker;
   private balanceTrackingManager: BalanceTrackingManager;
   private aiPlayerManager: AIPlayerManager;
+  private readonly eventBus: EventBus;
 
   // Event subscriptions for cleanup
   private eventSubscriptions: EventSubscription[] = [];
 
   constructor(config: AnalyticsConfig) {
     const { gameManager } = config;
+    this.eventBus = config.eventBus ?? EventBus.getInstance();
 
     // Initialize managers
     this.statTracker = new StatTracker(gameManager);
@@ -51,11 +52,9 @@ export class AnalyticsState {
   }
 
   private setupEventListeners(): void {
-    const eventBus = EventBus.getInstance();
-
     // Listen for wave start
     this.eventSubscriptions.push(
-      eventBus.on(GameEvents.WAVE_START, () => {
+      this.eventBus.on(GameEvents.WAVE_START, () => {
         this.statTracker.trackWaveStart();
         if (this.balanceTrackingManager.isEnabled()) {
           this.balanceTrackingManager.trackWaveStart();
@@ -65,9 +64,9 @@ export class AnalyticsState {
 
     // Listen for wave complete
     this.eventSubscriptions.push(
-      eventBus.on<{ zombiesSpawned: number; livesLost: number }>(GameEvents.WAVE_COMPLETE, data => {
+      this.eventBus.on(GameEvents.WAVE_COMPLETE, data => {
         this.statTracker.trackWaveComplete();
-        if (this.balanceTrackingManager.isEnabled() && data) {
+        if (this.balanceTrackingManager.isEnabled()) {
           this.balanceTrackingManager.trackWaveComplete(data.zombiesSpawned, data.livesLost);
         }
       })
@@ -75,37 +74,30 @@ export class AnalyticsState {
 
     // Listen for damage dealt
     this.eventSubscriptions.push(
-      eventBus.on<{ damage: number; towerType: string; killed: boolean; overkill: number }>(
-        GameEvents.DAMAGE_DEALT,
-        data => {
-          if (data) {
-            this.statTracker.trackDamage(data.damage, data.towerType, data.killed, data.overkill);
-            if (this.balanceTrackingManager.isEnabled()) {
-              this.balanceTrackingManager.trackDamage(
-                data.towerType,
-                data.damage,
-                data.killed,
-                data.overkill
-              );
-            }
-          }
+      this.eventBus.on(GameEvents.DAMAGE_DEALT, data => {
+        this.statTracker.trackDamage(data.damage, data.towerType, data.killed, data.overkill);
+        if (this.balanceTrackingManager.isEnabled()) {
+          this.balanceTrackingManager.trackDamage(
+            data.towerType,
+            data.damage,
+            data.killed,
+            data.overkill
+          );
         }
-      )
+      })
     );
 
     // Listen for money earned
     this.eventSubscriptions.push(
-      eventBus.on<number>(GameEvents.MONEY_EARNED, amount => {
-        if (amount !== undefined) {
-          this.statTracker.trackMoneyEarned(amount);
-        }
+      this.eventBus.on(GameEvents.MONEY_EARNED, amount => {
+        this.statTracker.trackMoneyEarned(amount);
       })
     );
 
     // Listen for zombie killed (for detailed economy tracking)
     this.eventSubscriptions.push(
-      eventBus.on<{ reward: number; type: string }>(GameEvents.ZOMBIE_KILLED, data => {
-        if (data && this.balanceTrackingManager.isEnabled()) {
+      this.eventBus.on(GameEvents.ZOMBIE_KILLED, data => {
+        if (this.balanceTrackingManager.isEnabled()) {
           this.balanceTrackingManager.trackEconomy('EARN', data.reward);
         }
       })
@@ -113,31 +105,37 @@ export class AnalyticsState {
 
     // Listen for tower placed
     this.eventSubscriptions.push(
-      eventBus.on<{ type: string; cost: number }>(GameEvents.TOWER_PLACED, data => {
-        if (data) {
-          this.statTracker.trackTowerBuilt(data.type, data.cost);
-          if (this.balanceTrackingManager.isEnabled()) {
-            this.balanceTrackingManager.trackTowerPlaced(data.type, data.cost);
-          }
+      this.eventBus.on(GameEvents.TOWER_PLACED, data => {
+        this.statTracker.trackTowerBuilt(data.type, data.cost);
+        if (this.balanceTrackingManager.isEnabled()) {
+          this.balanceTrackingManager.trackTowerPlaced(data.type, data.cost);
         }
       })
     );
 
     // Listen for tower upgraded
     this.eventSubscriptions.push(
-      eventBus.on<{ type: string; cost: number; level: number }>(
-        GameEvents.TOWER_UPGRADED,
-        data => {
-          if (data) {
-            this.statTracker.trackTowerUpgraded(data.type, data.cost, data.level);
-          }
+      this.eventBus.on(GameEvents.TOWER_UPGRADED, data => {
+        this.statTracker.trackTowerUpgraded(data.type, data.cost, data.level);
+        if (this.balanceTrackingManager.isEnabled()) {
+          this.balanceTrackingManager.trackTowerUpgraded(data.type, data.cost, data.level);
         }
-      )
+      })
+    );
+
+    // Listen for tower sold
+    this.eventSubscriptions.push(
+      this.eventBus.on(GameEvents.TOWER_SOLD, data => {
+        this.statTracker.trackTowerSold(data.type, data.cost);
+        if (this.balanceTrackingManager.isEnabled()) {
+          this.balanceTrackingManager.trackTowerSold(data.type, data.cost);
+        }
+      })
     );
 
     // Listen for game over
     this.eventSubscriptions.push(
-      eventBus.on(GameEvents.GAME_OVER, () => {
+      this.eventBus.on(GameEvents.GAME_OVER, () => {
         if (this.balanceTrackingManager.isEnabled()) {
           this.balanceTrackingManager.performEndGameAnalysis();
         }
@@ -149,7 +147,7 @@ export class AnalyticsState {
 
     // Listen for victory
     this.eventSubscriptions.push(
-      eventBus.on(GameEvents.GAME_VICTORY, () => {
+      this.eventBus.on(GameEvents.GAME_VICTORY, () => {
         if (this.balanceTrackingManager.isEnabled()) {
           this.balanceTrackingManager.performEndGameAnalysis();
         }

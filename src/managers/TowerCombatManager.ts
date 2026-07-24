@@ -10,9 +10,6 @@ export class TowerCombatManager implements ZombieSpatialQuery {
   private towers: Tower[] = [];
   private zombies: Zombie[] = [];
   private projectileManager: ProjectileManager | null = null;
-  private onDamageCallback:
-    | ((damage: number, towerType: string, killed: boolean, overkill: number) => void)
-    | null = null;
   private zombieGrid: SpatialGrid<Zombie & { [key: string]: unknown }>;
   private eventBus: EventBus;
 
@@ -27,7 +24,6 @@ export class TowerCombatManager implements ZombieSpatialQuery {
     const killed = healthAfter <= 0;
     const overkill = killed ? Math.abs(healthAfter) : 0;
 
-    // Emit DAMAGE_DEALT event for tracking and analytics
     this.eventBus.emit(GameEvents.DAMAGE_DEALT, {
       damage: actualDamage,
       towerType: tower.getType(),
@@ -35,21 +31,20 @@ export class TowerCombatManager implements ZombieSpatialQuery {
       overkill,
     });
 
-    // Legacy callback support (deprecated, for backward compatibility)
-    if (this.onDamageCallback) {
-      this.onDamageCallback(actualDamage, tower.getType(), killed, overkill);
-    }
     return killed;
   }
 
-  constructor(worldWidth = 1024, worldHeight = 768) {
-    // Create spatial grid with 128px cells (optimal for typical tower ranges of 150-300px)
+  constructor(
+    worldWidth = 1024,
+    worldHeight = 768,
+    eventBus: EventBus = EventBus.getInstance()
+  ) {
     this.zombieGrid = new SpatialGrid<Zombie & { [key: string]: unknown }>(
       worldWidth,
       worldHeight,
       128
     );
-    this.eventBus = EventBus.getInstance();
+    this.eventBus = eventBus;
   }
 
   public setProjectileManager(projectileManager: ProjectileManager): void {
@@ -123,12 +118,6 @@ export class TowerCombatManager implements ZombieSpatialQuery {
       radius,
       z => !!(z.parent && !z.getIsDying())
     ) as Zombie | null;
-  }
-
-  public setOnDamageCallback(
-    callback: (damage: number, towerType: string, killed: boolean, overkill: number) => void
-  ): void {
-    this.onDamageCallback = callback;
   }
 
   public getTowers(): Tower[] {
@@ -225,9 +214,6 @@ export class TowerCombatManager implements ZombieSpatialQuery {
     projectile.setTowerType(tower.getType());
     if (includeUpgradeLevel) {
       projectile.setUpgradeLevel(tower.getUpgradeLevel());
-    }
-    if (this.onDamageCallback) {
-      projectile.setOnDamageCallback(this.onDamageCallback);
     }
     return projectile;
   }

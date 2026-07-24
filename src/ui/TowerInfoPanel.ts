@@ -1,4 +1,5 @@
 import { Container, Graphics, Text } from 'pixi.js';
+import type { EconomyState } from '../managers/EconomyState';
 import { TowerManager } from '../managers/TowerManager';
 import type { Tower } from '../objects/Tower';
 import { UIComponent } from './UIComponent';
@@ -6,6 +7,7 @@ import { UIComponent } from './UIComponent';
 export class TowerInfoPanel extends UIComponent {
   private selectedTower: Tower | null = null;
   private towerManager: TowerManager;
+  private economyState: EconomyState | null = null;
   private upgradeButton!: Container;
   private sellButton!: Container;
   private infoText!: Text;
@@ -13,12 +15,20 @@ export class TowerInfoPanel extends UIComponent {
   private onUpgradeCallback: (() => void) | null = null;
   private onSellCallback: (() => void) | null = null;
 
-  constructor() {
+  constructor(towerManager: TowerManager = TowerManager.getInstance()) {
     super();
     this.cullableChildren = false;
-    this.towerManager = TowerManager.getInstance();
+    this.towerManager = towerManager;
     this.createPanelUI();
     this.visible = false; // Hidden by default
+  }
+
+  public setTowerManager(towerManager: TowerManager): void {
+    this.towerManager = towerManager;
+  }
+
+  public setEconomyState(economyState: EconomyState): void {
+    this.economyState = economyState;
   }
 
   private createPanelUI(): void {
@@ -183,8 +193,10 @@ export class TowerInfoPanel extends UIComponent {
       }
     }
 
-    // Update upgrade button
-    const upgradeCost = this.towerManager.calculateUpgradeCost(type, level);
+    // Update upgrade button — costs come from EconomyState (same path as purchase)
+    const upgradeCost = this.economyState
+      ? this.economyState.getUpgradeCost(this.selectedTower)
+      : this.towerManager.calculateUpgradeCost(type, level);
     const canUpgrade = this.selectedTower.canUpgrade();
     const upgradeText = this.upgradeButton.getChildAt(1) as Text;
 
@@ -203,13 +215,17 @@ export class TowerInfoPanel extends UIComponent {
       this.upgradeButton.eventMode = 'none';
     }
 
-    // Update sell button (sell for 75% of total cost)
-    const baseCost = this.towerManager.getTowerCost(type);
-    let totalCost = baseCost;
-    for (let i = 1; i < level; i++) {
-      totalCost += this.towerManager.calculateUpgradeCost(type, i);
-    }
-    const sellValue = Math.floor(totalCost * 0.75);
+    // Update sell button
+    const sellValue = this.economyState
+      ? this.economyState.getSellValue(this.selectedTower)
+      : (() => {
+          const baseCost = this.towerManager.getTowerCost(type);
+          let totalCost = baseCost;
+          for (let i = 1; i < level; i++) {
+            totalCost += this.towerManager.calculateUpgradeCost(type, i);
+          }
+          return Math.floor(totalCost * 0.75);
+        })();
     const sellText = this.sellButton.getChildAt(1) as Text;
     const sellNext = `Sell ($${sellValue})`;
     if (sellText.text !== sellNext) {

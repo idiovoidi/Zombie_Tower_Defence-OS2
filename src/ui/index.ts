@@ -2,7 +2,6 @@
 export { BottomBar } from './BottomBar';
 export { CampUpgradePanel } from './CampUpgradePanel';
 export { GameOverScreen } from './GameOverScreen';
-export { HUD } from './HUD';
 export { LevelSelectMenu } from './LevelSelectMenu';
 export { MainMenu } from './MainMenu';
 export { MapEditorScreen } from './MapEditorScreen';

@@ -10,7 +10,6 @@ import { BottomBar } from '../ui/BottomBar';
 import { CampUpgradePanel } from '../ui/CampUpgradePanel';
 import { DebugInfoPanel } from '../ui/DebugInfoPanel';
 import { GameOverScreen } from '../ui/GameOverScreen';
-import { HUD } from '../ui/HUD';
 import { LevelSelectMenu } from '../ui/LevelSelectMenu';
 import { MainMenu } from '../ui/MainMenu';
 import { MapEditorScreen } from '../ui/MapEditorScreen';
@@ -20,12 +19,11 @@ import { TowerInfoPanel } from '../ui/TowerInfoPanel';
 import { TowerShop } from '../ui/TowerShop';
 import { UIManager } from '../ui/UIManager';
 import { DebugUtils } from '../utils/DebugUtils';
-import { EventBus, GameEvents } from '../utils/EventBus';
+import { GameEvents } from '../utils/EventBus';
 import { VisualEffects } from '../utils/VisualEffects';
 
 export interface UIContext {
   uiManager: UIManager;
-  hud: HUD;
   bottomBar: BottomBar;
   towerShop: TowerShop;
   towerInfoPanel: TowerInfoPanel;
@@ -46,9 +44,6 @@ export function createUI(
   timeControlManager: TimeControlManager
 ): UIContext {
   const uiManager = new UIManager(app);
-
-  const hud = new HUD();
-  uiManager.registerComponent('hud', hud);
 
   const screenWidth = GameConfig.SCREEN_WIDTH;
   const screenHeight = GameConfig.SCREEN_HEIGHT;
@@ -73,11 +68,12 @@ export function createUI(
   const gameOverScreen = new GameOverScreen();
   uiManager.registerComponent('gameOverScreen', gameOverScreen);
 
-  const towerShop = new TowerShop();
+  const towerManager = gameManager.getTowerManager();
+  const towerShop = new TowerShop(towerManager);
   towerShop.position.set(screenWidth - shopWidth, 0);
   uiManager.registerComponent('towerShop', towerShop);
 
-  const towerInfoPanel = new TowerInfoPanel();
+  const towerInfoPanel = new TowerInfoPanel(towerManager);
   const towerInfoPanelHeight = 300;
   towerInfoPanel.position.set(screenWidth - shopWidth, screenHeight - towerInfoPanelHeight);
   uiManager.registerComponent('towerInfoPanel', towerInfoPanel);
@@ -141,17 +137,19 @@ export function createUI(
   });
 
   const moneyAnimation = new MoneyAnimation(app.stage);
+  const eventBus = gameManager.getEventBus();
 
-  gameManager.setMoneyGainCallback((amount: number) => {
+  // UI reactions via typed EventBus (no GameManager callback setters)
+  eventBus.on(GameEvents.MONEY_EARNED, amount => {
     moneyAnimation.showMoneyGain(amount);
   });
 
-  gameManager.setDamageFlashCallback(() => {
+  eventBus.on(GameEvents.LIFE_LOST, () => {
     VisualEffects.createDamageFlash(app.stage, GameConfig.SCREEN_WIDTH, GameConfig.SCREEN_HEIGHT);
   });
 
-  gameManager.setGameOverCallback((score: number) => {
-    gameOverScreen.showGameOver(score);
+  eventBus.on(GameEvents.GAME_OVER, data => {
+    gameOverScreen.showGameOver(data.score);
     uiManager.setState(GameConfig.GAME_STATES.GAME_OVER);
   });
 
@@ -251,8 +249,7 @@ export function createUI(
     uiManager.setState(GameConfig.GAME_STATES.MAIN_MENU);
   });
 
-  // Next wave callbacks
-  hud.setNextWaveCallback(createNextWaveCallback(hud, gameManager));
+  // Next wave callback (BottomBar owns the button)
   bottomBar.setNextWaveCallback(createNextWaveCallback(bottomBar, gameManager));
 
   // Tower shop callbacks
@@ -276,53 +273,36 @@ export function createUI(
     }
   });
 
-  // Tower info panel callbacks
+  // Tower info panel callbacks — economy owns spend/upgrade/sell; analytics listens on EventBus
+  towerInfoPanel.setEconomyState(gameManager.getEconomyState());
+
   towerInfoPanel.setUpgradeCallback(() => {
     const tower = placementManager.getSelectedTower();
-    if (tower) {
-      const upgradeCost = gameManager
-        .getTowerManager()
-        .calculateUpgradeCost(tower.getType(), tower.getUpgradeLevel());
-      if (gameManager.spendMoney(upgradeCost)) {
-        placementManager.upgradeSelectedTower();
-        const newLevel = tower.getUpgradeLevel();
-        gameManager.getStatTracker().trackTowerUpgraded(tower.getType(), upgradeCost, newLevel);
-        if (gameManager.isBalanceTrackingEnabled()) {
-          gameManager
-            .getBalanceTrackingManager()
-            .trackTowerUpgraded(tower.getType(), upgradeCost, newLevel);
-        }
-        DebugUtils.debug(`Tower upgraded for $${upgradeCost}`);
-      } else {
-        DebugUtils.debug('Not enough money to upgrade');
-      }
+    if (!tower) {
+      return;
+    }
+    if (gameManager.upgradeTower(tower)) {
+      placementManager.refreshSelectedTowerVisuals();
+      towerInfoPanel.showTowerInfo(tower);
+      DebugUtils.debug(`Tower upgraded to level ${tower.getUpgradeLevel()}`);
+    } else {
+      DebugUtils.debug('Not enough money to upgrade');
     }
   });
 
   towerInfoPanel.setSellCallback(() => {
     const tower = placementManager.getSelectedTower();
-    if (tower) {
-      const baseCost = gameManager.getTowerManager().getTowerCost(tower.getType());
-      let totalCost = baseCost;
-      for (let i = 1; i < tower.getUpgradeLevel(); i++) {
-        totalCost += gameManager.getTowerManager().calculateUpgradeCost(tower.getType(), i);
-      }
-      const sellValue = Math.floor(totalCost * 0.75);
-      const towerType = tower.getType();
-      placementManager.removeSelectedTower();
-      gameManager.addMoney(sellValue);
-      gameManager.getStatTracker().trackTowerSold(towerType, sellValue);
-      if (gameManager.isBalanceTrackingEnabled()) {
-        gameManager.getBalanceTrackingManager().trackTowerSold(towerType, sellValue);
-      }
-      towerInfoPanel.hide();
-      DebugUtils.debug(`Tower sold for $${sellValue}`);
+    if (!tower) {
+      return;
     }
+    const sellValue = gameManager.sellTower(tower);
+    placementManager.removeSelectedTower();
+    towerInfoPanel.hide();
+    DebugUtils.debug(`Tower sold for $${sellValue}`);
   });
 
   const ui: UIContext = {
     uiManager,
-    hud,
     bottomBar,
     towerShop,
     towerInfoPanel,
@@ -371,7 +351,7 @@ export function syncGameHud(gameManager: GameManager, ui: UIContext): void {
  * Subscribe HUD surfaces to economy/wave events instead of polling every frame.
  */
 export function bindGameHudEvents(gameManager: GameManager, ui: UIContext): void {
-  const eventBus = EventBus.getInstance();
+  const eventBus = gameManager.getEventBus();
 
   const refreshMoney = (): void => {
     const money = gameManager.getMoney();

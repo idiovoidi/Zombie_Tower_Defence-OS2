@@ -1,15 +1,24 @@
 import { DebugConstants } from '../config/debugConstants';
 import { GameConfig } from '../config/gameConfig';
-import { TowerConstants, type TowerStats } from '../config/towerConstants';
+import {
+  calculateUpgradeCost as calcUpgradeCostFromConstants,
+  TowerConstants,
+  type TowerStats,
+} from '../config/towerConstants';
 import { debugMul, debugMulFloor } from '../debug/debugScale';
 
 export class TowerManager {
   private static instance: TowerManager | null = null;
   private towerData: Map<string, TowerStats>;
 
-  private constructor() {
+  public constructor() {
     this.towerData = new Map<string, TowerStats>();
     this.initializeTowerData();
+  }
+
+  /** Composition root registers the shared catalog used by getInstance() callers. */
+  public static setInstance(manager: TowerManager): void {
+    TowerManager.instance = manager;
   }
 
   public static getInstance(): TowerManager {
@@ -17,6 +26,11 @@ export class TowerManager {
       TowerManager.instance = new TowerManager();
     }
     return TowerManager.instance;
+  }
+
+  /** Test helper */
+  public static resetInstance(): void {
+    TowerManager.instance = null;
   }
 
   // Initialize tower data from constants
@@ -85,19 +99,9 @@ export class TowerManager {
     return debugMul(fireRate, DebugConstants.TOWER_FIRE_RATE_MULTIPLIER);
   }
 
-  // Calculate upgrade cost based on design formula
+  // Calculate upgrade cost — single formula in towerConstants
   public calculateUpgradeCost(type: string, upgradeLevel: number): number {
-    const baseStats = this.towerData.get(type);
-    if (!baseStats) {
-      return 0;
-    }
-
-    // Use the upgrade cost multiplier if available, otherwise default to 0.75
-    const multiplier = baseStats.upgradeCostMultiplier || 0.75;
-
-    // Formula: upgradeCost = baseCost × (upgradeLevel + 1) × upgradeCostMultiplier
-    const cost = Math.floor(baseStats.cost * (upgradeLevel + 1) * multiplier);
-    return debugMulFloor(cost, DebugConstants.UPGRADE_COST_MULTIPLIER);
+    return calcUpgradeCostFromConstants(type, upgradeLevel);
   }
 
   // Get tower cost by type

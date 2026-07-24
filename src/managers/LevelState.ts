@@ -10,7 +10,6 @@ import type { Container } from 'pixi.js';
 import type { Tower } from '../objects/Tower';
 import { CombatRenderer } from '../renderers/CombatRenderer';
 import type { EffectManager } from '../renderers/effects/EffectManager';
-import { EventBus, type EventSubscription, GameEvents } from '../utils/EventBus';
 import { OptimizationValidator } from '../utils/OptimizationValidator';
 import type { MapManager } from './MapManager';
 import type { ProjectileManager } from './ProjectileManager';
@@ -48,9 +47,6 @@ export class LevelState {
   // Combat renderer for visual effects (via EventBus)
   private combatRenderer: CombatRenderer | null = null;
 
-  // Event subscriptions for cleanup
-  private eventSubscriptions: EventSubscription[] = [];
-
   constructor(config: LevelStateConfig) {
     const {
       mapManager: _mapManager,
@@ -85,28 +81,6 @@ export class LevelState {
     if (this.effectManager) {
       this.combatRenderer = new CombatRenderer(this.effectManager);
     }
-
-    // Set up event listeners
-    this.setupEventListeners();
-  }
-
-  private setupEventListeners(): void {
-    const eventBus = EventBus.getInstance();
-
-    // WAVE_START is notification-only (analytics, UI). GameManager owns startWave().
-
-    // Listen for cleanup events
-    this.eventSubscriptions.push(
-      eventBus.on(GameEvents.CLEANUP_WAVE, () => {
-        this.cleanupWave();
-      })
-    );
-
-    this.eventSubscriptions.push(
-      eventBus.on(GameEvents.CLEANUP_GAME, () => {
-        this.cleanupGame();
-      })
-    );
   }
 
   /**
@@ -340,15 +314,9 @@ export class LevelState {
   }
 
   /**
-   * Dispose of all resources and event listeners
+   * Dispose of all resources
    */
   public dispose(): void {
-    // Unsubscribe from all events
-    for (const sub of this.eventSubscriptions) {
-      sub.unsubscribe();
-    }
-    this.eventSubscriptions = [];
-
     // Dispose combat renderer
     if (this.combatRenderer) {
       this.combatRenderer.dispose();

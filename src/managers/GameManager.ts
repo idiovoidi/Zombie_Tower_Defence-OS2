@@ -2,18 +2,22 @@ import { type Application, Container } from 'pixi.js';
 import { DebugConstants } from '../config/debugConstants';
 import { DevConfig } from '../config/devConfig';
 import { GameConfig } from '../config/gameConfig';
+import { configureTowerRuntime } from '../core/towerRuntime';
 import { type CustomMapDocument, registerCustomMap } from '../customMaps';
 import type { Tower } from '../objects/Tower';
+import type { ITower } from '../objects/Tower.interface';
 import type { Zombie } from '../objects/Zombie';
 import { EffectManager } from '../renderers/effects/EffectManager';
 import type { SludgePoolEffect } from '../renderers/effects/SludgePoolEffect';
 import { VisualMapRenderer } from '../renderers/VisualMapRenderer';
+import type { IStatTracker } from '../types/gameProviders';
 import { EffectCleanupManager } from '../utils/EffectCleanupManager';
 import { EventBus, GameEvents } from '../utils/EventBus';
 import { type GameLogEntry, LogExporter } from '../utils/LogExporter';
 import { OptimizationValidator } from '../utils/OptimizationValidator';
 import { PerformanceMonitor } from '../utils/PerformanceMonitor';
 import { ResourceCleanupManager } from '../utils/ResourceCleanupManager';
+import { TowerRangeVisualizer } from '../utils/TowerRangeVisualizer';
 import { VisualEffects } from '../utils/VisualEffects';
 import { AnalyticsState } from './AnalyticsState';
 import { EconomyState } from './EconomyState';
@@ -29,32 +33,36 @@ import { TowerPlacementManager } from './TowerPlacementManager';
 import { WaveManager } from './WaveManager';
 import { ZombieManager } from './ZombieManager';
 
+export interface GameManagerDeps {
+  eventBus?: EventBus;
+  towerManager?: TowerManager;
+  rangeVisualizer?: TowerRangeVisualizer;
+}
+
 /**
- * GameManager - Main game orchestrator
+ * GameManager - Session orchestrator / composition root for a play session.
  *
- * REFACTORED: Now uses contextual state objects (LevelState, EconomyState, AnalyticsState)
- * to reduce coupling and improve maintainability. Also uses EventBus for decoupled
- * communication between managers.
+ * Owns LevelState, EconomyState, and AnalyticsState. Prefer those for domain work;
+ * manager getters remain for UI/debug/AI providers.
  */
 export class GameManager {
   private app: Application;
   private currentState: string;
   private lives: number;
-  private wave: number;
   private score: number;
 
-  // Contextual state objects - encapsulate related managers
+  private readonly eventBus: EventBus;
+  private readonly rangeVisualizer: TowerRangeVisualizer;
+
   private levelState!: LevelState;
   private economyState!: EconomyState;
   private analyticsState!: AnalyticsState;
 
-  // Level/Map management (not combat-specific, kept separate)
   private mapManager: MapManager;
   private levelManager: LevelManager;
   private visualMapRenderer: VisualMapRenderer | null = null;
   private effectManager: EffectManager;
 
-  // Manager references - these are also accessible via levelState but kept for direct access
   private towerManager: TowerManager;
   private towerPlacementManager: TowerPlacementManager;
   private zombieManager: ZombieManager;
@@ -63,44 +71,40 @@ export class GameManager {
   private towerCombatManager: TowerCombatManager;
   private sludgePoolManager: SludgePoolManager;
 
-  // Game container
   private gameContainer: Container;
-
-  // Callbacks
-  private onMoneyGainCallback: ((amount: number) => void) | null = null;
-  private onDamageFlashCallback: (() => void) | null = null;
-  private onGameOverCallback: ((score: number) => void) | null = null;
-
-  // Wave tracking
   private waveStartLives = 0;
 
-  constructor(app: Application) {
+  constructor(app: Application, deps: GameManagerDeps = {}) {
     this.app = app;
     this.currentState = GameConfig.GAME_STATES.MAIN_MENU;
 
-    // Apply debug constants if enabled
     this.lives = DebugConstants.ENABLED ? DebugConstants.STARTING_LIVES : GameConfig.STARTING_LIVES;
-    this.wave = DebugConstants.ENABLED ? DebugConstants.START_AT_WAVE : 1;
     this.score = 0;
 
-    if (DebugConstants.ENABLED) {
-      // Debug mode active - constants applied above
-    }
+    this.eventBus = deps.eventBus ?? EventBus.create();
+    EventBus.setInstance(this.eventBus);
 
-    // Create game container for all game objects
+    this.towerManager = deps.towerManager ?? new TowerManager();
+    TowerManager.setInstance(this.towerManager);
+
+    this.rangeVisualizer = deps.rangeVisualizer ?? new TowerRangeVisualizer();
+    TowerRangeVisualizer.setInstance(this.rangeVisualizer);
+
+    configureTowerRuntime({
+      towerManager: this.towerManager,
+      eventBus: this.eventBus,
+      rangeVisualizer: this.rangeVisualizer,
+    });
+
     this.gameContainer = new Container();
     this.gameContainer.sortableChildren = true;
     app.stage.addChild(this.gameContainer);
 
-    // Initialize EffectManager first (needed by other managers)
     this.effectManager = new EffectManager(this.gameContainer);
 
-    // Initialize map and level managers
     this.mapManager = new MapManager();
     this.levelManager = new LevelManager(this.mapManager);
 
-    // Initialize combat managers (shared between GameManager and LevelState)
-    this.towerManager = TowerManager.getInstance();
     this.waveManager = new WaveManager();
     this.zombieManager = new ZombieManager(this.gameContainer, this.waveManager, this.mapManager);
     this.projectileManager = new ProjectileManager(this.gameContainer);
@@ -110,21 +114,22 @@ export class GameManager {
       this.mapManager,
       this.effectManager.getContainer()
     );
-    this.towerCombatManager = new TowerCombatManager(1024, 768);
+    this.towerCombatManager = new TowerCombatManager(1024, 768, this.eventBus);
     this.sludgePoolManager = new SludgePoolManager();
 
-    // Initialize contextual state objects with injected managers
+    this.waveManager.reset(this.getStartingWave());
+
     this.initializeStateObjects();
-
-    // Set up event listeners
     this.setupEventListeners();
-
-    // Set up tower placement callbacks
     this.setupTowerPlacementCallbacks();
   }
 
+  /** Single source of truth for session start wave (WaveManager owns the counter). */
+  private getStartingWave(): number {
+    return DebugConstants.ENABLED ? DebugConstants.START_AT_WAVE : 1;
+  }
+
   private initializeStateObjects(): void {
-    // Initialize LevelState with injected manager instances (no duplicates)
     this.levelState = new LevelState({
       container: this.gameContainer,
       mapManager: this.mapManager,
@@ -139,35 +144,33 @@ export class GameManager {
       effectManager: this.effectManager,
     });
 
-    // EconomyState is the single money owner
     const startingMoney = DebugConstants.ENABLED
       ? DebugConstants.STARTING_MONEY
       : GameConfig.STARTING_MONEY;
-    this.economyState = new EconomyState({ startingMoney });
+    this.economyState = new EconomyState({
+      startingMoney,
+      costCatalog: this.towerManager,
+      eventBus: this.eventBus,
+    });
 
-    // Initialize AnalyticsState
-    this.analyticsState = new AnalyticsState({ gameManager: this });
+    this.analyticsState = new AnalyticsState({
+      gameManager: this,
+      eventBus: this.eventBus,
+    });
   }
 
   private setupEventListeners(): void {
-    // Listen for damage events and forward to analytics
-    EventBus.getInstance().on<{
-      damage: number;
-      towerType: string;
-      killed: boolean;
-      overkill: number;
-    }>(GameEvents.DAMAGE_DEALT, data => {
-      if (data?.killed && data.overkill > 100) {
-        // Trigger small screen shake for spectacular gib explosions
+    this.eventBus.on(GameEvents.DAMAGE_DEALT, data => {
+      if (data.killed && data.overkill > 100) {
         const intensity = Math.min(8, data.overkill / 50);
         VisualEffects.triggerScreenShake(this.gameContainer, intensity, 150);
       }
     });
 
-    // Listen for sludge pool creation events
-    EventBus.getInstance().on<{ pool: SludgePoolEffect }>(GameEvents.SLUDGE_POOL_CREATED, data => {
-      if (data?.pool) {
-        this.sludgePoolManager.addPool(data.pool);
+    this.eventBus.on(GameEvents.SLUDGE_POOL_CREATED, data => {
+      const pool = data.pool as SludgePoolEffect | null;
+      if (pool) {
+        this.sludgePoolManager.addPool(pool);
       }
     });
   }
@@ -176,13 +179,10 @@ export class GameManager {
     this.towerPlacementManager.setTowerPlacedCallback((tower: Tower) => {
       const cost = this.towerManager.getTowerCost(tower.getType());
       if (this.spendMoney(cost)) {
-        // Emit event for tower placement - AnalyticsState listens and handles tracking
-        EventBus.getInstance().emit(GameEvents.TOWER_PLACED, {
+        this.eventBus.emit(GameEvents.TOWER_PLACED, {
           type: tower.getType(),
           cost: cost,
         });
-      } else {
-        // Insufficient funds - tower placement cancelled
       }
     });
   }
@@ -205,7 +205,7 @@ export class GameManager {
       this.effectManager.setZombies(zombies); // For fire pool damage
     }
 
-    PerformanceMonitor.recordWaveMemory(this.wave);
+    PerformanceMonitor.recordWaveMemory(this.getWave());
   }
 
   public startGameWithLevel(levelId: string): void {
@@ -227,9 +227,8 @@ export class GameManager {
     this.analyticsState.getBalanceTrackingManager().reset();
     this.analyticsState.getBalanceTrackingManager().enable();
 
-    this.wave = DebugConstants.ENABLED ? DebugConstants.START_AT_WAVE : 1;
     this.score = 0;
-    this.waveManager.reset();
+    this.waveManager.reset(this.getStartingWave());
 
     if (!DebugConstants.ENABLED) {
       this.economyState.reset(level.startingMoney);
@@ -251,7 +250,7 @@ export class GameManager {
     this.waveStartLives = this.lives;
     // Own startWave; WAVE_START is notification-only for analytics
     this.zombieManager.startWave();
-    EventBus.getInstance().emit(GameEvents.WAVE_START, { wave: this.wave });
+    this.eventBus.emit(GameEvents.WAVE_START, { wave: this.getWave() });
   }
 
   /**
@@ -278,9 +277,8 @@ export class GameManager {
     this.analyticsState.getBalanceTrackingManager().reset();
     this.analyticsState.getBalanceTrackingManager().enable();
 
-    this.wave = DebugConstants.ENABLED ? DebugConstants.START_AT_WAVE : 1;
     this.score = 0;
-    this.waveManager.reset();
+    this.waveManager.reset(this.getStartingWave());
 
     this.visualMapRenderer?.renderMap(mapName);
 
@@ -298,7 +296,7 @@ export class GameManager {
     this.waveStartLives = this.lives;
     // Own startWave; WAVE_START is notification-only for analytics
     this.zombieManager.startWave();
-    EventBus.getInstance().emit(GameEvents.WAVE_START, { wave: this.wave });
+    this.eventBus.emit(GameEvents.WAVE_START, { wave: this.getWave() });
     return true;
   }
 
@@ -341,8 +339,7 @@ export class GameManager {
     // Clear sludge pools and goo effects
     this.sludgePoolManager.clear();
 
-    // Emit cleanup event
-    EventBus.getInstance().emit(GameEvents.CLEANUP_WAVE);
+    this.levelState.cleanupWave();
   }
 
   private spawnStarterTower(): void {
@@ -378,14 +375,14 @@ export class GameManager {
   public pauseGame(): void {
     if (this.currentState === GameConfig.GAME_STATES.PLAYING) {
       this.currentState = GameConfig.GAME_STATES.PAUSED;
-      EventBus.getInstance().emit(GameEvents.GAME_PAUSE);
+      this.eventBus.emit(GameEvents.GAME_PAUSE);
     }
   }
 
   public resumeGame(): void {
     if (this.currentState === GameConfig.GAME_STATES.PAUSED) {
       this.currentState = GameConfig.GAME_STATES.PLAYING;
-      EventBus.getInstance().emit(GameEvents.GAME_RESUME);
+      this.eventBus.emit(GameEvents.GAME_RESUME);
     }
   }
 
@@ -396,11 +393,11 @@ export class GameManager {
 
     this.currentState = GameConfig.GAME_STATES.GAME_OVER;
 
-    const finalScore = this.wave * 1000 + this.getMoney();
+    const finalScore = this.getWave() * 1000 + this.getMoney();
     this.score = finalScore;
 
     // Emit game over event
-    EventBus.getInstance().emit(GameEvents.GAME_OVER, { score: finalScore });
+    this.eventBus.emit(GameEvents.GAME_OVER, { score: finalScore });
 
     if (this.analyticsState.isBalanceTrackingEnabled()) {
       this.analyticsState.getBalanceTrackingManager().performEndGameAnalysis();
@@ -408,12 +405,6 @@ export class GameManager {
 
     if (!this.analyticsState.getAIPlayerManager().isEnabled()) {
       this.exportManualGameLog();
-    }
-
-    if (this.onGameOverCallback) {
-      this.onGameOverCallback(this.score);
-    } else {
-      // No game over callback registered
     }
 
     setTimeout(() => {
@@ -432,7 +423,7 @@ export class GameManager {
       startTime: new Date().toISOString(),
       endTime: new Date().toISOString(),
       gameData: {
-        highestWave: this.wave,
+        highestWave: this.getWave(),
         finalMoney: this.getMoney(),
         finalLives: this.lives,
         startLives: DebugConstants.ENABLED
@@ -481,7 +472,7 @@ export class GameManager {
   public victory(): void {
     this.currentState = GameConfig.GAME_STATES.VICTORY;
 
-    EventBus.getInstance().emit(GameEvents.GAME_VICTORY);
+    this.eventBus.emit(GameEvents.GAME_VICTORY);
 
     if (this.analyticsState.isBalanceTrackingEnabled()) {
       this.analyticsState.getBalanceTrackingManager().performEndGameAnalysis();
@@ -495,21 +486,6 @@ export class GameManager {
 
   public addMoney(amount: number): void {
     this.economyState.addMoney(amount);
-    if (this.onMoneyGainCallback) {
-      this.onMoneyGainCallback(amount);
-    }
-  }
-
-  public setMoneyGainCallback(callback: (amount: number) => void): void {
-    this.onMoneyGainCallback = callback;
-  }
-
-  public setDamageFlashCallback(callback: () => void): void {
-    this.onDamageFlashCallback = callback;
-  }
-
-  public setGameOverCallback(callback: (score: number) => void): void {
-    this.onGameOverCallback = callback;
   }
 
   public spendMoney(amount: number): boolean {
@@ -518,7 +494,7 @@ export class GameManager {
 
   public addLives(amount: number): void {
     this.lives += amount;
-    EventBus.getInstance().emit(GameEvents.LIVES_CHANGED, { lives: this.lives });
+    this.eventBus.emit(GameEvents.LIVES_CHANGED, { lives: this.lives });
   }
 
   public loseLife(amount = 1): void {
@@ -527,15 +503,12 @@ export class GameManager {
     }
 
     this.lives -= amount;
-    if (this.onDamageFlashCallback) {
-      this.onDamageFlashCallback();
-    }
     // Trigger screen shake scaling with damage
     VisualEffects.triggerScreenShake(this.gameContainer, Math.min(15, amount * 4), 250);
 
-    // Emit life lost event
-    EventBus.getInstance().emit(GameEvents.LIFE_LOST, { amount, lives: this.lives });
-    EventBus.getInstance().emit(GameEvents.LIVES_CHANGED, { lives: this.lives });
+    // Emit life lost event (UI listens for damage flash)
+    this.eventBus.emit(GameEvents.LIFE_LOST, { amount, lives: this.lives });
+    this.eventBus.emit(GameEvents.LIVES_CHANGED, { lives: this.lives });
     if (this.lives <= 0) {
       this.lives = 0;
       this.gameOver();
@@ -543,7 +516,6 @@ export class GameManager {
   }
 
   public nextWave(): void {
-    this.wave++;
     this.currentState = GameConfig.GAME_STATES.WAVE_COMPLETE;
   }
 
@@ -563,11 +535,8 @@ export class GameManager {
     return this.lives;
   }
 
+  /** Wave number — owned by WaveManager. */
   public getWave(): number {
-    return this.wave;
-  }
-
-  public getCurrentWave(): number {
     return this.waveManager.getCurrentWave();
   }
 
@@ -596,20 +565,8 @@ export class GameManager {
     return this.levelManager.getCurrentLevel();
   }
 
-  public getResourceManager() {
-    return this.economyState.getResourceManager();
-  }
-
-  public getUpgradeSystem() {
-    return this.economyState.getUpgradeManager();
-  }
-
   public getZombieManager(): ZombieManager {
     return this.zombieManager;
-  }
-
-  public getBloodParticleStats() {
-    return this.zombieManager.getBloodParticleSystem().getStats();
   }
 
   public getTowerPlacementManager(): TowerPlacementManager {
@@ -630,7 +587,7 @@ export class GameManager {
     return this.analyticsState.getAIPlayerManager();
   }
 
-  public getStatTracker() {
+  public getStatTracker(): IStatTracker {
     return this.analyticsState.getStatTracker();
   }
 
@@ -651,8 +608,16 @@ export class GameManager {
     return this.towerPlacementManager.getPlacedTowers();
   }
 
+  public getPlacedTowerCount(): number {
+    return this.towerPlacementManager.getPlacedTowers().length;
+  }
+
   public getZombies(): Zombie[] {
     return this.zombieManager.getZombies();
+  }
+
+  public getZombieCount(): number {
+    return this.zombieManager.getZombies().length;
   }
 
   public enableBalanceTracking(): void {
@@ -668,12 +633,30 @@ export class GameManager {
   }
 
   // Contextual state getters (new API)
+  public getEventBus(): EventBus {
+    return this.eventBus;
+  }
+
   public getLevelState(): LevelState {
     return this.levelState;
   }
 
   public getEconomyState(): EconomyState {
     return this.economyState;
+  }
+
+  /**
+   * Upgrade a tower through the economy owner (spend + mutate + events).
+   */
+  public upgradeTower(tower: ITower): boolean {
+    return this.economyState.upgradeTower(tower);
+  }
+
+  /**
+   * Sell a tower through the economy owner (refund + events). Caller removes it from the map.
+   */
+  public sellTower(tower: ITower): number {
+    return this.economyState.sellTower(tower);
   }
 
   public getAnalyticsState(): AnalyticsState {
@@ -727,7 +710,7 @@ export class GameManager {
           this.addScore(10);
 
           // Emit zombie killed event - AnalyticsState listens and handles detailed tracking
-          EventBus.getInstance().emit(GameEvents.ZOMBIE_KILLED, {
+          this.eventBus.emit(GameEvents.ZOMBIE_KILLED, {
             reward,
             type: zombie.getType(),
           });
@@ -784,31 +767,29 @@ export class GameManager {
     this.currentState = GameConfig.GAME_STATES.WAVE_COMPLETE;
     this.cleanupWaveObjects();
 
+    const wave = this.getWave();
+
     // Calculate wave stats for event
     const zombieGroups = this.waveManager.getCurrentWaveZombies();
     let totalZombiesSpawned = 0;
     for (const group of zombieGroups) {
-      const adjustedCount = this.waveManager.calculateZombieCount(
-        group.count,
-        this.waveManager.getCurrentWave()
-      );
+      const adjustedCount = this.waveManager.calculateZombieCount(group.count, wave);
       totalZombiesSpawned += adjustedCount;
     }
     const livesLostThisWave = this.waveStartLives - this.lives;
 
-    const bonus = 50 + this.wave * 10;
+    const bonus = 50 + wave * 10;
     this.addMoney(bonus);
 
     // Emit wave complete event - AnalyticsState listens and handles tracking
-    EventBus.getInstance().emit(GameEvents.WAVE_COMPLETE, {
-      wave: this.wave,
+    this.eventBus.emit(GameEvents.WAVE_COMPLETE, {
+      wave,
       zombiesSpawned: totalZombiesSpawned,
       livesLost: livesLostThisWave,
     });
   }
 
   public startNextWave(): void {
-    this.wave++;
     this.waveManager.nextWave();
     ResourceCleanupManager.cleanupWaveResources({
       projectileManager: this.projectileManager,
@@ -818,10 +799,11 @@ export class GameManager {
     this.zombieManager.startWave();
     this.currentState = GameConfig.GAME_STATES.PLAYING;
 
+    const wave = this.getWave();
     this.waveStartLives = this.lives;
-    PerformanceMonitor.recordWaveMemory(this.wave);
+    PerformanceMonitor.recordWaveMemory(wave);
 
     // WAVE_START is notification-only — startWave already owned above
-    EventBus.getInstance().emit(GameEvents.WAVE_START, { wave: this.wave });
+    this.eventBus.emit(GameEvents.WAVE_START, { wave });
   }
 }

@@ -1,71 +1,72 @@
 import type { ITower } from '../objects/Tower.interface';
 import type { ResourceCost, ResourceManager } from './ResourceManager';
 
+/** Catalog for purchase / upgrade prices — typically TowerManager. */
+export interface TowerCostCatalog {
+  getTowerCost(type: string): number;
+  calculateUpgradeCost(type: string, upgradeLevel: number): number;
+}
+
+/** Fraction of invested cost refunded on sell. */
+export const TOWER_SELL_REFUND_RATIO = 0.75;
+
+/**
+ * Upgrade eligibility and cost calculations.
+ * Spending and tower mutation are owned by EconomyState (single money path).
+ */
 export class UpgradeManager {
   private resourceManager: ResourceManager;
+  private costCatalog: TowerCostCatalog;
 
-  constructor(resourceManager: ResourceManager) {
+  constructor(resourceManager: ResourceManager, costCatalog: TowerCostCatalog) {
     this.resourceManager = resourceManager;
+    this.costCatalog = costCatalog;
   }
 
   /**
-   * Check if a tower can be upgraded
-   * @param tower The tower to check
-   * @returns True if the tower can be upgraded, false otherwise
+   * Whether the tower can be upgraded and the player can afford it.
    */
   public canUpgrade(tower: ITower): boolean {
-    // Check if tower is at max level
-    if (tower.getUpgradeLevel() >= tower.getMaxUpgradeLevel()) {
+    if (!tower.canUpgrade()) {
       return false;
     }
-
-    // Check if player has enough resources
-    const cost = this.getUpgradeCost(tower);
-    return this.resourceManager.canAfford(cost);
+    return this.resourceManager.canAfford(this.getUpgradeCost(tower));
   }
 
   /**
-   * Perform an upgrade on a tower
-   * @param tower The tower to upgrade
-   * @returns True if upgrade was successful, false otherwise
-   */
-  public performUpgrade(tower: ITower): boolean {
-    if (!this.canUpgrade(tower)) {
-      return false;
-    }
-
-    // Spend resources
-    const cost = this.getUpgradeCost(tower);
-    this.resourceManager.spend(cost);
-
-    // Upgrade the tower
-    tower.upgrade();
-
-    return true;
-  }
-
-  /**
-   * Get the cost to upgrade a tower
-   * @param tower The tower to get upgrade cost for
-   * @returns The resource cost for upgrading
+   * Cost to purchase the next upgrade at the tower's current level.
+   * Uses the shared TowerManager / towerConstants formula.
    */
   public getUpgradeCost(tower: ITower): ResourceCost {
-    const baseCost = tower.getUpgradeCost();
-    const level = tower.getUpgradeLevel();
-
-    // Scale cost based on current level (simple exponential scaling)
-    const costMultiplier = 1.5 ** (level - 1);
-
     return {
-      money: Math.floor(baseCost * costMultiplier),
+      money: this.costCatalog.calculateUpgradeCost(tower.getType(), tower.getUpgradeLevel()),
     };
   }
 
   /**
-   * Get the resource manager
-   * @returns The resource manager
+   * Total money invested in purchase + all upgrades already applied.
    */
+  public getInvestedCost(tower: ITower): number {
+    let total = this.costCatalog.getTowerCost(tower.getType());
+    const level = tower.getUpgradeLevel();
+    for (let i = 1; i < level; i++) {
+      total += this.costCatalog.calculateUpgradeCost(tower.getType(), i);
+    }
+    return total;
+  }
+
+  /**
+   * Refund value when selling the tower.
+   */
+  public getSellValue(tower: ITower): number {
+    return Math.floor(this.getInvestedCost(tower) * TOWER_SELL_REFUND_RATIO);
+  }
+
   public getResourceManager(): ResourceManager {
     return this.resourceManager;
+  }
+
+  public getCostCatalog(): TowerCostCatalog {
+    return this.costCatalog;
   }
 }

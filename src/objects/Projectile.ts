@@ -16,9 +16,6 @@ export class Projectile extends Container {
   private isActive = true;
   private projectileType: string;
   private towerType = 'unknown';
-  private onDamageCallback:
-    | ((damage: number, towerType: string, killed: boolean, overkill: number) => void)
-    | null = null;
   private zombies: Zombie[] = [];
   private spatialQuery: ZombieSpatialQuery | null = null;
 
@@ -296,12 +293,6 @@ export class Projectile extends Container {
     this.towerType = type;
   }
 
-  public setOnDamageCallback(
-    callback: (damage: number, towerType: string, killed: boolean, overkill: number) => void
-  ): void {
-    this.onDamageCallback = callback;
-  }
-
   public setUpgradeLevel(level: number): void {
     this.upgradeLevel = level;
   }
@@ -360,11 +351,6 @@ export class Projectile extends Container {
       zombieY: zombie.position.y,
       zombieId: (zombie as { id?: string }).id || 'unknown',
     });
-
-    // Legacy callback support (deprecated, for backward compatibility)
-    if (this.onDamageCallback) {
-      this.onDamageCallback(actualDamage, this.towerType, killed, overkill);
-    }
   }
 
   private createHitEffect(): void {

@@ -1,17 +1,25 @@
 import { type Container, Graphics } from 'pixi.js';
 
 export class TowerRangeVisualizer {
-  private static instance: TowerRangeVisualizer;
+  private static instance: TowerRangeVisualizer | null = null;
   private rangeIndicator: Graphics | null = null;
   private container: Container | null = null;
 
-  private constructor() {}
+  public constructor() {}
+
+  public static setInstance(visualizer: TowerRangeVisualizer): void {
+    TowerRangeVisualizer.instance = visualizer;
+  }
 
   public static getInstance(): TowerRangeVisualizer {
     if (!TowerRangeVisualizer.instance) {
       TowerRangeVisualizer.instance = new TowerRangeVisualizer();
     }
     return TowerRangeVisualizer.instance;
+  }
+
+  public static resetInstance(): void {
+    TowerRangeVisualizer.instance = null;
   }
 
   // Show range indicator for a tower

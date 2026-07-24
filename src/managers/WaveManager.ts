@@ -516,8 +516,8 @@ export class WaveManager {
   }
 
   // Reset wave manager to initial state (for new game)
-  public reset(): void {
-    this.currentWave = 1;
+  public reset(startWave = 1): void {
+    this.currentWave = Math.max(1, Math.floor(startWave));
     this.playerPerformance = {
       killRate: 100,
       livesLost: 0,

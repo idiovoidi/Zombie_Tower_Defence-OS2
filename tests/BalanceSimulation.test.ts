@@ -43,12 +43,7 @@ describe('Automated Balance Analysis', () => {
     }> = [];
 
     // Collect damage events during simulation
-    const unsubscribe = eventBus.on<{
-      damage: number;
-      towerType: string;
-      killed: boolean;
-      overkill: number;
-    }>(GameEvents.DAMAGE_DEALT, data => {
+    const unsubscribe = eventBus.on(GameEvents.DAMAGE_DEALT, data => {
       if (data) damageEvents.push(data);
     });
 

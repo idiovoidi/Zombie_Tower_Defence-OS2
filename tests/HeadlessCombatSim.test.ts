@@ -28,19 +28,17 @@ describe('Headless Combat Simulation', () => {
     waveCompleteEvents = [];
 
     // Subscribe to events for verification
-    eventBus.on<{ damage: number; towerType: string; killed: boolean; overkill: number }>(
-      GameEvents.DAMAGE_DEALT,
+    eventBus.on(GameEvents.DAMAGE_DEALT,
       data => {
         if (data) damageEvents.push(data);
       }
     );
 
-    eventBus.on<{ reward: number; type: string }>(GameEvents.ZOMBIE_KILLED, data => {
+    eventBus.on(GameEvents.ZOMBIE_KILLED, data => {
       if (data) zombieKillEvents.push(data);
     });
 
-    eventBus.on<{ wave: number; zombiesSpawned: number; livesLost: number }>(
-      GameEvents.WAVE_COMPLETE,
+    eventBus.on(GameEvents.WAVE_COMPLETE,
       data => {
         if (data) waveCompleteEvents.push(data);
       }
@@ -79,8 +77,7 @@ describe('Headless Combat Simulation', () => {
   it('should emit DAMAGE_DEALT events without any visual components', () => {
     // Track damage via events only
     let damageEmitted = false;
-    eventBus.on<{ damage: number; towerType: string; killed: boolean; overkill: number }>(
-      GameEvents.DAMAGE_DEALT,
+    eventBus.on(GameEvents.DAMAGE_DEALT,
       () => {
         damageEmitted = true;
       }
@@ -211,15 +208,7 @@ describe('CombatRenderer Optional Integration', () => {
     let damageEventReceived = false;
     let hasPositionData = false;
 
-    eventBus.on<{
-      damage: number;
-      towerType: string;
-      killed: boolean;
-      overkill: number;
-      zombieX?: number;
-      zombieY?: number;
-      zombieId?: string;
-    }>(GameEvents.DAMAGE_DEALT, data => {
+    eventBus.on(GameEvents.DAMAGE_DEALT, data => {
       if (data) {
         damageEventReceived = true;
         hasPositionData = data.zombieX !== undefined && data.zombieY !== undefined;
@@ -260,14 +249,7 @@ describe('CombatRenderer Optional Integration', () => {
       gibType: 'small' | 'medium' | 'large' | 'massive';
     }> = [];
 
-    eventBus.on<{
-      zombieId: string;
-      x: number;
-      y: number;
-      overkill: number;
-      towerType: string;
-      gibType: 'small' | 'medium' | 'large' | 'massive';
-    }>(GameEvents.GIB_DEATH, data => {
+    eventBus.on(GameEvents.GIB_DEATH, data => {
       if (data) gibEvents.push(data);
     });
 

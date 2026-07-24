@@ -1,4 +1,6 @@
 import type { Graphics } from 'pixi.js';
+import { DebugConstants } from './debugConstants';
+import { debugMulFloor } from '../debug/debugScale';
 
 /**
  * Tower Constants - Centralized tower stats for easy balancing
@@ -281,15 +283,16 @@ export function calculateTowerRange(type: string, upgradeLevel: number): number 
 }
 
 /**
- * Calculate upgrade cost
+ * Calculate upgrade cost for the next upgrade at the given level.
+ * Formula: baseCost × (upgradeLevel + 1) × upgradeCostMultiplier × debug multiplier
  */
 export function calculateUpgradeCost(type: string, upgradeLevel: number): number {
   return withTowerStats(
     type,
     stats => {
       const multiplier = stats.upgradeCostMultiplier || 0.75;
-      // Formula: upgradeCost = baseCost × (upgradeLevel + 1) × upgradeCostMultiplier
-      return Math.floor(stats.cost * (upgradeLevel + 1) * multiplier);
+      const cost = Math.floor(stats.cost * (upgradeLevel + 1) * multiplier);
+      return debugMulFloor(cost, DebugConstants.UPGRADE_COST_MULTIPLIER);
     },
     0
   );
