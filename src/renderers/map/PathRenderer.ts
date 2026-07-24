@@ -7,20 +7,19 @@ import { ensurePathGraph, pathGraphToSegments } from '../../path/pathGraph';
 /**
  * PathRenderer
  *
- * Responsible for rendering the zombie path including:
- * - Path borders (dark edges)
- * - Main path surface (worn dirt)
- * - Center worn track
- * - Tire/cart tracks
- * - Dirt texture patches
- * - Small rocks
- * - Footprints
- * - Edge wear
+ * Layered worn dirt road:
+ * - Soft grass/dirt shoulder blend
+ * - Dark packed border
+ * - Main dirt surface + lighter scuffs
+ * - Packed center bed + dual ruts
+ * - Seeded mottling, pebbles, footprints, mud, cracks
+ * - Organic edge blobs
  *
  * Supports branching graphs by stroking every edge segment.
  */
 export class PathRenderer {
   private graphics: Graphics;
+  private rand: () => number = Math.random;
 
   constructor(graphics: Graphics) {
     this.graphics = graphics;
@@ -32,13 +31,23 @@ export class PathRenderer {
       return;
     }
 
+    this.rand = createSeededRandom(
+      hashString(mapData.name) ^ (mapData.width * 17 + mapData.height * 41 + 0x50a7)
+    );
+
     const pathWidth = PATH.WIDTH;
 
+    for (const line of polylines) {
+      this.renderShoulder(line, pathWidth);
+    }
     for (const line of polylines) {
       this.renderPathBorder(line, pathWidth);
     }
     for (const line of polylines) {
       this.renderMainPath(line, pathWidth);
+    }
+    for (const line of polylines) {
+      this.renderSurfaceScuffs(line, pathWidth);
     }
     for (const line of polylines) {
       this.renderCenterTrack(line, pathWidth);
@@ -48,6 +57,9 @@ export class PathRenderer {
     }
     for (const line of polylines) {
       this.renderPathTexture(line, pathWidth);
+    }
+    for (const line of polylines) {
+      this.renderEdgeDetail(line, pathWidth);
     }
     for (const line of polylines) {
       this.renderEdgeWear(line, pathWidth);
@@ -107,8 +119,18 @@ export class PathRenderer {
     }
   }
 
+  private renderShoulder(waypoints: Waypoint[], pathWidth: number): void {
+    this.drawPathLine(waypoints, PATH.CORNER_RADIUS);
+    this.graphics.stroke({
+      width: pathWidth + PATH.OUTER_BORDER_WIDTH + PATH.SHOULDER_WIDTH,
+      color: COLORS.PATH_SHOULDER,
+      cap: 'round',
+      join: 'round',
+      alpha: PATH.SHOULDER_ALPHA,
+    });
+  }
+
   private renderPathBorder(waypoints: Waypoint[], pathWidth: number): void {
-    // Draw dark border first (darker dirt edges)
     this.drawPathLine(waypoints, PATH.CORNER_RADIUS);
     this.graphics.stroke({
       width: pathWidth + PATH.OUTER_BORDER_WIDTH,
@@ -119,7 +141,6 @@ export class PathRenderer {
   }
 
   private renderMainPath(waypoints: Waypoint[], pathWidth: number): void {
-    // Draw main path (worn dirt)
     this.drawPathLine(waypoints, PATH.CORNER_RADIUS);
     this.graphics.stroke({
       width: pathWidth,
@@ -129,8 +150,18 @@ export class PathRenderer {
     });
   }
 
+  private renderSurfaceScuffs(waypoints: Waypoint[], pathWidth: number): void {
+    this.drawPathLine(waypoints, PATH.CORNER_RADIUS);
+    this.graphics.stroke({
+      width: pathWidth * PATH.SURFACE_LIGHT_FACTOR,
+      color: COLORS.PATH_DIRT_LIGHT,
+      cap: 'round',
+      join: 'round',
+      alpha: PATH.SURFACE_LIGHT_ALPHA,
+    });
+  }
+
   private renderCenterTrack(waypoints: Waypoint[], pathWidth: number): void {
-    // Add center worn track (darker from heavy use)
     this.drawPathLine(waypoints, PATH.CORNER_RADIUS);
     this.graphics.stroke({
       width: pathWidth * PATH.INNER_WIDTH_FACTOR,
@@ -142,10 +173,8 @@ export class PathRenderer {
   }
 
   private renderTireTracks(waypoints: Waypoint[], pathWidth: number): void {
-    // Add tire/cart tracks (two parallel lines)
     const trackOffset = pathWidth * PATH.TRACK_OFFSET_FACTOR;
 
-    // Calculate perpendicular offsets for tracks
     for (let i = 0; i < waypoints.length - 1; i++) {
       const curr = waypoints[i];
       const next = waypoints[i + 1];
@@ -153,93 +182,183 @@ export class PathRenderer {
       const dx = next.x - curr.x;
       const dy = next.y - curr.y;
       const len = Math.sqrt(dx * dx + dy * dy);
+      if (len < 1) {
+        continue;
+      }
       const nx = -dy / len;
       const ny = dx / len;
 
-      // Left track
-      this.graphics.moveTo(curr.x + nx * trackOffset, curr.y + ny * trackOffset);
-      this.graphics.lineTo(next.x + nx * trackOffset, next.y + ny * trackOffset);
-      this.graphics.stroke({
-        width: PATH.TRACK_WIDTH,
-        color: COLORS.PATH_TRACK,
-        alpha: PATH.TRACK_ALPHA,
-      });
-
-      // Right track
-      this.graphics.moveTo(curr.x - nx * trackOffset, curr.y - ny * trackOffset);
-      this.graphics.lineTo(next.x - nx * trackOffset, next.y - ny * trackOffset);
-      this.graphics.stroke({
-        width: PATH.TRACK_WIDTH,
-        color: COLORS.PATH_TRACK,
-        alpha: PATH.TRACK_ALPHA,
-      });
-    }
-  }
-
-  private renderPathTexture(waypoints: Waypoint[], pathWidth: number): void {
-    // Add dirt texture - random small patches along path
-    for (let i = 0; i < waypoints.length - 1; i++) {
-      const curr = waypoints[i];
-      const next = waypoints[i + 1];
-
-      const dx = next.x - curr.x;
-      const dy = next.y - curr.y;
-      const len = Math.sqrt(dx * dx + dy * dy);
-      const steps = Math.floor(len / PATH.DIRT_STEP_SIZE);
-
-      for (let j = 0; j < steps; j++) {
-        const t = j / steps;
-        const x = curr.x + dx * t;
-        const y = curr.y + dy * t;
-
-        // Random dirt patches
-        if (Math.random() > PATH.DIRT_PATCH_PROBABILITY) {
-          const size =
-            PATH.DIRT_PATCH_MIN_SIZE +
-            Math.random() * (PATH.DIRT_PATCH_MAX_SIZE - PATH.DIRT_PATCH_MIN_SIZE);
-          const offsetX = (Math.random() - 0.5) * pathWidth * PATH.DIRT_PATCH_OFFSET_FACTOR;
-          const offsetY = (Math.random() - 0.5) * pathWidth * PATH.DIRT_PATCH_OFFSET_FACTOR;
-          this.graphics.circle(x + offsetX, y + offsetY, size).fill({
-            color: COLORS.PATH_DIRT,
-            alpha:
-              PATH.DIRT_PATCH_MIN_ALPHA +
-              Math.random() * (PATH.DIRT_PATCH_MAX_ALPHA - PATH.DIRT_PATCH_MIN_ALPHA),
+      // Draw ruts as short wobbling segments for organic wear
+      const steps = Math.max(2, Math.floor(len / 18));
+      for (const side of [1, -1] as const) {
+        for (let s = 0; s < steps; s++) {
+          const t0 = s / steps;
+          const t1 = (s + 1) / steps;
+          const wobble0 = (this.rand() - 0.5) * PATH.TRACK_WOBBLE;
+          const wobble1 = (this.rand() - 0.5) * PATH.TRACK_WOBBLE;
+          const x0 = curr.x + dx * t0 + nx * (trackOffset * side + wobble0);
+          const y0 = curr.y + dy * t0 + ny * (trackOffset * side + wobble0);
+          const x1 = curr.x + dx * t1 + nx * (trackOffset * side + wobble1);
+          const y1 = curr.y + dy * t1 + ny * (trackOffset * side + wobble1);
+          this.graphics.moveTo(x0, y0).lineTo(x1, y1).stroke({
+            width: PATH.TRACK_WIDTH + this.rand() * 0.8,
+            color: COLORS.PATH_TRACK,
+            alpha: PATH.TRACK_ALPHA * (0.75 + this.rand() * 0.35),
+            cap: 'round',
           });
-        }
-
-        // Random small rocks
-        if (Math.random() > PATH.ROCK_PROBABILITY) {
-          const size =
-            PATH.ROCK_MIN_SIZE + Math.random() * (PATH.ROCK_MAX_SIZE - PATH.ROCK_MIN_SIZE);
-          const offsetX = (Math.random() - 0.5) * pathWidth * PATH.ROCK_OFFSET_FACTOR;
-          const offsetY = (Math.random() - 0.5) * pathWidth * PATH.ROCK_OFFSET_FACTOR;
-          this.graphics.circle(x + offsetX, y + offsetY, size).fill({
-            color: COLORS.PATH_ROCK,
-            alpha:
-              PATH.ROCK_MIN_ALPHA + Math.random() * (PATH.ROCK_MAX_ALPHA - PATH.ROCK_MIN_ALPHA),
-          });
-        }
-
-        // Footprints (small ovals)
-        if (Math.random() > PATH.FOOTPRINT_PROBABILITY) {
-          const offsetX = (Math.random() - 0.5) * pathWidth * PATH.FOOTPRINT_OFFSET_FACTOR;
-          const offsetY = (Math.random() - 0.5) * pathWidth * PATH.FOOTPRINT_OFFSET_FACTOR;
-          const _angle = Math.random() * Math.PI * 2;
-          this.graphics
-            .ellipse(x + offsetX, y + offsetY, PATH.FOOTPRINT_WIDTH, PATH.FOOTPRINT_HEIGHT)
-            .fill({
-              color: COLORS.PATH_FOOTPRINT,
-              alpha:
-                PATH.FOOTPRINT_MIN_ALPHA +
-                Math.random() * (PATH.FOOTPRINT_MAX_ALPHA - PATH.FOOTPRINT_MIN_ALPHA),
-            });
         }
       }
     }
   }
 
+  private renderPathTexture(waypoints: Waypoint[], pathWidth: number): void {
+    for (let i = 0; i < waypoints.length - 1; i++) {
+      const curr = waypoints[i];
+      const next = waypoints[i + 1];
+
+      const dx = next.x - curr.x;
+      const dy = next.y - curr.y;
+      const len = Math.sqrt(dx * dx + dy * dy);
+      if (len < 1) {
+        continue;
+      }
+      const ux = dx / len;
+      const uy = dy / len;
+      const nx = -uy;
+      const ny = ux;
+      const steps = Math.floor(len / PATH.DIRT_STEP_SIZE);
+
+      for (let j = 0; j < steps; j++) {
+        const t = (j + 0.5) / steps;
+        const x = curr.x + dx * t;
+        const y = curr.y + dy * t;
+
+        // Dirt mottling
+        if (this.rand() < PATH.DIRT_PATCH_CHANCE) {
+          const size =
+            PATH.DIRT_PATCH_MIN_SIZE +
+            this.rand() * (PATH.DIRT_PATCH_MAX_SIZE - PATH.DIRT_PATCH_MIN_SIZE);
+          const off = (this.rand() - 0.5) * pathWidth * PATH.DIRT_PATCH_OFFSET_FACTOR;
+          const light = this.rand() > 0.5;
+          this.graphics
+            .ellipse(x + nx * off, y + ny * off, size, size * (0.5 + this.rand() * 0.4))
+            .fill({
+              color: light ? COLORS.PATH_DIRT_LIGHT : COLORS.PATH_INNER,
+              alpha:
+                PATH.DIRT_PATCH_MIN_ALPHA +
+                this.rand() * (PATH.DIRT_PATCH_MAX_ALPHA - PATH.DIRT_PATCH_MIN_ALPHA),
+            });
+        }
+
+        // Pebbles with contact shadow
+        if (this.rand() < PATH.ROCK_CHANCE) {
+          const size =
+            PATH.ROCK_MIN_SIZE + this.rand() * (PATH.ROCK_MAX_SIZE - PATH.ROCK_MIN_SIZE);
+          const off = (this.rand() - 0.5) * pathWidth * PATH.ROCK_OFFSET_FACTOR;
+          const px = x + nx * off;
+          const py = y + ny * off;
+          this.graphics
+            .ellipse(px + 0.6, py + 0.6, size * 0.9, size * 0.5)
+            .fill({ color: COLORS.PATH_ROCK_SHADOW, alpha: 0.35 });
+          this.graphics.ellipse(px, py, size, size * 0.7).fill({
+            color: COLORS.PATH_ROCK,
+            alpha: PATH.ROCK_MIN_ALPHA + this.rand() * (PATH.ROCK_MAX_ALPHA - PATH.ROCK_MIN_ALPHA),
+          });
+        }
+
+        // Footprints oriented along travel direction
+        if (this.rand() < PATH.FOOTPRINT_CHANCE) {
+          const off = (this.rand() - 0.5) * pathWidth * PATH.FOOTPRINT_OFFSET_FACTOR;
+          const fx = x + nx * off;
+          const fy = y + ny * off;
+          const angle = Math.atan2(uy, ux);
+          this.drawOrientedFootprint(fx, fy, angle);
+        }
+
+        // Mud puddle patches
+        if (this.rand() < PATH.MUD_CHANCE) {
+          const rx = PATH.MUD_MIN_RX + this.rand() * (PATH.MUD_MAX_RX - PATH.MUD_MIN_RX);
+          const off = (this.rand() - 0.5) * pathWidth * 0.3;
+          this.graphics
+            .ellipse(x + nx * off, y + ny * off, rx, rx * 0.45)
+            .fill({ color: COLORS.PATH_MUD, alpha: PATH.MUD_ALPHA });
+        }
+
+        // Hairline cracks along path
+        if (this.rand() < PATH.CRACK_CHANCE) {
+          const off = (this.rand() - 0.5) * pathWidth * 0.25;
+          const cx = x + nx * off;
+          const cy = y + ny * off;
+          const crackLen = PATH.CRACK_LENGTH * (0.6 + this.rand() * 0.6);
+          const sway = (this.rand() - 0.5) * 4;
+          this.graphics
+            .moveTo(cx - ux * crackLen * 0.5, cy - uy * crackLen * 0.5)
+            .lineTo(cx + nx * sway, cy + ny * sway)
+            .lineTo(cx + ux * crackLen * 0.5, cy + uy * crackLen * 0.5)
+            .stroke({ width: 1, color: COLORS.PATH_CRACK, alpha: 0.4 });
+        }
+      }
+    }
+  }
+
+  private drawOrientedFootprint(x: number, y: number, angle: number): void {
+    const cos = Math.cos(angle);
+    const sin = Math.sin(angle);
+    const hw = PATH.FOOTPRINT_WIDTH / 2;
+    const hh = PATH.FOOTPRINT_HEIGHT / 2;
+    // Approximate rotated ellipse as a diamond-ish oval via 4 points + fill ellipse
+    // Pixi ellipse isn't rotatable easily; draw as small poly aligned to direction
+    const pts: number[] = [];
+    const steps = 6;
+    for (let i = 0; i < steps; i++) {
+      const a = (i / steps) * Math.PI * 2;
+      const lx = Math.cos(a) * hw;
+      const ly = Math.sin(a) * hh;
+      pts.push(x + lx * cos - ly * sin, y + lx * sin + ly * cos);
+    }
+    this.graphics.poly(pts).fill({
+      color: COLORS.PATH_FOOTPRINT,
+      alpha:
+        PATH.FOOTPRINT_MIN_ALPHA +
+        this.rand() * (PATH.FOOTPRINT_MAX_ALPHA - PATH.FOOTPRINT_MIN_ALPHA),
+    });
+  }
+
+  private renderEdgeDetail(waypoints: Waypoint[], pathWidth: number): void {
+    const edgeDist = pathWidth * 0.48;
+    for (let i = 0; i < waypoints.length - 1; i++) {
+      const curr = waypoints[i];
+      const next = waypoints[i + 1];
+      const dx = next.x - curr.x;
+      const dy = next.y - curr.y;
+      const len = Math.sqrt(dx * dx + dy * dy);
+      if (len < 1) {
+        continue;
+      }
+      const nx = -dy / len;
+      const ny = dx / len;
+      const steps = Math.floor(len / 16);
+
+      for (let j = 0; j < steps; j++) {
+        if (this.rand() > PATH.EDGE_BLOB_CHANCE) {
+          continue;
+        }
+        const t = (j + this.rand()) / steps;
+        const side = this.rand() > 0.5 ? 1 : -1;
+        const x = curr.x + dx * t + nx * edgeDist * side;
+        const y = curr.y + dy * t + ny * edgeDist * side;
+        const size = PATH.EDGE_BLOB_SIZE * (0.6 + this.rand() * 0.8);
+        this.graphics
+          .ellipse(x, y, size, size * 0.55)
+          .fill({
+            color: this.rand() > 0.5 ? COLORS.PATH_OUTER : COLORS.PATH_SHOULDER,
+            alpha: PATH.EDGE_BLOB_ALPHA,
+          });
+      }
+    }
+  }
+
   private renderEdgeWear(waypoints: Waypoint[], pathWidth: number): void {
-    // Add edge wear - lighter dirt at edges
     this.drawPathLine(waypoints, PATH.CORNER_RADIUS);
     this.graphics.stroke({
       width: pathWidth + PATH.HIGHLIGHT_BORDER_WIDTH,
@@ -249,4 +368,23 @@ export class PathRenderer {
       alpha: PATH.HIGHLIGHT_ALPHA,
     });
   }
+}
+
+function hashString(value: string): number {
+  let hash = 0;
+  for (let i = 0; i < value.length; i++) {
+    hash = (hash * 31 + value.charCodeAt(i)) | 0;
+  }
+  return Math.abs(hash) || 1;
+}
+
+function createSeededRandom(seed: number): () => number {
+  let s = seed % 2147483647;
+  if (s <= 0) {
+    s += 2147483646;
+  }
+  return () => {
+    s = (s * 16807) % 2147483647;
+    return (s - 1) / 2147483646;
+  };
 }

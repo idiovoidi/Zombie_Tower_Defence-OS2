@@ -46,14 +46,19 @@ export const COLORS = {
   UI_PANEL_BG: 0x2a2a2a,
   UI_SEPARATOR: 0x654321,
 
-  // Path colors - enhanced contrast with darker edges and warmer center
-  PATH_OUTER: 0x3d2d1f, // Darker border for more contrast
-  PATH_INNER: 0x6b5a4a, // Lighter worn track center
-  PATH_TRACK: 0x5a4a3a,
-  PATH_DIRT: 0x5a4a3a,
+  // Path colors - layered worn dirt road
+  PATH_SHOULDER: 0x3a4a2a, // Soft grass/dirt blend at edges
+  PATH_OUTER: 0x2e2218, // Dark packed border
+  PATH_DIRT: 0x5c4a3a, // Main worn dirt
+  PATH_DIRT_LIGHT: 0x6e5a48, // Sun-bleached / scuffed patches
+  PATH_INNER: 0x4a3a2c, // Packed center rut bed
+  PATH_TRACK: 0x3a2c20, // Deep cart/rut lines
   PATH_ROCK: 0x6a6a6a,
+  PATH_ROCK_SHADOW: 0x2a2a2a,
   PATH_FOOTPRINT: 0x2d1f12,
-  PATH_HIGHLIGHT: 0x8a7a6a, // Brighter edge highlight
+  PATH_MUD: 0x4a3828,
+  PATH_CRACK: 0x1f1610,
+  PATH_HIGHLIGHT: 0x7a6a58, // Soft edge scuff
 
   // Tree colors
   TREE_TRUNK: 0x4a3a2a,
@@ -368,33 +373,48 @@ export const UI_DIMENSIONS = {
 export const PATH = {
   WIDTH: 50,
   CORNER_RADIUS: 30,
-  OUTER_BORDER_WIDTH: 8, // pathWidth + 8
-  INNER_WIDTH_FACTOR: 0.6, // pathWidth * 0.6
-  INNER_ALPHA: 0.7,
-  TRACK_OFFSET_FACTOR: 0.25, // pathWidth * 0.25
-  TRACK_WIDTH: 3,
-  TRACK_ALPHA: 0.6,
-  DIRT_STEP_SIZE: 15,
-  DIRT_PATCH_PROBABILITY: 0.3, // 1 - 0.7
-  DIRT_PATCH_MIN_SIZE: 3,
-  DIRT_PATCH_MAX_SIZE: 8, // 3 + 5
-  DIRT_PATCH_OFFSET_FACTOR: 0.6,
-  DIRT_PATCH_MIN_ALPHA: 0.3,
-  DIRT_PATCH_MAX_ALPHA: 0.6, // 0.3 + 0.3
-  ROCK_PROBABILITY: 0.15, // 1 - 0.85
-  ROCK_MIN_SIZE: 2,
-  ROCK_MAX_SIZE: 5, // 2 + 3
-  ROCK_OFFSET_FACTOR: 0.5,
+  SHOULDER_WIDTH: 14, // soft blend beyond outer border
+  SHOULDER_ALPHA: 0.22,
+  OUTER_BORDER_WIDTH: 10,
+  SURFACE_LIGHT_FACTOR: 0.82, // secondary lighter fill
+  SURFACE_LIGHT_ALPHA: 0.35,
+  INNER_WIDTH_FACTOR: 0.55,
+  INNER_ALPHA: 0.55,
+  TRACK_OFFSET_FACTOR: 0.22,
+  TRACK_WIDTH: 2.5,
+  TRACK_ALPHA: 0.55,
+  TRACK_WOBBLE: 1.8,
+  DIRT_STEP_SIZE: 12,
+  // Spawn chances (0–1)
+  DIRT_PATCH_CHANCE: 0.55,
+  DIRT_PATCH_MIN_SIZE: 2.5,
+  DIRT_PATCH_MAX_SIZE: 7,
+  DIRT_PATCH_OFFSET_FACTOR: 0.55,
+  DIRT_PATCH_MIN_ALPHA: 0.2,
+  DIRT_PATCH_MAX_ALPHA: 0.45,
+  ROCK_CHANCE: 0.18,
+  ROCK_MIN_SIZE: 1.5,
+  ROCK_MAX_SIZE: 4,
+  ROCK_OFFSET_FACTOR: 0.48,
   ROCK_MIN_ALPHA: 0.5,
-  ROCK_MAX_ALPHA: 0.8, // 0.5 + 0.3
-  FOOTPRINT_PROBABILITY: 0.2, // 1 - 0.8
-  FOOTPRINT_OFFSET_FACTOR: 0.4,
-  FOOTPRINT_WIDTH: 3,
-  FOOTPRINT_HEIGHT: 5,
-  FOOTPRINT_MIN_ALPHA: 0.2,
-  FOOTPRINT_MAX_ALPHA: 0.4, // 0.2 + 0.2
-  HIGHLIGHT_BORDER_WIDTH: 4, // pathWidth + 4
-  HIGHLIGHT_ALPHA: 0.3,
+  ROCK_MAX_ALPHA: 0.85,
+  FOOTPRINT_CHANCE: 0.14,
+  FOOTPRINT_OFFSET_FACTOR: 0.35,
+  FOOTPRINT_WIDTH: 2.2,
+  FOOTPRINT_HEIGHT: 4.5,
+  FOOTPRINT_MIN_ALPHA: 0.18,
+  FOOTPRINT_MAX_ALPHA: 0.35,
+  MUD_CHANCE: 0.12,
+  MUD_MIN_RX: 4,
+  MUD_MAX_RX: 10,
+  MUD_ALPHA: 0.28,
+  CRACK_CHANCE: 0.08,
+  CRACK_LENGTH: 10,
+  EDGE_BLOB_CHANCE: 0.35,
+  EDGE_BLOB_SIZE: 4,
+  EDGE_BLOB_ALPHA: 0.3,
+  HIGHLIGHT_BORDER_WIDTH: 3,
+  HIGHLIGHT_ALPHA: 0.18,
 } as const;
 
 // ============================================================================
