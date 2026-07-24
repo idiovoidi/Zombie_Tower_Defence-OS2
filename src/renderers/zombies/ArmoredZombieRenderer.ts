@@ -1,6 +1,12 @@
 import { Graphics } from 'pixi.js';
 import { GlowEffect } from './components/ZombieEffects';
-import { createHumanoidShadow } from './HumanoidPartBuilder';
+import {
+  createHumanoidArm,
+  createHumanoidHead,
+  createHumanoidLegs,
+  createHumanoidShadow,
+  createHumanoidTorso,
+} from './HumanoidPartBuilder';
 import { HumanoidZombieRenderer } from './HumanoidZombieRenderer';
 import { ParticleType } from './ZombieParticleSystem';
 
@@ -27,32 +33,36 @@ export class ArmoredZombieRenderer extends HumanoidZombieRenderer {
   private readonly DARK_GRAY = 0x2a2a2a;
   private readonly LIGHT_GRAY = 0x6a6a6a;
   private readonly ZOMBIE_GREEN = 0x2d5016;
+  private readonly DARK_GREEN = 0x1a3010;
   private readonly RUST_COLOR = 0x8b4513;
   private readonly BLOOD_RED = 0x8b0000;
   private readonly EYE_GLOW = 0xff6600;
 
   protected initParts(): void {
+    const flesh = {
+      primary: this.ZOMBIE_GREEN,
+      dark: this.DARK_GREEN,
+      eyeGlow: this.EYE_GLOW,
+      decay: 0.4,
+      strokeAlpha: 0.5,
+    };
+
     this.shadowPart = createHumanoidShadow(15, 9);
 
-    this.leftLegPart = new Graphics();
-    this.leftLegPart.rect(-1, 1, 2, 1.5).fill({ color: this.ZOMBIE_GREEN, alpha: 0.8 });
-    this.leftLegPart.rect(-1.5, 0, 3, 6).fill(this.PRIMARY_COLOR);
-    this.leftLegPart.rect(-1.5, 0, 3, 6).stroke({ color: 0x000000, width: 0.5, alpha: 0.6 });
+    // Flesh legs under armor plates
+    const legs = createHumanoidLegs(flesh);
+    this.leftLegPart = legs.leftLeg;
+    this.rightLegPart = legs.rightLeg;
+    this.leftLegPart.rect(-1.6, 0, 3.2, 5.5).fill({ color: this.PRIMARY_COLOR, alpha: 0.85 });
+    this.leftLegPart.stroke({ color: 0x000000, width: 0.5, alpha: 0.5 });
+    this.rightLegPart.rect(-1.6, 0, 3.2, 5.5).fill({ color: this.PRIMARY_COLOR, alpha: 0.85 });
+    this.rightLegPart.stroke({ color: 0x000000, width: 0.5, alpha: 0.5 });
 
-    this.rightLegPart = new Graphics();
-    this.rightLegPart.rect(-1, 1, 2, 1.5).fill({ color: this.ZOMBIE_GREEN, alpha: 0.8 });
-    this.rightLegPart.rect(-1.5, 0, 3, 6).fill(this.PRIMARY_COLOR);
-    this.rightLegPart.rect(-1.5, 0, 3, 6).stroke({ color: 0x000000, width: 0.5, alpha: 0.6 });
-
-    this.torsoPart = new Graphics();
-    this.torsoPart
-      .roundRect(-5, -6, 10, 12, 1)
-      .fill(this.ZOMBIE_GREEN)
-      .stroke({ color: 0x000000, width: 1, alpha: 0.6 });
-
-    this.torsoPart.rect(-5, -4, 10, 3).fill({ color: this.LIGHT_GRAY, alpha: 0.6 });
+    this.torsoPart = createHumanoidTorso(flesh);
+    // Armor plates over flesh
+    this.torsoPart.rect(-5, -4, 10, 3).fill({ color: this.LIGHT_GRAY, alpha: 0.75 });
     this.torsoPart.rect(-5, -4, 10, 3).stroke({ color: this.DARK_GRAY, width: 0.5 });
-    this.torsoPart.rect(-5, 1, 10, 3).fill({ color: this.LIGHT_GRAY, alpha: 0.6 });
+    this.torsoPart.rect(-5, 1, 10, 3).fill({ color: this.LIGHT_GRAY, alpha: 0.75 });
     this.torsoPart.rect(-5, 1, 10, 3).stroke({ color: this.DARK_GRAY, width: 0.5 });
     this.torsoPart.rect(-4, -0.5, 8, 1).fill({ color: this.ZOMBIE_GREEN, alpha: 0.9 });
     this.drawRivet(this.torsoPart, -4, -3);
@@ -60,34 +70,31 @@ export class ArmoredZombieRenderer extends HumanoidZombieRenderer {
     this.drawRivet(this.torsoPart, -4, 2);
     this.drawRivet(this.torsoPart, 4, 2);
 
-    this.headPart = new Graphics();
-    this.headPart.circle(0, 0, 4).fill(this.ZOMBIE_GREEN);
-    this.headPart.rect(-4.5, -4, 9, 8).fill(this.PRIMARY_COLOR);
-    this.headPart.rect(-4.5, -4, 9, 8).stroke({ color: 0x000000, width: 1, alpha: 0.6 });
-    this.headPart.rect(-4.5, -4, 9, 1.5).fill({ color: this.LIGHT_GRAY, alpha: 0.7 });
+    this.headPart = createHumanoidHead(flesh);
+    // Box helmet over head
+    this.headPart.rect(-4.5, -4.5, 9, 8).fill({ color: this.PRIMARY_COLOR, alpha: 0.92 });
+    this.headPart.rect(-4.5, -4.5, 9, 8).stroke({ color: 0x000000, width: 1, alpha: 0.6 });
+    this.headPart.rect(-4.5, -4.5, 9, 1.5).fill({ color: this.LIGHT_GRAY, alpha: 0.7 });
     this.headPart.rect(-3, 2.5, 6, 1.5).fill({ color: this.ZOMBIE_GREEN, alpha: 0.9 });
     this.headPart.rect(-3.5, -1, 7, 1.5).fill({ color: 0x000000, alpha: 0.9 });
-
     GlowEffect.apply(this.headPart, -2, -0.5, 1.5, this.EYE_GLOW);
     GlowEffect.apply(this.headPart, 2, -0.5, 1.5, this.EYE_GLOW);
     this.headPart.circle(-2, -0.5, 0.6).fill(this.EYE_GLOW);
     this.headPart.circle(2, -0.5, 0.6).fill(this.EYE_GLOW);
 
-    this.leftArmPart = new Graphics();
-    this.leftArmPart.moveTo(0, 0).lineTo(0, 7).stroke({ color: 0x000000, width: 3, alpha: 0.3 });
-    this.leftArmPart.moveTo(0, 0).lineTo(0, 7).stroke({ color: this.PRIMARY_COLOR, width: 2.5 });
-    this.leftArmPart.circle(0, 3.5, 1.2).fill(this.ZOMBIE_GREEN);
-    this.leftArmPart.circle(0, 7, 1.8).fill(this.PRIMARY_COLOR);
-    this.leftArmPart.circle(0, 7, 1).fill(this.DARK_GRAY);
-
-    this.rightArmPart = new Graphics();
-    this.rightArmPart.moveTo(0, 0).lineTo(0, 7).stroke({ color: 0x000000, width: 3, alpha: 0.5 });
-    this.rightArmPart.moveTo(0, 0).lineTo(0, 7).stroke({ color: this.PRIMARY_COLOR, width: 2.5 });
-    this.rightArmPart.circle(0, 3.5, 1.2).fill(this.ZOMBIE_GREEN);
-    this.rightArmPart.circle(0, 7, 1.8).fill(this.PRIMARY_COLOR);
-    this.rightArmPart.circle(0, 7, 1).fill(this.DARK_GRAY);
+    this.leftArmPart = createHumanoidArm(flesh, 'left');
+    this.overlayArmoredArm(this.leftArmPart);
+    this.rightArmPart = createHumanoidArm(flesh, 'right');
+    this.overlayArmoredArm(this.rightArmPart);
 
     this.finishInitParts();
+  }
+
+  private overlayArmoredArm(arm: Graphics): void {
+    arm.moveTo(0, 0).lineTo(0, 7).stroke({ color: this.PRIMARY_COLOR, width: 2.8, alpha: 0.85 });
+    arm.circle(0, 3.5, 1.2).fill(this.ZOMBIE_GREEN);
+    arm.circle(0, 7, 1.8).fill(this.PRIMARY_COLOR);
+    arm.circle(0, 7, 1).fill(this.DARK_GRAY);
   }
 
   protected updateWounds(
@@ -114,7 +121,6 @@ export class ArmoredZombieRenderer extends HumanoidZombieRenderer {
     }
   }
 
-  // Also emit blood on damage if armor is breached
   override showDamageEffect(damageType: string, amount: number): void {
     super.showDamageEffect(damageType, amount);
     if (Math.random() < 0.3) {

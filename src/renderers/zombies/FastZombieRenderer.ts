@@ -1,6 +1,11 @@
-import { Graphics } from 'pixi.js';
+import {
+  createHumanoidArm,
+  createHumanoidHead,
+  createHumanoidLegs,
+  createHumanoidShadow,
+  createHumanoidTorso,
+} from './HumanoidPartBuilder';
 import { BaseZombieRenderer } from './BaseZombieRenderer';
-import { GlowEffect, ShadowEffect } from './components/ZombieEffects';
 import { ParticleType } from './ZombieParticleSystem';
 
 export class FastZombieRenderer extends BaseZombieRenderer {
@@ -27,51 +32,25 @@ export class FastZombieRenderer extends BaseZombieRenderer {
   private readonly EYE_GLOW = 0xff6600;
 
   protected initParts(): void {
-    // 1. Create parts
-    this.shadowPart = new Graphics();
-    ShadowEffect.apply(this.shadowPart, 0, 15, 7);
+    const palette = {
+      primary: this.PRIMARY_COLOR,
+      dark: this.DARK_ORANGE,
+      eyeGlow: this.EYE_GLOW,
+      scale: 0.9,
+      slim: true,
+      armLength: 8.5,
+      decay: 0.45,
+      strokeAlpha: 0.6,
+    };
 
-    this.leftLegPart = new Graphics();
-    this.leftLegPart.rect(-1.25, 0, 2.5, 6).fill(this.PRIMARY_COLOR);
-    this.leftLegPart.rect(-1.25, 0, 2.5, 6).stroke({ color: 0x000000, width: 0.5, alpha: 0.6 });
-
-    this.rightLegPart = new Graphics();
-    this.rightLegPart.rect(-1.25, 0, 2.5, 6).fill(this.PRIMARY_COLOR);
-    this.rightLegPart.rect(-1.25, 0, 2.5, 6).stroke({ color: 0x000000, width: 0.5, alpha: 0.6 });
-
-    this.torsoPart = new Graphics();
-    this.torsoPart
-      .roundRect(-4, -5.5, 8, 11, 1)
-      .fill(this.PRIMARY_COLOR)
-      .stroke({ color: 0x000000, width: 1, alpha: 0.6 });
-
-    for (let i = 0; i < 3; i++) {
-      this.torsoPart.rect(-2.5, -3.5 + i * 3, 5, 0.5).fill({ color: this.DARK_ORANGE, alpha: 0.7 });
-    }
-
-    this.headPart = new Graphics();
-    this.headPart.circle(0, 0, 4).fill(this.PRIMARY_COLOR);
-    this.headPart.circle(0, 0, 4).stroke({ color: 0x000000, width: 1, alpha: 0.6 });
-
-    GlowEffect.apply(this.headPart, -1.8, -0.5, 1.8, this.EYE_GLOW);
-    GlowEffect.apply(this.headPart, 1.8, -0.5, 1.8, this.EYE_GLOW);
-    this.headPart.circle(-1.8, -0.5, 1).fill({ color: 0x000000, alpha: 0.9 });
-    this.headPart.circle(1.8, -0.5, 1).fill({ color: 0x000000, alpha: 0.9 });
-    this.headPart.circle(-1.8, -0.5, 0.7).fill(this.EYE_GLOW);
-    this.headPart.circle(1.8, -0.5, 0.7).fill(this.EYE_GLOW);
-    this.headPart.rect(-1.8, 1.5, 3.6, 1).fill({ color: 0x000000, alpha: 0.9 });
-
-    this.leftArmPart = new Graphics();
-    this.leftArmPart.moveTo(0, 0).lineTo(0, 8).stroke({ color: 0x000000, width: 2.3, alpha: 0.3 });
-    this.leftArmPart.moveTo(0, 0).lineTo(0, 8).stroke({ color: this.PRIMARY_COLOR, width: 1.8 });
-    this.leftArmPart.circle(0, 8, 1.5).fill(this.PRIMARY_COLOR);
-    this.leftArmPart.circle(0, 8, 1.5).stroke({ color: 0x000000, width: 0.5, alpha: 0.15 });
-
-    this.rightArmPart = new Graphics();
-    this.rightArmPart.moveTo(0, 0).lineTo(0, 8).stroke({ color: 0x000000, width: 2.3, alpha: 0.5 });
-    this.rightArmPart.moveTo(0, 0).lineTo(0, 8).stroke({ color: this.PRIMARY_COLOR, width: 1.8 });
-    this.rightArmPart.circle(0, 8, 1.5).fill(this.PRIMARY_COLOR);
-    this.rightArmPart.circle(0, 8, 1.5).stroke({ color: 0x000000, width: 0.5, alpha: 0.5 });
+    this.shadowPart = createHumanoidShadow(15, 7);
+    const legs = createHumanoidLegs(palette);
+    this.leftLegPart = legs.leftLeg;
+    this.rightLegPart = legs.rightLeg;
+    this.torsoPart = createHumanoidTorso(palette);
+    this.headPart = createHumanoidHead(palette);
+    this.leftArmPart = createHumanoidArm(palette, 'left');
+    this.rightArmPart = createHumanoidArm(palette, 'right');
 
     this.finishInitParts();
   }

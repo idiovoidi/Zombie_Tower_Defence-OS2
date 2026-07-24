@@ -35,20 +35,44 @@ export class MechanicalZombieRenderer extends BaseZombieRenderer {
   private readonly EYE_GLOW = 0x00ffff;
 
   protected initParts(): void {
-    // 1. Create parts
+    // Keep box silhouette; use shared shadow and slightly richer segmented limbs
     this.shadowPart = createHumanoidShadow(16, 9);
 
     this.leftLegPart = new Graphics();
-    this.leftLegPart.rect(-1.75, 0, 3.5, 6).fill(this.PRIMARY_COLOR);
-    this.leftLegPart.rect(-1.75, 0, 3.5, 6).stroke({ color: 0x000000, width: 0.5, alpha: 0.6 });
+    this.leftLegPart
+      .moveTo(-1.9, 0)
+      .lineTo(1.9, 0)
+      .lineTo(1.4, 3.2)
+      .lineTo(-1.4, 3.2)
+      .fill(this.PRIMARY_COLOR);
+    this.leftLegPart
+      .moveTo(-1.4, 3)
+      .lineTo(1.4, 3)
+      .lineTo(1.1, 6)
+      .lineTo(-1.1, 6)
+      .fill(this.PRIMARY_COLOR);
+    this.leftLegPart.stroke({ color: 0x000000, width: 0.5, alpha: 0.6 });
     this.leftLegPart.circle(0, 3, 1.2).fill(this.DARK_METAL);
     this.leftLegPart.circle(0, 3, 0.6).fill(this.LIGHT_METAL);
+    this.leftLegPart.ellipse(0, 6.3, 1.6, 0.7).fill(this.DARK_METAL);
 
     this.rightLegPart = new Graphics();
-    this.rightLegPart.rect(-1.75, 0, 3.5, 6).fill(this.PRIMARY_COLOR);
-    this.rightLegPart.rect(-1.75, 0, 3.5, 6).stroke({ color: 0x000000, width: 0.5, alpha: 0.6 });
+    this.rightLegPart
+      .moveTo(-1.9, 0)
+      .lineTo(1.9, 0)
+      .lineTo(1.4, 3.2)
+      .lineTo(-1.4, 3.2)
+      .fill(this.PRIMARY_COLOR);
+    this.rightLegPart
+      .moveTo(-1.4, 3)
+      .lineTo(1.4, 3)
+      .lineTo(1.1, 6)
+      .lineTo(-1.1, 6)
+      .fill(this.PRIMARY_COLOR);
+    this.rightLegPart.stroke({ color: 0x000000, width: 0.5, alpha: 0.6 });
     this.rightLegPart.circle(0, 3, 1.2).fill(this.DARK_METAL);
     this.rightLegPart.circle(0, 3, 0.6).fill(this.LIGHT_METAL);
+    this.rightLegPart.ellipse(0, 6.3, 1.6, 0.7).fill(this.DARK_METAL);
 
     this.torsoPart = new Graphics();
     this.torsoPart

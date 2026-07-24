@@ -4,13 +4,14 @@ import type { RagdollImpulse, RagdollSkeletonConfig } from './RagdollSkeleton';
  * Zombie body color palettes per type for ragdoll bones.
  */
 const ZOMBIE_COLORS = {
-  basic: { skin: 0x2d5016, dark: 0x1a3010, accent: 0x3a6b20 },
-  fast: { skin: 0xd45a00, dark: 0x993f00, accent: 0xff7722 },
-  tank: { skin: 0x8b1a1a, dark: 0x661414, accent: 0xaa2222 },
-  armored: { skin: 0x556655, dark: 0x445544, accent: 0x888888 },
-  swarm: { skin: 0x999900, dark: 0x777700, accent: 0xbbbb22 },
-  stealth: { skin: 0x442288, dark: 0x331166, accent: 0x6633aa },
-  mechanical: { skin: 0x336666, dark: 0x224444, accent: 0x00aaaa },
+  // Aligned with living renderer palettes
+  basic: { skin: 0x2d5016, dark: 0x1a3010, accent: 0x2d5016, eye: 0xff0000 },
+  fast: { skin: 0x8b4513, dark: 0x5a2a0a, accent: 0x8b4513, eye: 0xff6600 },
+  tank: { skin: 0x5a1a1a, dark: 0x3a0a0a, accent: 0x5a1a1a, eye: 0xff0000 },
+  armored: { skin: 0x2d5016, dark: 0x1a3010, accent: 0x4a4a4a, eye: 0xff6600 },
+  swarm: { skin: 0x6a7a2a, dark: 0x4a5a1a, accent: 0x6a7a2a, eye: 0xffff00 },
+  stealth: { skin: 0x3a2a4a, dark: 0x2a1a3a, accent: 0xcccccc, eye: 0x9966ff },
+  mechanical: { skin: 0x3a4a5a, dark: 0x2a3a4a, accent: 0x5a6a7a, eye: 0x00ffff },
 };
 
 /**
@@ -46,7 +47,7 @@ export function createRagdollConfig(zombieType: string, groundY = 20): RagdollSk
         length: 8 * scale,
         mass: 3 * massScale,
         width: 8 * scale,
-        color: colors.accent,
+        color: colors.skin,
       },
       // Left arm
       {
@@ -57,7 +58,7 @@ export function createRagdollConfig(zombieType: string, groundY = 20): RagdollSk
         angle: Math.PI * 0.7, // Reaching forward-down-left
         length: 10 * scale,
         mass: 1.5 * massScale,
-        width: 3 * scale,
+        width: 3.5 * scale,
         color: colors.skin,
       },
       // Right arm
@@ -69,7 +70,7 @@ export function createRagdollConfig(zombieType: string, groundY = 20): RagdollSk
         angle: Math.PI * 0.3, // Reaching forward-down-right
         length: 10 * scale,
         mass: 1.5 * massScale,
-        width: 3 * scale,
+        width: 3.5 * scale,
         color: colors.skin,
       },
       // Left leg
@@ -81,7 +82,7 @@ export function createRagdollConfig(zombieType: string, groundY = 20): RagdollSk
         angle: Math.PI / 2 + 0.2, // Slightly splayed
         length: 10 * scale,
         mass: 2.5 * massScale,
-        width: 4 * scale,
+        width: 4.5 * scale,
         color: colors.dark,
       },
       // Right leg
@@ -93,7 +94,7 @@ export function createRagdollConfig(zombieType: string, groundY = 20): RagdollSk
         angle: Math.PI / 2 - 0.2, // Slightly splayed
         length: 10 * scale,
         mass: 2.5 * massScale,
-        width: 4 * scale,
+        width: 4.5 * scale,
         color: colors.dark,
       },
     ],
@@ -142,6 +143,8 @@ export function createRagdollConfig(zombieType: string, groundY = 20): RagdollSk
     groundY,
     bounce: 0.2,
     friction: 0.7,
+    eyeColor: colors.eye,
+    darkColor: colors.dark,
   };
 }
 
@@ -149,6 +152,7 @@ function getColorsForType(type: string): {
   skin: number;
   dark: number;
   accent: number;
+  eye: number;
 } {
   switch (type) {
     case 'Fast':

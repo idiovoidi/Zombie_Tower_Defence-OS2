@@ -256,6 +256,8 @@ export abstract class BaseZombieRenderer implements IZombieRenderer {
       leftArmAngle: number;
       rightArmAngle: number;
       headSway: number;
+      headTilt?: number;
+      limbSwing?: number;
     },
     offsets: {
       leftLegX: number;
@@ -274,8 +276,12 @@ export abstract class BaseZombieRenderer implements IZombieRenderer {
     this.rightLegPart.position.set(offsets.rightLegX + anim.rightLegOffset, offsets.rightLegY);
 
     const torsoY = anim.bodyBob + offsets.torsoY;
+    // Light torso lean from limb swing so walk reads less stiff
+    const torsoLean = (anim.limbSwing ?? 0) * 0.08;
     this.torsoPart.position.set(0, torsoY);
+    this.torsoPart.rotation = torsoLean;
     this.woundsPart.position.set(0, torsoY);
+    this.woundsPart.rotation = torsoLean;
 
     this.leftArmPart.position.set(offsets.leftArmX, torsoY + offsets.leftArmY);
     this.leftArmPart.rotation = anim.leftArmAngle - Math.PI / 2;
@@ -286,6 +292,7 @@ export abstract class BaseZombieRenderer implements IZombieRenderer {
     this.rightArmPart.alpha = 1.0;
 
     this.headPart.position.set(anim.headSway, torsoY + offsets.headY);
+    this.headPart.rotation = anim.headTilt ?? 0;
   }
 
   update(deltaTime: number, state: ZombieRenderState): void {

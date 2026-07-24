@@ -72,6 +72,10 @@ export interface RagdollSkeletonConfig {
   bounce: number;
   /** Ground friction (0-1) */
   friction: number;
+  /** Eye glow color for head rendering */
+  eyeColor?: number;
+  /** Dark shade for limb joints / feet */
+  darkColor?: number;
 }
 
 /**
@@ -125,6 +129,8 @@ export class RagdollSkeleton {
   private maxDuration = 2500; // Max ragdoll duration (ms)
   private settlementThreshold = 2.0; // Total velocity threshold for settlement
   private bloodEmitPoints: BloodEmitPoint[] = [];
+  private eyeColor: number;
+  private darkColor: number;
 
   // Callback for blood emission during ragdoll
   public onBloodEmit: ((x: number, y: number, vx: number, vy: number) => void) | null = null;
@@ -136,6 +142,8 @@ export class RagdollSkeleton {
     this.bounce = config.bounce;
     this.friction = config.friction;
     this.constraints = config.constraints;
+    this.eyeColor = config.eyeColor ?? 0xff0000;
+    this.darkColor = config.darkColor ?? 0x1a1a1a;
 
     // Create bones
     for (const boneDef of config.bones) {
@@ -443,6 +451,7 @@ export class RagdollSkeleton {
 
   /**
    * Render the ragdoll skeleton onto a Graphics object.
+   * Draws living-like silhouettes by bone name while keeping physics endpoints.
    */
   public render(graphics: Graphics, alpha = 1): void {
     for (const name of this.boneOrder) {
@@ -451,39 +460,165 @@ export class RagdollSkeleton {
 
       const tipX = bone.x + Math.cos(bone.angle) * bone.length;
       const tipY = bone.y + Math.sin(bone.angle) * bone.length;
-
-      // Draw bone segment as a tapered shape
       const halfWidth = bone.width / 2;
       const perpAngle = bone.angle + Math.PI / 2;
       const perpX = Math.cos(perpAngle) * halfWidth;
       const perpY = Math.sin(perpAngle) * halfWidth;
+      const tipHalf = halfWidth * 0.65;
+      const tipPerpX = Math.cos(perpAngle) * tipHalf;
+      const tipPerpY = Math.sin(perpAngle) * tipHalf;
 
-      // Tapered bone shape (wider at joint, narrower at tip)
-      const tipHalfWidth = halfWidth * 0.6;
-      const tipPerpX = Math.cos(perpAngle) * tipHalfWidth;
-      const tipPerpY = Math.sin(perpAngle) * tipHalfWidth;
+      if (name === 'head') {
+        this.drawRagdollHead(graphics, tipX, tipY, bone, alpha);
+        continue;
+      }
 
+      if (name === 'torso') {
+        this.drawRagdollTorso(graphics, bone, tipX, tipY, perpX, perpY, tipPerpX, tipPerpY, alpha);
+        continue;
+      }
+
+      // Arms / legs — tapered limb + tip appendage
       graphics
         .moveTo(bone.x + perpX, bone.y + perpY)
         .lineTo(tipX + tipPerpX, tipY + tipPerpY)
         .lineTo(tipX - tipPerpX, tipY - tipPerpY)
         .lineTo(bone.x - perpX, bone.y - perpY)
         .closePath()
-        .fill({ color: bone.color, alpha: alpha * 0.9 });
-
-      // Bone outline
+        .fill({ color: bone.color, alpha: alpha * 0.92 });
       graphics
         .moveTo(bone.x + perpX, bone.y + perpY)
         .lineTo(tipX + tipPerpX, tipY + tipPerpY)
         .lineTo(tipX - tipPerpX, tipY - tipPerpY)
         .lineTo(bone.x - perpX, bone.y - perpY)
         .closePath()
-        .stroke({ color: 0x000000, width: 0.5, alpha: alpha * 0.5 });
+        .stroke({ color: 0x000000, width: 0.5, alpha: alpha * 0.45 });
 
-      // Joint circle at bone's origin
+      // Mid joint
+      const midX = bone.x + Math.cos(bone.angle) * bone.length * 0.5;
+      const midY = bone.y + Math.sin(bone.angle) * bone.length * 0.5;
       graphics
-        .circle(bone.x, bone.y, halfWidth * 0.8)
-        .fill({ color: bone.color, alpha: alpha * 0.8 });
+        .circle(midX, midY, halfWidth * 0.45)
+        .fill({ color: this.darkColor, alpha: alpha * 0.7 });
+
+      if (name.startsWith('arm')) {
+        // Hand
+        graphics
+          .circle(tipX, tipY, halfWidth * 0.95)
+          .fill({ color: bone.color, alpha: alpha * 0.95 });
+        graphics.stroke({ color: 0x000000, width: 0.4, alpha: alpha * 0.4 });
+        for (let i = -1; i <= 1; i++) {
+          const fx = tipX + Math.cos(perpAngle) * i * halfWidth * 0.45;
+          const fy = tipY + Math.sin(perpAngle) * i * halfWidth * 0.45;
+          graphics
+            .moveTo(fx, fy)
+            .lineTo(
+              fx + Math.cos(bone.angle) * halfWidth * 1.1,
+              fy + Math.sin(bone.angle) * halfWidth * 1.1
+            )
+            .stroke({ color: this.darkColor, width: 0.7, alpha: alpha * 0.8 });
+        }
+      } else if (name.startsWith('leg')) {
+        // Foot pad
+        graphics
+          .ellipse(
+            tipX + Math.cos(bone.angle) * 1.2,
+            tipY + Math.sin(bone.angle) * 1.2,
+            halfWidth * 1.1,
+            halfWidth * 0.55
+          )
+          .fill({ color: this.darkColor, alpha: alpha * 0.9 });
+      }
+
+      // Shoulder / hip joint (not on every tip)
+      graphics
+        .circle(bone.x, bone.y, halfWidth * 0.55)
+        .fill({ color: bone.color, alpha: alpha * 0.75 });
+    }
+  }
+
+  private drawRagdollHead(
+    graphics: Graphics,
+    tipX: number,
+    tipY: number,
+    bone: RagdollBone,
+    alpha: number
+  ): void {
+    const r = bone.width * 0.55;
+    // Cranium at tip
+    graphics.ellipse(tipX, tipY, r, r * 1.05).fill({ color: bone.color, alpha: alpha * 0.95 });
+    graphics.stroke({ color: 0x000000, width: 0.6, alpha: alpha * 0.5 });
+    // Jaw
+    graphics
+      .ellipse(tipX, tipY + r * 0.45, r * 0.65, r * 0.35)
+      .fill({ color: bone.color, alpha: alpha * 0.9 });
+    // Eyes
+    const eyeOffset = r * 0.35;
+    graphics.circle(tipX - eyeOffset, tipY - r * 0.15, r * 0.22).fill({
+      color: 0x000000,
+      alpha: alpha * 0.9,
+    });
+    graphics.circle(tipX + eyeOffset, tipY - r * 0.15, r * 0.2).fill({
+      color: 0x000000,
+      alpha: alpha * 0.9,
+    });
+    graphics
+      .circle(tipX - eyeOffset, tipY - r * 0.15, r * 0.12)
+      .fill({ color: this.eyeColor, alpha: alpha });
+    graphics
+      .circle(tipX + eyeOffset, tipY - r * 0.15, r * 0.11)
+      .fill({ color: this.eyeColor, alpha: alpha });
+    // Mouth
+    graphics
+      .ellipse(tipX, tipY + r * 0.55, r * 0.4, r * 0.18)
+      .fill({ color: 0x000000, alpha: alpha * 0.85 });
+  }
+
+  private drawRagdollTorso(
+    graphics: Graphics,
+    bone: RagdollBone,
+    tipX: number,
+    tipY: number,
+    perpX: number,
+    perpY: number,
+    tipPerpX: number,
+    tipPerpY: number,
+    alpha: number
+  ): void {
+    // Rounded body along bone
+    graphics
+      .moveTo(bone.x + perpX * 1.05, bone.y + perpY * 1.05)
+      .lineTo(tipX + tipPerpX * 0.9, tipY + tipPerpY * 0.9)
+      .lineTo(tipX - tipPerpX * 0.9, tipY - tipPerpY * 0.9)
+      .lineTo(bone.x - perpX * 1.05, bone.y - perpY * 1.05)
+      .closePath()
+      .fill({ color: bone.color, alpha: alpha * 0.95 });
+    graphics
+      .moveTo(bone.x + perpX * 1.05, bone.y + perpY * 1.05)
+      .lineTo(tipX + tipPerpX * 0.9, tipY + tipPerpY * 0.9)
+      .lineTo(tipX - tipPerpX * 0.9, tipY - tipPerpY * 0.9)
+      .lineTo(bone.x - perpX * 1.05, bone.y - perpY * 1.05)
+      .closePath()
+      .stroke({ color: 0x000000, width: 0.7, alpha: alpha * 0.5 });
+
+    // Shoulder bumps near joint
+    const shoulderR = bone.width * 0.28;
+    graphics
+      .circle(bone.x + perpX * 0.7, bone.y + perpY * 0.7, shoulderR)
+      .fill({ color: bone.color, alpha: alpha * 0.9 });
+    graphics
+      .circle(bone.x - perpX * 0.7, bone.y - perpY * 0.7, shoulderR)
+      .fill({ color: bone.color, alpha: alpha * 0.9 });
+
+    // Rib hints
+    for (let i = 1; i <= 3; i++) {
+      const t = i / 4;
+      const rx = bone.x + Math.cos(bone.angle) * bone.length * t;
+      const ry = bone.y + Math.sin(bone.angle) * bone.length * t;
+      graphics
+        .moveTo(rx + perpX * 0.55, ry + perpY * 0.55)
+        .lineTo(rx - perpX * 0.55, ry - perpY * 0.55)
+        .stroke({ color: this.darkColor, width: 0.6, alpha: alpha * 0.45 });
     }
   }
 
