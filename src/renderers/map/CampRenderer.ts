@@ -1,4 +1,5 @@
 import type { Graphics } from 'pixi.js';
+import { COLORS } from '../../config/visualConstants';
 import type { Waypoint } from '../../managers/PathfindingManager';
 
 /**
@@ -19,60 +20,31 @@ export class CampRenderer {
     this.campAnimationContainer = campAnimationContainer;
   }
 
-  /**
-   * Render the survivor camp at the endpoint
-   */
   public render(endpoint: Waypoint): void {
     const campX = endpoint.x;
     const campY = endpoint.y;
-
-    // Store camp position for animations
     this.campX = campX;
     this.campY = campY;
-
     this.renderStaticCampElements(campX, campY);
   }
 
-  /**
-   * Update camp animations (called every frame)
-   */
   public updateAnimations(deltaTime: number): void {
     if (this.campX === 0 || this.campY === 0) {
       return;
     }
-
-    this.campAnimationTime += deltaTime * 0.001; // Convert to seconds
+    this.campAnimationTime += deltaTime * 0.001;
     this.campAnimationContainer.clear();
     this.renderAnimatedCampElements(this.campX, this.campY);
   }
 
-  /**
-   * Get the camp position for external use (e.g., click detection)
-   */
   public getCampPosition(): { x: number; y: number } {
     return { x: this.campX, y: this.campY };
   }
 
-  /**
-   * Render all static camp elements
-   */
   private renderStaticCampElements(campX: number, campY: number): void {
-    // === GROUND LAYER (BACK) ===
-    // Cleared, compacted earth
-    this.pathGraphics.circle(campX, campY, 70).fill({ color: 0x4a3a2a, alpha: 0.5 });
-
-    // Subtle wear patterns (static - use seeded random for consistency)
-    const seed = campX + campY;
-    for (let i = 0; i < 15; i++) {
-      const angle = ((seed + i * 137.5) % 360) * (Math.PI / 180);
-      const dist = (seed + i * 73) % 55;
-      const x = campX + Math.cos(angle) * dist;
-      const y = campY + Math.sin(angle) * dist;
-      this.pathGraphics.ellipse(x, y, 2, 4).fill({ color: 0x3a2a1a, alpha: 0.15 });
-    }
-
-    // Render camp structures
+    this.renderGround(campX, campY);
     this.renderFence(campX, campY);
+    this.renderSpikes(campX, campY);
     this.renderTents(campX, campY);
     this.renderSandbags(campX, campY);
     this.renderSupplyCrates(campX, campY);
@@ -87,472 +59,673 @@ export class CampRenderer {
     this.renderMemorial(campX, campY);
   }
 
-  /**
-   * Render metal fence perimeter with gate
-   */
-  private renderFence(campX: number, campY: number): void {
-    const drawFencePanel = (x: number, y: number, width: number, height: number) => {
-      // Metal panel background
-      this.pathGraphics.rect(x, y, width, height).fill({ color: 0x5a5a5a, alpha: 0.9 });
-      this.pathGraphics.stroke({ width: 2, color: 0x3a3a3a });
+  private renderGround(campX: number, campY: number): void {
+    const g = this.pathGraphics;
+    // Soft outer cleared ring
+    g.circle(campX, campY, 78).fill({ color: COLORS.CAMP_GROUND, alpha: 0.28 });
+    // Compacted earth pad
+    g.ellipse(campX, campY + 2, 68, 62).fill({ color: COLORS.CAMP_GROUND, alpha: 0.55 });
+    g.ellipse(campX, campY + 2, 52, 46).fill({ color: COLORS.CAMP_GROUND_DARK, alpha: 0.25 });
 
-      // Simple horizontal bars for texture
-      const barCount = Math.floor(height / 6);
+    const seed = Math.floor(campX * 13 + campY * 17);
+    const rand = createSeededRandom(seed);
+
+    // Foot traffic trails toward gate / tents / fire
+    const trails: Array<[number, number, number, number]> = [
+      [campX - 55, campY, campX - 10, campY + 8],
+      [campX - 20, campY - 25, campX, campY + 28],
+      [campX + 30, campY + 10, campX, campY + 30],
+      [campX - 40, campY - 35, campX - 20, campY - 5],
+    ];
+    for (const [x0, y0, x1, y1] of trails) {
+      g.moveTo(x0, y0)
+        .lineTo(x1, y1)
+        .stroke({ width: 5, color: COLORS.CAMP_FOOTPRINT, alpha: 0.18, cap: 'round' });
+    }
+
+    // Wear mottles, mud, ash, debris
+    for (let i = 0; i < 28; i++) {
+      const angle = rand() * Math.PI * 2;
+      const dist = rand() * 58;
+      const x = campX + Math.cos(angle) * dist;
+      const y = campY + Math.sin(angle) * dist * 0.9;
+      const kind = rand();
+      if (kind < 0.45) {
+        g.ellipse(x, y, 3 + rand() * 5, 2 + rand() * 3).fill({
+          color: COLORS.CAMP_GROUND_DARK,
+          alpha: 0.12 + rand() * 0.15,
+        });
+      } else if (kind < 0.65) {
+        g.ellipse(x, y, 4 + rand() * 6, 2 + rand() * 3).fill({
+          color: COLORS.CAMP_MUD,
+          alpha: 0.2 + rand() * 0.15,
+        });
+      } else if (kind < 0.8) {
+        g.circle(x, y, 2 + rand() * 3).fill({ color: COLORS.CAMP_ASH, alpha: 0.2 });
+      } else {
+        g.rect(x, y, 2 + rand() * 3, 1 + rand() * 2).fill({
+          color: COLORS.CAMP_DEBRIS,
+          alpha: 0.4,
+        });
+      }
+    }
+
+    // Old blood stain near gate (past attacks)
+    g.ellipse(campX - 50, campY + 8, 8, 4).fill({ color: 0x4a1010, alpha: 0.22 });
+  }
+
+  private renderFence(campX: number, campY: number): void {
+    const g = this.pathGraphics;
+
+    const drawFencePanel = (x: number, y: number, width: number, height: number) => {
+      // Metal panel
+      g.rect(x, y, width, height).fill({ color: COLORS.CAMP_FENCE, alpha: 0.92 });
+      g.stroke({ width: 2, color: COLORS.CAMP_FENCE_OUTLINE });
+
+      // Horizontal corrugation
+      const barCount = Math.max(2, Math.floor(Math.max(width, height) / 6));
       for (let i = 1; i < barCount; i++) {
-        this.pathGraphics
-          .moveTo(x, y + (i * height) / barCount)
-          .lineTo(x + width, y + (i * height) / barCount)
-          .stroke({ width: 1, color: 0x4a4a4a, alpha: 0.5 });
+        if (height >= width) {
+          g.moveTo(x, y + (i * height) / barCount)
+            .lineTo(x + width, y + (i * height) / barCount)
+            .stroke({ width: 1, color: COLORS.CAMP_FENCE_BAR, alpha: 0.45 });
+        } else {
+          g.moveTo(x + (i * width) / barCount, y)
+            .lineTo(x + (i * width) / barCount, y + height)
+            .stroke({ width: 1, color: COLORS.CAMP_FENCE_BAR, alpha: 0.45 });
+        }
       }
 
-      // Vertical supports
+      // Wooden plank patches over gaps
       if (width > height) {
-        // Horizontal fence - add vertical supports
-        const supportCount = Math.floor(width / 8);
-        for (let i = 1; i < supportCount; i++) {
-          const supportX = x + (i * width) / supportCount;
-          this.pathGraphics
-            .moveTo(supportX, y)
-            .lineTo(supportX, y + height)
-            .stroke({ width: 1, color: 0x4a4a4a, alpha: 0.5 });
+        for (let i = 0; i < 3; i++) {
+          const px = x + 8 + i * (width / 3.2);
+          g.rect(px, y - 1, 5, height + 2).fill({ color: COLORS.CAMP_FENCE_WOOD, alpha: 0.7 });
+          g.stroke({ width: 1, color: COLORS.CAMP_STAKE, alpha: 0.5 });
         }
+      } else {
+        for (let i = 0; i < 2; i++) {
+          const py = y + 6 + i * (height / 2.5);
+          g.rect(x - 1, py, width + 2, 4).fill({ color: COLORS.CAMP_FENCE_WOOD, alpha: 0.65 });
+        }
+      }
+
+      // Rust streaks / bullet holes
+      for (let i = 0; i < 3; i++) {
+        const rx = x + 1 + ((i * 37) % Math.max(2, width - 2));
+        const ry = y + 2 + ((i * 53) % Math.max(2, height - 4));
+        g.moveTo(rx, ry)
+          .lineTo(rx + (width > height ? 0 : 1), ry + Math.min(10, height * 0.35))
+          .stroke({ width: 1.2, color: COLORS.CAMP_FENCE_RUST, alpha: 0.55 });
+        g.circle(rx + 2, ry + 4, 1).fill({ color: COLORS.CAMP_GROUND_DARK, alpha: 0.7 });
+      }
+
+      // Barbed wire hint along top edge
+      if (height <= 10 || width > height) {
+        const topY = y;
+        g.moveTo(x, topY)
+          .lineTo(x + width, topY)
+          .stroke({ width: 1, color: COLORS.CAMP_BARBED, alpha: 0.7 });
+        for (let i = 0; i < Math.floor(width / 10); i++) {
+          const bx = x + 5 + i * 10;
+          g.moveTo(bx, topY)
+            .lineTo(bx + 2, topY - 3)
+            .lineTo(bx + 4, topY)
+            .stroke({ width: 0.8, color: COLORS.CAMP_BARBED, alpha: 0.8 });
+        }
+      } else {
+        // Vertical panel — barbs on outer edge
+        const edgeX = x < campX ? x : x + width;
+        g.moveTo(edgeX, y)
+          .lineTo(edgeX, y + height)
+          .stroke({ width: 1, color: COLORS.CAMP_BARBED, alpha: 0.65 });
       }
     };
 
     const gateHeight = 50;
-    const gateCenter = 0; // Gate centered on path
 
-    // Left fence with gate opening (where path enters from graveyard)
-    // Top section of left fence (above gate)
-    drawFencePanel(campX - 68, campY - 55, 6, campY + gateCenter - gateHeight / 2 - (campY - 55));
-
-    // Bottom section of left fence (below gate)
+    drawFencePanel(campX - 68, campY - 55, 6, campY - gateHeight / 2 - (campY - 55));
     drawFencePanel(
       campX - 68,
-      campY + gateCenter + gateHeight / 2,
+      campY + gateHeight / 2,
       6,
-      campY + 55 - (campY + gateCenter + gateHeight / 2)
+      campY + 55 - (campY + gateHeight / 2)
     );
-
-    // Right fence (solid)
     drawFencePanel(campX + 62, campY - 55, 6, 110);
-
-    // Top fence (solid)
     drawFencePanel(campX - 62, campY - 60, 124, 6);
-
-    // Bottom fence (solid)
     drawFencePanel(campX - 62, campY + 54, 124, 6);
 
-    // === GATE (on left side where path enters) ===
+    // Tin-can noise alarms on fence
+    g.circle(campX - 65, campY - 40, 2.5).fill(COLORS.CAMP_TIN_CAN);
+    g.circle(campX + 65, campY - 20, 2.5).fill(COLORS.CAMP_TIN_CAN);
+    g.moveTo(campX - 65, campY - 40)
+      .lineTo(campX - 65, campY - 48)
+      .stroke({ width: 0.8, color: COLORS.CAMP_CLOTHESLINE, alpha: 0.7 });
+
     this.renderGate(campX, campY, gateHeight);
   }
 
-  /**
-   * Render gate with posts and doors
-   */
-  private renderGate(campX: number, campY: number, gateHeight: number): void {
-    // Gate posts
-    this.pathGraphics.rect(campX - 71, campY - gateHeight / 2 - 4, 6, 6).fill(0x5a5a5a);
-    this.pathGraphics.stroke({ width: 1, color: 0x3a3a3a });
-    this.pathGraphics.rect(campX - 71, campY + gateHeight / 2 - 2, 6, 6).fill(0x5a5a5a);
-    this.pathGraphics.stroke({ width: 1, color: 0x3a3a3a });
+  private renderSpikes(campX: number, campY: number): void {
+    const g = this.pathGraphics;
+    // Outward stakes near gate / left perimeter
+    for (let i = 0; i < 6; i++) {
+      const y = campY - 28 + i * 12;
+      if (y > campY - 22 && y < campY + 22) {
+        continue; // leave gate clear
+      }
+      g.moveTo(campX - 72, y)
+        .lineTo(campX - 84, y - 3)
+        .lineTo(campX - 72, y + 3)
+        .fill({ color: COLORS.CAMP_SPIKE, alpha: 0.85 });
+      g.stroke({ width: 1, color: COLORS.CAMP_STAKE, alpha: 0.6 });
+    }
+  }
 
-    // Gate doors (opening outward)
+  private renderGate(campX: number, campY: number, gateHeight: number): void {
+    const g = this.pathGraphics;
+
+    // Gate posts with caps
+    g.rect(campX - 71, campY - gateHeight / 2 - 4, 6, 8).fill(COLORS.CAMP_FENCE);
+    g.stroke({ width: 1, color: COLORS.CAMP_FENCE_OUTLINE });
+    g.rect(campX - 71, campY + gateHeight / 2 - 4, 6, 8).fill(COLORS.CAMP_FENCE);
+    g.stroke({ width: 1, color: COLORS.CAMP_FENCE_OUTLINE });
+    g.rect(campX - 72, campY - gateHeight / 2 - 6, 8, 3).fill(COLORS.CAMP_FENCE_BAR);
+    g.rect(campX - 72, campY + gateHeight / 2 + 3, 8, 3).fill(COLORS.CAMP_FENCE_BAR);
+
     const gateY1 = campY - gateHeight / 2;
     const gateY2 = campY + gateHeight / 2;
 
-    // Top door
-    this.pathGraphics
-      .moveTo(campX - 68, gateY1)
-      .lineTo(campX - 83, gateY1 - 7)
-      .lineTo(campX - 83, campY - 2)
-      .lineTo(campX - 68, campY + 2)
-      .fill({ color: 0x7a7a7a, alpha: 0.85 });
-    this.pathGraphics.stroke({ width: 2, color: 0x5a5a5a });
-    // Horizontal bar
-    this.pathGraphics
-      .moveTo(campX - 81, gateY1 - 3)
-      .lineTo(campX - 70, campY)
-      .stroke({ width: 1.5, color: 0x5a5a5a });
+    // Top door (open outward)
+    g.moveTo(campX - 68, gateY1)
+      .lineTo(campX - 86, gateY1 - 8)
+      .lineTo(campX - 86, campY - 3)
+      .lineTo(campX - 68, campY + 1)
+      .fill({ color: COLORS.CAMP_GATE, alpha: 0.9 });
+    g.stroke({ width: 2, color: COLORS.CAMP_GATE_OUTLINE });
+    g.moveTo(campX - 82, gateY1 - 4)
+      .lineTo(campX - 70, campY - 1)
+      .stroke({ width: 1.5, color: COLORS.CAMP_GATE_OUTLINE });
+    g.moveTo(campX - 84, gateY1)
+      .lineTo(campX - 84, campY - 4)
+      .stroke({ width: 1, color: COLORS.CAMP_FENCE_BAR, alpha: 0.7 });
 
     // Bottom door
-    this.pathGraphics
-      .moveTo(campX - 68, gateY2)
-      .lineTo(campX - 83, gateY2 + 7)
-      .lineTo(campX - 83, campY + 2)
-      .lineTo(campX - 68, campY - 2)
-      .fill({ color: 0x7a7a7a, alpha: 0.85 });
-    this.pathGraphics.stroke({ width: 2, color: 0x5a5a5a });
-    // Horizontal bar
-    this.pathGraphics
-      .moveTo(campX - 81, gateY2 + 3)
-      .lineTo(campX - 70, campY)
-      .stroke({ width: 1.5, color: 0x5a5a5a });
+    g.moveTo(campX - 68, gateY2)
+      .lineTo(campX - 86, gateY2 + 8)
+      .lineTo(campX - 86, campY + 3)
+      .lineTo(campX - 68, campY - 1)
+      .fill({ color: COLORS.CAMP_GATE, alpha: 0.9 });
+    g.stroke({ width: 2, color: COLORS.CAMP_GATE_OUTLINE });
+    g.moveTo(campX - 82, gateY2 + 4)
+      .lineTo(campX - 70, campY + 1)
+      .stroke({ width: 1.5, color: COLORS.CAMP_GATE_OUTLINE });
   }
 
-  /**
-   * Render tents (main command tent, medical tent, supply tent)
-   */
   private renderTents(campX: number, campY: number): void {
-    // === MAIN COMMAND TENT ===
-    // Tent base
-    this.pathGraphics.rect(campX - 32, campY - 10, 64, 35).fill(0x6b7c3a);
-    this.pathGraphics.stroke({ width: 2, color: 0x4a5a2a });
+    const g = this.pathGraphics;
 
-    // Tent roof - peaked
-    this.pathGraphics
-      .moveTo(campX - 35, campY - 10)
-      .lineTo(campX, campY - 32)
-      .lineTo(campX + 35, campY - 10)
-      .lineTo(campX - 35, campY - 10)
-      .fill(0x5a6a2a);
-    this.pathGraphics.stroke({ width: 2, color: 0x3a4a1a });
+    // Command tent shadow
+    g.ellipse(campX, campY + 12, 34, 10).fill({ color: COLORS.CAMP_SHADOW, alpha: 0.2 });
 
-    // Center seam
-    this.pathGraphics
-      .moveTo(campX, campY - 32)
+    // Main command tent base
+    g.roundRect(campX - 32, campY - 10, 64, 35, 2)
+      .fill(COLORS.CAMP_TENT_BASE)
+      .stroke({ width: 2, color: COLORS.CAMP_TENT_OUTLINE });
+
+    // Peaked roof
+    g.moveTo(campX - 36, campY - 10)
+      .lineTo(campX, campY - 34)
+      .lineTo(campX + 36, campY - 10)
+      .fill(COLORS.CAMP_TENT_ROOF);
+    g.stroke({ width: 2, color: COLORS.CAMP_TENT_ROOF_OUTLINE });
+
+    // Roof seams / folds
+    g.moveTo(campX, campY - 34)
       .lineTo(campX, campY - 10)
-      .stroke({ width: 2, color: 0x4a5a2a });
+      .stroke({ width: 2, color: COLORS.CAMP_TENT_OUTLINE });
+    g.moveTo(campX - 18, campY - 10)
+      .lineTo(campX - 8, campY - 26)
+      .stroke({ width: 1, color: COLORS.CAMP_TENT_STITCH, alpha: 0.6 });
+    g.moveTo(campX + 18, campY - 10)
+      .lineTo(campX + 8, campY - 26)
+      .stroke({ width: 1, color: COLORS.CAMP_TENT_STITCH, alpha: 0.6 });
 
-    // Single repair patch
-    this.pathGraphics.rect(campX - 25, campY - 5, 8, 6).fill({ color: 0x4a4a4a, alpha: 0.6 });
+    // Camo / repair patches
+    g.rect(campX - 26, campY - 4, 10, 7).fill({ color: COLORS.CAMP_TENT_PATCH, alpha: 0.65 });
+    g.rect(campX + 12, campY + 2, 9, 6).fill({ color: COLORS.CAMP_TENT_CAMO, alpha: 0.7 });
+    g.rect(campX - 8, campY - 22, 7, 5).fill({ color: COLORS.CAMP_TENT_PATCH, alpha: 0.5 });
 
-    // Entrance flap
-    this.pathGraphics.rect(campX - 10, campY + 15, 20, 10).fill(0x4a5a2a);
-    this.pathGraphics.stroke({ width: 2, color: 0x3a4a1a });
+    // Rolled side vents
+    g.ellipse(campX - 32, campY + 2, 3, 6).fill({ color: COLORS.CAMP_TENT_FLAP, alpha: 0.8 });
+    g.ellipse(campX + 32, campY + 2, 3, 6).fill({ color: COLORS.CAMP_TENT_FLAP, alpha: 0.8 });
 
-    // Guy lines
-    this.pathGraphics
-      .moveTo(campX - 35, campY - 10)
-      .lineTo(campX - 45, campY + 5)
-      .stroke({ width: 1, color: 0x654321 });
-    this.pathGraphics
-      .moveTo(campX + 35, campY - 10)
-      .lineTo(campX + 45, campY + 5)
-      .stroke({ width: 1, color: 0x654321 });
-    // Stakes
-    this.pathGraphics.rect(campX - 46, campY + 5, 3, 8).fill(0x654321);
-    this.pathGraphics.rect(campX + 43, campY + 5, 3, 8).fill(0x654321);
+    // Entrance flap (parted)
+    g.rect(campX - 11, campY + 14, 9, 11).fill(COLORS.CAMP_TENT_FLAP);
+    g.rect(campX + 2, campY + 14, 9, 11).fill(COLORS.CAMP_TENT_FLAP);
+    g.stroke({ width: 1.5, color: COLORS.CAMP_TENT_ROOF_OUTLINE });
+    g.rect(campX - 2, campY + 14, 4, 11).fill({ color: COLORS.CAMP_GROUND_DARK, alpha: 0.7 });
 
-    // === MEDICAL TENT (Left - Behind main tent) ===
-    this.pathGraphics
-      .moveTo(campX - 52, campY - 40)
-      .lineTo(campX - 37, campY - 50)
+    // Guy lines + stakes + sandbag weights
+    g.moveTo(campX - 36, campY - 10)
+      .lineTo(campX - 48, campY + 6)
+      .stroke({ width: 1.2, color: COLORS.CAMP_ROPE });
+    g.moveTo(campX + 36, campY - 10)
+      .lineTo(campX + 48, campY + 6)
+      .stroke({ width: 1.2, color: COLORS.CAMP_ROPE });
+    g.rect(campX - 50, campY + 5, 3, 8).fill(COLORS.CAMP_STAKE);
+    g.rect(campX + 47, campY + 5, 3, 8).fill(COLORS.CAMP_STAKE);
+    g.roundRect(campX - 52, campY + 10, 8, 5, 1).fill(COLORS.CAMP_SANDBAG);
+    g.roundRect(campX + 44, campY + 10, 8, 5, 1).fill(COLORS.CAMP_SANDBAG);
+
+    // Medical tent
+    g.ellipse(campX - 37, campY - 28, 16, 6).fill({ color: COLORS.CAMP_SHADOW, alpha: 0.15 });
+    g.moveTo(campX - 52, campY - 40)
+      .lineTo(campX - 37, campY - 52)
       .lineTo(campX - 22, campY - 40)
-      .lineTo(campX - 52, campY - 40)
-      .fill(0xe5e5cc);
-    this.pathGraphics.stroke({ width: 2, color: 0xc5c5ac });
-    this.pathGraphics.rect(campX - 50, campY - 40, 28, 18).fill(0xf5f5dc);
-    this.pathGraphics.stroke({ width: 1, color: 0xc5c5ac });
+      .fill(COLORS.CAMP_MEDICAL_TENT_ROOF);
+    g.stroke({ width: 2, color: COLORS.CAMP_MEDICAL_TENT_OUTLINE });
+    g.roundRect(campX - 50, campY - 40, 28, 18, 1)
+      .fill(COLORS.CAMP_MEDICAL_TENT_WALL)
+      .stroke({ width: 1, color: COLORS.CAMP_MEDICAL_TENT_OUTLINE });
     // Red cross
-    this.pathGraphics.rect(campX - 39, campY - 34, 5, 2).fill(0xcc0000);
-    this.pathGraphics.rect(campX - 38, campY - 36, 2, 5).fill(0xcc0000);
+    g.rect(campX - 40, campY - 35, 6, 2.5).fill(COLORS.CAMP_RED_CROSS);
+    g.rect(campX - 38.5, campY - 37.5, 2.5, 7).fill(COLORS.CAMP_RED_CROSS);
+    // Blood stain near entrance
+    g.ellipse(campX - 36, campY - 20, 5, 2.5).fill({ color: 0x5a1010, alpha: 0.3 });
+    // Quarantine tick mark
+    g.rect(campX - 48, campY - 38, 4, 3).fill({ color: 0xffcc00, alpha: 0.7 });
 
-    // === SUPPLY TENT (Right - Behind main tent) ===
-    this.pathGraphics
-      .moveTo(campX + 22, campY - 40)
-      .lineTo(campX + 37, campY - 50)
+    // Supply tent
+    g.ellipse(campX + 37, campY - 28, 16, 6).fill({ color: COLORS.CAMP_SHADOW, alpha: 0.15 });
+    g.moveTo(campX + 22, campY - 40)
+      .lineTo(campX + 37, campY - 52)
       .lineTo(campX + 52, campY - 40)
-      .lineTo(campX + 22, campY - 40)
-      .fill(0x8b7355);
-    this.pathGraphics.stroke({ width: 2, color: 0x654321 });
-    this.pathGraphics.rect(campX + 24, campY - 40, 26, 18).fill(0xa0826d);
-    this.pathGraphics.stroke({ width: 1, color: 0x654321 });
+      .fill(COLORS.CAMP_SUPPLY_TENT_ROOF);
+    g.stroke({ width: 2, color: COLORS.CAMP_SUPPLY_TENT_OUTLINE });
+    g.roundRect(campX + 24, campY - 40, 26, 18, 1)
+      .fill(COLORS.CAMP_SUPPLY_TENT_WALL)
+      .stroke({ width: 1, color: COLORS.CAMP_SUPPLY_TENT_OUTLINE });
+    // Bulge / overstuff hint
+    g.ellipse(campX + 50, campY - 32, 4, 7).fill({
+      color: COLORS.CAMP_SUPPLY_TENT_WALL,
+      alpha: 0.9,
+    });
+    // Padlock
+    g.rect(campX + 35, campY - 24, 4, 3).fill(COLORS.CAMP_GENERATOR);
+    g.circle(campX + 37, campY - 24, 1.5).fill(COLORS.CAMP_FENCE_OUTLINE);
   }
 
-  /**
-   * Render sandbag barriers
-   */
   private renderSandbags(campX: number, campY: number): void {
-    const drawSandbag = (x: number, y: number) => {
-      this.pathGraphics.roundRect(x, y, 12, 8, 2).fill(0x8b7355);
-      this.pathGraphics.stroke({ width: 1, color: 0x654321 });
+    const g = this.pathGraphics;
+    const drawSandbag = (x: number, y: number, scale = 1) => {
+      g.roundRect(x, y, 12 * scale, 8 * scale, 2)
+        .fill(COLORS.CAMP_SANDBAG)
+        .stroke({ width: 1, color: COLORS.CAMP_SANDBAG_OUTLINE });
+      g.ellipse(x + 6 * scale, y + 2 * scale, 4 * scale, 1.5 * scale).fill({
+        color: COLORS.CAMP_SANDBAG_OUTLINE,
+        alpha: 0.25,
+      });
     };
 
-    // Left barrier (2 bags)
-    drawSandbag(campX - 58, campY + 30);
-    drawSandbag(campX - 58, campY + 40);
-
-    // Right barrier (2 bags)
-    drawSandbag(campX + 46, campY + 30);
-    drawSandbag(campX + 46, campY + 40);
+    // Left nest (stacked)
+    drawSandbag(campX - 60, campY + 28);
+    drawSandbag(campX - 48, campY + 28);
+    drawSandbag(campX - 54, campY + 36);
+    // Right nest
+    drawSandbag(campX + 36, campY + 28);
+    drawSandbag(campX + 48, campY + 28);
+    drawSandbag(campX + 42, campY + 36);
+    // Gate flanking bags
+    drawSandbag(campX - 64, campY - 18, 0.9);
+    drawSandbag(campX - 64, campY + 12, 0.9);
   }
 
-  /**
-   * Render supply crates
-   */
   private renderSupplyCrates(campX: number, campY: number): void {
+    const g = this.pathGraphics;
     const drawCrate = (x: number, y: number) => {
-      this.pathGraphics.rect(x, y, 14, 14).fill(0x8b7355);
-      this.pathGraphics.stroke({ width: 2, color: 0x654321 });
-      // Wood grain lines
-      this.pathGraphics
-        .moveTo(x, y + 7)
+      g.ellipse(x + 7, y + 14, 8, 3).fill({ color: COLORS.CAMP_SHADOW, alpha: 0.2 });
+      g.rect(x, y, 14, 14)
+        .fill(COLORS.CAMP_CRATE)
+        .stroke({ width: 2, color: COLORS.CAMP_CRATE_OUTLINE });
+      g.moveTo(x, y + 7)
         .lineTo(x + 14, y + 7)
-        .stroke({ width: 1, color: 0x654321 });
-      this.pathGraphics
-        .moveTo(x + 7, y)
+        .stroke({ width: 1, color: COLORS.CAMP_CRATE_OUTLINE });
+      g.moveTo(x + 7, y)
         .lineTo(x + 7, y + 14)
-        .stroke({ width: 1, color: 0x654321 });
+        .stroke({ width: 1, color: COLORS.CAMP_CRATE_OUTLINE });
+      // Metal band
+      g.rect(x - 0.5, y + 3, 15, 2).fill({ color: COLORS.CAMP_CRATE_BAND, alpha: 0.7 });
     };
 
-    // Position crates further back to avoid overlap
-    drawCrate(campX - 56, campY - 48);
-    drawCrate(campX - 56, campY - 32);
-    drawCrate(campX - 40, campY - 48);
+    drawCrate(campX - 56, campY - 50);
+    drawCrate(campX - 56, campY - 34);
+    drawCrate(campX - 40, campY - 50);
+    drawCrate(campX + 40, campY - 48);
   }
 
-  /**
-   * Render watchtower with guard platform
-   */
   private renderWatchtower(campX: number, campY: number): void {
-    // Tower legs
-    this.pathGraphics.rect(campX - 60, campY - 35, 4, 45).fill(0x654321);
-    this.pathGraphics.rect(campX - 46, campY - 35, 4, 45).fill(0x654321);
+    const g = this.pathGraphics;
+    // Legs with shadow
+    g.ellipse(campX - 52, campY + 12, 10, 4).fill({ color: COLORS.CAMP_SHADOW, alpha: 0.18 });
+    g.rect(campX - 60, campY - 35, 4, 45).fill(COLORS.CAMP_WATCHTOWER_WOOD);
+    g.rect(campX - 46, campY - 35, 4, 45).fill(COLORS.CAMP_WATCHTOWER_WOOD);
+    g.rect(campX - 60, campY - 35, 4, 45).stroke({
+      width: 1,
+      color: COLORS.CAMP_LOG_OUTLINE,
+      alpha: 0.5,
+    });
 
     // Cross braces
-    this.pathGraphics
-      .moveTo(campX - 58, campY - 30)
-      .lineTo(campX - 48, campY - 20)
-      .stroke({ width: 2, color: 0x654321 });
-    this.pathGraphics
-      .moveTo(campX - 48, campY - 30)
-      .lineTo(campX - 58, campY - 20)
-      .stroke({ width: 2, color: 0x654321 });
+    g.moveTo(campX - 58, campY - 30)
+      .lineTo(campX - 48, campY - 10)
+      .stroke({ width: 2, color: COLORS.CAMP_WATCHTOWER_WOOD });
+    g.moveTo(campX - 48, campY - 30)
+      .lineTo(campX - 58, campY - 10)
+      .stroke({ width: 2, color: COLORS.CAMP_WATCHTOWER_WOOD });
+    g.moveTo(campX - 58, campY - 5)
+      .lineTo(campX - 48, campY + 8)
+      .stroke({ width: 1.5, color: COLORS.CAMP_WATCHTOWER_WOOD, alpha: 0.8 });
 
-    // Platform
-    this.pathGraphics.rect(campX - 64, campY - 40, 26, 8).fill(0x8b7355);
-    this.pathGraphics.stroke({ width: 2, color: 0x654321 });
+    // Platform + planks
+    g.rect(campX - 64, campY - 40, 26, 8)
+      .fill(COLORS.CAMP_WATCHTOWER_PLATFORM)
+      .stroke({ width: 2, color: COLORS.CAMP_WATCHTOWER_WOOD });
+    for (let i = 0; i < 4; i++) {
+      g.moveTo(campX - 62 + i * 6, campY - 40)
+        .lineTo(campX - 62 + i * 6, campY - 32)
+        .stroke({ width: 1, color: COLORS.CAMP_WATCHTOWER_WOOD, alpha: 0.4 });
+    }
 
-    // Railing
-    this.pathGraphics.rect(campX - 64, campY - 42, 26, 2).fill(0x654321);
+    // Railing posts
+    g.rect(campX - 64, campY - 44, 26, 2).fill(COLORS.CAMP_WATCHTOWER_RAILING);
+    g.rect(campX - 64, campY - 46, 2, 6).fill(COLORS.CAMP_WATCHTOWER_RAILING);
+    g.rect(campX - 40, campY - 46, 2, 6).fill(COLORS.CAMP_WATCHTOWER_RAILING);
+
+    // Ladder
+    g.moveTo(campX - 44, campY + 8)
+      .lineTo(campX - 44, campY - 32)
+      .stroke({ width: 2, color: COLORS.CAMP_WATCHTOWER_WOOD });
+    g.moveTo(campX - 40, campY + 8)
+      .lineTo(campX - 40, campY - 32)
+      .stroke({ width: 2, color: COLORS.CAMP_WATCHTOWER_WOOD });
+    for (let i = 0; i < 5; i++) {
+      g.moveTo(campX - 44, campY + 4 - i * 8)
+        .lineTo(campX - 40, campY + 4 - i * 8)
+        .stroke({ width: 1.5, color: COLORS.CAMP_WATCHTOWER_WOOD });
+    }
 
     // Radio antenna
-    this.pathGraphics
-      .moveTo(campX - 66, campY - 40)
-      .lineTo(campX - 66, campY - 58)
-      .stroke({ width: 2, color: 0x4a4a4a });
-    this.pathGraphics.circle(campX - 66, campY - 58, 2).fill(0xff0000);
+    g.moveTo(campX - 66, campY - 40)
+      .lineTo(campX - 66, campY - 60)
+      .stroke({ width: 2, color: COLORS.CAMP_RADIO_ANTENNA });
+    g.circle(campX - 66, campY - 60, 2.5).fill(COLORS.CAMP_RADIO_LIGHT);
+    g.circle(campX - 66, campY - 60, 4).fill({ color: COLORS.CAMP_RADIO_LIGHT, alpha: 0.25 });
   }
 
-  /**
-   * Render static campfire elements (stone ring, fire pit, logs)
-   */
   private renderCampfireStatic(campX: number, campY: number): void {
-    // Stone ring (elliptical for top-down perspective)
-    for (let i = 0; i < 8; i++) {
-      const angle = (i / 8) * Math.PI * 2;
-      const x = campX + Math.cos(angle) * 12;
-      const y = campY + 32 + Math.sin(angle) * 6; // Compressed Y for perspective
-      this.pathGraphics.circle(x, y, 3).fill(0x5a5a5a);
-      this.pathGraphics.stroke({ width: 1, color: 0x3a3a3a });
+    const g = this.pathGraphics;
+    g.ellipse(campX, campY + 34, 16, 8).fill({ color: COLORS.CAMP_SHADOW, alpha: 0.2 });
+
+    // Irregular stone ring
+    for (let i = 0; i < 9; i++) {
+      const angle = (i / 9) * Math.PI * 2;
+      const rx = 12 + (i % 3) * 0.8;
+      const ry = 6 + (i % 2) * 0.6;
+      const x = campX + Math.cos(angle) * rx;
+      const y = campY + 32 + Math.sin(angle) * ry;
+      g.ellipse(x, y, 3.2, 2.4)
+        .fill(COLORS.CAMP_FIRE_RING_STONE)
+        .stroke({ width: 1, color: COLORS.CAMP_FIRE_RING_OUTLINE });
     }
 
-    // Fire pit base (ellipse for perspective)
-    this.pathGraphics.ellipse(campX, campY + 32, 10, 5).fill({ color: 0x2a2a2a, alpha: 0.6 });
+    g.ellipse(campX, campY + 32, 10, 5).fill({ color: COLORS.CAMP_FIRE_PIT, alpha: 0.75 });
+    // Charred wood in pit
+    g.moveTo(campX - 5, campY + 31)
+      .lineTo(campX + 4, campY + 33)
+      .stroke({ width: 2, color: COLORS.CAMP_ASH, alpha: 0.8 });
+    g.moveTo(campX + 3, campY + 30)
+      .lineTo(campX - 2, campY + 34)
+      .stroke({ width: 1.5, color: COLORS.CAMP_GROUND_DARK, alpha: 0.7 });
 
-    // Seating logs (perspective - wider at bottom)
-    // Left log
-    this.pathGraphics
-      .moveTo(campX - 22, campY + 40)
-      .lineTo(campX - 10, campY + 38)
-      .lineTo(campX - 10, campY + 42)
-      .lineTo(campX - 22, campY + 44)
-      .lineTo(campX - 22, campY + 40)
-      .fill(0x654321);
-    this.pathGraphics.stroke({ width: 1, color: 0x4a3211 });
-
-    // Right log
-    this.pathGraphics
-      .moveTo(campX + 10, campY + 38)
-      .lineTo(campX + 22, campY + 40)
-      .lineTo(campX + 22, campY + 44)
-      .lineTo(campX + 10, campY + 42)
-      .lineTo(campX + 10, campY + 38)
-      .fill(0x654321);
-    this.pathGraphics.stroke({ width: 1, color: 0x4a3211 });
+    // Seating logs with bark detail
+    g.moveTo(campX - 24, campY + 40)
+      .lineTo(campX - 8, campY + 37)
+      .lineTo(campX - 8, campY + 43)
+      .lineTo(campX - 24, campY + 45)
+      .fill(COLORS.CAMP_LOG)
+      .stroke({ width: 1, color: COLORS.CAMP_LOG_OUTLINE });
+    g.moveTo(campX + 8, campY + 37)
+      .lineTo(campX + 24, campY + 40)
+      .lineTo(campX + 24, campY + 45)
+      .lineTo(campX + 8, campY + 43)
+      .fill(COLORS.CAMP_LOG)
+      .stroke({ width: 1, color: COLORS.CAMP_LOG_OUTLINE });
   }
 
-  /**
-   * Render laundry line with clothes
-   */
   private renderLaundryLine(campX: number, campY: number): void {
-    this.pathGraphics
-      .moveTo(campX - 20, campY - 25)
-      .lineTo(campX + 20, campY - 25)
-      .stroke({ width: 1, color: 0x3a3a3a });
-    // Clothes
-    this.pathGraphics.rect(campX - 10, campY - 25, 6, 8).fill({ color: 0x4169e1, alpha: 0.7 });
-    this.pathGraphics.rect(campX + 4, campY - 25, 6, 8).fill({ color: 0x228b22, alpha: 0.7 });
+    const g = this.pathGraphics;
+    g.moveTo(campX - 22, campY - 26)
+      .lineTo(campX + 22, campY - 26)
+      .stroke({ width: 1, color: COLORS.CAMP_CLOTHESLINE });
+    // Clothes with hangers / folds
+    g.rect(campX - 12, campY - 26, 7, 9).fill({ color: COLORS.CAMP_CLOTHES_BLUE, alpha: 0.75 });
+    g.moveTo(campX - 12, campY - 22)
+      .lineTo(campX - 5, campY - 22)
+      .stroke({ width: 1, color: 0x2a4a8a, alpha: 0.5 });
+    g.rect(campX + 2, campY - 26, 7, 10).fill({ color: COLORS.CAMP_CLOTHES_GREEN, alpha: 0.75 });
+    g.rect(campX + 12, campY - 26, 5, 7).fill({ color: 0x8b4513, alpha: 0.65 });
   }
 
-  /**
-   * Render warning sign
-   */
   private renderWarningSign(campX: number, campY: number): void {
-    this.pathGraphics.rect(campX - 40, campY - 60, 80, 18).fill(0x8b7355);
-    this.pathGraphics.stroke({ width: 3, color: 0x654321 });
-    // Warning stripes
-    this.pathGraphics.rect(campX - 38, campY - 58, 6, 14).fill({ color: 0xffcc00, alpha: 0.8 });
-    this.pathGraphics.rect(campX + 32, campY - 58, 6, 14).fill({ color: 0xffcc00, alpha: 0.8 });
-    // Safe zone area
-    this.pathGraphics.rect(campX - 35, campY - 56, 70, 12).fill({ color: 0x00aa00, alpha: 0.7 });
-    this.pathGraphics.stroke({ width: 2, color: 0x008800 });
-    // Nails
-    this.pathGraphics.circle(campX - 36, campY - 56, 1.5).fill(0x4a4a4a);
-    this.pathGraphics.circle(campX + 36, campY - 56, 1.5).fill(0x4a4a4a);
-    this.pathGraphics.circle(campX - 36, campY - 44, 1.5).fill(0x4a4a4a);
-    this.pathGraphics.circle(campX + 36, campY - 44, 1.5).fill(0x4a4a4a);
-  }
-
-  /**
-   * Render generator with fuel can
-   */
-  private renderGenerator(campX: number, campY: number): void {
-    // Generator (small)
-    this.pathGraphics.rect(campX + 48, campY + 20, 12, 10).fill(0x6a6a6a);
-    this.pathGraphics.stroke({ width: 2, color: 0x4a4a4a });
-    // Exhaust pipe
-    this.pathGraphics.rect(campX + 54, campY + 16, 2, 4).fill(0x2a2a2a);
-    // Fuel can nearby
-    this.pathGraphics.rect(campX + 48, campY + 32, 6, 8).fill(0xcc0000);
-    this.pathGraphics.stroke({ width: 1, color: 0xaa0000 });
-  }
-
-  /**
-   * Render picnic table with items
-   */
-  private renderPicnicTable(campX: number, campY: number): void {
-    // Picnic table
-    this.pathGraphics.rect(campX - 12, campY + 12, 24, 3).fill(0x8b7355);
-    this.pathGraphics.rect(campX - 10, campY + 15, 2, 6).fill(0x654321);
-    this.pathGraphics.rect(campX + 8, campY + 15, 2, 6).fill(0x654321);
-    // Items on table
-    this.pathGraphics.circle(campX - 6, campY + 13, 2).fill(0x4a6a8a); // Cup
-    this.pathGraphics.rect(campX + 2, campY + 12, 4, 2).fill(0x8b4513); // Book
-  }
-
-  /**
-   * Render string lights
-   */
-  private renderStringLights(campX: number, campY: number): void {
-    // String lights between posts (festive but practical)
-    this.pathGraphics
-      .moveTo(campX - 50, campY - 10)
-      .quadraticCurveTo(campX - 25, campY - 5, campX, campY - 8)
-      .quadraticCurveTo(campX + 25, campY - 5, campX + 50, campY - 10)
-      .stroke({ width: 1, color: 0x3a3a3a });
-    // Light bulbs
-    for (let i = -40; i <= 40; i += 20) {
-      this.pathGraphics.circle(campX + i, campY - 7, 2).fill({ color: 0xffaa00, alpha: 0.6 });
-      this.pathGraphics.circle(campX + i, campY - 7, 3).fill({ color: 0xffaa00, alpha: 0.2 });
+    const g = this.pathGraphics;
+    g.ellipse(campX, campY - 48, 40, 6).fill({ color: COLORS.CAMP_SHADOW, alpha: 0.12 });
+    g.roundRect(campX - 40, campY - 60, 80, 18, 1)
+      .fill(COLORS.CAMP_SIGN)
+      .stroke({ width: 2.5, color: COLORS.CAMP_SIGN_OUTLINE });
+    g.rect(campX - 38, campY - 58, 6, 14).fill({ color: COLORS.CAMP_SIGN_STRIPE, alpha: 0.85 });
+    g.rect(campX + 32, campY - 58, 6, 14).fill({ color: COLORS.CAMP_SIGN_STRIPE, alpha: 0.85 });
+    g.roundRect(campX - 30, campY - 56, 60, 11, 1)
+      .fill({ color: COLORS.CAMP_SIGN_SAFE_ZONE, alpha: 0.75 })
+      .stroke({ width: 1.5, color: COLORS.CAMP_SIGN_SAFE_ZONE_OUTLINE });
+    // Hand-painted SAFE ticks
+    g.moveTo(campX - 18, campY - 50)
+      .lineTo(campX - 14, campY - 46)
+      .lineTo(campX - 8, campY - 52)
+      .stroke({ width: 1.5, color: 0xffffff, alpha: 0.7 });
+    for (const [nx, ny] of [
+      [-36, -56],
+      [36, -56],
+      [-36, -44],
+      [36, -44],
+    ] as const) {
+      g.circle(campX + nx, campY + ny, 1.5).fill(COLORS.CAMP_SIGN_NAIL);
     }
   }
 
-  /**
-   * Render scattered personal items
-   */
+  private renderGenerator(campX: number, campY: number): void {
+    const g = this.pathGraphics;
+    g.ellipse(campX + 54, campY + 28, 10, 4).fill({ color: COLORS.CAMP_SHADOW, alpha: 0.18 });
+    g.roundRect(campX + 46, campY + 18, 14, 12, 1)
+      .fill(COLORS.CAMP_GENERATOR)
+      .stroke({ width: 2, color: COLORS.CAMP_GENERATOR_OUTLINE });
+    g.rect(campX + 48, campY + 20, 10, 3).fill({ color: COLORS.CAMP_FENCE_BAR, alpha: 0.6 });
+    g.rect(campX + 52, campY + 14, 3, 5).fill(COLORS.CAMP_GENERATOR_EXHAUST);
+    // Exhaust puff hint (static)
+    g.circle(campX + 53.5, campY + 12, 2).fill({ color: COLORS.CAMP_ASH, alpha: 0.35 });
+    g.roundRect(campX + 46, campY + 32, 7, 9, 1)
+      .fill(COLORS.CAMP_FUEL_CAN)
+      .stroke({ width: 1, color: COLORS.CAMP_FUEL_CAN_OUTLINE });
+    g.rect(campX + 48, campY + 31, 3, 2).fill(COLORS.CAMP_GENERATOR_OUTLINE);
+  }
+
+  private renderPicnicTable(campX: number, campY: number): void {
+    const g = this.pathGraphics;
+    g.ellipse(campX, campY + 18, 14, 4).fill({ color: COLORS.CAMP_SHADOW, alpha: 0.15 });
+    g.rect(campX - 13, campY + 11, 26, 4).fill(COLORS.CAMP_TABLE);
+    g.stroke({ width: 1, color: COLORS.CAMP_TABLE_LEG });
+    g.rect(campX - 11, campY + 15, 2, 7).fill(COLORS.CAMP_TABLE_LEG);
+    g.rect(campX + 9, campY + 15, 2, 7).fill(COLORS.CAMP_TABLE_LEG);
+    // Bench
+    g.rect(campX - 12, campY + 20, 24, 2).fill({ color: COLORS.CAMP_TABLE, alpha: 0.8 });
+    g.circle(campX - 6, campY + 12, 2).fill(COLORS.CAMP_CUP);
+    g.rect(campX + 2, campY + 11, 5, 2.5).fill(COLORS.CAMP_BOOK);
+    g.rect(campX + 8, campY + 12, 3, 2).fill(0x2a4a2a); // ration tin
+  }
+
+  private renderStringLights(campX: number, campY: number): void {
+    const g = this.pathGraphics;
+    g.moveTo(campX - 52, campY - 12)
+      .quadraticCurveTo(campX - 25, campY - 4, campX, campY - 9)
+      .quadraticCurveTo(campX + 25, campY - 4, campX + 52, campY - 12)
+      .stroke({ width: 1, color: COLORS.CAMP_CLOTHESLINE });
+    for (let i = -40; i <= 40; i += 16) {
+      const y = campY - 8 + Math.abs(i) * 0.04;
+      g.circle(campX + i, y, 2.2).fill({ color: COLORS.CAMP_LIGHT_BULB, alpha: 0.75 });
+      g.circle(campX + i, y, 4).fill({ color: COLORS.CAMP_LIGHT_BULB, alpha: 0.18 });
+    }
+  }
+
   private renderPersonalItems(campX: number, campY: number): void {
+    const g = this.pathGraphics;
     // Backpack
-    this.pathGraphics.rect(campX - 26, campY - 2, 6, 8).fill(0x3a4a2a);
-    this.pathGraphics.stroke({ width: 1, color: 0x2a3a1a });
+    g.roundRect(campX - 28, campY - 2, 7, 9, 1)
+      .fill(COLORS.CAMP_BACKPACK)
+      .stroke({ width: 1, color: COLORS.CAMP_BACKPACK_OUTLINE });
+    g.rect(campX - 27, campY, 5, 2).fill({ color: COLORS.CAMP_BACKPACK_OUTLINE, alpha: 0.6 });
     // Boots
-    this.pathGraphics.rect(campX + 20, campY - 4, 4, 6).fill(0x4a3a2a);
-    this.pathGraphics.rect(campX + 26, campY - 4, 4, 6).fill(0x4a3a2a);
-    // Guitar leaning on crate
-    this.pathGraphics.ellipse(campX - 32, campY - 32, 4, 6).fill(0x8b7355);
-    this.pathGraphics.rect(campX - 32, campY - 38, 2, 12).fill(0x654321);
+    g.roundRect(campX + 18, campY - 4, 5, 7, 1).fill(COLORS.CAMP_BOOTS);
+    g.roundRect(campX + 25, campY - 4, 5, 7, 1).fill(COLORS.CAMP_BOOTS);
+    g.rect(campX + 18, campY + 2, 5, 1.5).fill(COLORS.CAMP_GROUND_DARK);
+    g.rect(campX + 25, campY + 2, 5, 1.5).fill(COLORS.CAMP_GROUND_DARK);
+    // Guitar
+    g.ellipse(campX - 32, campY - 32, 4.5, 6.5).fill(COLORS.CAMP_GUITAR_BODY);
+    g.rect(campX - 33, campY - 40, 2, 14).fill(COLORS.CAMP_GUITAR_NECK);
+    g.circle(campX - 32, campY - 32, 1.5).fill({ color: COLORS.CAMP_GROUND_DARK, alpha: 0.5 });
+    // Helmet on crate
+    g.ellipse(campX - 48, campY - 52, 4, 2.5).fill(COLORS.CAMP_FENCE);
+    g.ellipse(campX - 48, campY - 53, 3, 1.5).fill(COLORS.CAMP_FENCE_BAR);
   }
 
-  /**
-   * Render memorial marker
-   */
   private renderMemorial(campX: number, campY: number): void {
-    // Memorial marker (small cross)
-    this.pathGraphics.rect(campX + 60, campY + 42, 2, 10).fill(0x8b7355);
-    this.pathGraphics.rect(campX + 56, campY + 44, 10, 2).fill(0x8b7355);
-    // Flowers at base
-    this.pathGraphics.circle(campX + 60, campY + 52, 2).fill({ color: 0xff6666, alpha: 0.6 });
-    this.pathGraphics.circle(campX + 62, campY + 52, 2).fill({ color: 0xffff66, alpha: 0.6 });
+    const g = this.pathGraphics;
+    g.rect(campX + 58, campY + 40, 2.5, 12).fill(COLORS.CAMP_MEMORIAL_CROSS);
+    g.rect(campX + 54, campY + 43, 10.5, 2.5).fill(COLORS.CAMP_MEMORIAL_CROSS);
+    g.circle(campX + 59, campY + 53, 2.2).fill({ color: COLORS.CAMP_FLOWER_RED, alpha: 0.7 });
+    g.circle(campX + 62, campY + 53, 2).fill({ color: COLORS.CAMP_FLOWER_YELLOW, alpha: 0.7 });
+    g.circle(campX + 56, campY + 52, 1.5).fill({ color: 0xffffff, alpha: 0.5 });
   }
 
-  /**
-   * Render animated camp elements (campfire, survivors)
-   */
   private renderAnimatedCampElements(campX: number, campY: number): void {
-    // === ANIMATED CAMPFIRE ===
-    // Animated fire with flicker
     const flicker1 = Math.sin(this.campAnimationTime * 8) * 0.5 + 0.5;
     const flicker2 = Math.sin(this.campAnimationTime * 10 + 1) * 0.5 + 0.5;
     const flicker3 = Math.sin(this.campAnimationTime * 12 + 2) * 0.5 + 0.5;
 
-    // Fire layers (from bottom to top)
+    // Warm glow under fire
+    this.campAnimationContainer
+      .ellipse(campX, campY + 34, 14 + flicker1 * 2, 7)
+      .fill({ color: COLORS.FIRE_OUTER, alpha: 0.12 + flicker1 * 0.06 });
+
     this.campAnimationContainer
       .ellipse(campX, campY + 32, 8 + flicker1, 4)
-      .fill({ color: 0xff4500, alpha: 0.9 });
+      .fill({ color: COLORS.FIRE_OUTER, alpha: 0.9 });
     this.campAnimationContainer
       .ellipse(campX, campY + 30, 6 + flicker2 * 0.5, 3)
-      .fill({ color: 0xffa500, alpha: 0.9 });
+      .fill({ color: COLORS.FIRE_MIDDLE, alpha: 0.9 });
     this.campAnimationContainer
       .ellipse(campX, campY + 28, 4 + flicker3 * 0.3, 2)
-      .fill({ color: 0xffff00, alpha: 0.95 });
+      .fill({ color: COLORS.FIRE_INNER, alpha: 0.95 });
     this.campAnimationContainer
       .ellipse(campX, campY + 27, 2, 1)
-      .fill({ color: 0xffffaa, alpha: 1 });
+      .fill({ color: COLORS.FIRE_CORE, alpha: 1 });
 
-    // === ANIMATED SURVIVORS (5 total) ===
+    // Ember sparks
+    for (let i = 0; i < 3; i++) {
+      const t = this.campAnimationTime * (2 + i) + i * 2;
+      const ex = campX + Math.sin(t) * (4 + i * 2);
+      const ey = campY + 26 - ((t * 8 + i * 10) % 18);
+      this.campAnimationContainer
+        .circle(ex, ey, 1)
+        .fill({ color: COLORS.FIRE_MIDDLE, alpha: 0.5 + flicker2 * 0.3 });
+    }
+
+    // Soft pulsing string-light glow
+    const lightPulse = 0.15 + Math.sin(this.campAnimationTime * 3) * 0.05;
+    for (let i = -40; i <= 40; i += 16) {
+      this.campAnimationContainer
+        .circle(campX + i, campY - 8 + Math.abs(i) * 0.04, 5)
+        .fill({ color: COLORS.CAMP_LIGHT_BULB, alpha: lightPulse });
+    }
+
     this.renderAnimatedSurvivors(campX, campY);
   }
 
-  /**
-   * Render animated survivors
-   */
   private renderAnimatedSurvivors(campX: number, campY: number): void {
-    // Animation values
+    const a = this.campAnimationContainer;
     const breathe = Math.sin(this.campAnimationTime * 2) * 0.3;
-    const breathe2 = Math.sin(this.campAnimationTime * 2.3 + 1) * 0.3; // Offset breathing
+    const breathe2 = Math.sin(this.campAnimationTime * 2.3 + 1) * 0.3;
     const sway = Math.sin(this.campAnimationTime * 1.5) * 0.5;
     const headTurn = Math.sin(this.campAnimationTime * 0.8) * 1;
-    const headTurn2 = Math.sin(this.campAnimationTime * 0.9 + 2) * 1; // Different timing
+    const headTurn2 = Math.sin(this.campAnimationTime * 0.9 + 2) * 1;
 
-    // Survivor 1 - Watchtower guard (scanning, breathing)
-    this.campAnimationContainer
-      .circle(campX - 51 + headTurn2 * 0.5, campY - 38 + breathe * 0.1, 4)
-      .fill(0xffdbac);
-    this.campAnimationContainer
-      .rect(campX - 54 + headTurn2 * 0.5, campY - 34 + breathe * 0.1, 6, 8)
-      .fill(0x654321);
-    // Rifle
-    this.campAnimationContainer
-      .rect(campX - 51 + headTurn2 * 0.5, campY - 43 + breathe * 0.1, 1, 7)
-      .fill(0x4a4a4a);
+    const drawSurvivor = (
+      x: number,
+      y: number,
+      bodyColor: number,
+      opts?: { weapon?: boolean; rifle?: boolean; armband?: boolean }
+    ) => {
+      a.ellipse(x, y + 10, 4, 2).fill({ color: COLORS.CAMP_SHADOW, alpha: 0.25 });
+      a.circle(x, y, 4).fill(COLORS.SURVIVOR_SKIN);
+      a.roundRect(x - 3, y + 4, 6, 8, 1).fill(bodyColor);
+      // Legs
+      a.rect(x - 2.5, y + 11, 2, 4).fill(COLORS.CAMP_BOOTS);
+      a.rect(x + 0.5, y + 11, 2, 4).fill(COLORS.CAMP_BOOTS);
+      if (opts?.rifle) {
+        a.rect(x - 0.5, y - 6, 1.2, 8).fill(COLORS.SURVIVOR_RIFLE);
+      }
+      if (opts?.weapon) {
+        a.rect(x + 2, y + 2, 1.2, 6).fill(COLORS.SURVIVOR_WEAPON);
+      }
+      if (opts?.armband) {
+        a.rect(x - 3, y + 6, 4, 2).fill(COLORS.SURVIVOR_ARMBAND);
+      }
+    };
 
-    // Survivor 2 - sitting by fire (breathing, slight sway)
-    this.campAnimationContainer.circle(campX - 18, campY + 36 + breathe * 0.2, 4).fill(0xffdbac);
-    this.campAnimationContainer.rect(campX - 21, campY + 40, 6, 6 + breathe * 0.5).fill(0x4169e1);
+    // Watchtower guard
+    drawSurvivor(campX - 51 + headTurn2 * 0.5, campY - 38 + breathe * 0.1, COLORS.SURVIVOR_BROWN_CLOTHES, {
+      rifle: true,
+    });
 
-    // Survivor 3 - standing guard with weapon (swaying, head turning)
-    this.campAnimationContainer
-      .circle(campX + 25 + headTurn, campY + 20 + sway * 0.3, 4)
-      .fill(0xffdbac);
-    this.campAnimationContainer.rect(campX + 22 + sway * 0.5, campY + 24, 6, 8).fill(0x654321);
-    this.campAnimationContainer.rect(campX + 25 + sway * 0.5, campY + 18, 1, 6).fill(0x2a2a2a);
+    // Sitting by fire
+    a.ellipse(campX - 18, campY + 42, 5, 2).fill({ color: COLORS.CAMP_SHADOW, alpha: 0.2 });
+    a.circle(campX - 18, campY + 36 + breathe * 0.2, 4).fill(COLORS.SURVIVOR_SKIN);
+    a.roundRect(campX - 21, campY + 40, 6, 5 + breathe * 0.5, 1).fill(COLORS.SURVIVOR_BLUE_CLOTHES);
 
-    // Survivor 4 - working on crate (bobbing up and down)
+    // Standing guard
+    drawSurvivor(campX + 25 + headTurn, campY + 18 + sway * 0.3, COLORS.SURVIVOR_BROWN_CLOTHES, {
+      weapon: true,
+    });
+
+    // Working on crate
     const workBob = Math.abs(Math.sin(this.campAnimationTime * 3)) * 2;
-    this.campAnimationContainer.circle(campX - 50, campY - 36 - workBob, 4).fill(0xffdbac);
-    this.campAnimationContainer.rect(campX - 53, campY - 32 - workBob, 6, 8).fill(0x4a4a4a);
+    drawSurvivor(campX - 48, campY - 38 - workBob, COLORS.SURVIVOR_GRAY_CLOTHES);
 
-    // Survivor 5 - medic near medical tent (breathing, slight head turn)
-    this.campAnimationContainer
-      .circle(campX - 32 + headTurn * 0.3, campY - 26 + breathe2 * 0.15, 4)
-      .fill(0xffdbac);
-    this.campAnimationContainer
-      .rect(campX - 35 + headTurn * 0.3, campY - 22 + breathe2 * 0.15, 6, 8)
-      .fill(0xf5f5dc);
-    // Red cross armband
-    this.campAnimationContainer
-      .rect(campX - 34 + headTurn * 0.3, campY - 20 + breathe2 * 0.15, 4, 2)
-      .fill(0xcc0000);
+    // Medic
+    drawSurvivor(
+      campX - 32 + headTurn * 0.3,
+      campY - 28 + breathe2 * 0.15,
+      COLORS.SURVIVOR_WHITE_CLOTHES,
+      { armband: true }
+    );
   }
+}
+
+function createSeededRandom(seed: number): () => number {
+  let s = seed % 2147483647;
+  if (s <= 0) {
+    s += 2147483646;
+  }
+  return () => {
+    s = (s * 16807) % 2147483647;
+    return (s - 1) / 2147483646;
+  };
 }
