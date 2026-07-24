@@ -84,6 +84,11 @@ export class VisualMapRenderer {
       return;
     }
 
+    // Ensure fog banks exist after a full clear / level reload
+    if (!this.fogRenderer.isInitialized()) {
+      this.fogRenderer.initialize(GRAVEYARD.X, GRAVEYARD.Y, GRAVEYARD.WIDTH, GRAVEYARD.HEIGHT);
+    }
+
     // Render terrain (ground texture, UI panel)
     this.terrainRenderer.render(mapData);
 

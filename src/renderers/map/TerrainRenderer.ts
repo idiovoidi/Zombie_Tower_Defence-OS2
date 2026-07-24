@@ -6,29 +6,36 @@ import type { MapData } from '../../managers/MapManager';
  * TerrainRenderer
  *
  * Responsible for rendering the ground terrain including:
- * - Base ground layer
- * - Dirt/mud patches
+ * - Base ground layer with large-scale mottling
+ * - Dirt/mud/ash patches (multi-pass soft edges)
  * - Dead grass patches
- * - Barren dirt patches
- * - Rocks and debris
+ * - Rocks with highlight/shadow
  * - Pebbles
  * - Ground cracks
  * - Weathering stains
- * - Grass tufts
+ * - Grass tufts with blade strokes
  * - UI panel background
  */
 export class TerrainRenderer {
   private graphics: Graphics;
+  private rand: () => number = Math.random;
 
   constructor(graphics: Graphics) {
     this.graphics = graphics;
   }
 
   public render(mapData: MapData): void {
+    this.rand = createSeededRandom(
+      hashString(mapData.name) ^ (mapData.width * 31 + mapData.height * 17)
+    );
+
     this.renderBaseLayer(mapData);
+    this.renderMottling(mapData);
     this.renderDirtPatches(mapData);
     this.renderDeadGrassPatches(mapData);
     this.renderBarrenDirtPatches(mapData);
+    this.renderMudPatches(mapData);
+    this.renderAshPatches(mapData);
     this.renderRocksAndDebris(mapData);
     this.renderPebbles(mapData);
     this.renderGroundCracks(mapData);
@@ -37,7 +44,84 @@ export class TerrainRenderer {
     this.renderUIPanel();
   }
 
-  /** Draw `count` randomised blob patches using the given GROUND_TEXTURE config prefix and color. */
+  private renderBaseLayer(mapData: MapData): void {
+    this.graphics.rect(0, 0, mapData.width, mapData.height);
+    this.graphics.fill({ color: COLORS.GROUND_BASE });
+  }
+
+  private renderMottling(mapData: MapData): void {
+    for (let i = 0; i < GROUND_TEXTURE.MOTTLE_COUNT; i++) {
+      const x = this.rand() * mapData.width;
+      const y = this.rand() * mapData.height;
+      const rx =
+        GROUND_TEXTURE.MOTTLE_MIN_SIZE +
+        this.rand() * (GROUND_TEXTURE.MOTTLE_MAX_SIZE - GROUND_TEXTURE.MOTTLE_MIN_SIZE);
+      const ry = rx * (0.45 + this.rand() * 0.45);
+      const dark = this.rand() > 0.45;
+      const alpha =
+        GROUND_TEXTURE.MOTTLE_MIN_ALPHA +
+        this.rand() * (GROUND_TEXTURE.MOTTLE_MAX_ALPHA - GROUND_TEXTURE.MOTTLE_MIN_ALPHA);
+
+      this.graphics
+        .ellipse(x, y, rx, ry)
+        .fill({
+          color: dark ? COLORS.GROUND_MOTTLE_DARK : COLORS.GROUND_MOTTLE_LIGHT,
+          alpha,
+        });
+      // Soft inner core
+      this.graphics
+        .ellipse(x + (this.rand() - 0.5) * 8, y + (this.rand() - 0.5) * 6, rx * 0.55, ry * 0.55)
+        .fill({
+          color: dark ? COLORS.GROUND_MOTTLE_DARK : COLORS.GROUND_MOTTLE_LIGHT,
+          alpha: alpha * 0.7,
+        });
+    }
+  }
+
+  private renderSoftBlob(
+    x: number,
+    y: number,
+    size: number,
+    points: number,
+    minRadius: number,
+    maxRadius: number,
+    color: number,
+    alpha: number,
+    angleJitter = 0,
+    coreColor?: number
+  ): void {
+    const radii: number[] = [];
+    const angles: number[] = [];
+    for (let j = 0; j < points; j++) {
+      angles.push((j / points) * Math.PI * 2 + this.rand() * angleJitter);
+      radii.push(size * (minRadius + this.rand() * (maxRadius - minRadius)));
+    }
+
+    // Outer soft ring
+    this.graphics.moveTo(x + Math.cos(angles[0]) * radii[0] * 1.12, y + Math.sin(angles[0]) * radii[0] * 1.12);
+    for (let j = 1; j < points; j++) {
+      this.graphics.lineTo(
+        x + Math.cos(angles[j]) * radii[j] * 1.12,
+        y + Math.sin(angles[j]) * radii[j] * 1.12
+      );
+    }
+    this.graphics.fill({ color, alpha: alpha * 0.45 });
+
+    // Main body
+    this.graphics.moveTo(x + Math.cos(angles[0]) * radii[0], y + Math.sin(angles[0]) * radii[0]);
+    for (let j = 1; j < points; j++) {
+      this.graphics.lineTo(x + Math.cos(angles[j]) * radii[j], y + Math.sin(angles[j]) * radii[j]);
+    }
+    this.graphics.fill({ color, alpha });
+
+    // Inner core for depth
+    if (coreColor !== undefined) {
+      this.graphics
+        .ellipse(x + (this.rand() - 0.5) * size * 0.15, y + (this.rand() - 0.5) * size * 0.1, size * 0.35, size * 0.22)
+        .fill({ color: coreColor, alpha: alpha * 0.55 });
+    }
+  }
+
   private renderBlobPatches(
     mapData: MapData,
     count: number,
@@ -50,27 +134,28 @@ export class TerrainRenderer {
     color: number,
     minAlpha: number,
     maxAlpha: number,
-    angleJitter = 0
+    angleJitter = 0,
+    coreColor?: number
   ): void {
     for (let i = 0; i < count; i++) {
-      const x = Math.random() * mapData.width;
-      const y = Math.random() * mapData.height;
-      const size = minSize + Math.random() * (maxSize - minSize);
-      const points = minPoints + Math.floor(Math.random() * (maxPoints - minPoints));
-      this.graphics.moveTo(x, y);
-      for (let j = 0; j < points; j++) {
-        const angle = (j / points) * Math.PI * 2 + Math.random() * angleJitter;
-        const radius = size * (minRadius + Math.random() * (maxRadius - minRadius));
-        this.graphics.lineTo(x + Math.cos(angle) * radius, y + Math.sin(angle) * radius);
-      }
-      this.graphics.fill({ color, alpha: minAlpha + Math.random() * (maxAlpha - minAlpha) });
+      const x = this.rand() * mapData.width;
+      const y = this.rand() * mapData.height;
+      const size = minSize + this.rand() * (maxSize - minSize);
+      const points = minPoints + Math.floor(this.rand() * (maxPoints - minPoints));
+      const alpha = minAlpha + this.rand() * (maxAlpha - minAlpha);
+      this.renderSoftBlob(
+        x,
+        y,
+        size,
+        points,
+        minRadius,
+        maxRadius,
+        color,
+        alpha,
+        angleJitter,
+        coreColor
+      );
     }
-  }
-
-  private renderBaseLayer(mapData: MapData): void {
-    // Base layer - darker, more desolate ground
-    this.graphics.rect(0, 0, mapData.width, mapData.height);
-    this.graphics.fill({ color: COLORS.GROUND_BASE });
   }
 
   private renderDirtPatches(mapData: MapData): void {
@@ -85,7 +170,9 @@ export class TerrainRenderer {
       GROUND_TEXTURE.DIRT_PATCH_MAX_RADIUS_FACTOR,
       COLORS.GROUND_DIRT_PATCH,
       GROUND_TEXTURE.DIRT_PATCH_MIN_ALPHA,
-      GROUND_TEXTURE.DIRT_PATCH_MAX_ALPHA
+      GROUND_TEXTURE.DIRT_PATCH_MAX_ALPHA,
+      0,
+      COLORS.GROUND_DIRT_CORE
     );
   }
 
@@ -101,7 +188,9 @@ export class TerrainRenderer {
       GROUND_TEXTURE.DEAD_GRASS_MAX_RADIUS_FACTOR,
       COLORS.GROUND_DEAD_GRASS,
       GROUND_TEXTURE.DEAD_GRASS_MIN_ALPHA,
-      GROUND_TEXTURE.DEAD_GRASS_MAX_ALPHA
+      GROUND_TEXTURE.DEAD_GRASS_MAX_ALPHA,
+      0,
+      COLORS.GROUND_DEAD_GRASS_TIP
     );
   }
 
@@ -118,87 +207,152 @@ export class TerrainRenderer {
       COLORS.GROUND_BARREN_DIRT,
       GROUND_TEXTURE.BARREN_DIRT_MIN_ALPHA,
       GROUND_TEXTURE.BARREN_DIRT_MAX_ALPHA,
-      0.5 // angle jitter for barren dirt
+      0.5
     );
+  }
+
+  private renderMudPatches(mapData: MapData): void {
+    for (let i = 0; i < GROUND_TEXTURE.MUD_COUNT; i++) {
+      const x = this.rand() * mapData.width;
+      const y = this.rand() * mapData.height;
+      const rx =
+        GROUND_TEXTURE.MUD_MIN_SIZE +
+        this.rand() * (GROUND_TEXTURE.MUD_MAX_SIZE - GROUND_TEXTURE.MUD_MIN_SIZE);
+      const ry = rx * (0.4 + this.rand() * 0.4);
+      const alpha =
+        GROUND_TEXTURE.MUD_MIN_ALPHA +
+        this.rand() * (GROUND_TEXTURE.MUD_MAX_ALPHA - GROUND_TEXTURE.MUD_MIN_ALPHA);
+      this.graphics.ellipse(x, y, rx, ry).fill({ color: COLORS.GROUND_MUD, alpha });
+      this.graphics
+        .ellipse(x + rx * 0.1, y, rx * 0.55, ry * 0.5)
+        .fill({ color: COLORS.GROUND_MUD, alpha: alpha * 0.6 });
+    }
+  }
+
+  private renderAshPatches(mapData: MapData): void {
+    for (let i = 0; i < GROUND_TEXTURE.ASH_COUNT; i++) {
+      const x = this.rand() * mapData.width;
+      const y = this.rand() * mapData.height;
+      const size =
+        GROUND_TEXTURE.ASH_MIN_SIZE +
+        this.rand() * (GROUND_TEXTURE.ASH_MAX_SIZE - GROUND_TEXTURE.ASH_MIN_SIZE);
+      const alpha =
+        GROUND_TEXTURE.ASH_MIN_ALPHA +
+        this.rand() * (GROUND_TEXTURE.ASH_MAX_ALPHA - GROUND_TEXTURE.ASH_MIN_ALPHA);
+      this.renderSoftBlob(x, y, size, 6, 0.6, 1.2, COLORS.GROUND_ASH, alpha, 0.3);
+    }
   }
 
   private renderRocksAndDebris(mapData: MapData): void {
-    this.renderBlobPatches(
-      mapData,
-      GROUND_TEXTURE.ROCK_COUNT,
-      GROUND_TEXTURE.ROCK_MIN_SIZE,
-      GROUND_TEXTURE.ROCK_MAX_SIZE,
-      GROUND_TEXTURE.ROCK_MIN_POINTS,
-      GROUND_TEXTURE.ROCK_MAX_POINTS,
-      GROUND_TEXTURE.ROCK_MIN_RADIUS_FACTOR,
-      GROUND_TEXTURE.ROCK_MAX_RADIUS_FACTOR,
-      COLORS.GROUND_ROCK,
-      GROUND_TEXTURE.ROCK_MIN_ALPHA,
-      GROUND_TEXTURE.ROCK_MAX_ALPHA
-    );
+    for (let i = 0; i < GROUND_TEXTURE.ROCK_COUNT; i++) {
+      const x = this.rand() * mapData.width;
+      const y = this.rand() * mapData.height;
+      const size =
+        GROUND_TEXTURE.ROCK_MIN_SIZE +
+        this.rand() * (GROUND_TEXTURE.ROCK_MAX_SIZE - GROUND_TEXTURE.ROCK_MIN_SIZE);
+      const points =
+        GROUND_TEXTURE.ROCK_MIN_POINTS +
+        Math.floor(
+          this.rand() * (GROUND_TEXTURE.ROCK_MAX_POINTS - GROUND_TEXTURE.ROCK_MIN_POINTS)
+        );
+      const alpha =
+        GROUND_TEXTURE.ROCK_MIN_ALPHA +
+        this.rand() * (GROUND_TEXTURE.ROCK_MAX_ALPHA - GROUND_TEXTURE.ROCK_MIN_ALPHA);
+
+      // Contact shadow
+      this.graphics
+        .ellipse(x + 1, y + size * 0.35, size * 0.85, size * 0.35)
+        .fill({ color: COLORS.GROUND_ROCK_SHADOW, alpha: 0.3 });
+
+      const path: number[] = [];
+      for (let j = 0; j < points; j++) {
+        const angle = (j / points) * Math.PI * 2 + this.rand() * 0.25;
+        const radius =
+          size *
+          (GROUND_TEXTURE.ROCK_MIN_RADIUS_FACTOR +
+            this.rand() *
+              (GROUND_TEXTURE.ROCK_MAX_RADIUS_FACTOR - GROUND_TEXTURE.ROCK_MIN_RADIUS_FACTOR));
+        path.push(x + Math.cos(angle) * radius, y + Math.sin(angle) * radius);
+      }
+      this.graphics.poly(path).fill({ color: COLORS.GROUND_ROCK, alpha });
+      this.graphics.poly(path).stroke({ width: 1, color: COLORS.GROUND_ROCK_SHADOW, alpha: 0.4 });
+
+      // Specular fleck
+      if (size > 6) {
+        this.graphics
+          .ellipse(x - size * 0.2, y - size * 0.2, size * 0.2, size * 0.12)
+          .fill({ color: COLORS.GROUND_ROCK_HIGHLIGHT, alpha: 0.35 });
+      }
+    }
   }
 
   private renderPebbles(mapData: MapData): void {
-    // Small pebbles scattered around
     for (let i = 0; i < GROUND_TEXTURE.PEBBLE_COUNT; i++) {
-      const x = Math.random() * mapData.width;
-      const y = Math.random() * mapData.height;
+      const x = this.rand() * mapData.width;
+      const y = this.rand() * mapData.height;
       const size =
         GROUND_TEXTURE.PEBBLE_MIN_SIZE +
-        Math.random() * (GROUND_TEXTURE.PEBBLE_MAX_SIZE - GROUND_TEXTURE.PEBBLE_MIN_SIZE);
-      this.graphics.circle(x, y, size).fill({
+        this.rand() * (GROUND_TEXTURE.PEBBLE_MAX_SIZE - GROUND_TEXTURE.PEBBLE_MIN_SIZE);
+      this.graphics.ellipse(x, y, size, size * (0.6 + this.rand() * 0.35)).fill({
         color: COLORS.GROUND_PEBBLE,
         alpha:
           GROUND_TEXTURE.PEBBLE_MIN_ALPHA +
-          Math.random() * (GROUND_TEXTURE.PEBBLE_MAX_ALPHA - GROUND_TEXTURE.PEBBLE_MIN_ALPHA),
+          this.rand() * (GROUND_TEXTURE.PEBBLE_MAX_ALPHA - GROUND_TEXTURE.PEBBLE_MIN_ALPHA),
       });
     }
   }
 
   private renderGroundCracks(mapData: MapData): void {
-    // Add organic ground cracks (branching) - more prominent
     for (let i = 0; i < GROUND_TEXTURE.CRACK_COUNT; i++) {
-      const x = Math.random() * mapData.width;
-      const y = Math.random() * mapData.height;
+      const x = this.rand() * mapData.width;
+      const y = this.rand() * mapData.height;
       const mainLength =
         GROUND_TEXTURE.CRACK_MIN_LENGTH +
-        Math.random() * (GROUND_TEXTURE.CRACK_MAX_LENGTH - GROUND_TEXTURE.CRACK_MIN_LENGTH);
-      const angle = Math.random() * Math.PI * 2;
+        this.rand() * (GROUND_TEXTURE.CRACK_MAX_LENGTH - GROUND_TEXTURE.CRACK_MIN_LENGTH);
+      const angle = this.rand() * Math.PI * 2;
 
-      // Main crack
       let currentX = x;
       let currentY = y;
       const segments =
         GROUND_TEXTURE.CRACK_MIN_SEGMENTS +
         Math.floor(
-          Math.random() * (GROUND_TEXTURE.CRACK_MAX_SEGMENTS - GROUND_TEXTURE.CRACK_MIN_SEGMENTS)
+          this.rand() * (GROUND_TEXTURE.CRACK_MAX_SEGMENTS - GROUND_TEXTURE.CRACK_MIN_SEGMENTS)
         );
 
       for (let j = 0; j < segments; j++) {
         const segmentLength = mainLength / segments;
-        const segmentAngle = angle + (Math.random() - 0.5) * GROUND_TEXTURE.CRACK_ANGLE_VARIATION;
+        const segmentAngle = angle + (this.rand() - 0.5) * GROUND_TEXTURE.CRACK_ANGLE_VARIATION;
         const nextX = currentX + Math.cos(segmentAngle) * segmentLength;
         const nextY = currentY + Math.sin(segmentAngle) * segmentLength;
+        const width =
+          GROUND_TEXTURE.CRACK_MIN_WIDTH +
+          this.rand() * (GROUND_TEXTURE.CRACK_MAX_WIDTH - GROUND_TEXTURE.CRACK_MIN_WIDTH);
 
-        // Main crack line (darker, thicker)
+        // Soft edge under crack
         this.graphics
           .moveTo(currentX, currentY)
           .lineTo(nextX, nextY)
           .stroke({
-            width:
-              GROUND_TEXTURE.CRACK_MIN_WIDTH +
-              Math.random() * (GROUND_TEXTURE.CRACK_MAX_WIDTH - GROUND_TEXTURE.CRACK_MIN_WIDTH),
+            width: width + 1.5,
+            color: COLORS.GROUND_CRACK_EDGE,
+            alpha: GROUND_TEXTURE.CRACK_ALPHA * 0.35,
+          });
+
+        this.graphics
+          .moveTo(currentX, currentY)
+          .lineTo(nextX, nextY)
+          .stroke({
+            width,
             color: COLORS.GROUND_CRACK,
             alpha: GROUND_TEXTURE.CRACK_ALPHA,
           });
 
-        // Add small branch cracks
-        if (Math.random() > GROUND_TEXTURE.CRACK_BRANCH_PROBABILITY) {
-          const branchAngle = segmentAngle + (Math.random() - 0.5) * Math.PI;
+        if (this.rand() < GROUND_TEXTURE.CRACK_BRANCH_PROBABILITY) {
+          const branchAngle = segmentAngle + (this.rand() - 0.5) * Math.PI;
           const branchLength =
             segmentLength *
             (GROUND_TEXTURE.CRACK_BRANCH_MIN_LENGTH_FACTOR +
-              Math.random() *
+              this.rand() *
                 (GROUND_TEXTURE.CRACK_BRANCH_MAX_LENGTH_FACTOR -
                   GROUND_TEXTURE.CRACK_BRANCH_MIN_LENGTH_FACTOR));
           const branchX = currentX + Math.cos(branchAngle) * branchLength;
@@ -217,40 +371,58 @@ export class TerrainRenderer {
   }
 
   private renderWeatheringStains(mapData: MapData): void {
-    // Add weathering stains and discoloration
     for (let i = 0; i < GROUND_TEXTURE.STAIN_COUNT; i++) {
-      const x = Math.random() * mapData.width;
-      const y = Math.random() * mapData.height;
+      const x = this.rand() * mapData.width;
+      const y = this.rand() * mapData.height;
       const size =
         GROUND_TEXTURE.STAIN_MIN_SIZE +
-        Math.random() * (GROUND_TEXTURE.STAIN_MAX_SIZE - GROUND_TEXTURE.STAIN_MIN_SIZE);
-      this.graphics.circle(x, y, size).fill({
-        color: COLORS.GROUND_STAIN,
-        alpha:
-          GROUND_TEXTURE.STAIN_MIN_ALPHA +
-          Math.random() * (GROUND_TEXTURE.STAIN_MAX_ALPHA - GROUND_TEXTURE.STAIN_MIN_ALPHA),
-      });
+        this.rand() * (GROUND_TEXTURE.STAIN_MAX_SIZE - GROUND_TEXTURE.STAIN_MIN_SIZE);
+      const alpha =
+        GROUND_TEXTURE.STAIN_MIN_ALPHA +
+        this.rand() * (GROUND_TEXTURE.STAIN_MAX_ALPHA - GROUND_TEXTURE.STAIN_MIN_ALPHA);
+      const ry = size * (0.55 + this.rand() * 0.4);
+
+      this.graphics.ellipse(x, y, size, ry).fill({ color: COLORS.GROUND_STAIN, alpha });
+      this.graphics
+        .ellipse(x + (this.rand() - 0.5) * 6, y, size * 0.55, ry * 0.55)
+        .fill({ color: COLORS.GROUND_STAIN_DARK, alpha: alpha * 0.8 });
     }
   }
 
   private renderGrassTufts(mapData: MapData): void {
-    this.renderBlobPatches(
-      mapData,
-      GROUND_TEXTURE.GRASS_TUFT_COUNT,
-      GROUND_TEXTURE.GRASS_TUFT_MIN_SIZE,
-      GROUND_TEXTURE.GRASS_TUFT_MAX_SIZE,
-      GROUND_TEXTURE.GRASS_TUFT_MIN_POINTS,
-      GROUND_TEXTURE.GRASS_TUFT_MAX_POINTS,
-      GROUND_TEXTURE.GRASS_TUFT_MIN_RADIUS_FACTOR,
-      GROUND_TEXTURE.GRASS_TUFT_MAX_RADIUS_FACTOR,
-      COLORS.GROUND_GRASS_TUFT,
-      GROUND_TEXTURE.GRASS_TUFT_MIN_ALPHA,
-      GROUND_TEXTURE.GRASS_TUFT_MAX_ALPHA
-    );
+    for (let i = 0; i < GROUND_TEXTURE.GRASS_TUFT_COUNT; i++) {
+      const x = this.rand() * mapData.width;
+      const y = this.rand() * mapData.height;
+      const size =
+        GROUND_TEXTURE.GRASS_TUFT_MIN_SIZE +
+        this.rand() * (GROUND_TEXTURE.GRASS_TUFT_MAX_SIZE - GROUND_TEXTURE.GRASS_TUFT_MIN_SIZE);
+      const alpha =
+        GROUND_TEXTURE.GRASS_TUFT_MIN_ALPHA +
+        this.rand() * (GROUND_TEXTURE.GRASS_TUFT_MAX_ALPHA - GROUND_TEXTURE.GRASS_TUFT_MIN_ALPHA);
+
+      // Base clump
+      this.graphics
+        .ellipse(x, y, size * 1.2, size * 0.55)
+        .fill({ color: COLORS.GROUND_GRASS_TUFT, alpha: alpha * 0.7 });
+
+      // Blade strokes
+      const blades = GROUND_TEXTURE.GRASS_BLADE_COUNT + Math.floor(this.rand() * 2);
+      for (let b = 0; b < blades; b++) {
+        const lean = (this.rand() - 0.5) * 4;
+        const height = size * (1.4 + this.rand() * 1.2);
+        this.graphics
+          .moveTo(x + (b - blades / 2) * 1.2, y)
+          .lineTo(x + (b - blades / 2) * 1.2 + lean, y - height)
+          .stroke({
+            width: 1,
+            color: b % 2 === 0 ? COLORS.GROUND_GRASS_TUFT : COLORS.GROUND_DEAD_GRASS_TIP,
+            alpha,
+          });
+      }
+    }
   }
 
   private renderUIPanel(): void {
-    // Draw UI panel background on the right
     this.graphics.rect(
       UI_DIMENSIONS.PLAY_AREA_WIDTH,
       0,
@@ -259,7 +431,6 @@ export class TerrainRenderer {
     );
     this.graphics.fill({ color: COLORS.UI_PANEL_BG });
 
-    // Draw separator line between play area and UI
     this.graphics.rect(
       UI_DIMENSIONS.PLAY_AREA_WIDTH,
       0,
@@ -268,4 +439,23 @@ export class TerrainRenderer {
     );
     this.graphics.fill({ color: COLORS.UI_SEPARATOR });
   }
+}
+
+function hashString(value: string): number {
+  let hash = 0;
+  for (let i = 0; i < value.length; i++) {
+    hash = (hash * 31 + value.charCodeAt(i)) | 0;
+  }
+  return Math.abs(hash) || 1;
+}
+
+function createSeededRandom(seed: number): () => number {
+  let s = seed % 2147483647;
+  if (s <= 0) {
+    s += 2147483646;
+  }
+  return () => {
+    s = (s * 16807) % 2147483647;
+    return (s - 1) / 2147483646;
+  };
 }
