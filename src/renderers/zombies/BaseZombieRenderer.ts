@@ -1,4 +1,5 @@
 import { Container, Graphics } from 'pixi.js';
+import type { LimbFlags, LimbId } from '../../components/LimbState';
 import { EffectCleanupManager } from '../../utils/EffectCleanupManager';
 import {
   calculateDeathImpulses,
@@ -78,6 +79,12 @@ export abstract class BaseZombieRenderer implements IZombieRenderer {
   protected rightArmPart!: Graphics;
   protected woundsPart!: Graphics;
   protected lastHealthPercent = 1.0;
+  private currentLimbs: LimbFlags = {
+    leftArm: true,
+    rightArm: true,
+    leftLeg: true,
+    rightLeg: true,
+  };
 
   /** Animator type string passed to ZombieAnimator */
   protected abstract readonly ANIMATOR_TYPE: string;
@@ -126,8 +133,13 @@ export abstract class BaseZombieRenderer implements IZombieRenderer {
     const anim = this.animator.getCurrentFrame();
     const healthPercent = state.health / state.maxHealth;
 
+    if (state.limbs) {
+      this.currentLimbs = state.limbs;
+    }
+
     // Apply skeletal animation with subclass-provided offsets
     this.applySkeletalAnimation(anim, this.getAnimationOffsets());
+    this.applyLimbVisibility(this.currentLimbs);
 
     // Update wounds if health changed significantly
     if (Math.abs(this.lastHealthPercent - healthPercent) > 0.05) {
@@ -295,13 +307,29 @@ export abstract class BaseZombieRenderer implements IZombieRenderer {
     this.headPart.rotation = anim.headTilt ?? 0;
   }
 
+  /** Hide detached limbs; keep parts present for pool reuse. */
+  protected applyLimbVisibility(limbs: LimbFlags): void {
+    if (!this.isInitialized) {
+      return;
+    }
+    this.leftArmPart.visible = limbs.leftArm;
+    this.rightArmPart.visible = limbs.rightArm;
+    this.leftLegPart.visible = limbs.leftLeg;
+    this.rightLegPart.visible = limbs.rightLeg;
+  }
+
   update(deltaTime: number, state: ZombieRenderState): void {
-    // Pass health info to animator for damage-reactive animations
+    // Pass health / crawl / limb info to animator
     this.animator.update(deltaTime, {
       isMoving: state.isMoving,
       health: state.health,
       maxHealth: state.maxHealth,
+      isCrawling: state.isCrawling,
+      limbs: state.limbs,
     });
+    if (state.limbs) {
+      this.currentLimbs = state.limbs;
+    }
     this.particles.update(deltaTime);
     this.updateBurningEffect(deltaTime);
 
@@ -359,6 +387,55 @@ export abstract class BaseZombieRenderer implements IZombieRenderer {
   }
 
   /**
+   * Gore burst when a limb is severed while the zombie is still alive.
+   */
+  onLimbLost(limb: LimbId): void {
+    this.currentLimbs = { ...this.currentLimbs, [limb]: false };
+    this.applyLimbVisibility(this.currentLimbs);
+
+    const offset = this.getLimbGoreOffset(limb);
+    this.particles.emit(ParticleType.BLOOD_SPLATTER, offset.x, offset.y, {
+      count: 10,
+      velocity: 55,
+      lifetime: 700,
+      size: 3.5,
+    });
+    this.particles.emit(ParticleType.GORE_CHUNK, offset.x, offset.y, {
+      count: 4,
+      velocity: 45,
+      lifetime: 900,
+      size: 3,
+    });
+    this.particles.emit(ParticleType.BLOOD_MIST, offset.x, offset.y, {
+      count: 5,
+      velocity: 30,
+      lifetime: 800,
+      size: 5,
+    });
+
+    // Stump mark on wounds layer
+    if (this.isInitialized && this.woundsPart && !this.woundsPart.destroyed) {
+      this.woundsPart.circle(offset.x, offset.y, 2.5).fill({ color: 0x660000, alpha: 0.85 });
+      this.woundsPart.circle(offset.x, offset.y, 1.2).fill({ color: 0xaa0000, alpha: 0.7 });
+    }
+  }
+
+  private getLimbGoreOffset(limb: LimbId): { x: number; y: number } {
+    switch (limb) {
+      case 'leftArm':
+        return { x: -6, y: 2 };
+      case 'rightArm':
+        return { x: 6, y: 2 };
+      case 'leftLeg':
+        return { x: -3, y: 10 };
+      case 'rightLeg':
+        return { x: 3, y: 10 };
+      default:
+        return { x: 0, y: 4 };
+    }
+  }
+
+  /**
    * Play death animation using procedural ragdoll physics.
    *
    * @param killerType - The tower type that killed this zombie
@@ -379,8 +456,12 @@ export abstract class BaseZombieRenderer implements IZombieRenderer {
     const impulses = calculateDeathImpulses(killer, angle, this.zombieTypeName);
     this.ragdoll.applyImpulses(impulses);
 
-    // Detach bones for extreme deaths
-    const detachable = getDetachableBones(killer);
+    // Detach bones for extreme deaths + any limbs already lost while alive
+    const detachable = new Set(getDetachableBones(killer));
+    if (!this.currentLimbs.leftArm) detachable.add('arm_l');
+    if (!this.currentLimbs.rightArm) detachable.add('arm_r');
+    if (!this.currentLimbs.leftLeg) detachable.add('leg_l');
+    if (!this.currentLimbs.rightLeg) detachable.add('leg_r');
     for (const boneName of detachable) {
       this.ragdoll.detachBone(boneName);
     }
@@ -501,6 +582,19 @@ export abstract class BaseZombieRenderer implements IZombieRenderer {
     this.particles.clear?.();
     // Stop burning effect
     this.stopBurningEffect();
+
+    // Restore all limbs for pool reuse
+    this.currentLimbs = {
+      leftArm: true,
+      rightArm: true,
+      leftLeg: true,
+      rightLeg: true,
+    };
+    this.lastHealthPercent = 1.0;
+    this.applyLimbVisibility(this.currentLimbs);
+    if (this.isInitialized && this.woundsPart && !this.woundsPart.destroyed) {
+      this.woundsPart.clear();
+    }
 
     // Clean up ragdoll state
     this.isInRagdollDeath = false;

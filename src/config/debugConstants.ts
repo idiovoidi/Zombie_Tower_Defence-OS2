@@ -30,13 +30,13 @@ export const DebugConstants = {
   TOWER_COST_MULTIPLIER: 0.1, // Multiply all tower costs by this (1.0 = normal, 0 = free)
   UPGRADE_COST_MULTIPLIER: 0.1, // Multiply all upgrade costs by this
 
-  // Tower Stats
-  TOWER_DAMAGE_MULTIPLIER: 2.0, // Multiply all tower damage by this
+  // Tower Stats — keep at 1.0 so "unupgraded" towers aren't secretly buffed in debug
+  TOWER_DAMAGE_MULTIPLIER: 1.0,
   TOWER_RANGE_MULTIPLIER: 1.5, // Multiply all tower range by this
-  TOWER_FIRE_RATE_MULTIPLIER: 2.0, // Multiply all tower fire rates by this
+  TOWER_FIRE_RATE_MULTIPLIER: 1.0,
 
   // Zombie Stats
-  ZOMBIE_HEALTH_MULTIPLIER: 0.5, // Multiply all zombie health by this (lower = easier)
+  ZOMBIE_HEALTH_MULTIPLIER: 1.0,
   ZOMBIE_SPEED_MULTIPLIER: 0.5, // Multiply all zombie speed by this (lower = slower)
   ZOMBIE_SPAWN_RATE_MULTIPLIER: 0.5, // Multiply spawn rate by this (lower = fewer zombies)
 

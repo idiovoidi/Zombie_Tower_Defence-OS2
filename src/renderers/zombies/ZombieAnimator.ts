@@ -1,3 +1,4 @@
+import type { LimbFlags } from '../../components/LimbState';
 import { footfallPulse, stepWave } from '../../utils/WalkStagger';
 import { AnimationState } from './ZombieRenderer';
 
@@ -16,6 +17,13 @@ export interface AnimationData {
   damageLevel: number;
 }
 
+const ALL_LIMBS: LimbFlags = {
+  leftArm: true,
+  rightArm: true,
+  leftLeg: true,
+  rightLeg: true,
+};
+
 export class ZombieAnimator {
   private currentState: AnimationState = AnimationState.WALK;
   private animationTime = 0;
@@ -24,6 +32,8 @@ export class ZombieAnimator {
   private damageLevel = 0; // 0 = full health, 1 = near death
   private twitchTimer = 0;
   private twitchValue = 0;
+  private limbs: LimbFlags = { ...ALL_LIMBS };
+  private isCrawling = false;
 
   constructor(zombieType: string) {
     this.zombieType = zombieType;
@@ -32,10 +42,25 @@ export class ZombieAnimator {
 
   update(
     deltaTime: number,
-    state: { isMoving: boolean; health?: number; maxHealth?: number }
+    state: {
+      isMoving: boolean;
+      health?: number;
+      maxHealth?: number;
+      isCrawling?: boolean;
+      limbs?: LimbFlags;
+    }
   ): void {
     this.animationTime += deltaTime / 1000;
-    this.currentState = state.isMoving ? AnimationState.WALK : AnimationState.IDLE;
+    this.isCrawling = state.isCrawling === true;
+    if (state.limbs) {
+      this.limbs = state.limbs;
+    }
+
+    if (this.isCrawling) {
+      this.currentState = AnimationState.CRAWL;
+    } else {
+      this.currentState = state.isMoving ? AnimationState.WALK : AnimationState.IDLE;
+    }
 
     // Update damage level for damage-reactive animations
     if (state.health !== undefined && state.maxHealth !== undefined && state.maxHealth > 0) {
@@ -56,6 +81,9 @@ export class ZombieAnimator {
   getCurrentFrame(): AnimationData {
     const time = this.animationTime + this.phaseOffset;
 
+    if (this.currentState === AnimationState.CRAWL) {
+      return this.getCrawlFrame(time);
+    }
     if (this.currentState === AnimationState.WALK) {
       return this.getWalkFrame(time);
     }
@@ -66,33 +94,80 @@ export class ZombieAnimator {
     const speed = this.getAnimationSpeed();
     const gait = this.getGaitStyle();
 
+    // Extra limp when one leg is missing
+    const missingLeftLeg = !this.limbs.leftLeg;
+    const missingRightLeg = !this.limbs.rightLeg;
+    const oneLegLimp =
+      missingLeftLeg !== missingRightLeg ? 0.55 : 0;
+
     // Stride phase — shaped step waves, not stacked sines
     const stridePhase = time * 4 * speed;
-    const limpDrag = this.damageLevel * 0.55 + gait.limpBias;
-    const leftStep = stepWave(stridePhase, gait.stepSharpness, limpDrag);
-    const rightStep = stepWave(stridePhase + Math.PI, gait.stepSharpness, -limpDrag * 0.35);
+    const limpDrag = this.damageLevel * 0.55 + gait.limpBias + oneLegLimp;
+    const leftStep = missingLeftLeg
+      ? 0
+      : stepWave(stridePhase, gait.stepSharpness, limpDrag + (missingRightLeg ? 0.3 : 0));
+    const rightStep = missingRightLeg
+      ? 0
+      : stepWave(stridePhase + Math.PI, gait.stepSharpness, -limpDrag * 0.35);
 
     // Body dips on each foot plant (twice per stride), with a slight limp hitch
     const plants = footfallPulse(stridePhase, gait.stepSharpness);
     const limpHitch = leftStep > 0 ? limpDrag * plants * 1.2 : 0;
+    const oneLegHitch = oneLegLimp * plants * 2.5;
 
     // Head follows the stride with a delayed, softer step (not an independent sine)
     const headPhase = stridePhase * 0.5 - 0.4;
     const headStep = stepWave(headPhase, 0.75, limpDrag * 0.4);
 
+    const leftArmSwing = this.limbs.leftArm
+      ? leftStep * (0.55 + gait.armSwing) + gait.armForwardReach + this.damageLevel * 0.2
+      : 0;
+    const rightArmSwing = this.limbs.rightArm
+      ? rightStep * (0.45 + gait.armSwing) + gait.armForwardReach
+      : 0;
+
     return {
-      bodyBob: plants * (2 + gait.bobIntensity) + limpHitch,
+      bodyBob: plants * (2 + gait.bobIntensity) + limpHitch + oneLegHitch,
       headTilt: headStep * (0.12 + gait.headBobIntensity) + this.twitchValue * 0.3,
       headSway:
         headStep * (1.2 + gait.headSwayAmp) +
         rightStep * 0.35 * gait.headSwayAmp +
         this.twitchValue * 0.8,
-      leftArmAngle:
-        leftStep * (0.55 + gait.armSwing) + gait.armForwardReach + this.damageLevel * 0.2,
-      rightArmAngle: rightStep * (0.45 + gait.armSwing) + gait.armForwardReach,
+      leftArmAngle: leftArmSwing,
+      rightArmAngle: rightArmSwing,
       leftLegOffset: leftStep * (2.5 + gait.legStride) + limpHitch,
       rightLegOffset: rightStep * (2.5 + gait.legStride) - limpHitch * 0.4,
-      limbSwing: leftStep,
+      limbSwing: leftStep || rightStep,
+      twitch: this.twitchValue,
+      damageLevel: this.damageLevel,
+    };
+  }
+
+  /**
+   * Prone drag: torso low, arms pull body forward, legs tucked/still.
+   */
+  private getCrawlFrame(time: number): AnimationData {
+    const speed = this.getAnimationSpeed() * 0.85;
+    const phase = time * 3.2 * speed;
+    const pull = stepWave(phase, 0.5, 0.25);
+    const opposite = stepWave(phase + Math.PI, 0.5, -0.15);
+    const groundBob = footfallPulse(phase, 0.45);
+
+    const leftArm = this.limbs.leftArm ? pull * 0.9 + 0.85 : 0.4;
+    const rightArm = this.limbs.rightArm ? opposite * 0.9 + 0.85 : 0.4;
+
+    // Legs tucked under when present (critical HP crawl); gone limbs stay at 0
+    const tuck = this.limbs.leftLeg || this.limbs.rightLeg ? 1.5 : 0;
+
+    return {
+      bodyBob: 10 + groundBob * 1.5 + this.twitchValue * 0.4,
+      headTilt: pull * 0.15 + 0.25 + this.twitchValue * 0.2,
+      headSway: opposite * 1.2 + this.twitchValue * 0.5,
+      leftArmAngle: leftArm,
+      rightArmAngle: rightArm,
+      leftLegOffset: this.limbs.leftLeg ? tuck * 0.3 : 0,
+      rightLegOffset: this.limbs.rightLeg ? tuck * 0.3 : 0,
+      limbSwing: pull,
       twitch: this.twitchValue,
       damageLevel: this.damageLevel,
     };
@@ -120,7 +195,7 @@ export class ZombieAnimator {
           armSwing: 0.3,
           armForwardReach: 0.1,
           legStride: 1.5,
-          stepSharpness: 0.55, // Snappy, darting steps
+          stepSharpness: 0.55,
           limpBias: 0.05,
         };
       case 'TANK':
@@ -131,7 +206,7 @@ export class ZombieAnimator {
           armSwing: 0.2,
           armForwardReach: 0.4,
           legStride: 0.5,
-          stepSharpness: 0.45, // Heavy, flat-footed stomps
+          stepSharpness: 0.45,
           limpBias: 0.2,
         };
       case 'BOSS':
@@ -164,7 +239,7 @@ export class ZombieAnimator {
           armSwing: 0.1,
           armForwardReach: -0.1,
           legStride: 0.8,
-          stepSharpness: 0.7, // Softer, quieter plants
+          stepSharpness: 0.7,
           limpBias: 0.1,
         };
       case 'SWARM':
@@ -197,7 +272,7 @@ export class ZombieAnimator {
           armSwing: 0.1,
           armForwardReach: 0.0,
           legStride: 0.4,
-          stepSharpness: 0.85, // Near-sine, precise servo motion
+          stepSharpness: 0.85,
           limpBias: 0,
         };
       default: // BASIC
@@ -243,8 +318,10 @@ export class ZombieAnimator {
       bodyBob: breathe * 0.8 + twitch + damagetwitch,
       headTilt: Math.sin(time * 1.2) * 0.08 + twitch * 0.5 + this.twitchValue * 0.4,
       headSway: Math.sin(time * 1.3) * 0.5 + Math.sin(time * 3.7) * 0.2 + this.twitchValue * 0.6,
-      leftArmAngle: Math.sin(time * 1.8) * 0.15 + 0.2 + this.damageLevel * 0.3,
-      rightArmAngle: Math.sin(time * 1.8 + 0.7) * 0.12 + 0.15,
+      leftArmAngle: this.limbs.leftArm
+        ? Math.sin(time * 1.8) * 0.15 + 0.2 + this.damageLevel * 0.3
+        : 0,
+      rightArmAngle: this.limbs.rightArm ? Math.sin(time * 1.8 + 0.7) * 0.12 + 0.15 : 0,
       leftLegOffset: 0,
       rightLegOffset: 0,
       limbSwing: breathe * 0.1,

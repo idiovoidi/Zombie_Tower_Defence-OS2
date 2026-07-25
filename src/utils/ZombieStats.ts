@@ -12,40 +12,40 @@ export class ZombieStats {
    * Calculate zombie health based on type and wave number
    */
   public static calculateZombieHealth(type: string, wave: number): number {
-    let baseHealth = 100;
+    let baseHealth = 500;
 
     switch (type) {
       case GameConfig.ZOMBIE_TYPES.BASIC:
-        baseHealth = 100;
-        break;
-      case GameConfig.ZOMBIE_TYPES.FAST:
-        baseHealth = 70;
-        break;
-      case GameConfig.ZOMBIE_TYPES.TANK:
         baseHealth = 500;
         break;
+      case GameConfig.ZOMBIE_TYPES.FAST:
+        baseHealth = 350;
+        break;
+      case GameConfig.ZOMBIE_TYPES.TANK:
+        baseHealth = 2500;
+        break;
       case GameConfig.ZOMBIE_TYPES.ARMORED:
-        baseHealth = 300;
+        baseHealth = 1500;
         break;
       case GameConfig.ZOMBIE_TYPES.SWARM:
-        baseHealth = 50;
-        break;
-      case GameConfig.ZOMBIE_TYPES.STEALTH:
-        baseHealth = 120;
-        break;
-      case GameConfig.ZOMBIE_TYPES.MECHANICAL:
         baseHealth = 250;
         break;
+      case GameConfig.ZOMBIE_TYPES.STEALTH:
+        baseHealth = 600;
+        break;
+      case GameConfig.ZOMBIE_TYPES.MECHANICAL:
+        baseHealth = 1200;
+        break;
       case GameConfig.ZOMBIE_TYPES.BOSS:
-        baseHealth = 1000;
+        baseHealth = 5000;
         break;
       case GameConfig.ZOMBIE_TYPES.NECRO_TANK:
-        baseHealth = 2000;
+        baseHealth = 10000;
         break;
     }
 
-    // Scale health based on wave (from design document)
-    const health = Math.floor(baseHealth + wave * 1.8);
+    // Scale health based on wave
+    const health = Math.floor(baseHealth + wave * 15);
     return Math.max(1, debugMulFloor(health, DebugConstants.ZOMBIE_HEALTH_MULTIPLIER));
   }
 

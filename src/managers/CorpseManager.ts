@@ -78,6 +78,8 @@ export class CorpseManager {
       isMoving: false,
       isDamaged: true,
       statusEffects: [],
+      limbs: { leftArm: true, rightArm: true, leftLeg: true, rightLeg: true },
+      isCrawling: false,
     };
 
     // Render the zombie

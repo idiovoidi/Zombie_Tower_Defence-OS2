@@ -1,5 +1,6 @@
 import { Container, Graphics } from 'pixi.js';
 import { HealthComponent } from '../components/HealthComponent';
+import { LimbState } from '../components/LimbState';
 import { TransformComponent } from '../components/TransformComponent';
 import { DebugConstants } from '../config/debugConstants';
 import { GameConfig } from '../config/gameConfig';
@@ -29,8 +30,11 @@ export class Zombie extends GameObject {
   private healthBarFg!: Graphics;
   private healthComponent!: HealthComponent;
   private transformComponent!: TransformComponent;
+  private limbState!: LimbState;
   private lateralStagger = new LateralStagger();
   private speedVariation = 1.0; // Random speed multiplier for variation
+  /** Additive bonus (e.g. NecroTank rage) preserved across recalc */
+  protected speedBonus = 0;
   private isSlowed = false; // Track if zombie is currently slowed
   private currentSlowPercent = 0; // Current slow percentage applied
   private renderer: IZombieRenderer | null = null; // Modular renderer
@@ -93,6 +97,8 @@ export class Zombie extends GameObject {
     this.alpha = 1;
     this.scale.set(1);
     this.lateralStagger.reset();
+    this.speedBonus = 0;
+    this.limbState?.reset();
 
     // Reset Health
     const health = ZombieStats.calculateZombieHealth(this.type, wave);
@@ -100,9 +106,9 @@ export class Zombie extends GameObject {
       this.healthComponent.reset(health);
     }
 
-    // Restore base speed
+    // Restore base speed (limb mult included via recalc)
     this.speedVariation = 0.85 + Math.random() * 0.3;
-    this.speed = this.baseSpeed * this.speedVariation;
+    this.recalculateSpeed();
 
     if (this.healthBar) {
       this.healthBar.visible = false;
@@ -126,6 +132,9 @@ export class Zombie extends GameObject {
     // Add health component
     this.healthComponent = new HealthComponent(health);
     this.addComponent(this.healthComponent);
+
+    this.limbState = new LimbState(this.type);
+    this.addComponent(this.limbState);
 
     // Set base speed, reward, and damage based on type
     switch (this.type) {
@@ -185,7 +194,24 @@ export class Zombie extends GameObject {
       this.baseSpeed *= DebugConstants.ZOMBIE_SPEED_MULTIPLIER;
     }
     this.speedVariation = 0.85 + Math.random() * 0.3;
-    this.speed = this.baseSpeed * this.speedVariation;
+    this.recalculateSpeed();
+  }
+
+  /** Recompute speed from base, variation, sludge slow, limb penalties, and bonuses. */
+  protected recalculateSpeed(): void {
+    const slowFactor = this.isSlowed ? 1 - this.currentSlowPercent : 1;
+    const limbMult = this.limbState
+      ? this.limbState.getSpeedMultiplier(this.getHealthRatio())
+      : 1;
+    this.speed = this.baseSpeed * this.speedVariation * slowFactor * limbMult + this.speedBonus;
+  }
+
+  private getHealthRatio(): number {
+    const max = this.healthComponent?.getMaxHealth() ?? 0;
+    if (max <= 0) {
+      return 1;
+    }
+    return this.healthComponent.getHealth() / max;
   }
 
   // Initialize modular renderer based on zombie type
@@ -271,6 +297,7 @@ export class Zombie extends GameObject {
     const dx = target.x - this.position.x;
     const dy = target.y - this.position.y;
     const distance = Math.sqrt(dx * dx + dy * dy);
+    const healthRatio = this.getHealthRatio();
 
     return {
       position: { x: this.position.x, y: this.position.y },
@@ -281,6 +308,8 @@ export class Zombie extends GameObject {
       isMoving: this.currentWaypointIndex < this.waypoints.length,
       isDamaged: false,
       statusEffects: [],
+      limbs: this.limbState.getLimbs(),
+      isCrawling: this.limbState.isCrawling(healthRatio),
     };
   }
 
@@ -480,8 +509,11 @@ export class Zombie extends GameObject {
         ? this.healthComponent.getHealth()
         : damage;
 
+    const prevRatio = this.getHealthRatio();
+
     // Apply damage to health component
     const actualDamage = this.healthComponent.takeDamage(appliedDamage);
+    const nextRatio = this.getHealthRatio();
 
     // Visual feedback for damage via renderer
     if (this.renderer) {
@@ -491,7 +523,17 @@ export class Zombie extends GameObject {
     // Check if zombie is dead
     if (!this.healthComponent.isAlive()) {
       this.onDeath();
+      return actualDamage;
     }
+
+    // Threshold-based limb loss while alive
+    const lostLimb = this.limbState.tryThresholdDismember(prevRatio, nextRatio);
+    if (lostLimb) {
+      this.renderer?.onLimbLost?.(lostLimb);
+    }
+
+    // Recalc for crawl / one-leg / critical HP floor
+    this.recalculateSpeed();
 
     return actualDamage;
   }
@@ -598,17 +640,18 @@ export class Zombie extends GameObject {
     this.speed = speed;
   }
 
+  /** Set additive speed bonus (rage, etc.) and recalc stack. */
+  protected setSpeedBonus(bonus: number): void {
+    this.speedBonus = bonus;
+    this.recalculateSpeed();
+  }
+
   public applySlow(slowPercent: number): void {
     // Only apply if not already slowed, or if new slow is stronger
     if (!this.isSlowed || slowPercent > this.currentSlowPercent) {
-      // Remove old slow if exists
-      if (this.isSlowed) {
-        this.removeSlow();
-      }
-      // Apply new slow based on base speed
       this.isSlowed = true;
       this.currentSlowPercent = slowPercent;
-      this.speed = this.baseSpeed * this.speedVariation * (1 - slowPercent);
+      this.recalculateSpeed();
     }
   }
 
@@ -616,8 +659,7 @@ export class Zombie extends GameObject {
     if (this.isSlowed) {
       this.isSlowed = false;
       this.currentSlowPercent = 0;
-      // Restore speed to base speed with variation
-      this.speed = this.baseSpeed * this.speedVariation;
+      this.recalculateSpeed();
     }
   }
 

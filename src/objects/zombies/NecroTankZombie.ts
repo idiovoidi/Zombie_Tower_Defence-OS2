@@ -36,7 +36,6 @@ export class NecroTankZombie extends Zombie {
   private reviveTimerMs = 0;
   private nextReviveIntervalMs = NecroTankZombie.rollReviveInterval();
   private rageRemainingMs = 0;
-  private speedBeforeRage = 0;
   private abilityContext: NecroTankAbilityContext | null = null;
 
   constructor(x: number, y: number, wave: number) {
@@ -59,7 +58,6 @@ export class NecroTankZombie extends Zombie {
     this.reviveTimerMs = 0;
     this.nextReviveIntervalMs = NecroTankZombie.rollReviveInterval();
     this.rageRemainingMs = 0;
-    this.speedBeforeRage = 0;
   }
 
   public override update(deltaTime: number): void {
@@ -165,8 +163,7 @@ export class NecroTankZombie extends Zombie {
       this.rageRemainingMs = RAGE_DURATION_MS;
       return;
     }
-    this.speedBeforeRage = this.getSpeed();
-    this.setSpeed(this.speedBeforeRage + RAGE_SPEED_BONUS);
+    this.setSpeedBonus(RAGE_SPEED_BONUS);
     this.rageRemainingMs = RAGE_DURATION_MS;
   }
 
@@ -177,7 +174,7 @@ export class NecroTankZombie extends Zombie {
     this.rageRemainingMs -= deltaTime;
     if (this.rageRemainingMs <= 0) {
       this.rageRemainingMs = 0;
-      this.setSpeed(this.speedBeforeRage);
+      this.setSpeedBonus(0);
     }
   }
 

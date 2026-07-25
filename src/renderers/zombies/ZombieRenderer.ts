@@ -1,4 +1,5 @@
 import type { Container } from 'pixi.js';
+import type { LimbFlags, LimbId } from '../../components/LimbState';
 
 export interface ZombieRenderState {
   position: { x: number; y: number };
@@ -9,6 +10,10 @@ export interface ZombieRenderState {
   isMoving: boolean;
   isDamaged: boolean;
   statusEffects: string[];
+  /** Remaining limbs (true = still attached). Defaults to all present when omitted. */
+  limbs?: LimbFlags;
+  /** Prone crawl gait (both legs gone or critical HP). */
+  isCrawling?: boolean;
 }
 
 export interface IZombieRenderer {
@@ -21,11 +26,14 @@ export interface IZombieRenderer {
   showBurningEffect?(): void;
   stopBurningEffect?(): void;
   updateBurningEffect?(deltaTime: number): void;
+  /** Gore burst + stump when a limb is lost while alive */
+  onLimbLost?(limb: LimbId): void;
 }
 
 export enum AnimationState {
   IDLE = 'idle',
   WALK = 'walk',
+  CRAWL = 'crawl',
   ATTACK = 'attack',
   DAMAGE = 'damage',
   DEATH = 'death',

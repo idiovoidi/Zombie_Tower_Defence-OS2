@@ -296,6 +296,8 @@ export class ZombieBestiary extends UIPanel {
       isMoving: false,
       isDamaged: false,
       statusEffects: [],
+      limbs: { leftArm: true, rightArm: true, leftLeg: true, rightLeg: true },
+      isCrawling: false,
     };
 
     renderer.render(container, state);
