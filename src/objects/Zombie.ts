@@ -12,6 +12,7 @@ import {
 import { ZombieRendererFactory } from '../renderers/zombies';
 import type { BaseZombieRenderer } from '../renderers/zombies/BaseZombieRenderer';
 import type { IZombieRenderer, ZombieRenderState } from '../renderers/zombies/ZombieRenderer';
+import { LateralStagger } from '../utils/WalkStagger';
 import { ZombieStats } from '../utils/ZombieStats';
 import { GameObject } from './GameObject';
 
@@ -28,8 +29,7 @@ export class Zombie extends GameObject {
   private healthBarFg!: Graphics;
   private healthComponent!: HealthComponent;
   private transformComponent!: TransformComponent;
-  private swayTime = 0; // Time accumulator for sway animation
-  private swayOffset = 0; // Random offset for varied sway timing
+  private lateralStagger = new LateralStagger();
   private speedVariation = 1.0; // Random speed multiplier for variation
   private isSlowed = false; // Track if zombie is currently slowed
   private currentSlowPercent = 0; // Current slow percentage applied
@@ -70,9 +70,6 @@ export class Zombie extends GameObject {
       { x: x + 100, y: y },
     ]; // Placeholder
 
-    // Random sway offset so zombies don't all sway in sync
-    this.swayOffset = Math.random() * Math.PI * 2;
-
     // Initialize health component based on zombie type
     this.initializeHealth(wave);
 
@@ -95,7 +92,7 @@ export class Zombie extends GameObject {
     this.visible = true;
     this.alpha = 1;
     this.scale.set(1);
-    this.swayTime = 0;
+    this.lateralStagger.reset();
 
     // Reset Health
     const health = ZombieStats.calculateZombieHealth(this.type, wave);
@@ -319,26 +316,16 @@ export class Zombie extends GameObject {
     const moveX = normalizedDx * this.speed * (deltaTime / 1000);
     const moveY = normalizedDy * this.speed * (deltaTime / 1000);
 
-    // OPTIMIZATION: Simplified sway calculation (single sine wave instead of two)
-    // This reduces Math.sin() calls from 2 to 1 per zombie per frame
-    this.swayTime += deltaTime / 1000;
-    const swayFrequency = 0.8; // Reduced from 1.5 for gentler movement
-    const swayAmplitude = this.getSwayAmplitude();
+    // Irregular limp lean (eased random targets) instead of a sine weave
+    const dt = deltaTime / 1000;
+    const staggerLean = this.lateralStagger.update(dt, this.getSwayAmplitude());
 
-    // Single sine wave for sway with random offset for desynchronization
-    const swayValue = Math.sin(this.swayTime * swayFrequency * Math.PI * 2 + this.swayOffset);
-
-    // Calculate perpendicular direction for sway (rotate 90 degrees)
+    // Lateral offset perpendicular to movement direction
     const perpX = -normalizedDy;
     const perpY = normalizedDx;
 
-    // Apply sway offset perpendicular to movement direction
-    const swayX = perpX * swayValue * swayAmplitude;
-    const swayY = perpY * swayValue * swayAmplitude;
-
-    // Update container position with movement and sway
-    this.position.x += moveX + swayX * (deltaTime / 1000);
-    this.position.y += moveY + swayY * (deltaTime / 1000);
+    this.position.x += moveX + perpX * staggerLean * dt;
+    this.position.y += moveY + perpY * staggerLean * dt;
 
     // Update transform component to stay in sync
     this.transformComponent.setPosition(this.position.x, this.position.y);
@@ -437,7 +424,7 @@ export class Zombie extends GameObject {
     return this.isBeingKnockedBack;
   }
 
-  // Get sway amplitude based on zombie type (reduced for subtler movement)
+  // Max lateral stagger lean (px/s) by zombie type
   private getSwayAmplitude(): number {
     switch (this.type) {
       case GameConfig.ZOMBIE_TYPES.BASIC:
@@ -445,17 +432,17 @@ export class Zombie extends GameObject {
       case GameConfig.ZOMBIE_TYPES.FAST:
         return 5; // Quick, darting movement
       case GameConfig.ZOMBIE_TYPES.TANK:
-        return 12; // Lumbering sway
+        return 12; // Heavy limp lean
       case GameConfig.ZOMBIE_TYPES.ARMORED:
         return 7; // Heavy armored shamble
       case GameConfig.ZOMBIE_TYPES.SWARM:
-        return 10; // Erratic movement
+        return 10; // Erratic stagger
       case GameConfig.ZOMBIE_TYPES.STEALTH:
-        return 6; // Weaving, unpredictable
+        return 6; // Uneven, unpredictable
       case GameConfig.ZOMBIE_TYPES.MECHANICAL:
-        return 4; // Slight mechanical drift
+        return 3; // Minimal drift
       case GameConfig.ZOMBIE_TYPES.BOSS:
-        return 15; // Massive lumbering sway
+        return 15; // Massive lumbering limp
       case GameConfig.ZOMBIE_TYPES.NECRO_TANK:
         return 14; // Heavy armored stomp
       default:

@@ -1,3 +1,4 @@
+import { footfallPulse, stepWave } from '../../utils/WalkStagger';
 import { AnimationState } from './ZombieRenderer';
 
 export interface AnimationData {
@@ -19,14 +20,14 @@ export class ZombieAnimator {
   private currentState: AnimationState = AnimationState.WALK;
   private animationTime = 0;
   private zombieType: string;
-  private swayOffset: number;
+  private phaseOffset: number;
   private damageLevel = 0; // 0 = full health, 1 = near death
   private twitchTimer = 0;
   private twitchValue = 0;
 
   constructor(zombieType: string) {
     this.zombieType = zombieType;
-    this.swayOffset = Math.random() * Math.PI * 2;
+    this.phaseOffset = Math.random() * Math.PI * 2;
   }
 
   update(
@@ -53,7 +54,7 @@ export class ZombieAnimator {
   }
 
   getCurrentFrame(): AnimationData {
-    const time = this.animationTime + this.swayOffset;
+    const time = this.animationTime + this.phaseOffset;
 
     if (this.currentState === AnimationState.WALK) {
       return this.getWalkFrame(time);
@@ -65,34 +66,33 @@ export class ZombieAnimator {
     const speed = this.getAnimationSpeed();
     const gait = this.getGaitStyle();
 
-    // Primary and secondary walk cycles
-    const primaryWalk = Math.sin(time * 4 * speed);
-    const secondaryWalk = Math.sin(time * 3.2 * speed) * 0.3;
-    const tertiaryWalk = Math.sin(time * 7.1 * speed) * 0.1; // Subtle high-frequency tremor
+    // Stride phase — shaped step waves, not stacked sines
+    const stridePhase = time * 4 * speed;
+    const limpDrag = this.damageLevel * 0.55 + gait.limpBias;
+    const leftStep = stepWave(stridePhase, gait.stepSharpness, limpDrag);
+    const rightStep = stepWave(stridePhase + Math.PI, gait.stepSharpness, -limpDrag * 0.35);
 
-    // Damage-reactive modifications
-    const limpFactor = this.damageLevel * 0.5;
-    const limpOffset = Math.sin(time * 2 * speed) * limpFactor * 3;
+    // Body dips on each foot plant (twice per stride), with a slight limp hitch
+    const plants = footfallPulse(stridePhase, gait.stepSharpness);
+    const limpHitch = leftStep > 0 ? limpDrag * plants * 1.2 : 0;
+
+    // Head follows the stride with a delayed, softer step (not an independent sine)
+    const headPhase = stridePhase * 0.5 - 0.4;
+    const headStep = stepWave(headPhase, 0.75, limpDrag * 0.4);
 
     return {
-      bodyBob: primaryWalk * (2 + gait.bobIntensity) + secondaryWalk * 0.5 + limpOffset,
-      headTilt:
-        Math.sin(time * 2 * speed) * (0.2 + gait.headBobIntensity) +
-        tertiaryWalk * gait.headJerkiness +
-        this.twitchValue * 0.3,
+      bodyBob: plants * (2 + gait.bobIntensity) + limpHitch,
+      headTilt: headStep * (0.12 + gait.headBobIntensity) + this.twitchValue * 0.3,
       headSway:
-        Math.sin(time * (2.3 + gait.headSwayFreq) * speed) * (1.5 + gait.headSwayAmp) +
-        Math.sin(time * 4.1 * speed) * 0.5 +
+        headStep * (1.2 + gait.headSwayAmp) +
+        rightStep * 0.35 * gait.headSwayAmp +
         this.twitchValue * 0.8,
       leftArmAngle:
-        Math.sin(time * 4 * speed) * (0.6 + gait.armSwing) +
-        gait.armForwardReach +
-        this.damageLevel * 0.2, // Wounded arm drops
-      rightArmAngle:
-        Math.sin(time * 4 * speed + Math.PI) * (0.5 + gait.armSwing) + gait.armForwardReach,
-      leftLegOffset: Math.sin(time * 4 * speed) * (2.5 + gait.legStride) + limpOffset,
-      rightLegOffset: Math.sin(time * 4 * speed + Math.PI) * (2.5 + gait.legStride) - limpOffset,
-      limbSwing: primaryWalk,
+        leftStep * (0.55 + gait.armSwing) + gait.armForwardReach + this.damageLevel * 0.2,
+      rightArmAngle: rightStep * (0.45 + gait.armSwing) + gait.armForwardReach,
+      leftLegOffset: leftStep * (2.5 + gait.legStride) + limpHitch,
+      rightLegOffset: rightStep * (2.5 + gait.legStride) - limpHitch * 0.4,
+      limbSwing: leftStep,
       twitch: this.twitchValue,
       damageLevel: this.damageLevel,
     };
@@ -104,112 +104,112 @@ export class ZombieAnimator {
   private getGaitStyle(): {
     bobIntensity: number;
     headBobIntensity: number;
-    headJerkiness: number;
-    headSwayFreq: number;
     headSwayAmp: number;
     armSwing: number;
     armForwardReach: number;
     legStride: number;
+    stepSharpness: number;
+    limpBias: number;
   } {
     switch (this.zombieType) {
       case 'FAST':
         return {
           bobIntensity: 0.5,
           headBobIntensity: 0.1,
-          headJerkiness: 2.0, // Darting, twitchy head
-          headSwayFreq: 1.5,
           headSwayAmp: 0.3,
           armSwing: 0.3,
           armForwardReach: 0.1,
           legStride: 1.5,
+          stepSharpness: 0.55, // Snappy, darting steps
+          limpBias: 0.05,
         };
       case 'TANK':
         return {
-          bobIntensity: 1.5, // Heavy lumbering bob
+          bobIntensity: 1.5,
           headBobIntensity: 0.05,
-          headJerkiness: 0.2,
-          headSwayFreq: 0.3,
-          headSwayAmp: 0.8, // Wide, slow head sway
-          armSwing: 0.2, // Arms hang heavy
-          armForwardReach: 0.4, // Arms reach forward menacingly
-          legStride: 0.5, // Short, heavy steps
+          headSwayAmp: 0.8,
+          armSwing: 0.2,
+          armForwardReach: 0.4,
+          legStride: 0.5,
+          stepSharpness: 0.45, // Heavy, flat-footed stomps
+          limpBias: 0.2,
         };
       case 'BOSS':
         return {
-          bobIntensity: 2.0, // Massive ground-shaking bob
+          bobIntensity: 2.0,
           headBobIntensity: 0.04,
-          headJerkiness: 0.15,
-          headSwayFreq: 0.25,
-          headSwayAmp: 1.0, // Slow, menacing head sway
+          headSwayAmp: 1.0,
           armSwing: 0.15,
           armForwardReach: 0.5,
-          legStride: 0.4, // Slow, crushing steps
+          legStride: 0.4,
+          stepSharpness: 0.4,
+          limpBias: 0.25,
         };
       case 'NECRO_TANK':
         return {
           bobIntensity: 1.8,
           headBobIntensity: 0.045,
-          headJerkiness: 0.18,
-          headSwayFreq: 0.28,
           headSwayAmp: 0.9,
           armSwing: 0.18,
           armForwardReach: 0.45,
           legStride: 0.45,
+          stepSharpness: 0.42,
+          limpBias: 0.22,
         };
       case 'STEALTH':
         return {
           bobIntensity: 0.3,
           headBobIntensity: 0.15,
-          headJerkiness: 1.5,
-          headSwayFreq: 2.0,
-          headSwayAmp: 0.2, // Quick, scanning head movements
-          armSwing: 0.1, // Arms close to body
-          armForwardReach: -0.1, // Arms pulled back
+          headSwayAmp: 0.2,
+          armSwing: 0.1,
+          armForwardReach: -0.1,
           legStride: 0.8,
+          stepSharpness: 0.7, // Softer, quieter plants
+          limpBias: 0.1,
         };
       case 'SWARM':
         return {
           bobIntensity: 1.0,
           headBobIntensity: 0.3,
-          headJerkiness: 3.0, // Very erratic
-          headSwayFreq: 2.5,
           headSwayAmp: 0.5,
-          armSwing: 0.5, // Wild arm flailing
+          armSwing: 0.5,
           armForwardReach: 0.3,
-          legStride: 1.8, // Scurrying stride
+          legStride: 1.8,
+          stepSharpness: 0.5,
+          limpBias: 0.15,
         };
       case 'ARMORED':
         return {
           bobIntensity: 0.8,
           headBobIntensity: 0.05,
-          headJerkiness: 0.3,
-          headSwayFreq: 0.5,
           headSwayAmp: 0.4,
-          armSwing: 0.15, // Restricted by armor
+          armSwing: 0.15,
           armForwardReach: 0.2,
           legStride: 0.6,
+          stepSharpness: 0.5,
+          limpBias: 0.12,
         };
       case 'MECHANICAL':
         return {
-          bobIntensity: 0.2, // Smooth mechanical movement
+          bobIntensity: 0.2,
           headBobIntensity: 0.02,
-          headJerkiness: 0.1, // Very precise
-          headSwayFreq: 0.8,
           headSwayAmp: 0.1,
           armSwing: 0.1,
           armForwardReach: 0.0,
           legStride: 0.4,
+          stepSharpness: 0.85, // Near-sine, precise servo motion
+          limpBias: 0,
         };
       default: // BASIC
         return {
           bobIntensity: 0.5,
           headBobIntensity: 0.15,
-          headJerkiness: 0.8,
-          headSwayFreq: 0.8,
           headSwayAmp: 0.5,
           armSwing: 0.2,
           armForwardReach: 0.3,
           legStride: 0.8,
+          stepSharpness: 0.6,
+          limpBias: 0.15,
         };
     }
   }
@@ -234,10 +234,9 @@ export class ZombieAnimator {
   }
 
   private getIdleFrame(time: number): AnimationData {
+    // Idle can stay sine-based — breathing should feel smooth
     const breathe = Math.sin(time * 1.5);
     const twitch = Math.sin(time * 7.3) * 0.1;
-
-    // More pronounced idle twitching when damaged
     const damagetwitch = this.damageLevel * Math.sin(time * 11.7) * 0.15;
 
     return {
