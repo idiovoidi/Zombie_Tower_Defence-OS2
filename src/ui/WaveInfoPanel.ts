@@ -17,6 +17,7 @@ const ZOMBIE_META: Record<string, ZombieMeta> = {
   [GameConfig.ZOMBIE_TYPES.STEALTH]: { color: 0x9c27b0, short: 'STL' },
   [GameConfig.ZOMBIE_TYPES.MECHANICAL]: { color: 0x00bcd4, short: 'MCH' },
   [GameConfig.ZOMBIE_TYPES.BOSS]: { color: 0xffaa00, short: 'BOS' },
+  [GameConfig.ZOMBIE_TYPES.NECRO_TANK]: { color: 0xaa66ff, short: 'NCR' },
 };
 
 const PANEL_W = 540;
@@ -167,8 +168,20 @@ export class WaveInfoPanel extends UIPanel {
 
   private buildWaveCard(waveNum: number, groups: ZombieGroup[], pad: number, y: number): number {
     const isCurrent = waveNum === this.currentWave;
+    const hasElite = groups.some(
+      g =>
+        g.type === GameConfig.ZOMBIE_TYPES.BOSS ||
+        g.type === GameConfig.ZOMBIE_TYPES.NECRO_TANK
+    );
     const hasBoss = groups.some(g => g.type === GameConfig.ZOMBIE_TYPES.BOSS);
-    const borderColor = isCurrent ? 0x69f0ae : hasBoss ? 0xffaa00 : 0x444444;
+    const hasNecro = groups.some(g => g.type === GameConfig.ZOMBIE_TYPES.NECRO_TANK);
+    const borderColor = isCurrent
+      ? 0x69f0ae
+      : hasBoss
+        ? 0xffaa00
+        : hasNecro
+          ? 0xaa66ff
+          : 0x444444;
     const bgColor = isCurrent ? 0x1e2a1e : 0x222222;
 
     const entries = groups.map(group => {
@@ -189,14 +202,21 @@ export class WaveInfoPanel extends UIPanel {
 
     const bg = new Graphics();
     bg.roundRect(0, 0, CARD_W, cardH, 8).fill({ color: bgColor, alpha: 0.95 });
-    bg.stroke({ width: isCurrent || hasBoss ? 2 : 1, color: borderColor });
+    bg.stroke({ width: isCurrent || hasElite ? 2 : 1, color: borderColor });
     card.addChild(bg);
 
     // Header
+    const eliteLabel = hasBoss && hasNecro
+      ? 'BOSS + NECRO'
+      : hasBoss
+        ? 'BOSS'
+        : hasNecro
+          ? 'NECRO TANK'
+          : null;
     const titleLabel = isCurrent
       ? `WAVE ${waveNum}  ·  NOW`
-      : hasBoss
-        ? `WAVE ${waveNum}  ·  BOSS`
+      : eliteLabel
+        ? `WAVE ${waveNum}  ·  ${eliteLabel}`
         : `WAVE ${waveNum}`;
     const title = new Text({
       text: titleLabel,
@@ -250,19 +270,23 @@ export class WaveInfoPanel extends UIPanel {
       if (entry.count <= 0) continue;
       const meta = this.getMeta(entry.type);
       const pct = total > 0 ? Math.round((entry.count / total) * 100) : 0;
-      const isBoss = entry.type === GameConfig.ZOMBIE_TYPES.BOSS;
+      const isElite =
+        entry.type === GameConfig.ZOMBIE_TYPES.BOSS ||
+        entry.type === GameConfig.ZOMBIE_TYPES.NECRO_TANK;
+      const eliteColor =
+        entry.type === GameConfig.ZOMBIE_TYPES.NECRO_TANK ? 0xaa66ff : 0xffaa00;
 
       const swatch = new Graphics();
       swatch.roundRect(12, rowY + 3, 8, 8, 2).fill({ color: meta.color });
       card.addChild(swatch);
 
       const nameText = new Text({
-        text: isBoss ? `★ ${entry.type}` : entry.type,
+        text: isElite ? `★ ${entry.type}` : entry.type,
         style: {
           fontFamily: 'Arial',
           fontSize: 11,
-          fill: isBoss ? 0xffaa00 : 0xe0e0e0,
-          fontWeight: isBoss ? 'bold' : 'normal',
+          fill: isElite ? eliteColor : 0xe0e0e0,
+          fontWeight: isElite ? 'bold' : 'normal',
         },
       });
       nameText.position.set(26, rowY);

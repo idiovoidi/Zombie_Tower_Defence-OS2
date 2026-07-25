@@ -121,8 +121,8 @@ describe('WaveManager', () => {
       (waveManager as any).currentWave = 45;
       const zombies = waveManager.getCurrentWaveZombies();
 
-      // Should have 8 zombie types (includes Boss)
-      expect(zombies.length).toBe(8);
+      // Wave 45 is a Necro Tank wave — 8 base types + Necro Tank
+      expect(zombies.length).toBe(9);
 
       // Check zombie types
       expect(zombies[0].type).toBe(GameConfig.ZOMBIE_TYPES.BASIC);
@@ -134,6 +134,8 @@ describe('WaveManager', () => {
       expect(zombies[6].type).toBe(GameConfig.ZOMBIE_TYPES.MECHANICAL);
       expect(zombies[7].type).toBe(GameConfig.ZOMBIE_TYPES.BOSS);
       expect(zombies[7].count).toBe(2);
+      expect(zombies[8].type).toBe(GameConfig.ZOMBIE_TYPES.NECRO_TANK);
+      expect(zombies[8].count).toBe(1);
     });
 
     test('should introduce Boss zombies starting at wave 16', () => {
@@ -149,6 +151,39 @@ describe('WaveManager', () => {
       const boss = wave16.find(g => g.type === GameConfig.ZOMBIE_TYPES.BOSS);
       expect(boss).toBeDefined();
       expect(boss?.count).toBe(1);
+    });
+
+    test('should introduce Necro Tank on wave 12 and every 5th wave from 15', () => {
+      // biome-ignore lint/suspicious/noExplicitAny: Test needs access to private property
+      (waveManager as any).currentWave = 11;
+      expect(
+        waveManager
+          .getCurrentWaveZombies()
+          .some(g => g.type === GameConfig.ZOMBIE_TYPES.NECRO_TANK)
+      ).toBe(false);
+
+      // biome-ignore lint/suspicious/noExplicitAny: Test needs access to private property
+      (waveManager as any).currentWave = 12;
+      const wave12 = waveManager.getCurrentWaveZombies();
+      const necro = wave12.find(g => g.type === GameConfig.ZOMBIE_TYPES.NECRO_TANK);
+      expect(necro).toBeDefined();
+      expect(necro?.count).toBe(1);
+
+      // biome-ignore lint/suspicious/noExplicitAny: Test needs access to private property
+      (waveManager as any).currentWave = 16;
+      expect(
+        waveManager
+          .getCurrentWaveZombies()
+          .some(g => g.type === GameConfig.ZOMBIE_TYPES.NECRO_TANK)
+      ).toBe(false);
+
+      // biome-ignore lint/suspicious/noExplicitAny: Test needs access to private property
+      (waveManager as any).currentWave = 20;
+      expect(
+        waveManager
+          .getCurrentWaveZombies()
+          .some(g => g.type === GameConfig.ZOMBIE_TYPES.NECRO_TANK)
+      ).toBe(true);
     });
   });
 

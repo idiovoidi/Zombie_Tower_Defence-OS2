@@ -4,6 +4,7 @@ import { BasicZombieRenderer } from './BasicZombieRenderer';
 import { BossZombieRenderer } from './BossZombieRenderer';
 import { FastZombieRenderer } from './FastZombieRenderer';
 import { MechanicalZombieRenderer } from './MechanicalZombieRenderer';
+import { NecroTankRenderer } from './NecroTankRenderer';
 import { StealthZombieRenderer } from './StealthZombieRenderer';
 import { SwarmZombieRenderer } from './SwarmZombieRenderer';
 import { TankZombieRenderer } from './TankZombieRenderer';
@@ -39,6 +40,9 @@ export class ZombieRendererFactory {
 
       case GameConfig.ZOMBIE_TYPES.BOSS:
         return new BossZombieRenderer();
+
+      case GameConfig.ZOMBIE_TYPES.NECRO_TANK:
+        return new NecroTankRenderer();
 
       default:
         return new BasicZombieRenderer();

@@ -15,7 +15,8 @@ export type ZombieType =
   | 'SWARM'
   | 'STEALTH'
   | 'MECHANICAL'
-  | 'BOSS';
+  | 'BOSS'
+  | 'NECRO_TANK';
 export type TowerType = 'MACHINE_GUN' | 'SNIPER' | 'SHOTGUN' | 'FLAME' | 'TESLA' | 'GRENADE';
 
 type DamageModifierMap = {
@@ -108,6 +109,16 @@ const DAMAGE_MODIFIERS: DamageModifierMap = {
     TESLA: 1.4, // High-voltage staggers
     GRENADE: 1.5, // Explosives crack the shell
   },
+
+  // Necro Tank - Bone-plated mini-boss; flame cracks armor, then becomes less effective
+  NECRO_TANK: {
+    MACHINE_GUN: 0.4, // Heavy necrotic hide absorbs bullets
+    SNIPER: 1.6, // Headshots disrupt necromantic energy
+    SHOTGUN: 0.7, // Pellets scatter on bone plating
+    FLAME: 2.0, // Burns armor off (flips to 0.8× after shed in subclass)
+    TESLA: 1.4, // Electricity disrupts reanimation
+    GRENADE: 1.2, // Explosives crack bone armor
+  },
 };
 
 /**
@@ -121,6 +132,17 @@ export function convertToTowerType(towerTypeString: string): TowerType {
     .toUpperCase()
     .replace(/^_/, '') as TowerType;
   return converted;
+}
+
+/**
+ * Convert zombie type string to ZombieType enum
+ * Handles GameConfig format (e.g., 'NecroTank') → 'NECRO_TANK'
+ */
+export function convertToZombieType(zombieTypeString: string): ZombieType {
+  return zombieTypeString
+    .replace(/([A-Z])/g, '_$1')
+    .toUpperCase()
+    .replace(/^_/, '') as ZombieType;
 }
 
 /**

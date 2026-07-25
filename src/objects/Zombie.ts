@@ -5,9 +5,9 @@ import { DebugConstants } from '../config/debugConstants';
 import { GameConfig } from '../config/gameConfig';
 import {
   convertToTowerType,
+  convertToZombieType,
   getDamageModifier,
   type TowerType,
-  type ZombieType,
 } from '../config/zombieResistances';
 import { ZombieRendererFactory } from '../renderers/zombies';
 import type { BaseZombieRenderer } from '../renderers/zombies/BaseZombieRenderer';
@@ -171,6 +171,11 @@ export class Zombie extends GameObject {
         this.baseSpeed = 18;
         this.reward = 75;
         this.damage = 10; // Devastating camp damage
+        break;
+      case GameConfig.ZOMBIE_TYPES.NECRO_TANK:
+        this.baseSpeed = 20;
+        this.reward = 200;
+        this.damage = 8; // Heavy camp damage; slightly less than Boss
         break;
       default:
         this.baseSpeed = 50;
@@ -382,6 +387,8 @@ export class Zombie extends GameObject {
     switch (this.type) {
       case GameConfig.ZOMBIE_TYPES.BOSS:
         return 0.97; // Nearly immovable
+      case GameConfig.ZOMBIE_TYPES.NECRO_TANK:
+        return 0.95; // Bone-plated bulk
       case GameConfig.ZOMBIE_TYPES.TANK:
         return 0.9; // 90% resistant (hard to knock back)
       case GameConfig.ZOMBIE_TYPES.ARMORED:
@@ -449,6 +456,8 @@ export class Zombie extends GameObject {
         return 4; // Slight mechanical drift
       case GameConfig.ZOMBIE_TYPES.BOSS:
         return 15; // Massive lumbering sway
+      case GameConfig.ZOMBIE_TYPES.NECRO_TANK:
+        return 14; // Heavy armored stomp
       default:
         return 8;
     }
@@ -457,6 +466,10 @@ export class Zombie extends GameObject {
   // Show damage indicator when taking damage
   public getHealth(): number {
     return this.healthComponent.getHealth();
+  }
+
+  public getMaxHealth(): number {
+    return this.healthComponent.getMaxHealth();
   }
 
   public takeDamage(
@@ -553,6 +566,8 @@ export class Zombie extends GameObject {
     switch (this.type) {
       case GameConfig.ZOMBIE_TYPES.BOSS:
         return 20;
+      case GameConfig.ZOMBIE_TYPES.NECRO_TANK:
+        return 18;
       case GameConfig.ZOMBIE_TYPES.TANK:
         return 15;
       case GameConfig.ZOMBIE_TYPES.ARMORED:
@@ -635,7 +650,7 @@ export class Zombie extends GameObject {
   public getDamageModifier(towerType: TowerType | string): number {
     const convertedTowerType =
       typeof towerType === 'string' ? convertToTowerType(towerType) : towerType;
-    return getDamageModifier(this.type.toUpperCase() as ZombieType, convertedTowerType);
+    return getDamageModifier(convertToZombieType(this.type), convertedTowerType);
   }
 
   /**

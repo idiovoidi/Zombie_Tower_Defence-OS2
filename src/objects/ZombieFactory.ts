@@ -5,6 +5,7 @@ import { BasicZombie } from './zombies/BasicZombie';
 import { BossZombie } from './zombies/BossZombie';
 import { FastZombie } from './zombies/FastZombie';
 import { MechanicalZombie } from './zombies/MechanicalZombie';
+import { NecroTankZombie } from './zombies/NecroTankZombie';
 import { StealthZombie } from './zombies/StealthZombie';
 import { SwarmZombie } from './zombies/SwarmZombie';
 import { TankZombie } from './zombies/TankZombie';
@@ -29,6 +30,8 @@ export class ZombieFactory {
         return new MechanicalZombie(x, y, wave);
       case GameConfig.ZOMBIE_TYPES.BOSS:
         return new BossZombie(x, y, wave);
+      case GameConfig.ZOMBIE_TYPES.NECRO_TANK:
+        return new NecroTankZombie(x, y, wave);
       default:
         return null;
     }

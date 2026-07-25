@@ -503,6 +503,33 @@ export class WaveManager {
         },
       ]);
     }
+
+    // Inject Necro Tank mini-boss on select waves (debut 12, then ~every 5th)
+    for (let wave = 1; wave <= 100; wave++) {
+      if (!WaveManager.shouldIncludeNecroTank(wave)) {
+        continue;
+      }
+      const groups = this.waveData.get(wave);
+      if (!groups || groups.some(g => g.type === GameConfig.ZOMBIE_TYPES.NECRO_TANK)) {
+        continue;
+      }
+      groups.push({
+        type: GameConfig.ZOMBIE_TYPES.NECRO_TANK,
+        count: 1,
+        spawnInterval: 10.0,
+      });
+    }
+  }
+
+  /** Necro Tank appears on wave 12, then every 5th wave from 15 onward. */
+  public static shouldIncludeNecroTank(wave: number): boolean {
+    return wave === 12 || (wave >= 15 && wave % 5 === 0);
+  }
+
+  private static isEliteZombieType(type?: string): boolean {
+    return (
+      type === GameConfig.ZOMBIE_TYPES.BOSS || type === GameConfig.ZOMBIE_TYPES.NECRO_TANK
+    );
   }
 
   /**
@@ -651,9 +678,10 @@ export class WaveManager {
 
   // Calculate spawn rate with scaling (from design document)
   public calculateSpawnRate(baseInterval: number, wave: number, type?: string): number {
-    // Bosses stay spaced out — milder interval decay than the horde
-    const decayBase = type === GameConfig.ZOMBIE_TYPES.BOSS ? 0.98 : 0.95;
-    const minInterval = type === GameConfig.ZOMBIE_TYPES.BOSS ? 4.0 : 0.5;
+    // Elites stay spaced out — milder interval decay than the horde
+    const isElite = WaveManager.isEliteZombieType(type);
+    const decayBase = isElite ? 0.98 : 0.95;
+    const minInterval = isElite ? 4.0 : 0.5;
     const scaledInterval = baseInterval * decayBase ** wave * this.difficultyModifier;
     // ZOMBIE_SPAWN_RATE_MULTIPLIER: lower = fewer spawns (longer interval)
     const debugFactor =
@@ -665,13 +693,17 @@ export class WaveManager {
 
   // Calculate zombie count with scaling (from design document)
   public calculateZombieCount(baseCount: number, wave: number, type?: string): number {
-    // Bosses are elite singletons — skip horde exponential scaling
-    if (type === GameConfig.ZOMBIE_TYPES.BOSS) {
+    // Elites are singletons — skip horde exponential scaling
+    if (WaveManager.isEliteZombieType(type)) {
       let count = baseCount;
-      if (wave % 10 === 0) {
-        count += 1; // Extra boss on milestone waves
+      // Extra Boss only on milestone waves (Necro Tank stays at base count)
+      if (type === GameConfig.ZOMBIE_TYPES.BOSS && wave % 10 === 0) {
+        count += 1;
       }
-      return Math.max(baseCount > 0 ? 1 : 0, Math.floor(count * Math.min(1.15, this.difficultyModifier)));
+      return Math.max(
+        baseCount > 0 ? 1 : 0,
+        Math.floor(count * Math.min(1.15, this.difficultyModifier))
+      );
     }
 
     let count = baseCount * 1.08 ** wave * this.difficultyModifier;

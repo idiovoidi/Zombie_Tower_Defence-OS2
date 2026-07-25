@@ -97,6 +97,9 @@ export class ZombieCorpseRenderer {
       case GameConfig.ZOMBIE_TYPES.BOSS:
         this.renderBossCorpse(x, y, cos, sin, alpha);
         break;
+      case GameConfig.ZOMBIE_TYPES.NECRO_TANK:
+        this.renderNecroTankCorpse(x, y, cos, sin, alpha);
+        break;
     }
 
     this.graphics.restore();
@@ -250,6 +253,23 @@ export class ZombieCorpseRenderer {
     this.graphics.fill({ color: 0xffaa00, alpha: alpha * 0.5 });
     this.graphics.circle(x + 4, y - 2, 2);
     this.graphics.fill({ color: 0xffaa00, alpha: alpha * 0.5 });
+  }
+
+  private renderNecroTankCorpse(
+    x: number,
+    y: number,
+    cos: number,
+    sin: number,
+    alpha: number
+  ): void {
+    this.drawCorpseBody(x, y, cos, sin, alpha, 15, 22, 0x2a1020, 0.8, 5.5, 0x3a1830, 0.75, 5);
+    this.graphics.circle(x, y, 18);
+    this.graphics.fill({ color: 0x6b0040, alpha: alpha * 0.4 });
+    // Green necrotic eye residue
+    this.graphics.circle(x - 3.5, y - 2, 2);
+    this.graphics.fill({ color: 0x66ff88, alpha: alpha * 0.45 });
+    this.graphics.circle(x + 3.5, y - 2, 2);
+    this.graphics.fill({ color: 0x66ff88, alpha: alpha * 0.45 });
   }
 
   public clear(): void {

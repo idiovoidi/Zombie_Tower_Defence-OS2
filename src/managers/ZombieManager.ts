@@ -1,7 +1,9 @@
 import { Container } from 'pixi.js';
 import type { HealthComponent } from '../components/HealthComponent';
+import { GameConfig } from '../config/gameConfig';
 import type { Zombie } from '../objects/Zombie';
 import { ZombieFactory } from '../objects/ZombieFactory';
+import { NecroTankZombie } from '../objects/zombies/NecroTankZombie';
 import type { HasWaypoints } from '../types/zombie-waypoints';
 import { BloodParticleSystem } from '../utils/BloodParticleSystem';
 import { ObjectPool } from '../utils/ObjectPool';
@@ -49,6 +51,9 @@ export class ZombieManager {
         z.visible = false;
         if (z.parent) z.parent.removeChild(z);
         z.removeAllListeners('zombieDeath');
+        if (z instanceof NecroTankZombie) {
+          z.setAbilityContext(null);
+        }
       },
       200
     );
@@ -163,33 +168,53 @@ export class ZombieManager {
     const spawnX = spawnPoint.x + lateralOffset;
     const spawnY = spawnPoint.y + depthOffset;
 
+    this.spawnZombieAt(type, spawnX, spawnY, waypoints);
+  }
+
+  /**
+   * Spawn a zombie at an arbitrary position (wave spawn, necro revival, debug).
+   */
+  public spawnZombieAt(
+    type: string,
+    x: number,
+    y: number,
+    waypoints?: Array<{ x: number; y: number }>
+  ): Zombie | null {
+    const path =
+      waypoints && waypoints.length > 0
+        ? waypoints.map(wp => ({ x: wp.x, y: wp.y }))
+        : this.mapManager.getRandomPath().map(wp => ({ x: wp.x, y: wp.y }));
+
     const pool = this.getZombiePool(type);
     const zombie = pool.acquire();
-    zombie.init(spawnX, spawnY, this.waveManager.getCurrentWave());
+    zombie.init(x, y, this.waveManager.getCurrentWave());
 
-    if (zombie) {
-      // Set waypoints for zombie path (per-zombie copy of a random graph route)
-      if (waypoints.length > 0) {
-        (zombie as unknown as HasWaypoints).waypoints = waypoints.map(wp => ({
-          x: wp.x,
-          y: wp.y,
-        }));
-      }
-
-      // Listen for zombie death to trigger effects
-      zombie.on(
-        'zombieDeath',
-        (data: { x: number; y: number; type: string; size: number; killerType: string }) => {
-          this.onZombieDeath(data);
-        }
-      );
-
-      this.zombies.push(zombie);
-      this.zombiesDirty = true; // Mark zombies as changed
-      this.container.addChild(zombie);
-    } else {
-      // Failed to create zombie
+    if (path.length > 0) {
+      (zombie as unknown as HasWaypoints).waypoints = path;
     }
+
+    zombie.on(
+      'zombieDeath',
+      (data: { x: number; y: number; type: string; size: number; killerType: string }) => {
+        this.onZombieDeath(data);
+      }
+    );
+
+    if (zombie instanceof NecroTankZombie) {
+      zombie.setAbilityContext({
+        findCorpsesNear: (cx, cy, radius, limit) =>
+          this.corpseManager.findCorpsesNear(cx, cy, radius, limit),
+        consumeCorpse: id => this.corpseManager.consumeCorpse(id),
+        spawnSwarmAt: (sx, sy, pathWaypoints) => {
+          this.spawnZombieAt(GameConfig.ZOMBIE_TYPES.SWARM, sx, sy, pathWaypoints);
+        },
+      });
+    }
+
+    this.zombies.push(zombie);
+    this.zombiesDirty = true;
+    this.container.addChild(zombie);
+    return zombie;
   }
 
   // Handle zombie death effects

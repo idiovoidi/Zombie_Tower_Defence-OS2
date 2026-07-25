@@ -13,6 +13,7 @@ const ZOMBIE_COLORS = {
   stealth: { skin: 0x3a2a4a, dark: 0x2a1a3a, accent: 0xcccccc, eye: 0x9966ff },
   mechanical: { skin: 0x3a4a5a, dark: 0x2a3a4a, accent: 0x5a6a7a, eye: 0x00ffff },
   boss: { skin: 0x1a0a12, dark: 0x0a0508, accent: 0x1a0a12, eye: 0xffaa00 },
+  necroTank: { skin: 0x2a1020, dark: 0x120810, accent: 0x6b0040, eye: 0x66ff88 },
 };
 
 /**
@@ -170,6 +171,8 @@ function getColorsForType(type: string): {
       return ZOMBIE_COLORS.mechanical;
     case 'Boss':
       return ZOMBIE_COLORS.boss;
+    case 'NecroTank':
+      return ZOMBIE_COLORS.necroTank;
     default:
       return ZOMBIE_COLORS.basic;
   }
@@ -179,6 +182,8 @@ function getScaleForType(type: string): number {
   switch (type) {
     case 'Boss':
       return 2.0;
+    case 'NecroTank':
+      return 1.75;
     case 'Tank':
       return 1.5;
     case 'Armored':
@@ -196,6 +201,8 @@ function getMassScaleForType(type: string): number {
   switch (type) {
     case 'Boss':
       return 4.0;
+    case 'NecroTank':
+      return 3.5;
     case 'Tank':
       return 2.5;
     case 'Armored':
@@ -213,6 +220,8 @@ function getGravityForType(type: string): number {
   switch (type) {
     case 'Boss':
       return 700;
+    case 'NecroTank':
+      return 680;
     case 'Tank':
       return 600;
     case 'Swarm':
@@ -228,6 +237,8 @@ function getDampingForType(type: string): number {
   switch (type) {
     case 'Boss':
       return 0.97; // Extremely heavy
+    case 'NecroTank':
+      return 0.965;
     case 'Tank':
       return 0.96; // Heavy, slow to stop
     case 'Fast':

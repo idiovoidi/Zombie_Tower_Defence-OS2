@@ -108,6 +108,17 @@ export class ZombieBestiary extends UIPanel {
       description: 'Apex undead. Slow, enormous, and devastating.',
       characteristics: ['10x health', 'Nearly immovable', '10 survivors killed!'],
     },
+    {
+      type: GameConfig.ZOMBIE_TYPES.NECRO_TANK,
+      name: 'Necro Tank',
+      color: 0xaa66ff,
+      health: 2000,
+      speed: 20,
+      reward: 200,
+      damage: 8,
+      description: 'Bone-plated mini-boss. Sheds armor and revives corpses as Swarm.',
+      characteristics: ['Armor phases', 'Flame cracks armor', 'Corpse revival'],
+    },
   ];
 
   constructor() {
@@ -115,7 +126,7 @@ export class ZombieBestiary extends UIPanel {
     this.createToggleButton('📖 Bestiary', 140, 0xff0000);
     this.createPanelFrame(
       900,
-      760,
+      820,
       '🧟 ZOMBIE BESTIARY 🧟',
       'Know Your Enemy - All Zombie Types',
       0xff0000
@@ -127,7 +138,7 @@ export class ZombieBestiary extends UIPanel {
     const panelLeft = 0;
     const panelTop = 0;
 
-    // Create zombie cards - 8 cards in 3 columns (3 rows)
+    // Create zombie cards - 9 cards in 3 columns (3 rows)
     let xPos = panelLeft + 15;
     let yPos = panelTop + 75;
     const cardWidth = 280;

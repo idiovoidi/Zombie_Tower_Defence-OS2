@@ -145,6 +145,17 @@ export class ZombieAnimator {
           armForwardReach: 0.5,
           legStride: 0.4, // Slow, crushing steps
         };
+      case 'NECRO_TANK':
+        return {
+          bobIntensity: 1.8,
+          headBobIntensity: 0.045,
+          headJerkiness: 0.18,
+          headSwayFreq: 0.28,
+          headSwayAmp: 0.9,
+          armSwing: 0.18,
+          armForwardReach: 0.45,
+          legStride: 0.45,
+        };
       case 'STEALTH':
         return {
           bobIntensity: 0.3,
@@ -215,6 +226,8 @@ export class ZombieAnimator {
         return 0.7;
       case 'BOSS':
         return 0.55;
+      case 'NECRO_TANK':
+        return 0.6;
       default:
         return 1.0;
     }

@@ -53,5 +53,6 @@ export const GameConfig = {
     STEALTH: 'Stealth',
     MECHANICAL: 'Mechanical',
     BOSS: 'Boss',
+    NECRO_TANK: 'NecroTank',
   },
 };

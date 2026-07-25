@@ -3,6 +3,7 @@ import { ZombieRendererFactory } from '../renderers/zombies';
 import type { ZombieRenderState } from '../renderers/zombies/ZombieRenderer';
 
 interface Corpse {
+  id: number;
   container: Container;
   fadeTimer: number;
   maxFadeTime: number;
@@ -12,6 +13,7 @@ export class CorpseManager {
   private corpses: Corpse[] = [];
   private container: Container;
   private maxCorpses = 50; // Limit to prevent performance issues
+  private nextCorpseId = 1;
 
   constructor(container: Container) {
     this.container = container;
@@ -48,6 +50,7 @@ export class CorpseManager {
     this.renderDeadZombie(corpseContainer, zombieType, deathPose, killerType);
 
     const corpse: Corpse = {
+      id: this.nextCorpseId++,
       container: corpseContainer,
       fadeTimer: 0,
       maxFadeTime: 8, // Corpses fade after 8 seconds
@@ -335,5 +338,47 @@ export class CorpseManager {
   // Get maximum corpse limit
   public getMaxCorpses(): number {
     return this.maxCorpses;
+  }
+
+  /**
+   * Find corpses within radius of a point, closest first.
+   */
+  public findCorpsesNear(
+    x: number,
+    y: number,
+    radius: number,
+    limit: number
+  ): Array<{ id: number; x: number; y: number }> {
+    const radiusSq = radius * radius;
+    const matches: Array<{ id: number; x: number; y: number; distSq: number }> = [];
+
+    for (const corpse of this.corpses) {
+      const cx = corpse.container.position.x;
+      const cy = corpse.container.position.y;
+      const dx = cx - x;
+      const dy = cy - y;
+      const distSq = dx * dx + dy * dy;
+      if (distSq <= radiusSq) {
+        matches.push({ id: corpse.id, x: cx, y: cy, distSq });
+      }
+    }
+
+    matches.sort((a, b) => a.distSq - b.distSq);
+    return matches.slice(0, limit).map(({ id, x: cx, y: cy }) => ({ id, x: cx, y: cy }));
+  }
+
+  /**
+   * Remove and destroy a corpse by id. Returns true if found.
+   */
+  public consumeCorpse(id: number): boolean {
+    const index = this.corpses.findIndex(c => c.id === id);
+    if (index < 0) {
+      return false;
+    }
+    const corpse = this.corpses[index];
+    this.container.removeChild(corpse.container);
+    corpse.container.destroy({ children: true });
+    this.corpses.splice(index, 1);
+    return true;
   }
 }
